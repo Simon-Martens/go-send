@@ -50,11 +50,6 @@ npm run build
 
 This creates `dist/` with bundled assets.
 
-### Copy Assets to Go Server
-
-```bash
-cp -r dist ../
-```
 
 ### Run Go Server
 

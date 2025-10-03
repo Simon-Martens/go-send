@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Send</title>
+    <base href="/">
+    <meta name="robots" content="all,noarchive">
+    <meta name="google" content="nositelinkssearchbox">
+    <meta name="description" content="Encrypt and send files with a link that automatically expires to ensure your important documents don't stay online forever.">
+    <meta name="theme-color" content="#220033">
+    <meta name="msapplication-TileColor" content="#220033">
+    <link rel="stylesheet" href="/inter.css">
+    <style>
+        :root {
+            --color-primary: #0A84FF;
+            --color-primary-accent: #003EAA;
+        }
+    </style>
+    <link rel="stylesheet" href="/{{.CSS}}">
+    <link rel="manifest" href="/app.webmanifest">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#838383">
+    <script defer src="/{{.JS}}"></script>
+</head>
+<noscript>
+    <div class="noscript">
+        <h2>JavaScript Required</h2>
+        <p>Firefox Send requires JavaScript to encrypt your files.</p>
+    </div>
+</noscript>
+<body></body>
+<script>
+var LIMITS = {{.LimitsJSON}};
+var WEB_UI = {{.WebUIJSON}};
+var DEFAULTS = {{.DefaultsJSON}};
+var PREFS = {};
+var downloadMetadata = {{.DownloadMetadataJSON}};
+</script>
+</html>

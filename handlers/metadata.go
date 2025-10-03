@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/yourusername/send-go/auth"
-	"github.com/yourusername/send-go/storage"
+	"github.com/Simon-Martens/go-send/auth"
+	"github.com/Simon-Martens/go-send/storage"
 )
 
 func NewMetadataHandler(db *storage.DB) http.HandlerFunc {

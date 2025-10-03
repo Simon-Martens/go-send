@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/yourusername/send-go/config"
+	"github.com/Simon-Martens/go-send/config"
 )
 
 func NewConfigHandler(cfg *config.Config) http.HandlerFunc {

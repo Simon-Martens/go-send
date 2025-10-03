@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/yourusername/send-go/auth"
-	"github.com/yourusername/send-go/storage"
+	"github.com/Simon-Martens/go-send/auth"
+	"github.com/Simon-Martens/go-send/storage"
 )
 
 func NewDownloadHandler(db *storage.DB) http.HandlerFunc {

@@ -10,9 +10,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/yourusername/send-go/config"
-	"github.com/yourusername/send-go/locale"
-	"github.com/yourusername/send-go/storage"
+	"github.com/Simon-Martens/go-send/config"
+	"github.com/Simon-Martens/go-send/locale"
+	"github.com/Simon-Martens/go-send/storage"
 )
 
 // generateNonce generates a random string for CSP nonces.

@@ -11,9 +11,9 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"github.com/yourusername/send-go/auth"
-	"github.com/yourusername/send-go/config"
-	"github.com/yourusername/send-go/storage"
+	"github.com/Simon-Martens/go-send/auth"
+	"github.com/Simon-Martens/go-send/config"
+	"github.com/Simon-Martens/go-send/storage"
 )
 
 var upgrader = websocket.Upgrader{

@@ -11,20 +11,17 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/yourusername/send-go/config"
-	"github.com/yourusername/send-go/handlers"
-	"github.com/yourusername/send-go/middleware"
-	"github.com/yourusername/send-go/storage"
+	"github.com/Simon-Martens/go-send/config"
+	"github.com/Simon-Martens/go-send/handlers"
+	"github.com/Simon-Martens/go-send/middleware"
+	"github.com/Simon-Martens/go-send/storage"
 )
 
 //go:embed templates/*
 var templatesFS embed.FS
 
-//go:embed dist
+//go:embed frontend/dist
 var distFS embed.FS
-
-//go:embed public
-var publicFS embed.FS
 
 var (
 	db       *storage.DB
@@ -67,7 +64,7 @@ func main() {
 	cfg := config.Load()
 
 	// Create uploads directory from config
-	if err := os.MkdirAll(cfg.FileDir, 0755); err != nil {
+	if err := os.MkdirAll(cfg.FileDir, 0o755); err != nil {
 		log.Fatal("Failed to create uploads directory:", err)
 	}
 
@@ -163,13 +160,6 @@ func main() {
 		if r.URL.Path != "/" && r.URL.Path != "/download" && r.URL.Path != "/error" {
 			// Try to serve from dist/
 			data, err := distFS.ReadFile("dist" + r.URL.Path)
-			if err == nil {
-				http.ServeContent(w, r, filepath.Base(r.URL.Path), time.Time{}, bytes.NewReader(data))
-				return
-			}
-
-			// Try to serve from public/
-			data, err = publicFS.ReadFile("public" + r.URL.Path)
 			if err == nil {
 				http.ServeContent(w, r, filepath.Base(r.URL.Path), time.Time{}, bytes.NewReader(data))
 				return

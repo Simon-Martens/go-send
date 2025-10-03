@@ -40,6 +40,11 @@ func NewDownloadHandler(db *storage.DB) http.HandlerFunc {
 			return
 		}
 
+		// Rotate nonce after successful auth
+		newNonce := auth.GenerateNonce()
+		db.UpdateNonce(id, newNonce)
+		w.Header().Set("WWW-Authenticate", "send-v1 "+newNonce)
+
 		// Open file
 		file, err := storage.OpenFile(id)
 		if err != nil {

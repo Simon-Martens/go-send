@@ -1,12 +1,13 @@
 package handlers
 
 import (
-	"bytes"
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -111,11 +112,27 @@ func NewUploadHandler(db *storage.DB, cfg *config.Config) http.HandlerFunc {
 			return
 		}
 
-		// Receive file data
-		var fileData bytes.Buffer
+		// Create temporary file for streaming upload
+		tmpDir := filepath.Join(cfg.FileDir, "tmp")
+		os.MkdirAll(tmpDir, 0755)
+
+		tmpFile, err := os.CreateTemp(tmpDir, "upload-*")
+		if err != nil {
+			log.Println("Create temp file error:", err)
+			sendError(conn, 500)
+			return
+		}
+		tmpPath := tmpFile.Name()
+		defer os.Remove(tmpPath) // Clean up on error
+
+		// Stream file data directly to disk with size limiting
+		var totalSize int64
+		maxSize := cfg.MaxFileSize
+
 		for {
 			_, data, err := conn.ReadMessage()
 			if err != nil {
+				tmpFile.Close()
 				log.Println("Read error:", err)
 				return
 			}
@@ -125,12 +142,35 @@ func NewUploadHandler(db *storage.DB, cfg *config.Config) http.HandlerFunc {
 				break
 			}
 
-			fileData.Write(data)
+			// Check size limit before writing
+			if totalSize+int64(len(data)) > maxSize {
+				tmpFile.Close()
+				log.Printf("File size limit exceeded: %d > %d", totalSize+int64(len(data)), maxSize)
+				sendError(conn, 413)
+				return
+			}
+
+			// Write chunk to disk
+			n, err := tmpFile.Write(data)
+			if err != nil {
+				tmpFile.Close()
+				log.Println("Write error:", err)
+				sendError(conn, 500)
+				return
+			}
+			totalSize += int64(n)
 		}
 
-		// Save file to disk
-		if err := storage.SaveFile(id, &fileData); err != nil {
-			log.Println("Save file error:", err)
+		// Close and move file to final location
+		if err := tmpFile.Close(); err != nil {
+			log.Println("Close temp file error:", err)
+			sendError(conn, 500)
+			return
+		}
+
+		finalPath := filepath.Join(cfg.FileDir, id)
+		if err := os.Rename(tmpPath, finalPath); err != nil {
+			log.Println("Move file error:", err)
 			sendError(conn, 500)
 			return
 		}

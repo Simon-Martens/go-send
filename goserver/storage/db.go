@@ -152,9 +152,33 @@ func (d *DB) Exists(id string) (bool, error) {
 }
 
 func (d *DB) CleanupExpired() error {
-	query := `DELETE FROM files WHERE expires_at < ?`
 	now := time.Now().Unix()
-	_, err := d.db.Exec(query, now)
+
+	// First, get all expired file IDs
+	query := `SELECT id FROM files WHERE expires_at < ?`
+	rows, err := d.db.Query(query, now)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	var expiredIDs []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return err
+		}
+		expiredIDs = append(expiredIDs, id)
+	}
+
+	// Delete files from disk
+	for _, id := range expiredIDs {
+		DeleteFile(id) // Ignore errors, file might already be deleted
+	}
+
+	// Delete database entries
+	deleteQuery := `DELETE FROM files WHERE expires_at < ?`
+	_, err = d.db.Exec(deleteQuery, now)
 	return err
 }
 

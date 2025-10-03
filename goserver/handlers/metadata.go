@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"crypto/subtle"
 	"encoding/json"
 	"net/http"
 	"strings"
@@ -36,6 +37,11 @@ func NewMetadataHandler(db *storage.DB) http.HandlerFunc {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
+
+		// Rotate nonce after successful auth
+		newNonce := auth.GenerateNonce()
+		db.UpdateNonce(id, newNonce)
+		w.Header().Set("WWW-Authenticate", "send-v1 "+newNonce)
 
 		// Calculate TTL
 		now := time.Now().Unix()
@@ -101,8 +107,12 @@ func NewDeleteHandler(db *storage.DB) http.HandlerFunc {
 			return
 		}
 
-		// Verify owner token
-		if meta.OwnerToken != req.OwnerToken {
+		// Verify owner token using constant-time comparison
+		if len(meta.OwnerToken) == 0 || len(req.OwnerToken) == 0 {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+		if subtle.ConstantTimeCompare([]byte(meta.OwnerToken), []byte(req.OwnerToken)) != 1 {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
@@ -146,8 +156,12 @@ func NewPasswordHandler(db *storage.DB) http.HandlerFunc {
 			return
 		}
 
-		// Verify owner token
-		if meta.OwnerToken != req.OwnerToken {
+		// Verify owner token using constant-time comparison
+		if len(meta.OwnerToken) == 0 || len(req.OwnerToken) == 0 {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+		if subtle.ConstantTimeCompare([]byte(meta.OwnerToken), []byte(req.OwnerToken)) != 1 {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
@@ -192,15 +206,24 @@ func NewInfoHandler(db *storage.DB) http.HandlerFunc {
 			return
 		}
 
-		// Verify owner token
-		if meta.OwnerToken != req.OwnerToken {
+		// Verify owner token using constant-time comparison
+		if len(meta.OwnerToken) == 0 || len(req.OwnerToken) == 0 {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+		if subtle.ConstantTimeCompare([]byte(meta.OwnerToken), []byte(req.OwnerToken)) != 1 {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
 
+		// Calculate TTL
+		now := time.Now().Unix()
+		ttl := (meta.ExpiresAt - now) * 1000 // Convert to milliseconds
+
 		response := map[string]interface{}{
 			"dtotal": meta.DlCount,
 			"dlimit": meta.DlLimit,
+			"ttl":    ttl,
 		}
 
 		w.Header().Set("Content-Type", "application/json")

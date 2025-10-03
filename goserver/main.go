@@ -13,6 +13,7 @@ import (
 
 	"github.com/yourusername/send-go/config"
 	"github.com/yourusername/send-go/handlers"
+	"github.com/yourusername/send-go/middleware"
 	"github.com/yourusername/send-go/storage"
 )
 
@@ -21,6 +22,9 @@ var templatesFS embed.FS
 
 //go:embed dist
 var distFS embed.FS
+
+//go:embed public
+var publicFS embed.FS
 
 var (
 	db       *storage.DB
@@ -67,6 +71,24 @@ func main() {
 		log.Fatal("Failed to create uploads directory:", err)
 	}
 
+	// Clean up expired files on startup
+	log.Println("Cleaning up expired files...")
+	if err := db.CleanupExpired(); err != nil {
+		log.Printf("Warning: Failed to cleanup expired files: %v", err)
+	}
+
+	// Start background cleanup goroutine (runs every hour)
+	go func() {
+		ticker := time.NewTicker(1 * time.Hour)
+		defer ticker.Stop()
+		for range ticker.C {
+			log.Println("Running scheduled cleanup of expired files...")
+			if err := db.CleanupExpired(); err != nil {
+				log.Printf("Error during scheduled cleanup: %v", err)
+			}
+		}
+	}()
+
 	mux := http.NewServeMux()
 
 	// HTML routes
@@ -77,7 +99,12 @@ func main() {
 
 	// API routes
 	mux.HandleFunc("/config", handlers.NewConfigHandler(cfg))
-	mux.HandleFunc("/api/ws", handlers.NewUploadHandler(db, cfg))
+
+	// Upload endpoint with concurrency limiting (max 3 concurrent uploads per IP)
+	uploadHandler := handlers.NewUploadHandler(db, cfg)
+	uploadLimited := middleware.LimitConcurrency(3)(http.HandlerFunc(uploadHandler))
+	mux.Handle("/api/ws", uploadLimited)
+
 	mux.HandleFunc("/api/download/", handlers.NewDownloadHandler(db))
 	mux.HandleFunc("/api/metadata/", handlers.NewMetadataHandler(db))
 	mux.HandleFunc("/api/exists/", handlers.NewExistsHandler(db))
@@ -140,6 +167,14 @@ func main() {
 				http.ServeContent(w, r, filepath.Base(r.URL.Path), time.Time{}, bytes.NewReader(data))
 				return
 			}
+
+			// Try to serve from public/
+			data, err = publicFS.ReadFile("public" + r.URL.Path)
+			if err == nil {
+				http.ServeContent(w, r, filepath.Base(r.URL.Path), time.Time{}, bytes.NewReader(data))
+				return
+			}
+
 			http.NotFound(w, r)
 			return
 		}
@@ -147,6 +182,38 @@ func main() {
 		indexHandler(w, r)
 	})
 
+	// Wrap with security and rate limiting middleware
+	isDev := os.Getenv("ENV") == "development"
+	handler := middleware.SecurityHeaders(isDev)(mux)
+	handler = middleware.CSP(isDev, cfg.BaseURL)(handler)
+
+	// Limit request body size for non-websocket requests (10MB for API calls)
+	handler = middleware.LimitRequestBody(10 * 1024 * 1024)(handler)
+
+	// Rate limiting: 10 requests per second with burst of 20
+	// Adjust these values based on your needs:
+	// - 10.0 = 10 requests/second average
+	// - 20 = burst size (allows temporary spikes)
+	handler = middleware.RateLimit(10.0, 20)(handler)
+
+	// Configure HTTP server with timeouts
+	server := &http.Server{
+		Addr:    ":" + cfg.Port,
+		Handler: handler,
+		// ReadTimeout: Maximum duration for reading the entire request
+		// For file uploads, this needs to be large enough
+		ReadTimeout: 10 * time.Minute,
+		// WriteTimeout: Maximum duration before timing out writes of the response
+		// For file downloads, this needs to be large enough
+		WriteTimeout: 10 * time.Minute,
+		// IdleTimeout: Maximum amount of time to wait for the next request
+		IdleTimeout: 120 * time.Second,
+		// ReadHeaderTimeout: Amount of time allowed to read request headers
+		ReadHeaderTimeout: 10 * time.Second,
+		// MaxHeaderBytes: Maximum size of request headers
+		MaxHeaderBytes: 1 << 20, // 1 MB
+	}
+
 	log.Printf("Server starting on port %s", cfg.Port)
-	log.Fatal(http.ListenAndServe(":"+cfg.Port, mux))
+	log.Fatal(server.ListenAndServe())
 }

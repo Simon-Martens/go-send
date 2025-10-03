@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en-US">
+<html lang="{{.Locale}}">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -12,7 +12,7 @@
     <meta name="theme-color" content="#220033">
     <meta name="msapplication-TileColor" content="#220033">
     <link rel="stylesheet" href="/inter.css">
-    <style>
+    <style {{.Nonce}}>
         :root {
             --color-primary: {{.ColorPrimary}};
             --color-primary-accent: {{.ColorAccent}};
@@ -21,20 +21,21 @@
     <link rel="stylesheet" href="/{{.CSS}}">
     {{if .CustomCSS}}<link rel="stylesheet" href="{{.CustomCSS}}">{{end}}
     <link rel="manifest" href="/app.webmanifest">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#838383">
+    <link rel="apple-touch-icon" sizes="180x180" href="/{{.AppleTouchIcon}}">
+    <link rel="icon" type="image/png" sizes="32x32" href="/{{.Favicon32}}">
+    <link rel="icon" type="image/png" sizes="16x16" href="/{{.Favicon16}}">
+    <link rel="mask-icon" href="/{{.SafariPinnedTab}}" color="#838383">
     <script defer src="/{{.JS}}"></script>
 </head>
-<noscript>
-    <div class="noscript">
-        <h2>JavaScript Required</h2>
-        <p>Firefox Send requires JavaScript to encrypt your files.</p>
-    </div>
-</noscript>
-<body></body>
-<script>
+<body>
+    <noscript>
+        <div class="noscript">
+            <h2>JavaScript Required</h2>
+            <p>Firefox Send requires JavaScript to encrypt your files.</p>
+        </div>
+    </noscript>
+</body>
+<script {{.Nonce}}>
 var LIMITS = {{.LimitsJSON}};
 var WEB_UI = {{.WebUIJSON}};
 var DEFAULTS = {{.DefaultsJSON}};

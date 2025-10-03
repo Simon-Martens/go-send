@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -9,13 +11,36 @@ import (
 	"strings"
 
 	"github.com/yourusername/send-go/config"
+	"github.com/yourusername/send-go/locale"
 	"github.com/yourusername/send-go/storage"
 )
 
+// generateNonce generates a random string for CSP nonces.
+func generateNonce() (string, error) {
+	b := make([]byte, 16)
+	_, err := rand.Read(b)
+	if err != nil {
+		return "", err
+	}
+	return base64.StdEncoding.EncodeToString(b), nil
+}
+
 func NewIndexHandler(tmpl *template.Template, manifest map[string]string, cfg *config.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		data := getTemplateData(manifest, "{}", cfg)
+		nonce, err := generateNonce()
+		if err != nil {
+			log.Printf("Failed to generate nonce: %v", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+
+		detectedLocale := detectLocale(r, cfg)
+		data := getTemplateData(manifest, "{}", cfg, detectedLocale, nonce)
+
+		csp := fmt.Sprintf("script-src 'self' 'nonce-%s'; style-src 'self' 'nonce-%s'", nonce, nonce)
+		w.Header().Set("Content-Security-Policy", csp)
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
 		tmpl.Execute(w, data)
 	}
 }
@@ -24,6 +49,15 @@ func NewDownloadPageHandler(tmpl *template.Template, manifest map[string]string,
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := strings.TrimPrefix(r.URL.Path, "/download/")
 		log.Printf("Download page request - Path: %s, ID: %s", r.URL.Path, id)
+
+		nonce, err := generateNonce()
+		if err != nil {
+			log.Printf("Failed to generate nonce: %v", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+
+		detectedLocale := detectLocale(r, cfg)
 
 		// Try to get file metadata
 		meta, err := db.GetFile(id)
@@ -46,16 +80,31 @@ func NewDownloadPageHandler(tmpl *template.Template, manifest map[string]string,
 			w.Header().Set("WWW-Authenticate", "send-v1 "+meta.Nonce)
 		}
 
-		data := getTemplateData(manifest, downloadMetadata, cfg)
+		data := getTemplateData(manifest, downloadMetadata, cfg, detectedLocale, nonce)
 		log.Printf("Template data includes DownloadMetadataJSON: %v", data["DownloadMetadataJSON"])
+
+		csp := fmt.Sprintf("script-src 'self' 'nonce-%s'; style-src 'self' 'nonce-%s'", nonce, nonce)
+		w.Header().Set("Content-Security-Policy", csp)
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
 		if err := tmpl.Execute(w, data); err != nil {
 			log.Printf("Template execution error: %v", err)
 		}
 	}
 }
 
-func getTemplateData(manifest map[string]string, downloadMetadata string, cfg *config.Config) map[string]interface{} {
+func detectLocale(r *http.Request, cfg *config.Config) string {
+	// If custom locale is set, use it
+	if cfg.CustomLocale != "" {
+		return cfg.CustomLocale
+	}
+
+	// Otherwise negotiate from Accept-Language header
+	acceptLanguage := r.Header.Get("Accept-Language")
+	return locale.NegotiateLocale(acceptLanguage)
+}
+
+func getTemplateData(manifest map[string]string, downloadMetadata string, cfg *config.Config, detectedLocale string, nonce string) map[string]interface{} {
 	// Build download counts array
 	downloadCountsJSON := "["
 	for i, count := range cfg.DownloadCounts {
@@ -128,9 +177,15 @@ func getTemplateData(manifest map[string]string, downloadMetadata string, cfg *c
 	return map[string]interface{}{
 		"CSS":                   manifest["app.css"],
 		"JS":                    manifest["app.js"],
+		"AppleTouchIcon":        manifest["apple-touch-icon.png"],
+		"Favicon16":             manifest["favicon-16x16.png"],
+		"Favicon32":             manifest["favicon-32x32.png"],
+		"SafariPinnedTab":       manifest["safari-pinned-tab.svg"],
 		"ColorPrimary":          cfg.UIColorPrimary,
 		"ColorAccent":           cfg.UIColorAccent,
 		"CustomCSS":             cfg.CustomCSS,
+		"Locale":                detectedLocale,
+		"Nonce":                 template.HTMLAttr("nonce=\"" + nonce + "\""),
 		"LimitsJSON":            template.JS(limitsJSON),
 		"WebUIJSON":             template.JS(webUIJSON),
 		"DefaultsJSON":          template.JS(defaultsJSON),

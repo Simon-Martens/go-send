@@ -2,72 +2,33 @@
 
 A lightweight, self-hostable file sharing service with client-side encryption. This is a fork of [timvisee/send](https://gitlab.com/timvisee/send) with the Node.js backend replaced by a Go implementation.
 
-## What Changed
+This fork replaces the original Node.js/Express backend with a Go server, keeping the original frontend completely as it was (nor now). All encryption and decryption still happens in the browser using the Web Crypto API.
 
-This fork replaces the original Node.js/Express backend with a standalone Go server while keeping the original frontend completely intact. All encryption and decryption still happens in the browser using the Web Crypto API.
+**WARNING**: Set a streaming limiter in front of your reverse proxy for now. Streaming limiting is not yet implemented.
 
-### Why Go?
 
-- **Simpler deployment**: Single binary, no Node.js runtime required
-- **Reduced dependencies**: No Redis, no external storage backends (S3/GCS)
-- **Lower resource usage**: More efficient memory and CPU utilization
-- **Easier maintenance**: Smaller codebase, fewer moving parts
+### Why reimplement the backend?
 
-### What Was Removed
+The original `send` has a lot of dependencies (1980 of them!) for a project that doesn't really do all that much. Also, the server still runs on Node 16. Needless to say, maintaining and updating this to the newest version of its dependencies is a nearly impossible task; much less for a hobby developer. Luckily, the server runtime is mostly decoupled from the frontend; it used to be some server SSR and hydration; but the `choo` router/framework can be run in a browser alone. Which made the task of implementing a go server application trivial.
 
-- **Node.js server**: Replaced with Go (`goserver/`)
+
+### What is Implemented?
+
+- **Node.js server**: replaced with Go (`goserver/`)
 - **Redis**: Replaced with SQLite for metadata storage
-- **S3/GCS storage**: Uses local filesystem only
 - **Firefox Accounts (FxA)**: Authentication removed (was optional)
+
+
+### What will be Reimplemented?
+
+- **S3/GCS storage**: Uses local filesystem only
 - **Sentry**: Error tracking removed (was optional)
 
-### What Was Kept
 
-- **Frontend**: 100% original Choo-based UI
-- **Client-side encryption**: All crypto happens in browser
-- **File sharing**: Upload, download, password protection
-- **Compatible with ffsend**: CLI tool still works
-- **Branding**: Mozilla branding already removed in timvisee's fork
+All frontend code is 100% original Choo-based UI. This will be subject to change since our reimplementation of the backend mightg us to implement a handful of new frontend features.
 
-## Architecture
+The compatibility with `ffsend` is kept as of right now.
 
-```
-┌─────────────────────────────────────────┐
-│           Browser (Client)              │
-│  ┌─────────────────────────────────┐   │
-│  │  Choo Framework (UI)            │   │
-│  │  WebCrypto API (Encryption)     │   │
-│  │  - HKDF key derivation          │   │
-│  │  - AES-GCM encryption           │   │
-│  │  - HMAC authentication          │   │
-│  └─────────────────────────────────┘   │
-└──────────────┬──────────────────────────┘
-               │ HTTPS/WebSocket
-               │
-┌──────────────▼──────────────────────────┐
-│         Go Server (Backend)             │
-│  ┌─────────────────────────────────┐   │
-│  │  HTTP/WebSocket Handler         │   │
-│  │  - Serves static assets         │   │
-│  │  - Handles file upload/download │   │
-│  │  - HMAC verification            │   │
-│  │  - No access to encryption keys │   │
-│  └─────────────────────────────────┘   │
-│  ┌─────────────┐  ┌────────────────┐   │
-│  │   SQLite    │  │  Local FS      │   │
-│  │  (metadata) │  │  (files)       │   │
-│  └─────────────┘  └────────────────┘   │
-└─────────────────────────────────────────┘
-```
-
-### How It Works
-
-1. **Upload**: Client encrypts file in browser, sends encrypted blob via WebSocket to Go server
-2. **Storage**: Go server stores encrypted file on local filesystem, metadata in SQLite
-3. **Download**: Client requests file by ID, Go server verifies HMAC auth, streams encrypted file
-4. **Decryption**: Client decrypts file in browser using secret key from URL fragment
-
-**Security**: The secret key never leaves the browser and never touches the server. The server only stores encrypted blobs.
 
 ## Project Structure
 
@@ -193,42 +154,45 @@ export PORT=3000
 cd goserver && go run .
 ```
 
-## Development
+## Architecture
 
-### Frontend Development
-
-The frontend is built with:
-- **Choo**: Lightweight framework
-- **Webpack**: Module bundler
-- **PostCSS**: CSS processing
-
-To develop the frontend:
-
-```bash
-npm install
-npm start  # Starts webpack dev server + Node.js proxy (for testing)
+```
+┌─────────────────────────────────────────┐
+│           Browser (Client)              │
+│  ┌─────────────────────────────────┐   │
+│  │  Choo Framework (UI)            │   │
+│  │  WebCrypto API (Encryption)     │   │
+│  │  - HKDF key derivation          │   │
+│  │  - AES-GCM encryption           │   │
+│  │  - HMAC authentication          │   │
+│  └─────────────────────────────────┘   │
+└──────────────┬──────────────────────────┘
+               │ HTTPS/WebSocket
+               │
+┌──────────────▼──────────────────────────┐
+│         Go Server (Backend)             │
+│  ┌─────────────────────────────────┐   │
+│  │  HTTP/WebSocket Handler         │   │
+│  │  - Serves static assets         │   │
+│  │  - Handles file upload/download │   │
+│  │  - HMAC verification            │   │
+│  │  - No access to encryption keys │   │
+│  └─────────────────────────────────┘   │
+│  ┌─────────────┐  ┌────────────────┐   │
+│  │   SQLite    │  │  Local FS      │   │
+│  │  (metadata) │  │  (files)       │   │
+│  └─────────────┘  └────────────────┘   │
+└─────────────────────────────────────────┘
 ```
 
-Or build for production:
+### How It Works
 
-```bash
-npm run build
-cp -r dist goserver/
-```
+1. **Upload**: Client encrypts file in browser, sends encrypted blob via WebSocket to Go server
+2. **Storage**: Go server stores encrypted file on local filesystem, metadata in SQLite
+3. **Download**: Client requests file by ID, Go server verifies HMAC auth, streams encrypted file
+4. **Decryption**: Client decrypts file in browser using secret key from URL fragment
 
-### Backend Development
-
-The Go server uses:
-- **SQLite**: Metadata database (via mattn/go-sqlite3)
-- **Gorilla WebSocket**: WebSocket support
-- **Standard library**: HTTP server, routing
-
-To develop the backend:
-
-```bash
-cd goserver
-go run .  # Auto-recompiles on changes
-```
+**Security**: The secret key never leaves the browser and never touches the server. The server only stores encrypted blobs.
 
 ### Database Schema
 
@@ -353,19 +317,25 @@ server {
 }
 ```
 
-## Clients
-
-- **Web**: Built-in web interface
-- **CLI**: [ffsend](https://github.com/timvisee/ffsend) - Compatible with this server
-- **Android/iOS**: Original apps in `android/` and `ios/` directories (native apps, not web wrappers)
 
 ## Security
 
 ### Threat Model
 
-- **Server compromise**: Files remain encrypted, keys never touch server
-- **Network interception**: Use HTTPS/TLS (files are already encrypted)
-- **Client-side attacks**: Out of scope (XSS, malicious JS)
+**Server compromise**
+
+Files are stored encrypted, the required keys for decryption are stored browser-side.
+
+
+**Network interception**
+
+Files are client-side encrypted and decrypted, use HTTPS/TLS
+
+
+**Client-side attacks**
+
+Partly out of scope, partly this probably most needs an audit
+
 
 ### Authentication Flow
 
@@ -377,43 +347,16 @@ server {
 
 All authentication uses base64url encoding without padding.
 
-## Migration from Node.js Version
-
-If you're running the original Node.js version:
-
-1. **Export data**: Files and metadata are not compatible
-2. **Inform users**: All existing links will break
-3. **Deploy Go version**: Fresh start with new database
-4. **Update DNS**: Point to new server
-
-There is no automated migration path. This is a clean rewrite.
-
-## Contributing
-
-Contributions welcome! Areas of interest:
-
-- [ ] Automated tests
-- [ ] Prometheus metrics
-- [ ] Admin dashboard
-- [ ] Rate limiting
-- [ ] Cleanup of expired files
-- [ ] Docker Compose setup
 
 ## License
 
 [Mozilla Public License Version 2.0](LICENSE)
 
-Original project by Mozilla, forked by timvisee, Go backend by contributors.
+Original project by Mozilla, forked by timvisee.
 
 ## Acknowledgments
 
 - **Mozilla**: Original Firefox Send project
 - **timvisee**: Community fork maintainer
 - **Choo framework**: Frontend framework
-- **ffsend**: CLI client compatibility
-
----
-
-**Original docs**: [docs/](docs/) (Note: Most docs refer to Node.js version)
-
-**Questions?**: Check [docs/faq.md](docs/faq.md) for general Send questions
+- **ffsend**: CLI client compatibilit

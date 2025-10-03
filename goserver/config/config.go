@@ -47,6 +47,9 @@ type Config struct {
 	FooterCLIURL     string
 	FooterSourceURL  string
 	ShowThunderbirdSponsor bool
+
+	// Localization
+	CustomLocale string
 }
 
 func Load() *Config {
@@ -91,6 +94,9 @@ func Load() *Config {
 		FooterCLIURL:           getEnv("FOOTER_CLI_URL", "https://github.com/timvisee/ffsend"),
 		FooterSourceURL:        getEnv("FOOTER_SOURCE_URL", "https://github.com/timvisee/send"),
 		ShowThunderbirdSponsor: getEnvBool("SHOW_THUNDERBIRD_SPONSOR", false),
+
+		// Localization
+		CustomLocale: getEnv("CUSTOM_LOCALE", ""),
 	}
 }
 

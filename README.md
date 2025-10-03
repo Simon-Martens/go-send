@@ -137,7 +137,7 @@ Create a `Dockerfile`:
 ```dockerfile
 FROM golang:1.21-alpine AS builder
 WORKDIR /app
-COPY goserver/ .
+COPY . .
 RUN go mod download
 RUN go build -o send-server .
 
@@ -145,7 +145,7 @@ FROM alpine:latest
 RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 COPY --from=builder /app/send-server .
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/frontend/dist ./frontend/dist
 COPY --from=builder /app/templates ./templates
 EXPOSE 8080
 CMD ["./send-server"]

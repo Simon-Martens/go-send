@@ -2,37 +2,39 @@ const TailwindExtractor = content => {
   return content.match(/[A-Za-z0-9-_:/]+/g) || [];
 };
 
-const options = {
-  plugins: [
+module.exports = ({ env }) => {
+  const isDev = env === 'development';
+
+  const plugins = [
     require('tailwindcss')('./tailwind.config.js'),
     require('postcss-preset-env')
-  ]
+  ];
+
+  // Only in production: purge unused CSS and minify
+  if (!isDev) {
+    plugins.push(
+      require('@fullhuman/postcss-purgecss')({
+        content: [
+          './app/**/*.js',
+          './common/**/*.js'
+        ],
+        extractors: [
+          {
+            extractor: TailwindExtractor,
+            extensions: ['js']
+          }
+        ]
+      })
+    );
+    plugins.push(
+      require('cssnano')({
+        preset: 'default'
+      })
+    );
+  }
+
+  return {
+    plugins,
+    map: isDev ? { inline: true } : false
+  };
 };
-
-if (process.env.NODE_ENV === 'development') {
-  options.map = { inline: true };
-} else {
-  options.plugins.push(
-    require('@fullhuman/postcss-purgecss')({
-      content: [
-        './app/*.js',
-        './app/ui/*.js',
-        './android/*.js',
-        './android/pages/*.js'
-      ],
-      extractors: [
-        {
-          extractor: TailwindExtractor,
-          extensions: ['js']
-        }
-      ]
-    })
-  );
-  options.plugins.push(
-    require('cssnano')({
-      preset: 'default'
-    })
-  );
-}
-
-module.exports = options;

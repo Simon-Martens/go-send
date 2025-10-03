@@ -1,7 +1,7 @@
 import Nanobus from 'nanobus';
 import Keychain from './keychain';
 import { delay, bytes, streamToArrayBuffer } from './utils';
-import { downloadFile, metadata, getApiUrl, reportLink } from './api';
+import { downloadFile, metadata, getApiUrl } from './api';
 import { blobStream } from './streams';
 import Zip from './zip';
 
@@ -53,9 +53,10 @@ export default class FileReceiver extends Nanobus {
     this.state = 'ready';
   }
 
-  async reportLink(reason) {
-    await reportLink(this.fileInfo.id, this.keychain, reason);
-  }
+  // Removed: reportLink feature not implemented in Go backend
+  // async reportLink(reason) {
+  //   await reportLink(this.fileInfo.id, this.keychain, reason);
+  // }
 
   sendMessageToSw(msg) {
     return new Promise((resolve, reject) => {

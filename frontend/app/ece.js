@@ -1,4 +1,8 @@
-import 'buffer';
+import { Buffer } from 'buffer';
+// Make Buffer available globally for compatibility
+if (typeof window !== 'undefined') {
+  window.Buffer = Buffer;
+}
 import { transformStream } from './streams';
 
 const NONCE_LENGTH = 12;

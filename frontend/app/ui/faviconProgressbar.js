@@ -30,7 +30,17 @@ function drawNewFavicon(progressRatio) {
 
 module.exports.updateFavicon = function(progressRatio) {
   if (platform() === 'web') {
-    const link = document.querySelector("link[rel='icon'][sizes='32x32']");
+    let link = document.querySelector("link[rel='icon'][sizes='32x32']");
+
+    // Create the icon link if it doesn't exist
+    if (!link) {
+      link = document.createElement('link');
+      link.rel = 'icon';
+      link.type = 'image/png';
+      link.sizes = '32x32';
+      document.head.appendChild(link);
+    }
+
     const progress = progressRatio * 100;
     if (progress === 0 || progress === 100) {
       link.type = 'image/png';

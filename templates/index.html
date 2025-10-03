@@ -21,11 +21,12 @@
     <link rel="stylesheet" href="/{{.CSS}}">
     {{if .CustomCSS}}<link rel="stylesheet" href="{{.CustomCSS}}">{{end}}
     <link rel="manifest" href="/app.webmanifest">
-    <link rel="apple-touch-icon" sizes="180x180" href="/{{.AppleTouchIcon}}">
-    <link rel="icon" type="image/png" sizes="32x32" href="/{{.Favicon32}}">
-    <link rel="icon" type="image/png" sizes="16x16" href="/{{.Favicon16}}">
-    <link rel="mask-icon" href="/{{.SafariPinnedTab}}" color="#838383">
-    <script defer src="/{{.JS}}"></script>
+    {{if .AppleTouchIcon}}<link rel="apple-touch-icon" sizes="180x180" href="/{{.AppleTouchIcon}}">{{end}}
+    {{if .Favicon32}}<link rel="icon" type="image/png" sizes="32x32" href="/{{.Favicon32}}">{{end}}
+    {{if .Favicon16}}<link rel="icon" type="image/png" sizes="16x16" href="/{{.Favicon16}}">{{end}}
+    {{if .SafariPinnedTab}}<link rel="mask-icon" href="/{{.SafariPinnedTab}}" color="#838383">{{end}}
+    <link rel="icon" href="/favicon.ico">
+    <script type="module" defer src="/{{.JS}}"></script>
 </head>
 <body>
     <noscript>

@@ -39,7 +39,7 @@ func init() {
 	}
 
 	// Load manifest.json
-	manifestData, err := distFS.ReadFile("dist/manifest.json")
+	manifestData, err := distFS.ReadFile("frontend/dist/manifest.json")
 	if err != nil {
 		log.Println("Warning: manifest.json not found, using defaults")
 		manifest = map[string]string{
@@ -125,11 +125,11 @@ func main() {
 	distHandler := http.FileServer(http.FS(distFS))
 	mux.Handle("/dist/", http.StripPrefix("/", distHandler))
 
-	// Serve static files directly from dist root
+	// Serve static files directly from dist root (app.* and send.* chunks)
 	mux.HandleFunc("/app.", func(w http.ResponseWriter, r *http.Request) {
 		// Serve JS/CSS files
 		name := filepath.Base(r.URL.Path)
-		data, err := distFS.ReadFile("dist/" + name)
+		data, err := distFS.ReadFile("frontend/dist/" + name)
 		if err != nil {
 			http.NotFound(w, r)
 			return
@@ -137,16 +137,45 @@ func main() {
 
 		// Set correct content type
 		if filepath.Ext(name) == ".js" {
-			w.Header().Set("Content-Type", "application/javascript")
+			w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
 		} else if filepath.Ext(name) == ".css" {
-			w.Header().Set("Content-Type", "text/css")
+			w.Header().Set("Content-Type", "text/css; charset=utf-8")
 		}
 		w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
 		w.Write(data)
 	})
 
+	// Serve lazy-loaded chunks (send.*.js, shim.*.js, etc.)
+	mux.HandleFunc("/send.", func(w http.ResponseWriter, r *http.Request) {
+		name := filepath.Base(r.URL.Path)
+		data, err := distFS.ReadFile("frontend/dist/" + name)
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+		w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+		w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+		w.Write(data)
+	})
+
+	// Serve other chunks (polyfill, shim, asmcrypto)
+	serveChunk := func(w http.ResponseWriter, r *http.Request) {
+		name := filepath.Base(r.URL.Path)
+		data, err := distFS.ReadFile("frontend/dist/" + name)
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+		w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+		w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+		w.Write(data)
+	}
+	mux.HandleFunc("/polyfill.", serveChunk)
+	mux.HandleFunc("/shim.", serveChunk)
+	mux.HandleFunc("/asmcrypto.", serveChunk)
+
 	mux.HandleFunc("/serviceWorker.js", func(w http.ResponseWriter, r *http.Request) {
-		data, err := distFS.ReadFile("dist/serviceWorker.js")
+		data, err := distFS.ReadFile("frontend/dist/serviceWorker.js")
 		if err != nil {
 			http.NotFound(w, r)
 			return
@@ -159,7 +188,7 @@ func main() {
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" && r.URL.Path != "/download" && r.URL.Path != "/error" {
 			// Try to serve from dist/
-			data, err := distFS.ReadFile("dist" + r.URL.Path)
+			data, err := distFS.ReadFile("frontend/dist" + r.URL.Path)
 			if err == nil {
 				http.ServeContent(w, r, filepath.Base(r.URL.Path), time.Time{}, bytes.NewReader(data))
 				return

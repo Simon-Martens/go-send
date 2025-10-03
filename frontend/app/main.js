@@ -1,4 +1,10 @@
 /* global DEFAULTS LIMITS WEB_UI PREFS */
+// IMPORTANT: Import Buffer FIRST before any other modules that use it
+import { Buffer } from 'buffer';
+if (typeof window !== 'undefined') {
+  window.Buffer = Buffer;
+}
+
 import 'core-js';
 import 'fast-text-encoding'; // MS Edge support
 import 'intl-pluralrules';

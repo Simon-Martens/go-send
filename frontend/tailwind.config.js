@@ -23,7 +23,10 @@ const colors = {
 };
 
 module.exports = {
-  purge: false,
+  content: [
+    './app/**/*.{js,jsx}',
+    './templates/**/*.html'
+  ],
   theme: {
     colors: colors,
     screens: {

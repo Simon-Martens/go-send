@@ -8,10 +8,11 @@ import (
 
 type Config struct {
 	// Server
-	Port          string
-	BaseURL       string
-	DetectBaseURL bool
-	FileDir       string
+	Port            string
+	BaseURL         string
+	DetectBaseURL   bool
+	FileDir         string
+	UserFrontendDir string
 
 	// Upload/Download Limits
 	MaxFileSize          int64
@@ -55,10 +56,11 @@ type Config struct {
 func Load() *Config {
 	return &Config{
 		// Server
-		Port:          getEnv("PORT", "8080"),
-		BaseURL:       getEnv("BASE_URL", ""),
-		DetectBaseURL: getEnvBool("DETECT_BASE_URL", false),
-		FileDir:       getEnv("FILE_DIR", "./uploads"),
+		Port:            getEnv("PORT", "8080"),
+		BaseURL:         getEnv("BASE_URL", ""),
+		DetectBaseURL:   getEnvBool("DETECT_BASE_URL", false),
+		FileDir:         getEnv("FILE_DIR", "./uploads"),
+		UserFrontendDir: getEnv("USER_FRONTEND_DIR", "./userfrontend"),
 
 		// Upload/Download Limits
 		MaxFileSize:          getEnvInt64("MAX_FILE_SIZE", 2684354560), // 2.5GB

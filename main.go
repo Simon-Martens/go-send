@@ -19,7 +19,7 @@ import (
 	"github.com/Simon-Martens/go-send/storage"
 )
 
-//go:embed templates/*
+//go:embed frontend/templates/*
 var templatesFS embed.FS
 
 //go:embed frontend/dist
@@ -105,17 +105,50 @@ func init() {
 			log.Fatal("Failed to parse manifest.json:", err)
 		}
 	}
+}
 
-	// Parse HTML template
-	tmpl, err = template.ParseFS(templatesFS, "templates/index.html")
-	if err != nil {
-		log.Fatal("Failed to parse template:", err)
+// loadTemplates loads templates from user directory first, falling back to embedded templates
+func loadTemplates(userFrontendDir string) (*template.Template, error) {
+	userTemplatesDir := filepath.Join(userFrontendDir, "templates")
+
+	// Check if user templates directory exists
+	if info, err := os.Stat(userTemplatesDir); err == nil && info.IsDir() {
+		log.Printf("Loading templates from user directory: %s", userTemplatesDir)
+
+		// Load all .html files from user templates directory
+		pattern := filepath.Join(userTemplatesDir, "*.html")
+		tmpl, err := template.ParseGlob(pattern)
+		if err != nil {
+			log.Printf("Warning: Failed to parse user templates, falling back to embedded: %v", err)
+		} else {
+			// Check if at least index.html exists
+			if tmpl.Lookup("index.html") != nil {
+				log.Println("Successfully loaded user templates")
+				return tmpl, nil
+			}
+			log.Println("Warning: index.html not found in user templates, falling back to embedded")
+		}
 	}
+
+	// Fall back to embedded templates
+	log.Println("Loading embedded templates")
+	return template.ParseFS(templatesFS, "frontend/templates/*.html")
 }
 
 func main() {
 	// Load configuration
 	cfg := config.Load()
+
+	log.Printf("User frontend directory: %s", cfg.UserFrontendDir)
+	log.Printf("  - Place custom templates in: %s/templates/", cfg.UserFrontendDir)
+	log.Printf("  - Place custom static files in: %s/public/", cfg.UserFrontendDir)
+
+	// Load templates (user overrides or embedded)
+	var err error
+	tmpl, err = loadTemplates(cfg.UserFrontendDir)
+	if err != nil {
+		log.Fatal("Failed to load templates:", err)
+	}
 
 	// Create uploads directory from config
 	if err := os.MkdirAll(cfg.FileDir, 0o755); err != nil {
@@ -261,7 +294,14 @@ func main() {
 	// Root and static file handler
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" && r.URL.Path != "/download" && r.URL.Path != "/error" {
-			// Try to serve from dist/
+			// First, try to serve from user public directory
+			userPublicPath := filepath.Join(cfg.UserFrontendDir, "public", r.URL.Path)
+			if info, err := os.Stat(userPublicPath); err == nil && !info.IsDir() {
+				http.ServeFile(w, r, userPublicPath)
+				return
+			}
+
+			// Fall back to serving from embedded dist/
 			data, err := distFS.ReadFile("frontend/dist" + r.URL.Path)
 			if err == nil {
 				http.ServeContent(w, r, filepath.Base(r.URL.Path), time.Time{}, bytes.NewReader(data))

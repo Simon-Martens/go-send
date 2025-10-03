@@ -185,6 +185,30 @@ func (d *DB) CleanupExpired() error {
 	return err
 }
 
+// GetFilesExpiringWithin returns file IDs and expiration times for files expiring within the given duration
+func (d *DB) GetFilesExpiringWithin(duration time.Duration) ([]struct{ ID string; ExpiresAt int64 }, error) {
+	now := time.Now().Unix()
+	until := now + int64(duration.Seconds())
+
+	query := `SELECT id, expires_at FROM files WHERE expires_at > ? AND expires_at <= ?`
+	rows, err := d.db.Query(query, now, until)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var files []struct{ ID string; ExpiresAt int64 }
+	for rows.Next() {
+		var f struct{ ID string; ExpiresAt int64 }
+		if err := rows.Scan(&f.ID, &f.ExpiresAt); err != nil {
+			return nil, err
+		}
+		files = append(files, f)
+	}
+
+	return files, rows.Err()
+}
+
 func boolToInt(b bool) int {
 	if b {
 		return 1

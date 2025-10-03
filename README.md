@@ -1,33 +1,34 @@
-# Send - Go Backend
+# Go-Send
 
 A lightweight, self-hostable file sharing service with client-side encryption. This is a fork of [timvisee/send](https://gitlab.com/timvisee/send) with the Node.js backend replaced by a Go implementation.
 
-This fork replaces the original Node.js/Express backend with a Go server, keeping the original frontend completely as it was (nor now). All encryption and decryption still happens in the browser using the Web Crypto API.
+This fork replaces the original Node.js/Express backend with a Go server, keeping the original frontend completely as it was (nor now). All encryption and decryption still happens in the browser, and no encryption logic on the frontend was changed at all.
 
 ### Why reimplement the backend?
 
-The original `send` has a lot of dependencies (1980 of them!) for a project that doesn't really do all that much. Also, the server still runs on Node 16. Needless to say, maintaining and updating this to the newest version of its dependencies is a nearly impossible task; much less for a hobby developer. Luckily, the server runtime is mostly decoupled from the frontend; it used to be some server SSR and hydration; but the `choo` router/framework can be run in a browser alone. Which made the task of implementing a go server application trivial.
+The original `send` has a lot of dependencies (1980 of them!) for a project that doesn't really do all that much. Also, the server still runs on Node 16. Needless to say, maintaining and updating this to the newest version of its dependencies is a nearly impossible task; much less for a hobby developer like me, who wants to use this in production. Luckily, the server runtime is mostly decoupled from the frontend; it used to be some server SSR and hydration; but the `choo` router htat formaerly Firefox Send used can be run in a browser alone. Which made the task of implementing a basic go server trivial.
 
 
 ### So what's the plan?
 
-The plan is to ultimate replace client side rounting (choo) with server-side routing, replace rimraf & webpack with vite or sth eles and use go templates as far as possible. Through the nature of this project, a lot of browser stuff is still needed.
+The plan is to ultimate replace client side rounting (choo) with server-side routing, ~replace rimraf & webpack with vite~ (Done!) and use go templates as far as possible. Through the nature of this project, a lot of browser stuff is and will be still needed.
 
 
 ### What is changed?
 
-- **Node.js server**: replaced with Go (`goserver/`)
+- **Express server**: replaced with Go
 - **Redis**: Replaced with **SQLite** for metadata storage
-- **Firefox Accounts (FxA)**: Authentication removed (was optional)
+- ~Firefox Accounts (FxA)~: Authentication removed (did not work in modern FF anyway)
+- ~Webpack~ removed, introduced **Vite**. We have a lot of fewer build features now
 
 
 ### What will be Reimplemented?
 
-- **S3/GCS storage**: Uses local filesystem only
-- **Sentry**: Error tracking removed
+- **S3 storage**: Local filesystem only as of right now
+- Maybe **Sentry**: Better Error tracking than logging would be nice to have
 
 
-All frontend code is 100% original Choo-based UI. This will be subject to change since our reimplementation of the backend might help us to implement a handful of new frontend features.
+Almost all frontend code is still original Choo-based UI. This will be subject to change since our reimplementation of the backend might help us to implement a handful of new frontend features. Also, I might move header and footers to go templates, which may be overwritten by your custom template files.
 
 The compatibility with `ffsend` is kept as of right now.
 
@@ -36,11 +37,11 @@ The compatibility with `ffsend` is kept as of right now.
 
 ### Prerequisites
 
-- **Go 1.21+** (for backend)
+- **Go 1.24+** (for backend)
 
 The frontend come pre-bundled in dist/, but in case you want to build it yourself, you need to have Node.js 16+ installed.
 
-### Build Frontend
+### Build Frontend (Optional -> an up-to-date pre-build package is included)
 
 ```bash
 cd frontend
@@ -58,7 +59,11 @@ go mod tidy
 go run .
 ```
 
-Server starts on http://localhost:8080
+
+
+Or use `air` to run the server in a live-reloading environment.
+
+Server starts on http://localhost:8080, if not otherwise configured.
 
 
 ## Configuration
@@ -99,7 +104,7 @@ The Go server is configured via environment variables. All settings are optional
 | `CUSTOM_FOOTER_TEXT` | (empty) | Custom footer text |
 | `CUSTOM_FOOTER_URL` | (empty) | Custom footer link URL |
 
-See all branding options: `goserver/config/config.go`
+See all branding options: `config/config.go`
 
 
 ## API Endpoints implemented
@@ -160,17 +165,17 @@ docker run -p 8080:8080 -v $(pwd)/data:/root/uploads send-go
 
 **Server compromise**
 
-Files are stored encrypted, the required keys for decryption are stored browser-side.
+Files are stored encrypted, the required links for decryption are generated and stored browser-side.
 
 
 **Network interception**
 
-Files are client-side encrypted and decrypted, use HTTPS/TLS
+Files are client-side encrypted and decrypted, please use TLS behind a reverse proxy.
 
 
 **Client-side attacks**
 
-Partly out of scope, partly this probably most needs an audit
+Partly out of scope, partly this probably most needs an audit, since we have 3 moderate and 7 low vulnerablities still reported by `npm`
 
 
 ### Authentication Flow
@@ -181,12 +186,10 @@ Partly out of scope, partly this probably most needs an audit
 4. Server verifies signature
 5. Server rotates nonce on each request
 
-All authentication uses base64url encoding without padding.
-
 
 ## License
 
-[Mozilla Public License Version 2.0](LICENSE)
+All code under frontend/ is licensed under the [Mozilla Public License Version 2.0](LICENSE), while the backend is licensed under the [GNU General Public License v3.0](LICENSE.backend).
 
 Original project by Mozilla, forked by timvisee.
 

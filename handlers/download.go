@@ -11,7 +11,7 @@ import (
 	"github.com/Simon-Martens/go-send/storage"
 )
 
-func NewDownloadHandler(db *storage.DB) http.HandlerFunc {
+func NewDownloadHandler(db *storage.DB, cancelCleanup func(string)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract ID from path
 		id := strings.TrimPrefix(r.URL.Path, "/api/download/")
@@ -80,6 +80,9 @@ func NewDownloadHandler(db *storage.DB) http.HandlerFunc {
 		// Check if we've reached download limit
 		meta, _ = db.GetFile(id)
 		if meta != nil && meta.DlCount >= meta.DlLimit {
+			// Cancel any scheduled cleanup goroutine
+			cancelCleanup(id)
+
 			// Delete file and metadata
 			db.DeleteFile(id)
 			storage.DeleteFile(id)

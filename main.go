@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"embed"
 	"encoding/json"
 	"html/template"
@@ -9,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sync"
 	"time"
 
 	"github.com/Simon-Martens/go-send/config"
@@ -27,7 +29,59 @@ var (
 	db       *storage.DB
 	manifest map[string]string
 	tmpl     *template.Template
+
+	// Track active cleanup goroutines with their cancel functions
+	activeCleanups   = make(map[string]context.CancelFunc)
+	activeCleanupsMu sync.RWMutex
 )
+
+// scheduleCleanup schedules a file for deletion at its expiration time.
+// Only schedules if no cleanup is already active for this file.
+// Returns true if a new goroutine was started.
+func scheduleCleanup(fileID string, expiresAt int64) bool {
+	activeCleanupsMu.Lock()
+	if _, exists := activeCleanups[fileID]; exists {
+		activeCleanupsMu.Unlock()
+		return false
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	activeCleanups[fileID] = cancel
+	activeCleanupsMu.Unlock()
+
+	go func(id string, exp int64) {
+		duration := time.Until(time.Unix(exp, 0))
+
+		// Wait for expiration or cancellation
+		select {
+		case <-time.After(duration):
+			// Delete file from disk and database
+			log.Printf("Auto-deleting expired file: %s", id)
+			storage.DeleteFile(id)
+			db.DeleteFile(id)
+		case <-ctx.Done():
+			log.Printf("Cleanup cancelled for file: %s", id)
+		}
+
+		// Remove from active cleanups map
+		activeCleanupsMu.Lock()
+		delete(activeCleanups, id)
+		activeCleanupsMu.Unlock()
+	}(fileID, expiresAt)
+
+	return true
+}
+
+// cancelCleanup cancels the cleanup goroutine for a file.
+// Call this when a file is manually deleted.
+func cancelCleanup(fileID string) {
+	activeCleanupsMu.Lock()
+	if cancel, exists := activeCleanups[fileID]; exists {
+		cancel()
+		delete(activeCleanups, fileID)
+	}
+	activeCleanupsMu.Unlock()
+}
 
 func init() {
 	var err error
@@ -68,21 +122,41 @@ func main() {
 		log.Fatal("Failed to create uploads directory:", err)
 	}
 
-	// Clean up expired files on startup
+	// Clean up expired files on startup (for files that expired while server was down)
 	log.Println("Cleaning up expired files...")
 	if err := db.CleanupExpired(); err != nil {
 		log.Printf("Warning: Failed to cleanup expired files: %v", err)
 	}
 
-	// Start background cleanup goroutine (runs every hour)
+	// Start goroutine to schedule cleanups for files expiring soon
+	// Runs hourly and schedules cleanup goroutines for files expiring within the next hour
 	go func() {
+		// Schedule on startup
+		scheduleUpcomingCleanups := func() {
+			files, err := db.GetFilesExpiringWithin(1 * time.Hour)
+			if err != nil {
+				log.Printf("Error querying upcoming expirations: %v", err)
+				return
+			}
+
+			scheduled := 0
+			for _, f := range files {
+				if scheduleCleanup(f.ID, f.ExpiresAt) {
+					scheduled++
+				}
+			}
+			if scheduled > 0 {
+				log.Printf("Scheduled %d cleanup goroutines for files expiring within 1 hour", scheduled)
+			}
+		}
+
+		scheduleUpcomingCleanups()
+
+		// Then run hourly
 		ticker := time.NewTicker(1 * time.Hour)
 		defer ticker.Stop()
 		for range ticker.C {
-			log.Println("Running scheduled cleanup of expired files...")
-			if err := db.CleanupExpired(); err != nil {
-				log.Printf("Error during scheduled cleanup: %v", err)
-			}
+			scheduleUpcomingCleanups()
 		}
 	}()
 
@@ -98,14 +172,14 @@ func main() {
 	mux.HandleFunc("/config", handlers.NewConfigHandler(cfg))
 
 	// Upload endpoint with concurrency limiting (max 3 concurrent uploads per IP)
-	uploadHandler := handlers.NewUploadHandler(db, cfg)
+	uploadHandler := handlers.NewUploadHandler(db, cfg, scheduleCleanup)
 	uploadLimited := middleware.LimitConcurrency(3)(http.HandlerFunc(uploadHandler))
 	mux.Handle("/api/ws", uploadLimited)
 
-	mux.HandleFunc("/api/download/", handlers.NewDownloadHandler(db))
+	mux.HandleFunc("/api/download/", handlers.NewDownloadHandler(db, cancelCleanup))
 	mux.HandleFunc("/api/metadata/", handlers.NewMetadataHandler(db))
 	mux.HandleFunc("/api/exists/", handlers.NewExistsHandler(db))
-	mux.HandleFunc("/api/delete/", handlers.NewDeleteHandler(db))
+	mux.HandleFunc("/api/delete/", handlers.NewDeleteHandler(db, cancelCleanup))
 	mux.HandleFunc("/api/password/", handlers.NewPasswordHandler(db))
 	mux.HandleFunc("/api/info/", handlers.NewInfoHandler(db))
 

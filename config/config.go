@@ -8,19 +8,19 @@ import (
 
 type Config struct {
 	// Server
-	Port           string
-	BaseURL        string
-	DetectBaseURL  bool
-	FileDir        string
+	Port          string
+	BaseURL       string
+	DetectBaseURL bool
+	FileDir       string
 
 	// Upload/Download Limits
-	MaxFileSize        int64
-	MaxFilesPerArchive int
-	MaxExpireSeconds   int
-	MaxDownloads       int
-	DownloadCounts     []int
-	ExpireTimesSeconds []int
-	DefaultDownloads   int
+	MaxFileSize          int64
+	MaxFilesPerArchive   int
+	MaxExpireSeconds     int
+	MaxDownloads         int
+	DownloadCounts       []int
+	ExpireTimesSeconds   []int
+	DefaultDownloads     int
 	DefaultExpireSeconds int
 
 	// Branding - Colors
@@ -41,11 +41,11 @@ type Config struct {
 	CustomCSS                    string
 
 	// Footer
-	CustomFooterText string
-	CustomFooterURL  string
-	FooterDMCAURL    string
-	FooterCLIURL     string
-	FooterSourceURL  string
+	CustomFooterText       string
+	CustomFooterURL        string
+	FooterDMCAURL          string
+	FooterCLIURL           string
+	FooterSourceURL        string
 	ShowThunderbirdSponsor bool
 
 	// Localization
@@ -61,13 +61,13 @@ func Load() *Config {
 		FileDir:       getEnv("FILE_DIR", "./uploads"),
 
 		// Upload/Download Limits
-		MaxFileSize:        getEnvInt64("MAX_FILE_SIZE", 2684354560), // 2.5GB
-		MaxFilesPerArchive: getEnvInt("MAX_FILES_PER_ARCHIVE", 64),
-		MaxExpireSeconds:   getEnvInt("MAX_EXPIRE_SECONDS", 604800), // 7 days
-		MaxDownloads:       getEnvInt("MAX_DOWNLOADS", 100),
-		DownloadCounts:     getEnvIntArray("DOWNLOAD_COUNTS", []int{1, 2, 3, 4, 5, 20, 50, 100}),
-		ExpireTimesSeconds: getEnvIntArray("EXPIRE_TIMES_SECONDS", []int{300, 3600, 86400, 604800}),
-		DefaultDownloads:   getEnvInt("DEFAULT_DOWNLOADS", 1),
+		MaxFileSize:          getEnvInt64("MAX_FILE_SIZE", 2684354560), // 2.5GB
+		MaxFilesPerArchive:   getEnvInt("MAX_FILES_PER_ARCHIVE", 64),
+		MaxExpireSeconds:     getEnvInt("MAX_EXPIRE_SECONDS", 604800), // 7 days
+		MaxDownloads:         getEnvInt("MAX_DOWNLOADS", 100),
+		DownloadCounts:       getEnvIntArray("DOWNLOAD_COUNTS", []int{1, 2, 3, 4, 5, 20, 50, 100}),
+		ExpireTimesSeconds:   getEnvIntArray("EXPIRE_TIMES_SECONDS", []int{300, 3600, 86400, 604800}),
+		DefaultDownloads:     getEnvInt("DEFAULT_DOWNLOADS", 1),
 		DefaultExpireSeconds: getEnvInt("DEFAULT_EXPIRE_SECONDS", 86400),
 
 		// Branding - Colors
@@ -92,7 +92,7 @@ func Load() *Config {
 		CustomFooterURL:        getEnv("CUSTOM_FOOTER_URL", ""),
 		FooterDMCAURL:          getEnv("SEND_FOOTER_DMCA_URL", ""),
 		FooterCLIURL:           getEnv("FOOTER_CLI_URL", "https://github.com/timvisee/ffsend"),
-		FooterSourceURL:        getEnv("FOOTER_SOURCE_URL", "https://github.com/timvisee/send"),
+		FooterSourceURL:        getEnv("FOOTER_SOURCE_URL", "https://github.com/Simon-Martens/go-send"),
 		ShowThunderbirdSponsor: getEnvBool("SHOW_THUNDERBIRD_SPONSOR", false),
 
 		// Localization

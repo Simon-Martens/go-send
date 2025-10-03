@@ -37,7 +37,7 @@ type UploadResponse struct {
 	Error      int    `json:"error,omitempty"`
 }
 
-func NewUploadHandler(db *storage.DB, cfg *config.Config) http.HandlerFunc {
+func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(fileID string, expiresAt int64) bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
@@ -195,6 +195,12 @@ func NewUploadHandler(db *storage.DB, cfg *config.Config) http.HandlerFunc {
 			storage.DeleteFile(id)
 			sendError(conn, 500)
 			return
+		}
+
+		// Schedule cleanup if file expires within 1 hour
+		ttl := time.Until(time.Unix(meta.ExpiresAt, 0))
+		if ttl <= 1*time.Hour && ttl > 0 {
+			scheduleCleanup(id, meta.ExpiresAt)
 		}
 
 		// Send success response

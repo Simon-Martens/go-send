@@ -77,7 +77,7 @@ func NewExistsHandler(db *storage.DB) http.HandlerFunc {
 	}
 }
 
-func NewDeleteHandler(db *storage.DB) http.HandlerFunc {
+func NewDeleteHandler(db *storage.DB, cancelCleanup func(string)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -116,6 +116,9 @@ func NewDeleteHandler(db *storage.DB) http.HandlerFunc {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
+
+		// Cancel any scheduled cleanup goroutine
+		cancelCleanup(id)
 
 		// Delete file and metadata
 		db.DeleteFile(id)

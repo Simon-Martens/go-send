@@ -1,172 +1,419 @@
-# [![Send](./assets/icon-64x64.png)](https://gitlab.com/timvisee/send/) Send
+# Send - Go Backend
 
-[![Build status on GitLab CI][gitlab-ci-master-badge]][gitlab-ci-link]
-[![Latest release][release-badge]][release-link]
-[![Docker image][docker-image-badge]][docker-image-link]
-[![Project license][repo-license-badge]](LICENSE)
+A lightweight, self-hostable file sharing service with client-side encryption. This is a fork of [timvisee/send](https://gitlab.com/timvisee/send) with the Node.js backend replaced by a Go implementation.
 
-[docker-image-badge]: https://img.shields.io/badge/docker-latest-blue.svg
-[docker-image-link]: https://gitlab.com/timvisee/send/container_registry/eyJuYW1lIjoidGltdmlzZWUvc2VuZCIsInRhZ3NfcGF0aCI6Ii90aW12aXNlZS9zZW5kL3JlZ2lzdHJ5L3JlcG9zaXRvcnkvMTQxODUwNC90YWdzP2Zvcm1hdD1qc29uIiwiaWQiOjE0MTg1MDQsImNsZWFudXBfcG9saWN5X3N0YXJ0ZWRfYXQiOm51bGx9
-[gitlab-ci-link]: https://gitlab.com/timvisee/send/pipelines
-[gitlab-ci-master-badge]: https://gitlab.com/timvisee/send/badges/master/pipeline.svg
-[release-badge]: https://img.shields.io/github/v/tag/timvisee/send
-[release-link]: https://gitlab.com/timvisee/send/-/tags
-[repo-license-badge]: https://img.shields.io/github/license/timvisee/send.svg
+## What Changed
 
-A fork of Mozilla's [Firefox Send][mozilla-send].
-Mozilla discontinued Send, this fork is a community effort to keep the project
-up-to-date and alive.
+This fork replaces the original Node.js/Express backend with a standalone Go server while keeping the original frontend completely intact. All encryption and decryption still happens in the browser using the Web Crypto API.
 
-- Forked [at][fork-commit] Mozilla's last publicly hosted version
-- _Mozilla_ & _Firefox_ branding [is][remove-branding-pr] removed so you can legally self-host
-- Kept compatible with [`ffsend`][ffsend] (CLI for Send)
-- Dependencies have been updated
-- Mozilla's [changes][mozilla-patches] since the fork have been selectively [merged][mozilla-patches-pr]
-- Mozilla's experimental report feature, download tokens, trust warnings and FxA changes are not included
+### Why Go?
 
-Find an up-to-date Docker image here: [docs/docker.md](docs/docker.md)
+- **Simpler deployment**: Single binary, no Node.js runtime required
+- **Reduced dependencies**: No Redis, no external storage backends (S3/GCS)
+- **Lower resource usage**: More efficient memory and CPU utilization
+- **Easier maintenance**: Smaller codebase, fewer moving parts
 
-The original project by Mozilla can be found [here][mozilla-send].
-The [`mozilla-master`][branch-mozilla-master] branch holds the `master` branch
-as left by Mozilla.
-The [`send-v3`][branch-send-v3] branch holds the commit tree of Mozilla's last
-publicly hosted version, which this fork is based on.
-The [`send-v4`][branch-send-v4] branch holds the commit tree of Mozilla's last
-experimental version which was still a work in progress (featuring file
-reporting, download tokens, trust warnings and FxA changes), this has
-selectively been merged into this fork.
-Please consider to [donate][donate] to allow me to keep working on this.
+### What Was Removed
 
-Thanks [Mozilla][mozilla] for building this amazing tool!
+- **Node.js server**: Replaced with Go (`goserver/`)
+- **Redis**: Replaced with SQLite for metadata storage
+- **S3/GCS storage**: Uses local filesystem only
+- **Firefox Accounts (FxA)**: Authentication removed (was optional)
+- **Sentry**: Error tracking removed (was optional)
 
-[branch-mozilla-master]: https://gitlab.com/timvisee/send/-/tree/mozilla-master
-[branch-send-v3]: https://gitlab.com/timvisee/send/-/tree/send-v3
-[branch-send-v4]: https://gitlab.com/timvisee/send/-/tree/send-v4
-[donate]: https://timvisee.com/donate
-[ffsend]: https://github.com/timvisee/ffsend
-[fork-commit]: https://gitlab.com/timvisee/send/-/commit/3e9be676413a6e1baaf6a354c180e91899d10bec
-[mozilla-patches-pr]: https://gitlab.com/timvisee/send/-/merge_requests/3
-[mozilla-patches]: https://gitlab.com/timvisee/send/-/compare/3e9be676413a6e1baaf6a354c180e91899d10bec...mozilla-master
-[mozilla-send]: https://github.com/mozilla/send
-[mozilla]: https://mozilla.org/
-[remove-branding-pr]: https://gitlab.com/timvisee/send/-/merge_requests/2
+### What Was Kept
 
----
+- **Frontend**: 100% original Choo-based UI
+- **Client-side encryption**: All crypto happens in browser
+- **File sharing**: Upload, download, password protection
+- **Compatible with ffsend**: CLI tool still works
+- **Branding**: Mozilla branding already removed in timvisee's fork
 
-**Docs:** [FAQ](docs/faq.md), [Encryption](docs/encryption.md), [Build](docs/build.md), [Docker](docs/docker.md), [More](docs/)
+## Architecture
 
----
-
-## Table of Contents
-
-* [What it does](#what-it-does)
-* [Requirements](#requirements)
-* [Development](#development)
-* [Commands](#commands)
-* [Configuration](#configuration)
-* [Localization](#localization)
-* [Contributing](#contributing)
-* [Instances](#instances)
-* [Deployment](#deployment)
-* [Clients](#clients)
-* [License](#license)
-
----
-
-## What it does
-
-A file sharing experiment which allows you to send encrypted files to other users.
-
----
-
-## Requirements
-
-- [Node.js 16.x](https://nodejs.org/)
-- [Redis server](https://redis.io/) (optional for development)
-- [AWS S3](https://aws.amazon.com/s3/) or compatible service (optional)
-
----
-
-## Development
-
-To start an ephemeral development server, run:
-
-```sh
-npm install
-npm start
+```
+┌─────────────────────────────────────────┐
+│           Browser (Client)              │
+│  ┌─────────────────────────────────┐   │
+│  │  Choo Framework (UI)            │   │
+│  │  WebCrypto API (Encryption)     │   │
+│  │  - HKDF key derivation          │   │
+│  │  - AES-GCM encryption           │   │
+│  │  - HMAC authentication          │   │
+│  └─────────────────────────────────┘   │
+└──────────────┬──────────────────────────┘
+               │ HTTPS/WebSocket
+               │
+┌──────────────▼──────────────────────────┐
+│         Go Server (Backend)             │
+│  ┌─────────────────────────────────┐   │
+│  │  HTTP/WebSocket Handler         │   │
+│  │  - Serves static assets         │   │
+│  │  - Handles file upload/download │   │
+│  │  - HMAC verification            │   │
+│  │  - No access to encryption keys │   │
+│  └─────────────────────────────────┘   │
+│  ┌─────────────┐  ┌────────────────┐   │
+│  │   SQLite    │  │  Local FS      │   │
+│  │  (metadata) │  │  (files)       │   │
+│  └─────────────┘  └────────────────┘   │
+└─────────────────────────────────────────┘
 ```
 
-Then, browse to http://localhost:8080
+### How It Works
 
----
+1. **Upload**: Client encrypts file in browser, sends encrypted blob via WebSocket to Go server
+2. **Storage**: Go server stores encrypted file on local filesystem, metadata in SQLite
+3. **Download**: Client requests file by ID, Go server verifies HMAC auth, streams encrypted file
+4. **Decryption**: Client decrypts file in browser using secret key from URL fragment
 
-## Commands
+**Security**: The secret key never leaves the browser and never touches the server. The server only stores encrypted blobs.
 
-| Command          | Description |
-|------------------|-------------|
-| `npm run format` | Formats the frontend and server code using **prettier**.
-| `npm run lint`   | Lints the CSS and JavaScript code.
-| `npm test`       | Runs the suite of mocha tests.
-| `npm start`      | Runs the server in development configuration.
-| `npm run build`  | Builds the production assets.
-| `npm run prod`   | Runs the server in production configuration.
+## Project Structure
 
----
+```
+send/
+├── goserver/              # Go backend (NEW)
+│   ├── main.go            # Server entry point
+│   ├── config/            # Environment configuration
+│   ├── handlers/          # HTTP/WebSocket handlers
+│   │   ├── pages.go       # HTML rendering
+│   │   ├── upload.go      # WebSocket upload
+│   │   ├── download.go    # File download
+│   │   ├── metadata.go    # File metadata API
+│   │   └── config.go      # Config endpoint
+│   ├── storage/           # Data layer
+│   │   ├── db.go          # SQLite operations
+│   │   └── files.go       # Filesystem operations
+│   ├── auth/              # Authentication
+│   │   └── hmac.go        # HMAC verification
+│   └── templates/         # HTML templates
+│       └── index.html     # Main page template
+│
+├── app/                   # Frontend (UNCHANGED)
+│   ├── main.js            # Choo app entry point
+│   ├── ui/                # UI components
+│   ├── fileReceiver.js    # Download handling
+│   ├── fileSender.js      # Upload handling
+│   ├── keychain.js        # Crypto operations
+│   └── api.js             # Backend API calls
+│
+├── dist/                  # Built frontend assets
+│   ├── app.js             # Bundled JavaScript
+│   ├── app.css            # Bundled CSS
+│   └── manifest.json      # Asset manifest
+│
+├── assets/                # Static assets
+├── public/                # Public files
+└── build/                 # Build scripts
+```
+
+## Quick Start
+
+### Prerequisites
+
+- **Go 1.21+** (for backend)
+- **Node.js 16+** (for frontend build only)
+- **npm** (for frontend build only)
+
+### Build Frontend
+
+```bash
+npm install
+npm run build
+```
+
+This creates `dist/` with bundled assets.
+
+### Copy Assets to Go Server
+
+```bash
+cp -r dist goserver/
+```
+
+### Run Go Server
+
+```bash
+cd goserver
+go mod tidy
+go run .
+```
+
+Server starts on http://localhost:8080
 
 ## Configuration
 
-The server is configured with environment variables. See [server/config.js](server/config.js) for all options and [docs/docker.md](docs/docker.md) for examples.
+The Go server is configured via environment variables. All settings are optional with sensible defaults.
 
----
+### Server Settings
 
-## Localization
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PORT` | `8080` | Port to listen on |
+| `BASE_URL` | (auto) | Base URL for download links (e.g., `https://send.example.com`) |
+| `DETECT_BASE_URL` | `false` | Auto-detect base URL from request headers |
+| `FILE_DIR` | `./uploads` | Directory for file storage |
 
-See: [docs/localization.md](docs/localization.md)
+### Upload/Download Limits
 
----
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `MAX_FILE_SIZE` | `2684354560` | Maximum file size in bytes (2.5 GB) |
+| `MAX_DOWNLOADS` | `100` | Maximum number of downloads per file |
+| `MAX_EXPIRE_SECONDS` | `604800` | Maximum expiry time in seconds (7 days) |
+| `MAX_FILES_PER_ARCHIVE` | `64` | Maximum files in an archive |
+| `DOWNLOAD_COUNTS` | `1,2,3,4,5,20,50,100` | Download limit options (CSV) |
+| `EXPIRE_TIMES_SECONDS` | `300,3600,86400,604800` | Expiry time options (CSV) |
+| `DEFAULT_DOWNLOADS` | `1` | Default download limit |
+| `DEFAULT_EXPIRE_SECONDS` | `86400` | Default expiry time (1 day) |
 
-## Contributing
+### Branding
 
-Pull requests are always welcome! Feel free to check out the list of "good first issues" (to be implemented).
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `UI_COLOR_PRIMARY` | `#0A84FF` | Primary UI color |
+| `UI_COLOR_ACCENT` | `#003EAA` | Accent color (hover effects) |
+| `UI_CUSTOM_CSS` | (empty) | URL to custom CSS file |
+| `UI_CUSTOM_ASSETS_ICON` | (empty) | Custom logo icon |
+| `UI_CUSTOM_ASSETS_WORDMARK` | (empty) | Custom wordmark/text logo |
+| `CUSTOM_FOOTER_TEXT` | (empty) | Custom footer text |
+| `CUSTOM_FOOTER_URL` | (empty) | Custom footer link URL |
 
----
+See all branding options: `goserver/config/config.go`
 
-## Instances
+### Example: Custom Configuration
 
-Find a list of public instances here: https://github.com/timvisee/send-instances/
+```bash
+export MAX_FILE_SIZE=5000000000          # 5 GB limit
+export MAX_EXPIRE_SECONDS=2592000        # 30 days max
+export UI_COLOR_PRIMARY=#FF6B35          # Orange theme
+export BASE_URL=https://send.example.com
+export PORT=3000
 
----
+cd goserver && go run .
+```
+
+## Development
+
+### Frontend Development
+
+The frontend is built with:
+- **Choo**: Lightweight framework
+- **Webpack**: Module bundler
+- **PostCSS**: CSS processing
+
+To develop the frontend:
+
+```bash
+npm install
+npm start  # Starts webpack dev server + Node.js proxy (for testing)
+```
+
+Or build for production:
+
+```bash
+npm run build
+cp -r dist goserver/
+```
+
+### Backend Development
+
+The Go server uses:
+- **SQLite**: Metadata database (via mattn/go-sqlite3)
+- **Gorilla WebSocket**: WebSocket support
+- **Standard library**: HTTP server, routing
+
+To develop the backend:
+
+```bash
+cd goserver
+go run .  # Auto-recompiles on changes
+```
+
+### Database Schema
+
+SQLite database: `goserver/send.db`
+
+```sql
+CREATE TABLE files (
+  id TEXT PRIMARY KEY,           -- 16-char hex ID
+  owner_token TEXT NOT NULL,     -- Owner deletion token
+  metadata TEXT NOT NULL,        -- Encrypted metadata (base64)
+  auth_key TEXT NOT NULL,        -- HMAC auth key (base64)
+  nonce TEXT NOT NULL,           -- Current nonce for auth
+  dl_limit INTEGER NOT NULL,     -- Download limit
+  dl_count INTEGER DEFAULT 0,    -- Current download count
+  password INTEGER DEFAULT 0,    -- Has password (0/1)
+  created_at INTEGER NOT NULL,   -- Unix timestamp
+  expires_at INTEGER NOT NULL    -- Unix timestamp
+);
+```
+
+## API Endpoints
+
+### Upload
+- `POST /api/ws` - WebSocket upload
+  - Sends encrypted file chunks
+  - Returns `{url, id, ownerToken}`
+
+### Download
+- `GET /download/:id` - Download page (HTML)
+- `GET /api/metadata/:id` - Get file metadata (requires HMAC auth)
+- `GET /api/download/:id` - Download file (requires HMAC auth)
+
+### Management
+- `POST /api/delete/:id` - Delete file (requires owner token)
+- `POST /api/password/:id` - Set password (requires owner token)
+- `GET /api/exists/:id` - Check if file exists
+- `GET /api/info/:id` - Get file info (size, downloads)
+
+### Config
+- `GET /config` - Get server configuration (limits, options)
 
 ## Deployment
 
-See: [docs/deployment.md](docs/deployment.md)
+### Docker (Recommended)
 
-Docker quickstart: [docs/docker.md](docs/docker.md)
+Create a `Dockerfile`:
 
-AWS example using Ubuntu Server `20.04`: [docs/AWS.md](docs/AWS.md)
+```dockerfile
+FROM golang:1.21-alpine AS builder
+WORKDIR /app
+COPY goserver/ .
+RUN go mod download
+RUN go build -o send-server .
 
----
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
+WORKDIR /root/
+COPY --from=builder /app/send-server .
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/templates ./templates
+EXPOSE 8080
+CMD ["./send-server"]
+```
+
+Build and run:
+
+```bash
+docker build -t send-go .
+docker run -p 8080:8080 -v $(pwd)/data:/root/uploads send-go
+```
+
+### Systemd Service
+
+Create `/etc/systemd/system/send.service`:
+
+```ini
+[Unit]
+Description=Send File Sharing Service
+After=network.target
+
+[Service]
+Type=simple
+User=send
+WorkingDirectory=/opt/send
+ExecStart=/opt/send/send-server
+Restart=on-failure
+Environment="PORT=8080"
+Environment="BASE_URL=https://send.example.com"
+Environment="MAX_FILE_SIZE=5000000000"
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start:
+
+```bash
+sudo systemctl enable send
+sudo systemctl start send
+```
+
+### Reverse Proxy (Nginx)
+
+```nginx
+server {
+    listen 443 ssl http2;
+    server_name send.example.com;
+
+    ssl_certificate /path/to/cert.pem;
+    ssl_certificate_key /path/to/key.pem;
+
+    client_max_body_size 5G;
+
+    location / {
+        proxy_pass http://localhost:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+```
 
 ## Clients
 
-- Web: _this repository_
-- Command-line: [`ffsend`](https://github.com/timvisee/ffsend)
-- Android: _see [Android](#android) section_
-- Thunderbird: [FileLink provider for Send](https://addons.thunderbird.net/thunderbird/addon/filelink-provider-for-send/)
+- **Web**: Built-in web interface
+- **CLI**: [ffsend](https://github.com/timvisee/ffsend) - Compatible with this server
+- **Android/iOS**: Original apps in `android/` and `ios/` directories (native apps, not web wrappers)
 
-#### Android
+## Security
 
-The android implementation is contained in the `android` directory,
-and can be viewed locally for easy testing and editing by running `ANDROID=1 npm
-start` and then visiting <http://localhost:8080>. CSS and image files are
-located in the `android/app/src/main/assets` directory.
+### Threat Model
 
----
+- **Server compromise**: Files remain encrypted, keys never touch server
+- **Network interception**: Use HTTPS/TLS (files are already encrypted)
+- **Client-side attacks**: Out of scope (XSS, malicious JS)
+
+### Authentication Flow
+
+1. Client derives auth key from secret using HKDF
+2. Server generates random nonce
+3. Client signs nonce with auth key (HMAC-SHA256)
+4. Server verifies signature
+5. Server rotates nonce on each request
+
+All authentication uses base64url encoding without padding.
+
+## Migration from Node.js Version
+
+If you're running the original Node.js version:
+
+1. **Export data**: Files and metadata are not compatible
+2. **Inform users**: All existing links will break
+3. **Deploy Go version**: Fresh start with new database
+4. **Update DNS**: Point to new server
+
+There is no automated migration path. This is a clean rewrite.
+
+## Contributing
+
+Contributions welcome! Areas of interest:
+
+- [ ] Automated tests
+- [ ] Prometheus metrics
+- [ ] Admin dashboard
+- [ ] Rate limiting
+- [ ] Cleanup of expired files
+- [ ] Docker Compose setup
 
 ## License
 
 [Mozilla Public License Version 2.0](LICENSE)
 
-[qrcode.js](https://github.com/kazuhikoarase/qrcode-generator) licensed under MIT
+Original project by Mozilla, forked by timvisee, Go backend by contributors.
+
+## Acknowledgments
+
+- **Mozilla**: Original Firefox Send project
+- **timvisee**: Community fork maintainer
+- **Choo framework**: Frontend framework
+- **ffsend**: CLI client compatibility
 
 ---
+
+**Original docs**: [docs/](docs/) (Note: Most docs refer to Node.js version)
+
+**Questions?**: Check [docs/faq.md](docs/faq.md) for general Send questions

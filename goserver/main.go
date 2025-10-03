@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/yourusername/send-go/config"
 	"github.com/yourusername/send-go/handlers"
 	"github.com/yourusername/send-go/storage"
 )
@@ -55,30 +56,28 @@ func init() {
 	if err != nil {
 		log.Fatal("Failed to parse template:", err)
 	}
-
-	// Create uploads directory
-	if err := os.MkdirAll("./uploads", 0755); err != nil {
-		log.Fatal("Failed to create uploads directory:", err)
-	}
 }
 
 func main() {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
+	// Load configuration
+	cfg := config.Load()
+
+	// Create uploads directory from config
+	if err := os.MkdirAll(cfg.FileDir, 0755); err != nil {
+		log.Fatal("Failed to create uploads directory:", err)
 	}
 
 	mux := http.NewServeMux()
 
 	// HTML routes
-	indexHandler := handlers.NewIndexHandler(tmpl, manifest)
-	downloadPageHandler := handlers.NewDownloadPageHandler(tmpl, manifest, db)
+	indexHandler := handlers.NewIndexHandler(tmpl, manifest, cfg)
+	downloadPageHandler := handlers.NewDownloadPageHandler(tmpl, manifest, db, cfg)
 	mux.HandleFunc("/download/", downloadPageHandler)
 	mux.HandleFunc("/error", indexHandler)
 
 	// API routes
-	mux.HandleFunc("/config", handlers.ConfigHandler)
-	mux.HandleFunc("/api/ws", handlers.NewUploadHandler(db))
+	mux.HandleFunc("/config", handlers.NewConfigHandler(cfg))
+	mux.HandleFunc("/api/ws", handlers.NewUploadHandler(db, cfg))
 	mux.HandleFunc("/api/download/", handlers.NewDownloadHandler(db))
 	mux.HandleFunc("/api/metadata/", handlers.NewMetadataHandler(db))
 	mux.HandleFunc("/api/exists/", handlers.NewExistsHandler(db))
@@ -148,6 +147,6 @@ func main() {
 		indexHandler(w, r)
 	})
 
-	log.Printf("Server starting on port %s", port)
-	log.Fatal(http.ListenAndServe(":"+port, mux))
+	log.Printf("Server starting on port %s", cfg.Port)
+	log.Fatal(http.ListenAndServe(":"+cfg.Port, mux))
 }

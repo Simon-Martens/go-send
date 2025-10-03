@@ -128,6 +128,9 @@ func getTemplateData(manifest map[string]string, downloadMetadata string, cfg *c
 	return map[string]interface{}{
 		"CSS":                   manifest["app.css"],
 		"JS":                    manifest["app.js"],
+		"ColorPrimary":          cfg.UIColorPrimary,
+		"ColorAccent":           cfg.UIColorAccent,
+		"CustomCSS":             cfg.CustomCSS,
 		"LimitsJSON":            template.JS(limitsJSON),
 		"WebUIJSON":             template.JS(webUIJSON),
 		"DefaultsJSON":          template.JS(defaultsJSON),

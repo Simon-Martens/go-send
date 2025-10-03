@@ -11,6 +11,7 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/yourusername/send-go/auth"
+	"github.com/yourusername/send-go/config"
 	"github.com/yourusername/send-go/storage"
 )
 
@@ -35,7 +36,7 @@ type UploadResponse struct {
 	Error      int    `json:"error,omitempty"`
 }
 
-func NewUploadHandler(db *storage.DB) http.HandlerFunc {
+func NewUploadHandler(db *storage.DB, cfg *config.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
@@ -71,23 +72,36 @@ func NewUploadHandler(db *storage.DB) http.HandlerFunc {
 
 		// Set defaults
 		if req.TimeLimit == 0 {
-			req.TimeLimit = 86400 // 1 day
+			req.TimeLimit = cfg.DefaultExpireSeconds
 		}
 		if req.Dlimit == 0 {
-			req.Dlimit = 1
+			req.Dlimit = cfg.DefaultDownloads
 		}
 
 		// Validate limits
-		if req.TimeLimit > 604800 { // 7 days
-			req.TimeLimit = 604800
+		if req.TimeLimit > cfg.MaxExpireSeconds {
+			req.TimeLimit = cfg.MaxExpireSeconds
 		}
-		if req.Dlimit > 100 {
-			req.Dlimit = 100
+		if req.Dlimit > cfg.MaxDownloads {
+			req.Dlimit = cfg.MaxDownloads
+		}
+
+		// Build URL
+		baseURL := cfg.BaseURL
+		if baseURL == "" && cfg.DetectBaseURL {
+			// Auto-detect from request
+			scheme := "http"
+			if r.TLS != nil {
+				scheme = "https"
+			}
+			baseURL = scheme + "://" + r.Host
+		} else if baseURL == "" {
+			baseURL = "http://localhost:" + cfg.Port
 		}
 
 		// Send response with file info
 		resp := UploadResponse{
-			URL:        "http://localhost:8080/download/" + id,
+			URL:        baseURL + "/download/" + id,
 			OwnerToken: ownerToken,
 			ID:         id,
 		}

@@ -16,8 +16,8 @@ The plan is to ultimate replace client side rounting (choo) with server-side rou
 
 ### What is changed?
 
-- **Express server**: replaced with Go
-- **Redis**: Replaced with **SQLite** for metadata storage
+- ~Express server~: replaced with Go std lib server
+- ~Redis~: Replaced with **SQLite** for metadata storage
 - ~Firefox Accounts (FxA)~: Authentication removed (did not work in modern FF anyway)
 - ~Webpack~ removed, introduced **Vite**. We have a lot of fewer build features now
 

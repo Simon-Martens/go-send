@@ -1,0 +1,1 @@
+{"version":3,"sources":["webpack:///./public/locales/lus/send.ftl"],"names":[],"mappings":"2FAAA,OAAe","file":"53.36b5e52c.js","sourcesContent":["export default \"encryptingFile = Encrypting...\\ndecryptingFile = Decrypting\\n\\n## Send version 2 strings\\n\\n\""],"sourceRoot":""}

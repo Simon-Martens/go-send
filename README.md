@@ -12,6 +12,11 @@ This fork replaces the original Node.js/Express backend with a Go server, keepin
 The original `send` has a lot of dependencies (1980 of them!) for a project that doesn't really do all that much. Also, the server still runs on Node 16. Needless to say, maintaining and updating this to the newest version of its dependencies is a nearly impossible task; much less for a hobby developer. Luckily, the server runtime is mostly decoupled from the frontend; it used to be some server SSR and hydration; but the `choo` router/framework can be run in a browser alone. Which made the task of implementing a go server application trivial.
 
 
+### So what's the plan?
+
+The plan is to ultimate replace client side rounting (choo) with server-side routing, replace rimraf & webpack with vite or sth eles and use go templates as far as possible. Through the nature of this project, a lot of browser stuff is still needed.
+
+
 ### What is Implemented?
 
 - **Node.js server**: replaced with Go (`goserver/`)

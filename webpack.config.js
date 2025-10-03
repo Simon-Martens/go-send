@@ -1,55 +1,55 @@
-const path = require('path');
-const webpack = require('webpack');
-const CopyPlugin = require('copy-webpack-plugin');
-const ManifestPlugin = require('webpack-manifest-plugin');
-const VersionPlugin = require('./build/version_plugin');
-const AndroidIndexPlugin = require('./build/android_index_plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const path = require("path");
+const webpack = require("webpack");
+const CopyPlugin = require("copy-webpack-plugin");
+const ManifestPlugin = require("webpack-manifest-plugin");
+const VersionPlugin = require("./build/version_plugin");
+const AndroidIndexPlugin = require("./build/android_index_plugin");
+const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 // Fix for node 18+
 // See: <https://stackoverflow.com/a/78005686/1000145>
-const crypto = require('crypto');
+const crypto = require("crypto");
 const crypto_orig_createHash = crypto.createHash;
 crypto.createHash = algorithm =>
-  crypto_orig_createHash(algorithm == 'md4' ? 'sha256' : algorithm);
+  crypto_orig_createHash(algorithm == "md4" ? "sha256" : algorithm);
 
 const webJsOptions = {
   babelrc: false,
   presets: [
     [
-      '@babel/preset-env',
+      "@babel/preset-env",
       {
         bugfixes: true,
-        useBuiltIns: 'entry',
+        useBuiltIns: "entry",
         corejs: 3
       }
     ]
   ],
   plugins: [
-    '@babel/plugin-syntax-dynamic-import',
-    'module:nanohtml',
-    ['@babel/plugin-proposal-class-properties', { loose: false }]
+    "@babel/plugin-syntax-dynamic-import",
+    "module:nanohtml",
+    ["@babel/plugin-proposal-class-properties", { loose: false }]
   ]
 };
 
 const serviceWorker = {
-  target: 'webworker',
+  target: "webworker",
   entry: {
-    serviceWorker: './app/serviceWorker.js'
+    serviceWorker: "./app/serviceWorker.js"
   },
   output: {
-    filename: '[name].js',
-    path: path.resolve(__dirname, 'dist'),
-    publicPath: '/'
+    filename: "[name].js",
+    path: path.resolve(__dirname, "dist"),
+    publicPath: "/"
   },
-  devtool: 'source-map',
+  devtool: "source-map",
   module: {
     rules: [
       {
         test: /\.(png|jpg)$/,
-        loader: 'file-loader',
+        loader: "file-loader",
         options: {
-          name: '[name].[contenthash:8].[ext]',
+          name: "[name].[contenthash:8].[ext]",
           esModule: false
         }
       },
@@ -57,26 +57,26 @@ const serviceWorker = {
         test: /\.svg$/,
         use: [
           {
-            loader: 'file-loader',
+            loader: "file-loader",
             options: {
-              name: '[name].[contenthash:8].[ext]',
+              name: "[name].[contenthash:8].[ext]",
               esModule: false
             }
           },
           {
-            loader: 'svgo-loader',
+            loader: "svgo-loader",
             options: {
               plugins: [
                 {
-                  name: 'removeViewBox',
+                  name: "removeViewBox",
                   active: false // true causes stretched images
                 },
                 {
-                  name: 'convertStyleToAttrs',
+                  name: "convertStyleToAttrs",
                   active: true // for CSP, no unsafe-eval
                 },
                 {
-                  name: 'removeTitle',
+                  name: "removeTitle",
                   active: true // for smallness
                 }
               ]
@@ -86,8 +86,8 @@ const serviceWorker = {
       },
       {
         // loads all assets from assets/ for use by common/assets.js
-        test: require.resolve('./common/generate_asset_map.js'),
-        use: ['babel-loader', 'val-loader']
+        test: require.resolve("./common/generate_asset_map.js"),
+        use: ["babel-loader", "val-loader"]
       }
     ]
   },
@@ -95,16 +95,16 @@ const serviceWorker = {
 };
 
 const web = {
-  target: 'web',
+  target: "web",
   entry: {
-    app: ['./app/main.js']
+    app: ["./app/main.js"]
     // android: ['./android/android.js'],
     // ios: ['./ios/ios.js']
   },
   output: {
-    chunkFilename: '[name].[contenthash:8].js',
-    filename: '[name].[contenthash:8].js',
-    path: path.resolve(__dirname, 'dist')
+    chunkFilename: "[name].[contenthash:8].js",
+    filename: "[name].[contenthash:8].js",
+    path: path.resolve(__dirname, "dist")
   },
   module: {
     rules: [
@@ -112,40 +112,40 @@ const web = {
         test: /\.js$/,
         oneOf: [
           {
-            loader: 'babel-loader',
+            loader: "babel-loader",
             include: [
-              path.resolve(__dirname, 'app'),
-              path.resolve(__dirname, 'common'),
+              path.resolve(__dirname, "app"),
+              path.resolve(__dirname, "common"),
               // some dependencies need to get re-babeled because we
               // have different targets than their default configs
               path.resolve(
                 __dirname,
-                'node_modules/@dannycoates/webcrypto-liner'
+                "node_modules/@dannycoates/webcrypto-liner"
               ),
-              path.resolve(__dirname, 'node_modules/@fluent'),
-              path.resolve(__dirname, 'node_modules/intl-pluralrules')
+              path.resolve(__dirname, "node_modules/@fluent"),
+              path.resolve(__dirname, "node_modules/intl-pluralrules")
             ],
             options: webJsOptions
           },
           {
             // Strip asserts from our deps, mainly choojs family
-            include: [path.resolve(__dirname, 'node_modules')],
+            include: [path.resolve(__dirname, "node_modules")],
             exclude: [
-              path.resolve(__dirname, 'node_modules/crc'),
-              path.resolve(__dirname, 'node_modules/@fluent'),
-              path.resolve(__dirname, 'node_modules/@sentry'),
-              path.resolve(__dirname, 'node_modules/tslib'),
-              path.resolve(__dirname, 'node_modules/webcrypto-core')
+              path.resolve(__dirname, "node_modules/crc"),
+              path.resolve(__dirname, "node_modules/@fluent"),
+              path.resolve(__dirname, "node_modules/@sentry"),
+              path.resolve(__dirname, "node_modules/tslib"),
+              path.resolve(__dirname, "node_modules/webcrypto-core")
             ],
-            loader: 'webpack-unassert-loader'
+            loader: "webpack-unassert-loader"
           }
         ]
       },
       {
         test: /\.(png|jpg)$/,
-        loader: 'file-loader',
+        loader: "file-loader",
         options: {
-          name: '[name].[contenthash:8].[ext]',
+          name: "[name].[contenthash:8].[ext]",
           esModule: false
         }
       },
@@ -153,30 +153,30 @@ const web = {
         test: /\.svg$/,
         use: [
           {
-            loader: 'file-loader',
+            loader: "file-loader",
             options: {
-              name: '[name].[contenthash:8].[ext]',
+              name: "[name].[contenthash:8].[ext]",
               esModule: false
             }
           },
           {
-            loader: 'svgo-loader',
+            loader: "svgo-loader",
             options: {
               plugins: [
                 {
-                  name: 'cleanupIDs',
+                  name: "cleanupIDs",
                   active: false
                 },
                 {
-                  name: 'removeViewBox',
+                  name: "removeViewBox",
                   active: false // true causes stretched images
                 },
                 {
-                  name: 'convertStyleToAttrs',
+                  name: "convertStyleToAttrs",
                   active: true // for CSP, no unsafe-eval
                 },
                 {
-                  name: 'removeTitle',
+                  name: "removeTitle",
                   active: true // for smallness
                 }
               ]
@@ -190,29 +190,24 @@ const web = {
         use: ExtractTextPlugin.extract({
           use: [
             {
-              loader: 'css-loader',
+              loader: "css-loader",
               options: {
                 importLoaders: 1,
                 esModule: false
               }
             },
-            'postcss-loader'
+            "postcss-loader"
           ]
         })
       },
       {
         test: /\.ftl$/,
-        use: 'raw-loader'
-      },
-      {
-        // creates test.js for /test
-        test: require.resolve('./test/frontend/index.js'),
-        use: ['babel-loader', 'val-loader']
+        use: "raw-loader"
       },
       {
         // loads all assets from assets/ for use by common/assets.js
-        test: require.resolve('./common/generate_asset_map.js'),
-        use: ['babel-loader', 'val-loader']
+        test: require.resolve("./common/generate_asset_map.js"),
+        use: ["babel-loader", "val-loader"]
       }
     ]
   },
@@ -220,30 +215,30 @@ const web = {
     new CopyPlugin({
       patterns: [
         {
-          context: 'public',
-          from: '*.*'
+          context: "public",
+          from: "*.*"
         }
       ]
     }),
-    new webpack.EnvironmentPlugin(['NODE_ENV']),
+    new webpack.EnvironmentPlugin(["NODE_ENV"]),
     new webpack.IgnorePlugin(/\.\.\/dist/), // used in common/*.js
     new ExtractTextPlugin({
-      filename: '[name].[md5:contenthash:8].css'
+      filename: "[name].[md5:contenthash:8].css"
     }),
     new VersionPlugin(), // used for the /__version__ route
     new AndroidIndexPlugin(),
     new ManifestPlugin() // used by server side to resolve hashed assets
   ],
-  devtool: 'source-map',
+  devtool: "source-map",
   devServer: {
     before:
-      process.env.NODE_ENV === 'development' && require('./server/bin/dev'),
+      process.env.NODE_ENV === "development" && require("./server/bin/dev"),
     compress: true,
     hot: false,
-    host: '0.0.0.0',
+    host: "0.0.0.0",
     proxy: {
-      '/api/ws': {
-        target: 'ws://localhost:8081',
+      "/api/ws": {
+        target: "ws://localhost:8081",
         ws: true,
         secure: false
       }
@@ -252,14 +247,14 @@ const web = {
 };
 
 module.exports = (env, argv) => {
-  const mode = argv.mode || 'production';
+  const mode = argv.mode || "production";
   // eslint-disable-next-line no-console
   console.error(`mode: ${mode}`);
   process.env.NODE_ENV = web.mode = serviceWorker.mode = mode;
-  if (mode === 'development') {
+  if (mode === "development") {
     // istanbul instruments the source for code coverage
-    webJsOptions.plugins.push('istanbul');
-    web.entry.tests = ['./test/frontend/index.js'];
+    webJsOptions.plugins.push("istanbul");
+    web.entry.tests = ["./test/frontend/index.js"];
   }
   return [web, serviceWorker];
 };

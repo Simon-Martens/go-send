@@ -1,61 +1,43 @@
 /* global TransformStream */
 
-export function transformStream(readable, transformer = {}, oncancel) {
-  const reader = readable.getReader();
-  const wrappedTransformer = transformer || {};
-
-  return new ReadableStream({
-    async start(controller) {
-      if (wrappedTransformer.start) {
-        await wrappedTransformer.start(controller);
-      }
-    },
-
-    async pull(controller) {
-      while (true) {
-        const { value, done } = await reader.read();
-
-        if (done) {
-          if (wrappedTransformer.flush) {
-            await wrappedTransformer.flush(controller);
-          }
-          reader.releaseLock();
-          controller.close();
-          return;
+export function transformStream(readable, transformer, oncancel) {
+  try {
+    return readable.pipeThrough(new TransformStream(transformer));
+  } catch (e) {
+    const reader = readable.getReader();
+    return new ReadableStream({
+      start(controller) {
+        if (transformer.start) {
+          return transformer.start(controller);
         }
-
-        if (!wrappedTransformer.transform) {
-          controller.enqueue(value);
-          return;
-        }
-
+      },
+      async pull(controller) {
         let enqueued = false;
         const wrappedController = {
-          enqueue(chunk) {
+          enqueue(d) {
             enqueued = true;
-            controller.enqueue(chunk);
+            controller.enqueue(d);
           }
         };
-
-        await wrappedTransformer.transform(value, wrappedController);
-
-        if (enqueued) {
-          return;
+        while (!enqueued) {
+          const data = await reader.read();
+          if (data.done) {
+            if (transformer.flush) {
+              await transformer.flush(controller);
+            }
+            return controller.close();
+          }
+          await transformer.transform(data.value, wrappedController);
         }
-        // If nothing was enqueued, loop to read the next chunk.
+      },
+      cancel(reason) {
+        readable.cancel(reason);
+        if (oncancel) {
+          oncancel(reason);
+        }
       }
-    },
-
-    cancel(reason) {
-      reader.cancel(reason);
-      if (wrappedTransformer.cancel) {
-        wrappedTransformer.cancel(reason);
-      }
-      if (oncancel) {
-        oncancel(reason);
-      }
-    }
-  });
+    });
+  }
 }
 
 class BlobStreamController {

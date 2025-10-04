@@ -23,6 +23,7 @@ const colors = {
 };
 
 module.exports = {
+  purge: false,
   content: [
     "./app/**/*.{js,jsx}",
     "./templates/**/*.{gohtml,tmpl,gotmpl,html}",

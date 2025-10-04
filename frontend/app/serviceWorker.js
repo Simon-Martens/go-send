@@ -27,13 +27,20 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim()).then(precache);
 });
 
-async function decryptStream(id) {
+async function decryptStream(id, signal) {
   const file = map.get(id);
   if (!file) {
     console.error("[SW] File not found in map for id:", id);
     return new Response(null, { status: 400 });
   }
+
+  if (signal && signal.aborted) {
+    console.log("[SW] Request already aborted for", id);
+    map.delete(id);
+    return new Response(null, { status: 499 });
+  }
   console.log("[SW] Starting decryptStream for", id, "with nonce:", file.nonce);
+  let abortHandler = null;
   try {
     let size = file.size;
     let type = file.type;
@@ -44,6 +51,21 @@ async function decryptStream(id) {
 
     console.log("[SW] Calling downloadStream...");
     file.download = downloadStream(id, keychain);
+
+    if (signal && typeof signal.addEventListener === "function") {
+      abortHandler = () => {
+        console.log("[SW] Request aborted for", id);
+        try {
+          if (file.download && typeof file.download.cancel === "function") {
+            file.download.cancel();
+          }
+        } catch (err) {
+          console.warn("[SW] Failed to cancel download after abort", err);
+        }
+        map.delete(id);
+      };
+      signal.addEventListener("abort", abortHandler, { once: true });
+    }
 
     const body = await file.download.result;
 
@@ -61,6 +83,9 @@ async function decryptStream(id) {
       {
         transform(chunk, controller) {
           file.progress += chunk.length;
+          if (signal && abortHandler && file.progress >= size) {
+            signal.removeEventListener("abort", abortHandler);
+          }
           controller.enqueue(chunk);
         },
       },
@@ -80,6 +105,10 @@ async function decryptStream(id) {
     console.log("[SW] Returning decrypted stream response");
     return new Response(responseStream, { headers });
   } catch (e) {
+    if (e && (e.message === "0" || e.name === "AbortError")) {
+      console.log("[SW] Download aborted for", id);
+      return new Response(null, { status: 499 });
+    }
     console.error("[SW] Error in decryptStream:", e, "noSave:", noSave);
     if (noSave) {
       return new Response(null, { status: e.message });
@@ -92,6 +121,10 @@ async function decryptStream(id) {
         Location: `/download/${id}/#${file.key}`,
       },
     });
+  } finally {
+    if (signal && abortHandler) {
+      signal.removeEventListener("abort", abortHandler);
+    }
   }
 }
 
@@ -139,7 +172,7 @@ self.onfetch = (event) => {
   const dlmatch = DOWNLOAD_URL.exec(url.pathname);
   if (dlmatch) {
     console.log("[SW] Intercepted download request for:", dlmatch[1]);
-    event.respondWith(decryptStream(dlmatch[1]));
+    event.respondWith(decryptStream(dlmatch[1], event.request.signal));
   } else if (cacheable(url.pathname)) {
     event.respondWith(cachedOrFetched(req));
   }

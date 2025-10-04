@@ -323,11 +323,11 @@ func main() {
 	// Limit request body size for non-websocket requests (10MB for API calls)
 	handler = middleware.LimitRequestBody(10 * 1024 * 1024)(handler)
 
-	// Rate limiting: 10 requests per second with burst of 20
+	// Rate limiting: 100 requests per second with burst of 200
 	// Adjust these values based on your needs:
-	// - 10.0 = 10 requests/second average
-	// - 20 = burst size (allows temporary spikes)
-	handler = middleware.RateLimit(10.0, 20)(handler)
+	// - 100.0 = 100 requests/second average
+	// - 200 = burst size (allows temporary spikes)
+	handler = middleware.RateLimit(100.0, 200)(handler)
 
 	// Configure HTTP server with timeouts
 	server := &http.Server{

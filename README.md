@@ -4,6 +4,7 @@ A lightweight, self-hostable file sharing service with client-side encryption. T
 
 This fork replaces the original Node.js/Express backend with a Go server, keeping the original frontend completely as it was (nor now). All encryption and decryption still happens in the browser, and no encryption logic on the frontend was changed at all.
 
+
 ### Why reimplement the backend?
 
 The original `send` has a lot of dependencies (1980 of them!) for a project that doesn't really do all that much. Also, the server still runs on Node 16. Needless to say, maintaining and updating this to the newest version of its dependencies is a nearly impossible task; much less for a hobby developer like me, who wants to use this in production. Luckily, the server runtime is mostly decoupled from the frontend; it used to be some server SSR and hydration; but the `choo` router htat formaerly Firefox Send used can be run in a browser alone. Which made the task of implementing a basic go server trivial.
@@ -20,6 +21,7 @@ The plan is to ultimate replace client side rounting (choo) with server-side rou
 - ~Redis~: Replaced with **SQLite** for metadata storage
 - ~Firefox Accounts (FxA)~: Authentication removed (did not work in modern FF anyway)
 - ~Webpack~ removed, introduced **Vite**. We have a lot of fewer build features now
+- ~Ployfills~: Removed almost all polyfills and support for IE and older Edge browsers. Target browsers are: Chrome 89+, Firefox 102+, Safari 14.1+, Edge 89+, which is a very modern selection, but they will be old pretty fast. CanIUse reports 95.74% user coverage.
 
 
 ### What will be Reimplemented?

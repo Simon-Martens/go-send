@@ -117,6 +117,13 @@ export default class FileReceiver extends Nanobus {
   }
 
   async downloadStream(noSave = false) {
+    // Fall back to blob download if service worker controller is not available
+    // (e.g., DevTools bypass mode or service worker not yet controlling the page)
+    if (!navigator.serviceWorker.controller) {
+      console.log('Service worker controller not available, falling back to blob download');
+      return this.downloadBlob(noSave);
+    }
+
     const start = Date.now();
     const onprogress = p => {
       this.progress = [p, this.fileInfo.size];

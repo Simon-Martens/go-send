@@ -1,0 +1,1 @@
+{"version":3,"file":"send.BsbDzUOd.js","sources":["../public/locales/lus/send.ftl"],"sourcesContent":["encryptingFile = Encrypting...\ndecryptingFile = Decrypting\n\n## Send version 2 strings\n\n"],"names":["send"],"mappings":"AAAA,MAAAA,EAAe;AAAA;AAAA;AAAA;AAAA;"}

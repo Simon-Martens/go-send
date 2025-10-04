@@ -1,13 +1,13 @@
 package config
 
 import (
+	"log/slog"
 	"os"
 	"strconv"
 	"strings"
 )
 
 type Config struct {
-	// Server
 	Port            string
 	BaseURL         string
 	DetectBaseURL   bool
@@ -15,7 +15,6 @@ type Config struct {
 	UserFrontendDir string
 	Environment     string // "development" or "production"
 
-	// Upload/Download Limits
 	MaxFileSize          int64
 	MaxFilesPerArchive   int
 	MaxExpireSeconds     int
@@ -25,11 +24,8 @@ type Config struct {
 	DefaultDownloads     int
 	DefaultExpireSeconds int
 
-	// Branding - Colors
-	UIColorPrimary string
-	UIColorAccent  string
-
-	// Branding - Custom Assets
+	UIColorPrimary               string
+	UIColorAccent                string
 	CustomAssetsAndroidChrome192 string
 	CustomAssetsAndroidChrome512 string
 	CustomAssetsAppleTouchIcon   string
@@ -41,63 +37,64 @@ type Config struct {
 	CustomAssetsTwitter          string
 	CustomAssetsWordmark         string
 
-	// Footer
 	CustomFooterText string
 	CustomFooterURL  string
 	FooterDMCAURL    string
 	FooterCLIURL     string
 	FooterSourceURL  string
 
-	// Localization
 	CustomLocale string
 }
 
 func Load() *Config {
-	return &Config{
+	cfg := &Config{
 		// Server
-		Port:            getEnv("PORT", "8080"),
-		BaseURL:         getEnv("BASE_URL", ""),
-		DetectBaseURL:   getEnvBool("DETECT_BASE_URL", false),
-		FileDir:         getEnv("FILE_DIR", "./uploads"),
-		UserFrontendDir: getEnv("USER_FRONTEND_DIR", "./userfrontend"),
-		Environment:     getEnv("SEND_ENV", "production"),
+		Port:            getEnv("PORT", DEFAULT_PORT),
+		BaseURL:         getEnv("BASE_URL", DEFAULT_BASE_URL),
+		DetectBaseURL:   getEnvBool("DETECT_BASE_URL", DEFAULT_DETECT_BASE_URL),
+		FileDir:         getEnv("FILE_DIR", DEFAULT_FILE_DIR),
+		UserFrontendDir: getEnv("USER_FRONTEND_DIR", DEFAULT_USER_FRONTEND_DIR),
+		Environment:     getEnv("SEND_ENV", DEFAULT_ENVIRONMENT),
 
 		// Upload/Download Limits
-		MaxFileSize:          getEnvInt64("MAX_FILE_SIZE", 2684354560), // 2.5GB
-		MaxFilesPerArchive:   getEnvInt("MAX_FILES_PER_ARCHIVE", 64),
-		MaxExpireSeconds:     getEnvInt("MAX_EXPIRE_SECONDS", 604800), // 7 days
-		MaxDownloads:         getEnvInt("MAX_DOWNLOADS", 100),
-		DownloadCounts:       getEnvIntArray("DOWNLOAD_COUNTS", []int{1, 2, 3, 4, 5, 20, 50, 100}),
-		ExpireTimesSeconds:   getEnvIntArray("EXPIRE_TIMES_SECONDS", []int{300, 3600, 86400, 604800}),
-		DefaultDownloads:     getEnvInt("DEFAULT_DOWNLOADS", 1),
-		DefaultExpireSeconds: getEnvInt("DEFAULT_EXPIRE_SECONDS", 86400),
+		MaxFileSize:          getEnvInt64("MAX_FILE_SIZE", DEFAULT_MAX_FILE_SIZE), // 2.5GB
+		MaxFilesPerArchive:   getEnvInt("MAX_FILES_PER_ARCHIVE", DEFAULT_MAX_FILES_PER_ARCHIVE),
+		MaxExpireSeconds:     getEnvInt("MAX_EXPIRE_SECONDS", DEFAULT_MAX_EXPIRE_SECONDS), // 7 days
+		MaxDownloads:         getEnvInt("MAX_DOWNLOADS", DEFAULT_MAX_DOWNLOADS),
+		DownloadCounts:       getEnvIntArray("DOWNLOAD_COUNTS", DEFAULT_DOWNLOAD_COUNTS),
+		ExpireTimesSeconds:   getEnvIntArray("EXPIRE_TIMES_SECONDS", DEFAULT_EXPIRE_TIMES_SECONDS),
+		DefaultDownloads:     getEnvInt("DEFAULT_DOWNLOADS", DEFAULT_DEFAULT_DOWNLOADS),
+		DefaultExpireSeconds: getEnvInt("DEFAULT_EXPIRE_SECONDS", DEFAULT_DEFAULT_EXPIRE_SECONDS),
 
 		// Branding - Colors
-		UIColorPrimary: getEnv("UI_COLOR_PRIMARY", "#0A84FF"),
-		UIColorAccent:  getEnv("UI_COLOR_ACCENT", "#003EAA"),
+		UIColorPrimary: getEnv("UI_COLOR_PRIMARY", DEFAULT_UI_COLOR_PRIMARY),
+		UIColorAccent:  getEnv("UI_COLOR_ACCENT", DEFAULT_UI_COLOR_ACCENT),
 
 		// Branding - Custom Assets
-		CustomAssetsAndroidChrome192: getEnv("UI_CUSTOM_ASSETS_ANDROID_CHROME_192PX", ""),
-		CustomAssetsAndroidChrome512: getEnv("UI_CUSTOM_ASSETS_ANDROID_CHROME_512PX", ""),
-		CustomAssetsAppleTouchIcon:   getEnv("UI_CUSTOM_ASSETS_APPLE_TOUCH_ICON", ""),
-		CustomAssetsFavicon16:        getEnv("UI_CUSTOM_ASSETS_FAVICON_16PX", ""),
-		CustomAssetsFavicon32:        getEnv("UI_CUSTOM_ASSETS_FAVICON_32PX", ""),
-		CustomAssetsIcon:             getEnv("UI_CUSTOM_ASSETS_ICON", ""),
-		CustomAssetsSafariPinnedTab:  getEnv("UI_CUSTOM_ASSETS_SAFARI_PINNED_TAB", ""),
-		CustomAssetsFacebook:         getEnv("UI_CUSTOM_ASSETS_FACEBOOK", ""),
-		CustomAssetsTwitter:          getEnv("UI_CUSTOM_ASSETS_TWITTER", ""),
-		CustomAssetsWordmark:         getEnv("UI_CUSTOM_ASSETS_WORDMARK", ""),
+		CustomAssetsAndroidChrome192: getEnv("UI_CUSTOM_ASSETS_ANDROID_CHROME_192PX", DEFAULT_CUSTOM_ASSETS_ANDROID_CHROME_192),
+		CustomAssetsAndroidChrome512: getEnv("UI_CUSTOM_ASSETS_ANDROID_CHROME_512PX", DEFAULT_CUSTOM_ASSETS_ANDROID_CHROME_512),
+		CustomAssetsAppleTouchIcon:   getEnv("UI_CUSTOM_ASSETS_APPLE_TOUCH_ICON", DEFAULT_CUSTOM_ASSETS_APPLE_TOUCH_ICON),
+		CustomAssetsFavicon16:        getEnv("UI_CUSTOM_ASSETS_FAVICON_16PX", DEFAULT_CUSTOM_ASSETS_FAVICON_16),
+		CustomAssetsFavicon32:        getEnv("UI_CUSTOM_ASSETS_FAVICON_32PX", DEFAULT_CUSTOM_ASSETS_FAVICON_32),
+		CustomAssetsIcon:             getEnv("UI_CUSTOM_ASSETS_ICON", DEFAULT_CUSTOM_ASSETS_ICON),
+		CustomAssetsSafariPinnedTab:  getEnv("UI_CUSTOM_ASSETS_SAFARI_PINNED_TAB", DEFAULT_CUSTOM_ASSETS_SAFARI_PINNED_TAB),
+		CustomAssetsFacebook:         getEnv("UI_CUSTOM_ASSETS_FACEBOOK", DEFAULT_CUSTOM_ASSETS_FACEBOOK),
+		CustomAssetsTwitter:          getEnv("UI_CUSTOM_ASSETS_TWITTER", DEFAULT_CUSTOM_ASSETS_TWITTER),
+		CustomAssetsWordmark:         getEnv("UI_CUSTOM_ASSETS_WORDMARK", DEFAULT_CUSTOM_ASSETS_WORDMARK),
 
 		// Footer
-		CustomFooterText: getEnv("CUSTOM_FOOTER_TEXT", ""),
-		CustomFooterURL:  getEnv("CUSTOM_FOOTER_URL", ""),
-		FooterDMCAURL:    getEnv("SEND_FOOTER_DMCA_URL", ""),
-		FooterCLIURL:     getEnv("FOOTER_CLI_URL", "https://github.com/timvisee/ffsend"),
-		FooterSourceURL:  getEnv("FOOTER_SOURCE_URL", "https://github.com/Simon-Martens/go-send"),
+		CustomFooterText: getEnv("CUSTOM_FOOTER_TEXT", DEFAULT_CUSTOM_FOOTER_TEXT),
+		CustomFooterURL:  getEnv("CUSTOM_FOOTER_URL", DEFAULT_CUSTOM_FOOTER_URL),
+		FooterDMCAURL:    getEnv("SEND_FOOTER_DMCA_URL", DEFAULT_FOOTER_DMCA_URL),
+		FooterCLIURL:     getEnv("FOOTER_CLI_URL", DEFAULT_FOOTER_CLI_URL),
+		FooterSourceURL:  getEnv("FOOTER_SOURCE_URL", DEFAULT_FOOTER_SOURCE_URL),
 
 		// Localization
-		CustomLocale: getEnv("CUSTOM_LOCALE", ""),
+		CustomLocale: getEnv("CUSTOM_LOCALE", DEFAULT_CUSTOM_LOCALE),
 	}
+
+	slog.Info("Initialized configuration", "config", cfg)
+	return cfg
 }
 
 func getEnv(key, defaultValue string) string {

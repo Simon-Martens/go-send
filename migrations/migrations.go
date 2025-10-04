@@ -9,7 +9,6 @@ import (
 	"github.com/Simon-Martens/go-send/core"
 )
 
-// Migration represents a database migration with Up and Down functions
 type Migration struct {
 	ID   string
 	Up   func(*core.App) error
@@ -18,7 +17,6 @@ type Migration struct {
 
 var registry = make(map[string]*Migration)
 
-// Register adds a migration to the registry
 func Register(id string, up func(*core.App) error, down func(*core.App) error) {
 	if _, exists := registry[id]; exists {
 		panic(fmt.Sprintf("Migration %s already registered", id))
@@ -30,7 +28,6 @@ func Register(id string, up func(*core.App) error, down func(*core.App) error) {
 	}
 }
 
-// ensureMigrationsTable creates the migrations tracking table if it doesn't exist
 func ensureMigrationsTable(db *sql.DB) error {
 	_, err := db.Exec(`
 		CREATE TABLE IF NOT EXISTS migrations (
@@ -41,7 +38,6 @@ func ensureMigrationsTable(db *sql.DB) error {
 	return err
 }
 
-// getAppliedMigrations returns a set of applied migration IDs
 func getAppliedMigrations(db *sql.DB) (map[string]bool, error) {
 	applied := make(map[string]bool)
 
@@ -63,22 +59,18 @@ func getAppliedMigrations(db *sql.DB) (map[string]bool, error) {
 	return applied, rows.Err()
 }
 
-// RunPending executes all pending migrations in order
 func RunPending(app *core.App) error {
 	logger := app.Logger
 
-	// Ensure migrations table exists
 	if err := ensureMigrationsTable(app.DB.DB()); err != nil {
 		return fmt.Errorf("failed to create migrations table: %w", err)
 	}
 
-	// Get applied migrations
 	applied, err := getAppliedMigrations(app.DB.DB())
 	if err != nil {
 		return fmt.Errorf("failed to get applied migrations: %w", err)
 	}
 
-	// Get all migration IDs and sort them
 	var ids []string
 	for id := range registry {
 		if !applied[id] {
@@ -94,7 +86,6 @@ func RunPending(app *core.App) error {
 
 	logger.Info("Running pending migrations", "count", len(ids))
 
-	// Execute each pending migration
 	for _, id := range ids {
 		migration := registry[id]
 		logger.Info("Applying migration", "migration_id", id)
@@ -104,7 +95,6 @@ func RunPending(app *core.App) error {
 			return fmt.Errorf("migration %s failed: %w", id, err)
 		}
 
-		// Record migration as applied
 		_, err := app.DB.DB().Exec(
 			"INSERT INTO migrations (id, applied_at) VALUES (?, ?)",
 			id,
@@ -118,20 +108,16 @@ func RunPending(app *core.App) error {
 		logger.Info("Migration applied successfully", "migration_id", id)
 	}
 
-	logger.Info("All migrations completed successfully")
 	return nil
 }
 
-// Rollback rolls back the last N migrations
 func Rollback(app *core.App, count int) error {
 	logger := app.Logger
 
-	// Ensure migrations table exists
 	if err := ensureMigrationsTable(app.DB.DB()); err != nil {
 		return fmt.Errorf("failed to create migrations table: %w", err)
 	}
 
-	// Get applied migrations in reverse order
 	rows, err := app.DB.DB().Query(`SELECT id FROM migrations ORDER BY applied_at DESC LIMIT ?`, count)
 	if err != nil {
 		return fmt.Errorf("failed to get applied migrations: %w", err)
@@ -158,7 +144,6 @@ func Rollback(app *core.App, count int) error {
 
 	logger.Info("Rolling back migrations", "count", len(toRollback))
 
-	// Execute rollback for each migration
 	for _, id := range toRollback {
 		migration, exists := registry[id]
 		if !exists {
@@ -183,26 +168,21 @@ func Rollback(app *core.App, count int) error {
 		logger.Info("Migration rolled back successfully", "migration_id", id)
 	}
 
-	logger.Info("All rollbacks completed successfully")
 	return nil
 }
 
-// Status returns the current migration status
 func Status(app *core.App) error {
 	logger := app.Logger
 
-	// Ensure migrations table exists
 	if err := ensureMigrationsTable(app.DB.DB()); err != nil {
 		return fmt.Errorf("failed to create migrations table: %w", err)
 	}
 
-	// Get applied migrations
 	applied, err := getAppliedMigrations(app.DB.DB())
 	if err != nil {
 		return fmt.Errorf("failed to get applied migrations: %w", err)
 	}
 
-	// Get all migration IDs and sort them
 	var allIds []string
 	for id := range registry {
 		allIds = append(allIds, id)

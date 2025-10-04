@@ -110,6 +110,15 @@ The Go server is configured via environment variables. All settings are optional
 See all branding options: `config/config.go`
 
 
+## Custom Frontend Assets
+
+Static assets embedded from `frontend/dist/` are always served. To customize or override them without rebuilding the binary, create a matching structure under `userfrontend/dist/`. Files placed there take precedence over the embedded versions, while any missing files continue to fall back to the embedded bundle.
+
+Additional standalone assets (for example `robots.txt` or custom CSS) can be placed in `userfrontend/public/` and are served from the root path as-is.
+
+Set `USER_FRONTEND_DIR` to point to a different overrides directory if needed.
+
+
 ## API Endpoints implemented
 
 ### Upload

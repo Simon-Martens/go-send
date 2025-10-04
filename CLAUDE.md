@@ -23,12 +23,13 @@ You can override templates and add custom static files without recompiling the s
 **Directory Structure:**
 ```
 userfrontend/
+├── dist/              # Drop-in replacements for bundled frontend assets
 ├── templates/
-│   └── index.html       # Override main template
+│   └── index.html     # Override main template
 └── public/
-    ├── custom.css       # Add custom CSS
-    ├── logo.png         # Add custom images
-    └── ...              # Any static files
+    ├── custom.css     # Add custom CSS
+    ├── logo.png       # Add custom images
+    └── ...            # Any static files
 ```
 
 **How it works:**
@@ -37,15 +38,18 @@ userfrontend/
   - Supports multiple template fragments for future use
   - Falls back to embedded templates if not found
 
+- **Bundled Assets**: Drop files in `userfrontend/dist/` to replace items from the embedded `frontend/dist/`
+  - Ideal for swapping `app.js`, `app.css`, icons, or other build outputs
+  - Missing files automatically fall back to the embedded bundle
+
 - **Static Files**: Place files in `userfrontend/public/` to serve at base URL `/`
-  - Overrides embedded frontend assets when present
-  - Perfect for custom CSS, images, fonts, etc.
-  - Falls back to embedded assets if not found
+  - Perfect for additional assets like `robots.txt`, images, or extra CSS
+  - Served after `dist/`, so naming collisions prefer the `dist/` copy
 
 **Example:**
 ```bash
-# Create custom template directory
-mkdir -p userfrontend/templates userfrontend/public
+# Create custom frontend directories
+mkdir -p userfrontend/dist userfrontend/templates userfrontend/public
 
 # Copy embedded template to customize
 cp frontend/templates/index.html userfrontend/templates/

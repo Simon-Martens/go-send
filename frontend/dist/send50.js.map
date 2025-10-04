@@ -1,1 +1,0 @@
-{"version":3,"file":"send50.js","sources":["../public/locales/lus/send.ftl"],"sourcesContent":["encryptingFile = Encrypting...\ndecryptingFile = Decrypting\n\n## Send version 2 strings\n\n"],"names":[],"mappings":"AAAA,MAAA,OAAe;"}

@@ -1,0 +1,27 @@
+{{define "footer"}}
+<footer
+	class="flex flex-col md:flex-row items-start w-full flex-none self-start p-6 md:p-8 font-medium text-xs text-grey-60 dark:text-grey-40 md:items-center justify-between">
+	<ul class="flex flex-col md:flex-row items-start md:items-center md:justify-start">
+		{{if .CustomText}}
+		<li class="m-2">
+			{{if .CustomURL}}
+			<a href="{{.CustomURL}}" target="_blank">{{.CustomText}}</a>
+			{{else}}
+			{{.CustomText}}
+			{{end}}
+		</li>
+		{{end}}
+	</ul>
+	<ul class="flex flex-col md:flex-row items-start md:items-center md:justify-end">
+		{{if .CLIURL}}
+		<li class="m-2"><a href="{{.CLIURL}}" target="_blank">CLI</a></li>
+		{{end}}
+		{{if .DMCAURL}}
+		<li class="m-2"><a href="{{.DMCAURL}}" target="_blank">DMCA</a></li>
+		{{end}}
+		{{if .SourceURL}}
+		<li class="m-2"><a href="{{.SourceURL}}" target="_blank">Source</a></li>
+		{{end}}
+	</ul>
+</footer>
+{{end}}

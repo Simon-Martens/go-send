@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/Simon-Martens/go-send/config"
@@ -19,8 +20,8 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 	mux := http.NewServeMux()
 
 	// HTML routes
-	indexHandler := handlers.NewIndexHandler(app.Template, app.Manifest, app.Config, app.Logger)
-	downloadPageHandler := handlers.NewDownloadPageHandler(app.Template, app.Manifest, app.DB, app.Config, app.Logger)
+	indexHandler := handlers.IndexHandler(app.Template, app.Manifest, app.Config, app.Logger)
+	downloadPageHandler := handlers.DownloadPageHandler(app.Template, app.Manifest, app.DB, app.Config, app.Logger)
 	mux.HandleFunc("/download/", downloadPageHandler)
 	mux.HandleFunc("/error", indexHandler)
 
@@ -54,17 +55,15 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 	// Root and static file handler
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" && r.URL.Path != "/download" && r.URL.Path != "/error" {
-			// First, try to serve from user public directory
-			userPublicPath := filepath.Join(app.Config.UserFrontendDir, config.USER_PUBLIC_SUBDIR, r.URL.Path)
-			if info, err := os.Stat(userPublicPath); err == nil && !info.IsDir() {
-				http.ServeFile(w, r, userPublicPath)
+			if serveUserStaticFile(w, r, app.Config.UserFrontendDir, config.USER_DIST_SUBDIR) {
 				return
 			}
 
-			// Fall back to serving from embedded dist/
-			data, err := distFS.ReadFile(config.EMBEDDED_DIST_PATH + r.URL.Path)
-			if err == nil {
-				http.ServeContent(w, r, filepath.Base(r.URL.Path), time.Time{}, bytes.NewReader(data))
+			if serveUserStaticFile(w, r, app.Config.UserFrontendDir, config.USER_PUBLIC_SUBDIR) {
+				return
+			}
+
+			if serveEmbeddedDistFile(w, r, distFS) {
 				return
 			}
 
@@ -76,6 +75,41 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 	})
 
 	return mux
+}
+
+func serveEmbeddedDistFile(w http.ResponseWriter, r *http.Request, distFS embed.FS) bool {
+	data, err := distFS.ReadFile(config.EMBEDDED_DIST_PATH + r.URL.Path)
+	if err != nil {
+		return false
+	}
+
+	http.ServeContent(w, r, filepath.Base(r.URL.Path), time.Time{}, bytes.NewReader(data))
+	return true
+}
+
+func serveUserStaticFile(w http.ResponseWriter, r *http.Request, baseDir, subdir string) bool {
+	if baseDir == "" || subdir == "" {
+		return false
+	}
+
+	relativePath := strings.TrimPrefix(r.URL.Path, "/")
+	if relativePath == "" {
+		return false
+	}
+
+	rootDir := filepath.Join(baseDir, subdir)
+	fullPath := filepath.Join(rootDir, relativePath)
+	if !strings.HasPrefix(fullPath, rootDir+string(os.PathSeparator)) && fullPath != rootDir {
+		return false
+	}
+
+	info, err := os.Stat(fullPath)
+	if err != nil || info.IsDir() {
+		return false
+	}
+
+	http.ServeFile(w, r, fullPath)
+	return true
 }
 
 // ApplyMiddleware wraps the handler with all middleware in the correct order
@@ -90,30 +124,21 @@ func ApplyMiddleware(handler http.Handler, cfg *config.Config) http.Handler {
 	return handler
 }
 
-// New creates and configures a new HTTP server
 func New(app *core.App, distFS embed.FS) *http.Server {
 	routes := SetupRoutes(app, distFS)
 	handler := ApplyMiddleware(routes, app.Config)
 
 	return &http.Server{
-		Addr:    ":" + app.Config.Port,
-		Handler: handler,
-		// ReadTimeout: Maximum duration for reading the entire request
-		// For file uploads, this needs to be large enough
-		ReadTimeout: config.SERVER_READ_TIMEOUT,
-		// WriteTimeout: Maximum duration before timing out writes of the response
-		// For file downloads, this needs to be large enough
-		WriteTimeout: config.SERVER_WRITE_TIMEOUT,
-		// IdleTimeout: Maximum amount of time to wait for the next request
-		IdleTimeout: config.SERVER_IDLE_TIMEOUT,
-		// ReadHeaderTimeout: Amount of time allowed to read request headers
+		Addr:              ":" + app.Config.Port,
+		Handler:           handler,
+		ReadTimeout:       config.SERVER_READ_TIMEOUT,
+		WriteTimeout:      config.SERVER_WRITE_TIMEOUT,
+		IdleTimeout:       config.SERVER_IDLE_TIMEOUT,
 		ReadHeaderTimeout: config.SERVER_READ_HEADER_TIMEOUT,
-		// MaxHeaderBytes: Maximum size of request headers
-		MaxHeaderBytes: config.MAX_HEADER_BYTES,
+		MaxHeaderBytes:    config.MAX_HEADER_BYTES,
 	}
 }
 
-// Start starts the HTTP server and blocks until it exits
 func Start(server *http.Server, app *core.App) error {
 	app.Logger.Info("HTTP server listening", "address", server.Addr)
 	return server.ListenAndServe()

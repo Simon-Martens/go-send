@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="{{.Locale}}">
 
+
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -14,28 +15,29 @@
 	<meta name="theme-color" content="#220033">
 	<meta name="msapplication-TileColor" content="#220033">
 	<link rel="stylesheet" href="/inter.css">
-	<style {{.Nonce}}>
+	<style {{.NonceAttr}}>
 		:root {
-			--color-primary: {{ .ColorPrimary }};
-			--color-primary-accent: {{ .ColorAccent }};
+			--color-primary: {{ .Theme.Primary }};
+			--color-primary-accent: {{ .Theme.Accent }};
 		}
 	</style>
-	<link rel="stylesheet" href="/{{.CSS}}">
-	<!-- <link rel="stylesheet" href="/{{.CSS}}"> -->
+	{{if .Assets.CSS}}
+	<link rel="stylesheet" href="{{ assetURL .Assets.CSS }}">{{end}}
 	<!-- <link rel="manifest" href="/app.webmanifest"> -->
-	{{if .AppleTouchIcon}}
-	<link rel="apple-touch-icon" sizes="180x180" href="/{{.AppleTouchIcon}}">{{end}}
-	{{if .Favicon32}}
-	<link rel="icon" type="image/png" sizes="32x32" href="/{{.Favicon32}}">{{end}}
-	{{if .Favicon16}}
-	<link rel="icon" type="image/png" sizes="16x16" href="/{{.Favicon16}}">{{end}}
-	{{if .SafariPinnedTab}}
-	<link rel="mask-icon" href="/{{.SafariPinnedTab}}" color="#838383">{{end}}
+	{{if .Assets.AppleTouchIcon}}
+	<link rel="apple-touch-icon" sizes="180x180" href="{{ assetURL .Assets.AppleTouchIcon }}">{{end}}
+	{{if .Assets.Favicon32}}
+	<link rel="icon" type="image/png" sizes="32x32" href="{{ assetURL .Assets.Favicon32 }}">{{end}}
+	{{if .Assets.Favicon16}}
+	<link rel="icon" type="image/png" sizes="16x16" href="{{ assetURL .Assets.Favicon16 }}">{{end}}
+	{{if .Assets.SafariPinnedTab}}
+	<link rel="mask-icon" href="{{ assetURL .Assets.SafariPinnedTab }}" color="#838383">{{end}}
 	<link rel="icon" href="/favicon.ico">
-	<script type="module" defer src="/{{.JS}}"></script>
+	{{if .Assets.JS}}
+	<script type="module" defer src="{{ assetURL .Assets.JS }}"></script>{{end}}
 </head>
 
-<body>
+<body class="flex flex-col items-center font-sans md:h-screen md:bg-grey-10 dark:bg-black">
 	<noscript>
 		<div class="noscript">
 			<h2>JavaScript Required</h2>
@@ -43,26 +45,14 @@
 		</div>
 	</noscript>
 	<main></main>
-	<footer
-		class="flex flex-col md:flex-row items-start w-full flex-none self-start p-6 md:p-8 font-medium text-xs text-grey-60 dark:text-grey-40 md:items-center justify-between">
-		<ul class="flex flex-col md:flex-row items-start md:items-center md:justify-start">
-			{{if .CustomFooterHTML}}
-			{{.CustomFooterHTML}}
-			{{else}}
-			<li class="m-2">Firefox Send</li>
-			{{end}}
-		</ul>
-		<ul class="flex flex-col md:flex-row items-start md:items-center md:justify-end">
-			{{.FooterLinksHTML}}
-		</ul>
-	</footer>
+	{{template "footer" .Footer}}
 </body>
-<script {{.Nonce}}>
-	var LIMITS = {{.LimitsJSON}};
-	var WEB_UI = {{.WebUIJSON}};
-	var DEFAULTS = {{.DefaultsJSON}};
+<script {{.NonceAttr}}>
+	var LIMITS = {{toJSON .State.Limits}};
+	var WEB_UI = {{toJSON .State.WebUI}};
+	var DEFAULTS = {{toJSON .State.Defaults}};
 	var PREFS = {};
-	var downloadMetadata = {{.DownloadMetadataJSON}};
+	var downloadMetadata = {{rawJSON .State.DownloadMetadata}};
 </script>
 
 </html>

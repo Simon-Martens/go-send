@@ -2,50 +2,84 @@ package config
 
 import "time"
 
-// Database constants
 const (
 	DB_PATH = "./send.db"
 )
 
-// Template and frontend paths
+const (
+	DEFAULT_ENVIRONMENT = "development"
+)
+
+const (
+	DEFAULT_PORT              = "8080"
+	DEFAULT_BASE_URL          = ""
+	DEFAULT_DETECT_BASE_URL   = false
+	DEFAULT_FILE_DIR          = "./uploads"
+	DEFAULT_USER_FRONTEND_DIR = "./userfrontend"
+
+	DEFAULT_MAX_FILE_SIZE        int64 = 2684354560 // 2.5GB
+	DEFAULT_MAX_FILES_PER_ARCHIVE      = 64
+	DEFAULT_MAX_EXPIRE_SECONDS         = 604800 // 7 days
+	DEFAULT_MAX_DOWNLOADS              = 100
+	DEFAULT_DEFAULT_DOWNLOADS          = 1
+	DEFAULT_DEFAULT_EXPIRE_SECONDS     = 86400
+
+	DEFAULT_UI_COLOR_PRIMARY = "#0A84FF"
+	DEFAULT_UI_COLOR_ACCENT  = "#003EAA"
+
+	DEFAULT_CUSTOM_ASSETS_ANDROID_CHROME_192 = ""
+	DEFAULT_CUSTOM_ASSETS_ANDROID_CHROME_512 = ""
+	DEFAULT_CUSTOM_ASSETS_APPLE_TOUCH_ICON   = ""
+	DEFAULT_CUSTOM_ASSETS_FAVICON_16         = ""
+	DEFAULT_CUSTOM_ASSETS_FAVICON_32         = ""
+	DEFAULT_CUSTOM_ASSETS_ICON               = ""
+	DEFAULT_CUSTOM_ASSETS_SAFARI_PINNED_TAB  = ""
+	DEFAULT_CUSTOM_ASSETS_FACEBOOK           = ""
+	DEFAULT_CUSTOM_ASSETS_TWITTER            = ""
+	DEFAULT_CUSTOM_ASSETS_WORDMARK           = ""
+
+	DEFAULT_CUSTOM_FOOTER_TEXT = ""
+	DEFAULT_CUSTOM_FOOTER_URL  = ""
+	DEFAULT_FOOTER_DMCA_URL    = ""
+	DEFAULT_FOOTER_CLI_URL     = "https://github.com/timvisee/ffsend"
+	DEFAULT_FOOTER_SOURCE_URL  = "https://github.com/Simon-Martens/go-send"
+
+	DEFAULT_CUSTOM_LOCALE = ""
+)
+
+var (
+	DEFAULT_DOWNLOAD_COUNTS     = []int{1, 2, 3, 4, 5, 20, 50, 100}
+	DEFAULT_EXPIRE_TIMES_SECONDS = []int{300, 3600, 86400, 604800}
+)
+
 const (
 	EMBEDDED_TEMPLATES_PATH   = "frontend/templates/*.gohtml"
 	EMBEDDED_TEMPLATES_PREFIX = "frontend/templates/"
 	EMBEDDED_DIST_PATH        = "frontend/dist"
 	USER_TEMPLATES_SUBDIR     = "templates"
 	USER_PUBLIC_SUBDIR        = "public"
+	USER_DIST_SUBDIR          = "dist"
 	TEMPLATE_FILE_EXTENSION   = ".gohtml"
 )
 
-// Default manifest files
 const (
 	DEFAULT_MANIFEST_JS  = "app.js"
 	DEFAULT_MANIFEST_CSS = "app.css"
 )
 
-// Concurrency and rate limiting
 const (
-	MAX_CONCURRENT_UPLOADS_PER_IP = 3
+	MAX_CONCURRENT_UPLOADS_PER_IP  = 3
 	RATE_LIMIT_REQUESTS_PER_SECOND = 100.0
 	RATE_LIMIT_BURST_SIZE          = 200
+	MAX_REQUEST_BODY_SIZE          = 10 * 1024 * 1024 // 10 MB
+	MAX_HEADER_BYTES               = 1 << 20          // 1 MB
+	SERVER_READ_TIMEOUT            = 10 * time.Minute
+	SERVER_WRITE_TIMEOUT           = 10 * time.Minute
+	SERVER_IDLE_TIMEOUT            = 120 * time.Second
+	SERVER_READ_HEADER_TIMEOUT     = 10 * time.Second
 )
 
-// Request size limits
 const (
-	MAX_REQUEST_BODY_SIZE = 10 * 1024 * 1024 // 10 MB
-	MAX_HEADER_BYTES      = 1 << 20          // 1 MB
-)
-
-// Server timeouts
-const (
-	SERVER_READ_TIMEOUT        = 10 * time.Minute
-	SERVER_WRITE_TIMEOUT       = 10 * time.Minute
-	SERVER_IDLE_TIMEOUT        = 120 * time.Second
-	SERVER_READ_HEADER_TIMEOUT = 10 * time.Second
-)
-
-// Cleanup intervals
-const (
-	CLEANUP_CHECK_INTERVAL = 1 * time.Hour
+	CLEANUP_CHECK_INTERVAL  = 1 * time.Hour
 	CLEANUP_TICKER_INTERVAL = 1 * time.Hour
 )

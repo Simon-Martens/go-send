@@ -11,7 +11,8 @@ import (
 	"github.com/Simon-Martens/go-send/server"
 	"github.com/Simon-Martens/go-send/storage"
 
-	// Import migrations to register them
+	// INFO: Importing migrations so they are visible
+	// and their init functions are called
 	_ "github.com/Simon-Martens/go-send/migrations"
 )
 
@@ -22,62 +23,44 @@ var templatesFS embed.FS
 var distFS embed.FS
 
 func main() {
-	// Load configuration
 	cfg := config.Load()
-
-	// Initialize logger
 	logger := config.InitLogger(cfg.Environment)
-	slog.SetDefault(logger) // Set as default logger for the application
+	slog.SetDefault(logger)
+	logger.Info("go-send running", "environment", cfg.Environment)
 
-	logger.Info("Starting go-send server", "environment", cfg.Environment)
-	logger.Info("User frontend directory configured", "directory", cfg.UserFrontendDir)
-	logger.Debug("Custom templates location", "path", cfg.UserFrontendDir+"/templates/")
-	logger.Debug("Custom static files location", "path", cfg.UserFrontendDir+"/public/")
-
-	// Initialize database
 	db, err := storage.NewDB(config.DB_PATH)
 	if err != nil {
-		logger.Error("Failed to initialize database", "error", err)
+		logger.Error("Failed to initialize database. Exiting", "error", err)
 		os.Exit(1)
 	}
 
-	// Load templates (user overrides or embedded)
 	tmpl, err := core.LoadTemplates(templatesFS, cfg.UserFrontendDir, logger)
 	if err != nil {
-		logger.Error("Failed to load templates", "error", err)
+		logger.Error("Failed to load templates. Exiting", "error", err)
 		os.Exit(1)
 	}
 
-	// Load manifest
+	// INFO: the manifest is a file to connect request URLs to file names
 	manifest := core.LoadManifest(distFS, logger)
-
-	// Create app instance
 	app := core.NewApp(db, cfg, tmpl, manifest, logger)
-
-	// Run database migrations
-	logger.Info("Running database migrations")
 	if err := migrations.RunPending(app); err != nil {
-		logger.Error("Failed to run migrations", "error", err)
+		logger.Error("Failed to run migrations. Exiting", "error", err)
 		os.Exit(1)
 	}
 
-	// Create uploads directory from config
 	if err := os.MkdirAll(cfg.FileDir, 0o755); err != nil {
-		logger.Error("Failed to create uploads directory", "directory", cfg.FileDir, "error", err)
+		logger.Error("Failed to create uploads directory. Exiting", "directory", cfg.FileDir, "error", err)
 		os.Exit(1)
 	}
 
-	// Clean up expired files on startup (for files that expired while server was down)
 	logger.Info("Cleaning up expired files on startup")
 	if err := db.CleanupExpired(); err != nil {
 		logger.Warn("Failed to cleanup expired files", "error", err)
 	}
 
-	// Start cleanup scheduler
 	app.StartCleanupScheduler()
 
-	// Create and start server
 	srv := server.New(app, distFS)
-	logger.Error("Server stopped", "error", server.Start(srv, app))
+	logger.Error("Server stopped. Exiting", "error", server.Start(srv, app))
 	os.Exit(1)
 }

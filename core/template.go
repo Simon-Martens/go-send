@@ -2,21 +2,90 @@ package core
 
 import (
 	"embed"
+	"encoding/json"
 	"html/template"
 	"log/slog"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/Simon-Martens/go-send/config"
 )
 
+func templateFuncMap(logger *slog.Logger) template.FuncMap {
+	return template.FuncMap{
+		"toJSON": func(v interface{}) template.JS {
+			data, err := json.Marshal(v)
+			if err != nil {
+				if logger != nil {
+					logger.Error("Failed to marshal template data", "error", err)
+				}
+				return template.JS("null")
+			}
+			return template.JS(string(data))
+		},
+		"rawJSON": func(v interface{}) template.JS {
+			switch value := v.(type) {
+			case json.RawMessage:
+				if len(value) == 0 {
+					return template.JS("null")
+				}
+				return template.JS(string(value))
+			case []byte:
+				if len(value) == 0 {
+					return template.JS("null")
+				}
+				return template.JS(string(value))
+			case string:
+				if strings.TrimSpace(value) == "" {
+					return template.JS("null")
+				}
+				return template.JS(value)
+			default:
+				data, err := json.Marshal(value)
+				if err != nil {
+					if logger != nil {
+						logger.Error("Failed to marshal template data", "error", err)
+					}
+					return template.JS("null")
+				}
+				return template.JS(string(data))
+			}
+		},
+		"assetURL": assetURL,
+	}
+}
+
+func assetURL(path string) string {
+	trimmed := strings.TrimSpace(path)
+	if trimmed == "" {
+		return ""
+	}
+	lowered := strings.ToLower(trimmed)
+	if strings.HasPrefix(lowered, "http://") || strings.HasPrefix(lowered, "https://") || strings.HasPrefix(lowered, "data:") {
+		return trimmed
+	}
+	if strings.HasPrefix(trimmed, "/") {
+		return trimmed
+	}
+	return "/" + trimmed
+}
+
 // LoadTemplates loads templates from user directory first, falling back to embedded templates
 func LoadTemplates(templatesFS embed.FS, userFrontendDir string, logger *slog.Logger) (*template.Template, error) {
-	logger.Info("Loading embedded templates")
+	logger.Info("Loading embedded templates", "pattern", config.EMBEDDED_TEMPLATES_PATH)
 
-	tmpl, err := template.ParseFS(templatesFS, config.EMBEDDED_TEMPLATES_PATH)
+	tmpl := template.New("send").Funcs(templateFuncMap(logger))
+	tmpl, err := tmpl.ParseFS(templatesFS, config.EMBEDDED_TEMPLATES_PATH)
 	if err != nil {
+		logger.Error("Failed to parse embedded templates", "error", err)
 		return nil, err
+	}
+
+	// Log loaded templates for debugging
+	logger.Debug("Embedded templates loaded", "count", len(tmpl.Templates()))
+	for _, t := range tmpl.Templates() {
+		logger.Debug("Template loaded", "name", t.Name())
 	}
 
 	userTemplatesDir := filepath.Join(userFrontendDir, config.USER_TEMPLATES_SUBDIR)

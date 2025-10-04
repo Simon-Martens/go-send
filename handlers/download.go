@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"io"
-	"log"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"strings"
@@ -11,7 +11,7 @@ import (
 	"github.com/Simon-Martens/go-send/storage"
 )
 
-func NewDownloadHandler(db *storage.DB, cancelCleanup func(string)) http.HandlerFunc {
+func NewDownloadHandler(db *storage.DB, cancelCleanup func(string), logger *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract ID from path
 		id := strings.TrimPrefix(r.URL.Path, "/api/download/")
@@ -26,17 +26,19 @@ func NewDownloadHandler(db *storage.DB, cancelCleanup func(string)) http.Handler
 		// Get file metadata
 		meta, err := db.GetFile(id)
 		if err != nil {
+			logger.Debug("File not found for download", "file_id", id)
 			http.NotFound(w, r)
 			return
 		}
 
 		// Verify HMAC auth
 		authHeader := r.Header.Get("Authorization")
-		if !auth.VerifyHMAC(authHeader, meta.AuthKey, meta.Nonce) {
+		if !auth.VerifyHMAC(authHeader, meta.AuthKey, meta.Nonce, logger) {
 			// Generate new nonce for retry
 			newNonce := auth.GenerateNonce()
 			db.UpdateNonce(id, newNonce)
 			w.Header().Set("WWW-Authenticate", "send-v1 "+newNonce)
+			logger.Warn("Download auth failed", "file_id", id)
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
@@ -49,7 +51,7 @@ func NewDownloadHandler(db *storage.DB, cancelCleanup func(string)) http.Handler
 		// Open file
 		file, err := storage.OpenFile(id)
 		if err != nil {
-			log.Println("Error opening file:", err)
+			logger.Error("Error opening file for download", "file_id", id, "error", err)
 			http.NotFound(w, r)
 			return
 		}
@@ -58,7 +60,7 @@ func NewDownloadHandler(db *storage.DB, cancelCleanup func(string)) http.Handler
 		// Get file size
 		size, err := storage.GetFileSize(id)
 		if err != nil {
-			log.Println("Error getting file size:", err)
+			logger.Error("Error getting file size", "file_id", id, "error", err)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
@@ -69,13 +71,15 @@ func NewDownloadHandler(db *storage.DB, cancelCleanup func(string)) http.Handler
 		w.WriteHeader(http.StatusOK)
 
 		if _, err := io.Copy(w, file); err != nil {
-			log.Println("Error streaming file:", err)
+			logger.Error("Error streaming file", "file_id", id, "error", err)
 			return
 		}
 
+		logger.Info("File downloaded", "file_id", id, "size_bytes", size)
+
 		// Increment download count
 		if err := db.IncrementDownload(id); err != nil {
-			log.Println("Error incrementing download:", err)
+			logger.Error("Error incrementing download count", "file_id", id, "error", err)
 		}
 
 		// Check if we've reached download limit
@@ -87,6 +91,7 @@ func NewDownloadHandler(db *storage.DB, cancelCleanup func(string)) http.Handler
 			// Delete file and metadata
 			db.DeleteFile(id)
 			storage.DeleteFile(id)
+			logger.Info("File deleted after reaching download limit", "file_id", id, "downloads", meta.DlCount)
 		}
 	}
 }

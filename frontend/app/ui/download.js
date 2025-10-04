@@ -87,13 +87,13 @@ module.exports = function (state, emit) {
     content = downloadPassword(state, emit);
   }
   return html`
-    <main class="main">
+    <div class="main">
       ${state.modal && modal(state, emit)}
       <section
         class="relative h-full w-full p-6 md:p-8 md:rounded-xl md:shadow-big"
       >
         ${content}
       </section>
-    </main>
+    </div>
   `;
 };

@@ -24,7 +24,7 @@ module.exports = function(state, emit) {
   }
 
   return html`
-    <main class="main">
+    <div class="main">
       ${state.modal && modal(state, emit)}
       <section
         class="flex flex-col items-center justify-center text-center bg-white m-6 px-6 py-8 border-default border-grey-30 md:border-none md:px-12 md:py-16 shadow-default w-full md:h-full dark:bg-grey-90"
@@ -36,7 +36,7 @@ module.exports = function(state, emit) {
           ${strings.button}
         </a>
       </section>
-    </main>
+    </div>
   `;
 };
 

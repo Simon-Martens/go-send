@@ -5,7 +5,7 @@ const modal = require('./modal');
 module.exports = function(state, emit) {
   const btnText = state.user.loggedIn ? 'okButton' : 'sendYourFilesLink';
   return html`
-    <main class="main">
+    <div class="main">
       ${state.modal && modal(state, emit)}
       <section
         class="flex flex-col items-center justify-center h-full w-full p-6 md:p-8 overflow-hidden md:rounded-xl md:shadow-big"
@@ -30,6 +30,6 @@ module.exports = function(state, emit) {
           >
         </p>
       </section>
-    </main>
+    </div>
   `;
 };

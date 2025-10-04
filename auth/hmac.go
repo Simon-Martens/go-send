@@ -5,7 +5,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
-	"log"
+	"log/slog"
 	"strings"
 )
 
@@ -18,10 +18,11 @@ func GenerateNonce() string {
 
 // VerifyHMAC verifies the HMAC signature from the Authorization header
 // Format: "send-v1 <signature>"
-func VerifyHMAC(authHeader, authKey, nonce string) bool {
+func VerifyHMAC(authHeader, authKey, nonce string, logger *slog.Logger) bool {
 	parts := strings.SplitN(authHeader, " ", 2)
 	if len(parts) != 2 || parts[0] != "send-v1" {
-		log.Printf("HMAC verify failed: invalid header format: %s", authHeader)
+		logger.Warn("HMAC verification failed: invalid header format",
+			"auth_header", authHeader)
 		return false
 	}
 
@@ -30,20 +31,23 @@ func VerifyHMAC(authHeader, authKey, nonce string) bool {
 	// Decode the auth key (URL-safe base64, no padding) and nonce (standard base64)
 	keyBytes, err := base64.RawURLEncoding.DecodeString(authKey)
 	if err != nil {
-		log.Printf("HMAC verify failed: invalid authKey base64: %s, error: %v", authKey, err)
+		logger.Warn("HMAC verification failed: invalid authKey base64",
+			"auth_key", authKey, "error", err)
 		return false
 	}
 
 	nonceBytes, err := base64.StdEncoding.DecodeString(nonce)
 	if err != nil {
-		log.Printf("HMAC verify failed: invalid nonce base64: %s, error: %v", nonce, err)
+		logger.Warn("HMAC verification failed: invalid nonce base64",
+			"nonce", nonce, "error", err)
 		return false
 	}
 
 	// Decode provided signature (URL-safe base64, no padding)
 	providedSigBytes, err := base64.RawURLEncoding.DecodeString(providedSig)
 	if err != nil {
-		log.Printf("HMAC verify failed: invalid signature base64: %s, error: %v", providedSig, err)
+		logger.Warn("HMAC verification failed: invalid signature base64",
+			"signature", providedSig, "error", err)
 		return false
 	}
 
@@ -54,9 +58,11 @@ func VerifyHMAC(authHeader, authKey, nonce string) bool {
 
 	match := hmac.Equal(expectedSigBytes, providedSigBytes)
 	if !match {
-		log.Printf("HMAC mismatch - expected: %s, provided: %s",
-			base64.RawURLEncoding.EncodeToString(expectedSigBytes), providedSig)
-		log.Printf("  authKey: %s, nonce: %s", authKey, nonce)
+		logger.Warn("HMAC verification failed: signature mismatch",
+			"expected", base64.RawURLEncoding.EncodeToString(expectedSigBytes),
+			"provided", providedSig,
+			"auth_key", authKey,
+			"nonce", nonce)
 	}
 
 	return match

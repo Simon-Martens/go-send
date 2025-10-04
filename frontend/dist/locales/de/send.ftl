@@ -18,7 +18,7 @@ unlockButtonLabel = Entsperren
 downloadButtonLabel = Herunterladen
 downloadFinish = Download abgeschlossen
 fileSizeProgress = ({ $partialSize } von { $totalSize })
-sendYourFilesLink = Send ausprobieren
+sendYourFilesLink = Startseite
 errorPageHeader = Ein Fehler ist aufgetreten!
 fileTooBig = Die Datei ist zu groß zum Hochladen. Sie sollte maximal { $size } groß sein.
 linkExpiredAlt = Link abgelaufen
@@ -48,7 +48,7 @@ passwordSetError = Dieses Passwort konnte nicht eingerichtet werden
 -firefox = Firefox
 -mozilla = Mozilla
 introTitle = Einfach und privat Dateien versenden
-introDescription = Mit { -send-brand } können Sie Dateien sicher mit anderen teilen – mit Ende-zu-Ende-Verschlüsselung und einem Freigabe-Link, der automatisch abläuft. So bleiben Ihre geteilten Daten privat und Sie können kannst sicherstellen, dass Ihre Daten nicht für immer im Web herumschwirren.
+introDescription = Mit { -send-brand } können Sie Dateien sicher mit anderen teilen – mit Ende-zu-Ende-Verschlüsselung und einem Freigabe-Link, der automatisch abläuft. So bleiben Ihre geteilten Daten privat und Sie können sicherstellen, dass Ihre Daten nicht für immer im Web herumschwirren.
 notifyUploadEncryptDone = Ihre Datei wurde verschlüsselt
 # downloadCount is from the downloadCount string and timespan is a timespanMinutes string. ex. 'Expires after 2 downloads or 25 minutes'
 archiveExpiryInfo = Läuft nach { $downloadCount } oder { $timespan } ab

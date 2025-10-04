@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
-	"log"
+	"log/slog"
 	"net/http"
 	"strings"
 
@@ -25,11 +25,11 @@ func generateNonce() (string, error) {
 	return base64.StdEncoding.EncodeToString(b), nil
 }
 
-func NewIndexHandler(tmpl *template.Template, manifest map[string]string, cfg *config.Config) http.HandlerFunc {
+func NewIndexHandler(tmpl *template.Template, manifest map[string]string, cfg *config.Config, logger *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		nonce, err := generateNonce()
 		if err != nil {
-			log.Printf("Failed to generate nonce: %v", err)
+			logger.Error("Failed to generate nonce", "error", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
@@ -45,14 +45,14 @@ func NewIndexHandler(tmpl *template.Template, manifest map[string]string, cfg *c
 	}
 }
 
-func NewDownloadPageHandler(tmpl *template.Template, manifest map[string]string, db *storage.DB, cfg *config.Config) http.HandlerFunc {
+func NewDownloadPageHandler(tmpl *template.Template, manifest map[string]string, db *storage.DB, cfg *config.Config, logger *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/download/"), "/")
-		log.Printf("Download page request - Path: %s, ID: %s", r.URL.Path, id)
+		logger.Debug("Download page request", "path", r.URL.Path, "file_id", id)
 
 		nonce, err := generateNonce()
 		if err != nil {
-			log.Printf("Failed to generate nonce: %v", err)
+			logger.Error("Failed to generate nonce", "error", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
@@ -65,30 +65,28 @@ func NewDownloadPageHandler(tmpl *template.Template, manifest map[string]string,
 
 		if err != nil {
 			// File not found - render 404 state
-			log.Printf("File not found in DB: %s, error: %v", id, err)
+			logger.Debug("File not found for download page", "file_id", id, "error", err)
 			downloadMetadata = `{"status": 404}`
 		} else {
-			log.Printf("File found: %s, nonce: %s", id, meta.Nonce)
+			logger.Debug("File found for download page", "file_id", id, "nonce", meta.Nonce)
 			// File found - provide nonce and password flag
 			metaJSON, _ := json.Marshal(map[string]interface{}{
 				"nonce": meta.Nonce,
 				"pwd":   meta.Password,
 			})
 			downloadMetadata = string(metaJSON)
-			log.Printf("Setting downloadMetadata: %s", downloadMetadata)
 			// Set WWW-Authenticate header with nonce
 			w.Header().Set("WWW-Authenticate", "send-v1 "+meta.Nonce)
 		}
 
 		data := getTemplateData(manifest, downloadMetadata, cfg, detectedLocale, nonce)
-		log.Printf("Template data includes DownloadMetadataJSON: %v", data["DownloadMetadataJSON"])
 
 		csp := fmt.Sprintf("script-src 'self' 'nonce-%s'; style-src 'self' 'nonce-%s'", nonce, nonce)
 		w.Header().Set("Content-Security-Policy", csp)
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 		if err := tmpl.Execute(w, data); err != nil {
-			log.Printf("Template execution error: %v", err)
+			logger.Error("Template execution error", "error", err)
 		}
 	}
 }
@@ -134,13 +132,6 @@ func getTemplateData(manifest map[string]string, downloadMetadata string, cfg *c
 	}`, cfg.MaxFileSize, cfg.MaxDownloads, cfg.MaxExpireSeconds, cfg.MaxFilesPerArchive)
 
 	webUIJSON := fmt.Sprintf(`{
-		"FOOTER_DONATE_URL": "",
-		"FOOTER_CLI_URL": %q,
-		"FOOTER_DMCA_URL": %q,
-		"FOOTER_SOURCE_URL": %q,
-		"CUSTOM_FOOTER_TEXT": %q,
-		"CUSTOM_FOOTER_URL": %q,
-		"SHOW_THUNDERBIRD_SPONSOR": %t,
 		"COLORS": {
 			"PRIMARY": %q,
 			"ACCENT": %q
@@ -154,18 +145,14 @@ func getTemplateData(manifest map[string]string, downloadMetadata string, cfg *c
 			"icon": %q,
 			"safari_pinned_tab": %q,
 			"facebook": %q,
-			"twitter": %q,
-			"wordmark": %q,
-			"custom_css": %q
+			"twitter": %q
 		}
-	}`, cfg.FooterCLIURL, cfg.FooterDMCAURL, cfg.FooterSourceURL,
-		cfg.CustomFooterText, cfg.CustomFooterURL, cfg.ShowThunderbirdSponsor,
-		cfg.UIColorPrimary, cfg.UIColorAccent,
+	}`, cfg.UIColorPrimary, cfg.UIColorAccent,
 		cfg.CustomAssetsAndroidChrome192, cfg.CustomAssetsAndroidChrome512,
 		cfg.CustomAssetsAppleTouchIcon, cfg.CustomAssetsFavicon16,
 		cfg.CustomAssetsFavicon32, cfg.CustomAssetsIcon,
 		cfg.CustomAssetsSafariPinnedTab, cfg.CustomAssetsFacebook,
-		cfg.CustomAssetsTwitter, cfg.CustomAssetsWordmark, cfg.CustomCSS)
+		cfg.CustomAssetsTwitter)
 
 	defaultsJSON := fmt.Sprintf(`{
 		"DOWNLOADS": %d,
@@ -174,21 +161,43 @@ func getTemplateData(manifest map[string]string, downloadMetadata string, cfg *c
 		"EXPIRE_SECONDS": %d
 	}`, cfg.DefaultDownloads, downloadCountsJSON, expireTimesJSON, cfg.DefaultExpireSeconds)
 
+	// Build footer HTML
+	customFooterHTML := template.HTML("")
+	if cfg.CustomFooterURL != "" && cfg.CustomFooterText != "" {
+		customFooterHTML = template.HTML(fmt.Sprintf(`<li class="m-2"><a href="%s" target="_blank">%s</a></li>`, cfg.CustomFooterURL, cfg.CustomFooterText))
+	} else if cfg.CustomFooterURL != "" {
+		customFooterHTML = template.HTML(fmt.Sprintf(`<li class="m-2"><a href="%s" target="_blank">%s</a></li>`, cfg.CustomFooterURL, cfg.CustomFooterURL))
+	} else if cfg.CustomFooterText != "" {
+		customFooterHTML = template.HTML(fmt.Sprintf(`<li class="m-2">%s</li>`, cfg.CustomFooterText))
+	}
+
+	footerLinks := ""
+	if cfg.FooterCLIURL != "" {
+		footerLinks += fmt.Sprintf(`<li class="m-2"><a href="%s" target="_blank">CLI</a></li>`, cfg.FooterCLIURL)
+	}
+	if cfg.FooterDMCAURL != "" {
+		footerLinks += fmt.Sprintf(`<li class="m-2"><a href="%s" target="_blank">DMCA</a></li>`, cfg.FooterDMCAURL)
+	}
+	if cfg.FooterSourceURL != "" {
+		footerLinks += fmt.Sprintf(`<li class="m-2"><a href="%s" target="_blank">Source</a></li>`, cfg.FooterSourceURL)
+	}
+
 	return map[string]interface{}{
-		"CSS":                   manifest["app.css"],
-		"JS":                    manifest["app.js"],
-		"AppleTouchIcon":        manifest["apple-touch-icon.png"],
-		"Favicon16":             manifest["favicon-16x16.png"],
-		"Favicon32":             manifest["favicon-32x32.png"],
-		"SafariPinnedTab":       manifest["safari-pinned-tab.svg"],
-		"ColorPrimary":          cfg.UIColorPrimary,
-		"ColorAccent":           cfg.UIColorAccent,
-		"CustomCSS":             cfg.CustomCSS,
-		"Locale":                detectedLocale,
-		"Nonce":                 template.HTMLAttr("nonce=\"" + nonce + "\""),
-		"LimitsJSON":            template.JS(limitsJSON),
-		"WebUIJSON":             template.JS(webUIJSON),
-		"DefaultsJSON":          template.JS(defaultsJSON),
-		"DownloadMetadataJSON":  template.JS(downloadMetadata),
+		"CSS":                  manifest["app.css"],
+		"JS":                   manifest["app.js"],
+		"AppleTouchIcon":       manifest["apple-touch-icon.png"],
+		"Favicon16":            manifest["favicon-16x16.png"],
+		"Favicon32":            manifest["favicon-32x32.png"],
+		"SafariPinnedTab":      manifest["safari-pinned-tab.svg"],
+		"ColorPrimary":         cfg.UIColorPrimary,
+		"ColorAccent":          cfg.UIColorAccent,
+		"Locale":               detectedLocale,
+		"Nonce":                template.HTMLAttr("nonce=\"" + nonce + "\""),
+		"LimitsJSON":           template.JS(limitsJSON),
+		"WebUIJSON":            template.JS(webUIJSON),
+		"DefaultsJSON":         template.JS(defaultsJSON),
+		"DownloadMetadataJSON": template.JS(downloadMetadata),
+		"CustomFooterHTML":     customFooterHTML,
+		"FooterLinksHTML":      template.HTML(footerLinks),
 	}
 }

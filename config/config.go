@@ -13,6 +13,7 @@ type Config struct {
 	DetectBaseURL   bool
 	FileDir         string
 	UserFrontendDir string
+	Environment     string // "development" or "production"
 
 	// Upload/Download Limits
 	MaxFileSize          int64
@@ -39,15 +40,13 @@ type Config struct {
 	CustomAssetsFacebook         string
 	CustomAssetsTwitter          string
 	CustomAssetsWordmark         string
-	CustomCSS                    string
 
 	// Footer
-	CustomFooterText       string
-	CustomFooterURL        string
-	FooterDMCAURL          string
-	FooterCLIURL           string
-	FooterSourceURL        string
-	ShowThunderbirdSponsor bool
+	CustomFooterText string
+	CustomFooterURL  string
+	FooterDMCAURL    string
+	FooterCLIURL     string
+	FooterSourceURL  string
 
 	// Localization
 	CustomLocale string
@@ -61,6 +60,7 @@ func Load() *Config {
 		DetectBaseURL:   getEnvBool("DETECT_BASE_URL", false),
 		FileDir:         getEnv("FILE_DIR", "./uploads"),
 		UserFrontendDir: getEnv("USER_FRONTEND_DIR", "./userfrontend"),
+		Environment:     getEnv("SEND_ENV", "production"),
 
 		// Upload/Download Limits
 		MaxFileSize:          getEnvInt64("MAX_FILE_SIZE", 2684354560), // 2.5GB
@@ -87,15 +87,13 @@ func Load() *Config {
 		CustomAssetsFacebook:         getEnv("UI_CUSTOM_ASSETS_FACEBOOK", ""),
 		CustomAssetsTwitter:          getEnv("UI_CUSTOM_ASSETS_TWITTER", ""),
 		CustomAssetsWordmark:         getEnv("UI_CUSTOM_ASSETS_WORDMARK", ""),
-		CustomCSS:                    getEnv("UI_CUSTOM_CSS", ""),
 
 		// Footer
-		CustomFooterText:       getEnv("CUSTOM_FOOTER_TEXT", ""),
-		CustomFooterURL:        getEnv("CUSTOM_FOOTER_URL", ""),
-		FooterDMCAURL:          getEnv("SEND_FOOTER_DMCA_URL", ""),
-		FooterCLIURL:           getEnv("FOOTER_CLI_URL", "https://github.com/timvisee/ffsend"),
-		FooterSourceURL:        getEnv("FOOTER_SOURCE_URL", "https://github.com/Simon-Martens/go-send"),
-		ShowThunderbirdSponsor: getEnvBool("SHOW_THUNDERBIRD_SPONSOR", false),
+		CustomFooterText: getEnv("CUSTOM_FOOTER_TEXT", ""),
+		CustomFooterURL:  getEnv("CUSTOM_FOOTER_URL", ""),
+		FooterDMCAURL:    getEnv("SEND_FOOTER_DMCA_URL", ""),
+		FooterCLIURL:     getEnv("FOOTER_CLI_URL", "https://github.com/timvisee/ffsend"),
+		FooterSourceURL:  getEnv("FOOTER_SOURCE_URL", "https://github.com/Simon-Martens/go-send"),
 
 		// Localization
 		CustomLocale: getEnv("CUSTOM_LOCALE", ""),

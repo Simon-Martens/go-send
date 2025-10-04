@@ -3,6 +3,7 @@ package handlers
 import (
 	"crypto/subtle"
 	"encoding/json"
+	"log/slog"
 	"net/http"
 	"strings"
 	"time"
@@ -11,7 +12,7 @@ import (
 	"github.com/Simon-Martens/go-send/storage"
 )
 
-func NewMetadataHandler(db *storage.DB) http.HandlerFunc {
+func NewMetadataHandler(db *storage.DB, logger *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/api/metadata/"), "/")
 
@@ -29,11 +30,12 @@ func NewMetadataHandler(db *storage.DB) http.HandlerFunc {
 
 		// Verify HMAC auth
 		authHeader := r.Header.Get("Authorization")
-		if !auth.VerifyHMAC(authHeader, meta.AuthKey, meta.Nonce) {
+		if !auth.VerifyHMAC(authHeader, meta.AuthKey, meta.Nonce, logger) {
 			// Generate new nonce for retry
 			newNonce := auth.GenerateNonce()
 			db.UpdateNonce(id, newNonce)
 			w.Header().Set("WWW-Authenticate", "send-v1 "+newNonce)
+			logger.Warn("Metadata auth failed", "file_id", id)
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}

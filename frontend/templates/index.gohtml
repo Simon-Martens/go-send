@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="{{.Locale}}">
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Send</title>
+	<base href="/">
+	<meta name="robots" content="all,noarchive">
+	<meta name="google" content="nositelinkssearchbox">
+	<meta name="description"
+		content="Encrypt and send files with a link that automatically expires to ensure your important documents don't stay online forever.">
+	<meta name="theme-color" content="#220033">
+	<meta name="msapplication-TileColor" content="#220033">
+	<link rel="stylesheet" href="/inter.css">
+	<style {{.Nonce}}>
+		:root {
+			--color-primary: {{ .ColorPrimary }};
+			--color-primary-accent: {{ .ColorAccent }};
+		}
+	</style>
+	<link rel="stylesheet" href="/{{.CSS}}">
+	<!-- <link rel="stylesheet" href="/{{.CSS}}"> -->
+	<!-- <link rel="manifest" href="/app.webmanifest"> -->
+	{{if .AppleTouchIcon}}
+	<link rel="apple-touch-icon" sizes="180x180" href="/{{.AppleTouchIcon}}">{{end}}
+	{{if .Favicon32}}
+	<link rel="icon" type="image/png" sizes="32x32" href="/{{.Favicon32}}">{{end}}
+	{{if .Favicon16}}
+	<link rel="icon" type="image/png" sizes="16x16" href="/{{.Favicon16}}">{{end}}
+	{{if .SafariPinnedTab}}
+	<link rel="mask-icon" href="/{{.SafariPinnedTab}}" color="#838383">{{end}}
+	<link rel="icon" href="/favicon.ico">
+	<script type="module" defer src="/{{.JS}}"></script>
+</head>
+
+<body>
+	<noscript>
+		<div class="noscript">
+			<h2>JavaScript Required</h2>
+			<p>Firefox Send requires JavaScript to encrypt your files.</p>
+		</div>
+	</noscript>
+	<main></main>
+	<footer
+		class="flex flex-col md:flex-row items-start w-full flex-none self-start p-6 md:p-8 font-medium text-xs text-grey-60 dark:text-grey-40 md:items-center justify-between">
+		<ul class="flex flex-col md:flex-row items-start md:items-center md:justify-start">
+			{{if .CustomFooterHTML}}
+			{{.CustomFooterHTML}}
+			{{else}}
+			<li class="m-2">Firefox Send</li>
+			{{end}}
+		</ul>
+		<ul class="flex flex-col md:flex-row items-start md:items-center md:justify-end">
+			{{.FooterLinksHTML}}
+		</ul>
+	</footer>
+</body>
+<script {{.Nonce}}>
+	var LIMITS = {{.LimitsJSON}};
+	var WEB_UI = {{.WebUIJSON}};
+	var DEFAULTS = {{.DefaultsJSON}};
+	var PREFS = {};
+	var downloadMetadata = {{.DownloadMetadataJSON}};
+</script>
+
+</html>

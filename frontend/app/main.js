@@ -43,7 +43,7 @@ if (process.env.NODE_ENV === "production") {
       capabilities.streamDownload = false;
     }
   }
-
+  console.log("web-ui", WEB_UI);
   const translate = await getTranslator(locale());
   setTranslate(translate);
   // eslint-disable-next-line require-atomic-updates
@@ -69,5 +69,5 @@ if (process.env.NODE_ENV === "production") {
   app.use(controller);
   app.use(dragManager);
   app.use(pasteManager);
-  app.mount("body");
+  app.mount("main");
 })();

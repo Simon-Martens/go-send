@@ -1,10 +1,9 @@
 @tailwind base;
+@tailwind components;
 
 html {
   line-height: 1.15;
 }
-
-@tailwind components;
 
 :not(input) {
   user-select: none;
@@ -28,7 +27,7 @@ a:focus {
 }
 
 body {
-  background-image: url('../assets/bg.svg');
+  background-image: url("../assets/bg.svg");
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -57,7 +56,7 @@ body {
   @apply select-none;
 }
 
-.checkbox > input[type='checkbox'] {
+.checkbox > input[type="checkbox"] {
   @apply absolute;
   @apply opacity-0;
 }
@@ -71,7 +70,7 @@ body {
   @apply border-default;
   @apply rounded-sm;
 
-  content: '';
+  content: "";
   height: 1.5rem;
   width: 1.5rem;
   margin-right: 0.5rem;
@@ -90,7 +89,7 @@ body {
   @apply bg-primary;
   @apply border-primary;
 
-  background-image: url('../assets/lock.svg');
+  background-image: url("../assets/lock.svg");
   background-position: center;
   background-size: 1.25rem;
   background-repeat: no-repeat;
@@ -104,7 +103,7 @@ body {
   @apply bg-primary;
   @apply border-primary;
 
-  background-image: url('../assets/lock.svg');
+  background-image: url("../assets/lock.svg");
   background-position: center;
   background-size: 1.25rem;
   background-repeat: no-repeat;
@@ -131,13 +130,9 @@ details[open] > summary > svg {
   transform: rotate(90deg);
 }
 
-footer li a:hover {
-  text-decoration: underline;
-}
-
 .feedback-link {
   background-color: #000;
-  background-image: url('../assets/feedback.svg');
+  background-image: url("../assets/feedback.svg");
   background-position: 0.125rem 0.25rem;
   background-repeat: no-repeat;
   background-size: 1.125rem;
@@ -195,7 +190,7 @@ footer li a:hover {
 }
 
 #password-msg::after {
-  content: '\200b';
+  content: "\200b";
 }
 
 progress {
@@ -214,7 +209,8 @@ progress::-webkit-progress-bar {
 
 progress::-webkit-progress-value {
   /* stylelint-disable */
-  background-image: -webkit-linear-gradient(
+  background-image:
+    -webkit-linear-gradient(
       -45deg,
       transparent 20%,
       rgb(255 255 255 / 40%) 20%,
@@ -228,12 +224,16 @@ progress::-webkit-progress-value {
     -webkit-linear-gradient(left, var(--color-primary), var(--color-primary));
   /* stylelint-enable */
   border-radius: 2px;
-  background-size: 21px 20px, 100% 100%, 100% 100%;
+  background-size:
+    21px 20px,
+    100% 100%,
+    100% 100%;
 }
 
 progress::-moz-progress-bar {
   /* stylelint-disable */
-  background-image: -moz-linear-gradient(
+  background-image:
+    -moz-linear-gradient(
       135deg,
       transparent 20%,
       rgb(255 255 255 / 40%) 20%,
@@ -247,7 +247,10 @@ progress::-moz-progress-bar {
     -moz-linear-gradient(left, var(--color-primary), var(--color-primary));
   /* stylelint-enable */
   border-radius: 2px;
-  background-size: 21px 20px, 100% 100%, 100% 100%;
+  background-size:
+    21px 20px,
+    100% 100%,
+    100% 100%;
   animation: animate-stripes 1s linear infinite;
 }
 
@@ -258,7 +261,7 @@ progress::-moz-progress-bar {
 }
 
 select {
-  background-image: url('../assets/select-arrow.svg');
+  background-image: url("../assets/select-arrow.svg");
   background-position: calc(100% - 0.75rem);
   background-repeat: no-repeat;
 }
@@ -333,8 +336,10 @@ select {
   }
 
   .shadow-big {
-    box-shadow: 0 12px 18px 2px rgb(34 0 51 / 4%),
-      0 6px 22px 4px rgb(7 48 114 / 12%), 0 6px 10px -4px rgb(14 13 26 / 12%);
+    box-shadow:
+      0 12px 18px 2px rgb(34 0 51 / 4%),
+      0 6px 22px 4px rgb(7 48 114 / 12%),
+      0 6px 10px -4px rgb(14 13 26 / 12%);
   }
 }
 

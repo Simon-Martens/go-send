@@ -4,7 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -37,11 +37,11 @@ type UploadResponse struct {
 	Error      int    `json:"error,omitempty"`
 }
 
-func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(fileID string, expiresAt int64) bool) http.HandlerFunc {
+func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(fileID string, expiresAt int64) bool, logger *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
-			log.Println("Upgrade error:", err)
+			logger.Error("WebSocket upgrade error", "error", err)
 			return
 		}
 		defer conn.Close()
@@ -49,7 +49,7 @@ func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(f
 		// Read first message with file metadata
 		_, message, err := conn.ReadMessage()
 		if err != nil {
-			log.Println("Read error:", err)
+			logger.Error("WebSocket read error", "error", err)
 			return
 		}
 
@@ -108,7 +108,7 @@ func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(f
 		}
 
 		if err := conn.WriteJSON(resp); err != nil {
-			log.Println("Write error:", err)
+			logger.Error("Error writing upload response", "error", err, "file_id", id)
 			return
 		}
 
@@ -118,7 +118,7 @@ func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(f
 
 		tmpFile, err := os.CreateTemp(tmpDir, "upload-*")
 		if err != nil {
-			log.Println("Create temp file error:", err)
+			logger.Error("Failed to create temp file for upload", "error", err)
 			sendError(conn, 500)
 			return
 		}
@@ -133,7 +133,7 @@ func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(f
 			_, data, err := conn.ReadMessage()
 			if err != nil {
 				tmpFile.Close()
-				log.Println("Read error:", err)
+				logger.Error("Error reading upload data", "error", err, "file_id", id)
 				return
 			}
 
@@ -145,7 +145,10 @@ func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(f
 			// Check size limit before writing
 			if totalSize+int64(len(data)) > maxSize {
 				tmpFile.Close()
-				log.Printf("File size limit exceeded: %d > %d", totalSize+int64(len(data)), maxSize)
+				logger.Warn("File size limit exceeded",
+					"attempted_size", totalSize+int64(len(data)),
+					"max_size", maxSize,
+					"file_id", id)
 				sendError(conn, 413)
 				return
 			}
@@ -154,7 +157,7 @@ func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(f
 			n, err := tmpFile.Write(data)
 			if err != nil {
 				tmpFile.Close()
-				log.Println("Write error:", err)
+				logger.Error("Error writing upload data", "error", err, "file_id", id)
 				sendError(conn, 500)
 				return
 			}
@@ -163,14 +166,14 @@ func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(f
 
 		// Close and move file to final location
 		if err := tmpFile.Close(); err != nil {
-			log.Println("Close temp file error:", err)
+			logger.Error("Error closing temp file", "error", err, "file_id", id)
 			sendError(conn, 500)
 			return
 		}
 
 		finalPath := filepath.Join(cfg.FileDir, id)
 		if err := os.Rename(tmpPath, finalPath); err != nil {
-			log.Println("Move file error:", err)
+			logger.Error("Error moving uploaded file", "error", err, "file_id", id)
 			sendError(conn, 500)
 			return
 		}
@@ -191,11 +194,17 @@ func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(f
 		}
 
 		if err := db.CreateFile(meta); err != nil {
-			log.Println("DB error:", err)
+			logger.Error("Database error creating file metadata", "error", err, "file_id", id)
 			storage.DeleteFile(id)
 			sendError(conn, 500)
 			return
 		}
+
+		logger.Info("File uploaded successfully",
+			"file_id", id,
+			"size_bytes", totalSize,
+			"dl_limit", req.Dlimit,
+			"expires_in_seconds", req.TimeLimit)
 
 		// Schedule cleanup if file expires within 1 hour
 		ttl := time.Until(time.Unix(meta.ExpiresAt, 0))

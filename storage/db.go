@@ -11,6 +11,11 @@ type DB struct {
 	db *sql.DB
 }
 
+// DB returns the underlying sql.DB for migrations and other low-level operations
+func (d *DB) DB() *sql.DB {
+	return d.db
+}
+
 type FileMetadata struct {
 	ID          string
 	OwnerToken  string
@@ -33,28 +38,7 @@ func NewDB(dbPath string) (*DB, error) {
 		return nil, err
 	}
 
-	// Create schema
-	schema := `
-	CREATE TABLE IF NOT EXISTS files (
-		id TEXT PRIMARY KEY,
-		owner_token TEXT NOT NULL,
-		metadata TEXT NOT NULL,
-		auth_key TEXT NOT NULL,
-		nonce TEXT NOT NULL,
-		dl_limit INTEGER NOT NULL,
-		dl_count INTEGER DEFAULT 0,
-		password INTEGER DEFAULT 0,
-		created_at INTEGER NOT NULL,
-		expires_at INTEGER NOT NULL
-	);
-
-	CREATE INDEX IF NOT EXISTS idx_expires ON files(expires_at);
-	`
-
-	if _, err := db.Exec(schema); err != nil {
-		return nil, err
-	}
-
+	// Schema creation is now handled by migrations
 	return &DB{db: db}, nil
 }
 

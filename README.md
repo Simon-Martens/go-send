@@ -107,52 +107,6 @@ The Go server is configured via environment variables. All settings are optional
 
 See all branding options: `config/config.go`
 
-### Customization (Templates & Static Files)
-
-You can override templates and add custom static files without recompiling the server:
-
-**Directory Structure:**
-```
-userfrontend/
-├── templates/
-│   └── index.html       # Override main template
-└── public/
-    ├── custom.css       # Add custom CSS
-    ├── logo.png         # Add custom images
-    └── ...              # Any static files
-```
-
-**How it works:**
-- **Templates**: Place `.html` files in `userfrontend/templates/` to override embedded templates
-  - Must include at least `index.html` to be used
-  - Supports multiple template fragments for future use
-  - Falls back to embedded templates if not found
-
-- **Static Files**: Place files in `userfrontend/public/` to serve at base URL `/`
-  - Overrides embedded frontend assets when present
-  - Perfect for custom CSS, images, fonts, etc.
-  - Falls back to embedded assets if not found
-
-**Example:**
-```bash
-# Create custom template directory
-mkdir -p userfrontend/templates userfrontend/public
-
-# Copy embedded template to customize
-cp frontend/templates/index.html userfrontend/templates/
-
-# Add custom CSS
-echo "body { background: red; }" > userfrontend/public/custom.css
-
-# Reference in your custom template
-# <link rel="stylesheet" href="/custom.css">
-
-# Start server (automatically loads from userfrontend/)
-./send-server
-```
-
-Configure location with `USER_FRONTEND_DIR` environment variable.
-
 
 ## API Endpoints implemented
 

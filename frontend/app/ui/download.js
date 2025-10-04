@@ -1,11 +1,12 @@
 /* global downloadMetadata */
-const html = require('choo/html');
-const archiveTile = require('./archiveTile');
-const modal = require('./modal');
-const noStreams = require('./noStreams');
-const notFound = require('./notFound');
-const downloadPassword = require('./downloadPassword');
-const downloadCompleted = require('./downloadCompleted');
+const html = require("choo/html");
+const archiveTile = require("./archiveTile");
+const modal = require("./modal");
+const noStreams = require("./noStreams");
+const notFound = require("./notFound");
+const downloadPassword = require("./downloadPassword");
+const downloadCompleted = require("./downloadCompleted");
+const capabilities = require("../capabilities");
 const BIG_SIZE = 1024 * 1024 * 256;
 
 function createFileInfo(state) {
@@ -13,7 +14,7 @@ function createFileInfo(state) {
     id: state.params.id,
     secretKey: state.params.key,
     nonce: downloadMetadata.nonce,
-    requiresPassword: downloadMetadata.pwd
+    requiresPassword: downloadMetadata.pwd,
   };
 }
 
@@ -23,7 +24,7 @@ function downloading(state, emit) {
       class="flex flex-col w-full h-full items-center md:justify-center md:-mt-8"
     >
       <h1 class="text-3xl font-bold mb-4">
-        ${state.translate('downloadingTitle')}
+        ${state.translate("downloadingTitle")}
       </h1>
       ${archiveTile.downloading(state, emit)}
     </div>
@@ -31,6 +32,8 @@ function downloading(state, emit) {
 }
 
 function preview(state, emit) {
+  // TODO: This is here to recheck capabilities, but we need to figure out
+  // why it's not right in the first place.
   if (!state.capabilities.streamDownload && state.fileInfo.size > BIG_SIZE) {
     return noStreams(state, emit);
   }
@@ -39,20 +42,20 @@ function preview(state, emit) {
       class="flex flex-col w-full max-w-md h-full mx-auto items-center justify-center"
     >
       <h1 class="text-3xl font-bold mb-4">
-        ${state.translate('downloadTitle')}
+        ${state.translate("downloadTitle")}
       </h1>
       <p
         class="w-full text-grey-80 text-center leading-normal dark:text-grey-40"
       >
-        ${state.translate('downloadDescription')}
+        ${state.translate("downloadDescription")}
       </p>
       ${archiveTile.preview(state, emit)}
     </div>
   `;
 }
 
-module.exports = function(state, emit) {
-  let content = '';
+module.exports = function (state, emit) {
+  let content = "";
   if (!state.fileInfo) {
     state.fileInfo = createFileInfo(state);
     if (downloadMetadata.status === 404) {
@@ -65,16 +68,16 @@ module.exports = function(state, emit) {
   }
 
   if (!state.transfer && !state.fileInfo.requiresPassword) {
-    emit('getMetadata');
+    emit("getMetadata");
   }
 
   if (state.transfer) {
     switch (state.transfer.state) {
-      case 'downloading':
-      case 'decrypting':
+      case "downloading":
+      case "decrypting":
         content = downloading(state, emit);
         break;
-      case 'complete':
+      case "complete":
         content = downloadCompleted(state);
         break;
       default:

@@ -1,4 +1,4 @@
-title = Send
+title = Go Send
 importingFile = Wird importiert…
 encryptingFile = Wird verschlüsselt…
 decryptingFile = Wird entschlüsselt…
@@ -22,16 +22,16 @@ sendYourFilesLink = Send ausprobieren
 errorPageHeader = Ein Fehler ist aufgetreten!
 fileTooBig = Die Datei ist zu groß zum Hochladen. Sie sollte maximal { $size } groß sein.
 linkExpiredAlt = Link abgelaufen
-notSupportedHeader = Dein Browser wird nicht unterstützt.
+notSupportedHeader = Ihr Browser wird nicht unterstützt.
 notSupportedLink = Warum wird mein Browser nicht unterstützt?
-notSupportedOutdatedDetail = Leider unterstützt diese Firefox-Version die Web-Technologie nicht, auf der Send basiert. Du musst deinen Browser aktualisieren.
+notSupportedOutdatedDetail = Leider unterstützt diese Firefox-Version die Web-Technologie nicht, auf der Send basiert. Sie müssen Ihren Browser aktualisieren.
 updateFirefox = Firefox aktualisieren
 deletePopupCancel = Abbrechen
 deleteButtonHover = Löschen
-passwordTryAgain = Falsches Passwort. Versuche es nochmal.
+passwordTryAgain = Falsches Passwort. Versuchen Sie es nochmal.
 javascriptRequired = Send benötigt JavaScript
 whyJavascript = Warum benötigt Send JavaScript?
-enableJavascript = Bitte aktiviere JavaScript und versuche es erneut.
+enableJavascript = Bitte aktivieren Sie JavaScript und versuchen Sie es erneut.
 # A short representation of a countdown timer containing the number of hours and minutes remaining as digits, example "13h 47m"
 expiresHoursMinutes = { $hours }h { $minutes }m
 # A short representation of a countdown timer containing the number of minutes remaining as digits, example "56m"
@@ -48,10 +48,10 @@ passwordSetError = Dieses Passwort konnte nicht eingerichtet werden
 -firefox = Firefox
 -mozilla = Mozilla
 introTitle = Einfach und privat Dateien versenden
-introDescription = Mit { -send-brand } kannst du Dateien sicher mit anderen teilen – mit End-to-End-Verschlüsselung und einem Freigabe-Link, der automatisch abläuft. So bleiben deine geteilten Inhalte privat und du kannst sicherstellen, dass deine Daten nicht für immer im Web herumschwirren.
-notifyUploadEncryptDone = Deine Datei ist verschlüsselt und zum Senden bereit
+introDescription = Mit { -send-brand } können Sie Dateien sicher mit anderen teilen – mit Ende-zu-Ende-Verschlüsselung und einem Freigabe-Link, der automatisch abläuft. So bleiben Ihre geteilten Daten privat und Sie können kannst sicherstellen, dass Ihre Daten nicht für immer im Web herumschwirren.
+notifyUploadEncryptDone = Ihre Datei wurde verschlüsselt
 # downloadCount is from the downloadCount string and timespan is a timespanMinutes string. ex. 'Expires after 2 downloads or 25 minutes'
-archiveExpiryInfo = Läuft ab nach { $downloadCount } oder { $timespan }
+archiveExpiryInfo = Läuft nach { $downloadCount } oder { $timespan } ab
 timespanMinutes =
     { $num ->
         [one] 1 Minute
@@ -85,11 +85,11 @@ fileSize = { $num }{ $units }
 # $size is the size of the file, displayed using the fileSize message as format (e.g. "2.5MB")
 totalSize = Gesamtgröße: { $size }
 # the next line after the colon contains a file name
-copyLinkDescription = Kopiere den Link, um deine Datei zu teilen:
+copyLinkDescription = Diesen Link kopieren, um Ihre Datei zu teilen:
 copyLinkButton = Link kopieren
 downloadTitle = Dateien herunterladen
-downloadDescription = Diese Datei wurde über { -send-brand } mit End-to-End-Verschlüsselung und einem automatisch ablaufenden Link geteilt.
-trySendDescription = Probiere { -send-brand } aus, um einfach und sicher Dateien zu versenden.
+downloadDescription = Diese Datei wurde über { -send-brand } mit Ende-zu-Ende-Verschlüsselung und einem automatisch ablaufenden Link geteilt.
+trySendDescription = Probieren Sie { -send-brand } aus, um einfach und sicher Dateien zu versenden.
 # count will always be > 10
 tooManyFiles =
     { $count ->
@@ -119,9 +119,9 @@ orClickWithSize = oder klicken, um bis zu { $size } zu senden
 addPassword = Mit Passwort schützen
 emailPlaceholder = E-Mail-Adresse eingeben
 # $size is the size of the file, displayed using the fileSize message as format (e.g. "2.5MB")
-signInSizeBump = Melde dich an, um Dateien bis { $size } zu senden
+signInSizeBump = melden Sie sich an, um Dateien bis { $size } zu senden
 signInOnlyButton = Anmelden
-accountBenefitTitle = Erstelle ein { -firefox }-Konto oder melde dich an
+accountBenefitTitle = Erstellen Sie ein { -firefox }-Konto oder melde Sie sich an
 # $size is the size of the file, displayed using the fileSize message as format (e.g. "2.5MB")
 accountBenefitLargeFiles = Dateien bis zu { $size } teilen
 accountBenefitDownloadCount = Teile Dateien mit weiteren Leuten
@@ -131,13 +131,13 @@ accountBenefitTimeLimit =
        *[other] Link bis zu { $count } Tage lang aktiv halten
     }
 accountBenefitSync = Geteilte Dateien von anderen Geräten aus verwalten
-accountBenefitMoz = Erfahre mehr über andere { -mozilla }-Dienste
+accountBenefitMoz = Mehr über andere { -mozilla }-Dienste erfahren
 signOut = Abmelden
 okButton = OK
 downloadingTitle = Wird heruntergeladen…
 noStreamsWarning = Dieser Browser kann eine so große Datei möglicherweise nicht entschlüsseln.
-noStreamsOptionCopy = Kopiere den Link, um ihn in einem anderen Browser zu öffnen
-noStreamsOptionFirefox = Probiere unseren Lieblingsbrowser aus
+noStreamsOptionCopy = Kopieren Sie den Link, um ihn in einem anderen Browser zu öffnen
+noStreamsOptionFirefox = Probieren Sie unseren Lieblingsbrowser aus
 noStreamsOptionDownload = Mit diesem Browser weitermachen
 downloadFirefoxPromo = { -send-short-brand } wird Ihnen präsentiert vom brandneuen { -firefox }.
 # the next line after the colon contains a file name

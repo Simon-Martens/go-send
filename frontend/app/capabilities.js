@@ -1,53 +1,53 @@
 /* global AUTH_CONFIG */
-import { browserName, locale } from './utils';
+import { browserName, locale } from "./utils";
 
 async function checkCrypto() {
   try {
     const key = await crypto.subtle.generateKey(
       {
-        name: 'AES-GCM',
-        length: 128
+        name: "AES-GCM",
+        length: 128,
       },
       true,
-      ['encrypt', 'decrypt']
+      ["encrypt", "decrypt"],
     );
-    await crypto.subtle.exportKey('raw', key);
+    await crypto.subtle.exportKey("raw", key);
     await crypto.subtle.encrypt(
       {
-        name: 'AES-GCM',
+        name: "AES-GCM",
         iv: crypto.getRandomValues(new Uint8Array(12)),
-        tagLength: 128
+        tagLength: 128,
       },
       key,
-      new ArrayBuffer(8)
+      new ArrayBuffer(8),
     );
     await crypto.subtle.importKey(
-      'raw',
+      "raw",
       crypto.getRandomValues(new Uint8Array(16)),
-      'PBKDF2',
+      "PBKDF2",
       false,
-      ['deriveKey']
+      ["deriveKey"],
     );
     await crypto.subtle.importKey(
-      'raw',
+      "raw",
       crypto.getRandomValues(new Uint8Array(16)),
-      'HKDF',
+      "HKDF",
       false,
-      ['deriveKey']
+      ["deriveKey"],
     );
     await crypto.subtle.generateKey(
       {
-        name: 'ECDH',
-        namedCurve: 'P-256'
+        name: "ECDH",
+        namedCurve: "P-256",
       },
       true,
-      ['deriveBits']
+      ["deriveBits"],
     );
     return true;
   } catch (err) {
     try {
-      window.asmCrypto = await import('asmcrypto.js');
-      await import('@dannycoates/webcrypto-liner/build/shim');
+      window.asmCrypto = await import("asmcrypto.js");
+      await import("@dannycoates/webcrypto-liner/build/shim");
       return true;
     } catch (e) {
       return false;
@@ -58,7 +58,7 @@ async function checkCrypto() {
 function checkStreams() {
   try {
     new ReadableStream({
-      pull() {}
+      pull() {},
     });
     return true;
   } catch (e) {
@@ -68,7 +68,7 @@ function checkStreams() {
 
 async function polyfillStreams() {
   try {
-    await import('@mattiasbuelens/web-streams-polyfill');
+    await import("@mattiasbuelens/web-streams-polyfill");
     return true;
   } catch (e) {
     return false;
@@ -78,14 +78,14 @@ async function polyfillStreams() {
 export default async function getCapabilities() {
   const browser = browserName();
   const isMobile = /mobi|android/i.test(navigator.userAgent);
-  const serviceWorker = 'serviceWorker' in navigator && browser !== 'edge';
+  const serviceWorker = "serviceWorker" in navigator && browser !== "edge";
   let crypto = await checkCrypto();
   const nativeStreams = checkStreams();
   let polyStreams = false;
   if (!nativeStreams) {
     polyStreams = await polyfillStreams();
   }
-  let account = typeof AUTH_CONFIG !== 'undefined';
+  let account = typeof AUTH_CONFIG !== "undefined";
   try {
     account = account && !!localStorage;
   } catch (e) {
@@ -93,14 +93,23 @@ export default async function getCapabilities() {
   }
   const share =
     isMobile &&
-    typeof navigator.share === 'function' &&
-    locale().startsWith('en'); // en until strings merge
+    typeof navigator.share === "function" &&
+    locale().startsWith("en"); // en until strings merge
 
   const standalone =
-    window.matchMedia('(display-mode: standalone)').matches ||
+    window.matchMedia("(display-mode: standalone)").matches ||
     navigator.standalone;
 
-  const mobileFirefox = browser === 'firefox' && isMobile;
+  const mobileFirefox = browser === "firefox" && isMobile;
+
+  console.log(
+    "Stream Capabilities",
+    nativeStreams,
+    polyStreams,
+    serviceWorker,
+    browser,
+    mobileFirefox,
+  );
 
   return {
     account,
@@ -108,9 +117,9 @@ export default async function getCapabilities() {
     serviceWorker,
     streamUpload: nativeStreams || polyStreams,
     streamDownload:
-      nativeStreams && serviceWorker && browser !== 'safari' && !mobileFirefox,
+      nativeStreams && serviceWorker && browser !== "safari" && !mobileFirefox,
     multifile: nativeStreams || polyStreams,
     share,
-    standalone
+    standalone,
   };
 }

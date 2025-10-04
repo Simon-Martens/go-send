@@ -1,4 +1,4 @@
-import { arrayToB64, b64ToArray, delay } from './utils';
+import { arrayToB64, b64ToArray, delay } from './utils-worker';
 import { ECE_RECORD_SIZE } from './ece';
 
 let fileProtocolWssUrl = null;

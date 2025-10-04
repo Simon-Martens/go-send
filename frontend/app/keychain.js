@@ -1,4 +1,4 @@
-import { arrayToB64, b64ToArray } from './utils';
+import { arrayToB64, b64ToArray } from './utils-worker';
 import { decryptStream, encryptStream } from './ece.js';
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();

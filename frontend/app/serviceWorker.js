@@ -1,10 +1,9 @@
-import assets from '../common/assets';
-import { version } from '../package.json';
-import Keychain from './keychain';
-import { downloadStream } from './api';
-import { transformStream } from './streams';
-import Zip from './zip';
-import contentDisposition from 'content-disposition';
+import { version } from "../package.json";
+import Keychain from "./keychain";
+import { downloadStream } from "./api";
+import { transformStream } from "./streams";
+import Zip from "./zip";
+import contentDisposition from "content-disposition";
 
 let noSave = false;
 const map = new Map();
@@ -13,12 +12,12 @@ const VERSIONED_ASSET = /\.[A-Fa-f0-9]{8}\.(js|css|png|svg|jpg)(#\w+)?$/;
 const DOWNLOAD_URL = /\/api\/download\/([A-Fa-f0-9]{4,})/;
 const FONT = /\.woff2?$/;
 
-self.addEventListener('install', () => {
+self.addEventListener("install", () => {
   self.skipWaiting();
 });
 
-self.addEventListener('activate', event => {
-  event.waitUntil(self.clients.claim().then(precache));
+self.addEventListener("activate", (event) => {
+  event.waitUntil(self.clients.claim());
 });
 
 async function decryptStream(id) {
@@ -41,10 +40,10 @@ async function decryptStream(id) {
     const decrypted = keychain.decryptStream(body);
 
     let zipStream = null;
-    if (file.type === 'send-archive') {
+    if (file.type === "send-archive") {
       const zip = new Zip(file.manifest, decrypted);
       zipStream = zip.stream;
-      type = 'application/zip';
+      type = "application/zip";
       size = zip.size;
     }
     const responseStream = transformStream(
@@ -53,20 +52,20 @@ async function decryptStream(id) {
         transform(chunk, controller) {
           file.progress += chunk.length;
           controller.enqueue(chunk);
-        }
+        },
       },
       function oncancel() {
         // NOTE: cancel doesn't currently fire on chrome
         // https://bugs.chromium.org/p/chromium/issues/detail?id=638494
         file.download.cancel();
         map.delete(id);
-      }
+      },
     );
 
     const headers = {
-      'Content-Disposition': contentDisposition(file.filename),
-      'Content-Type': type,
-      'Content-Length': size
+      "Content-Disposition": contentDisposition(file.filename),
+      "Content-Type": type,
+      "Content-Length": size,
     };
     return new Response(responseStream, { headers });
   } catch (e) {
@@ -77,21 +76,9 @@ async function decryptStream(id) {
     return new Response(null, {
       status: 302,
       headers: {
-        Location: `/download/${id}/#${file.key}`
-      }
+        Location: `/download/${id}/#${file.key}`,
+      },
     });
-  }
-}
-
-async function precache() {
-  try {
-    await cleanCache();
-    const cache = await caches.open(version);
-    const images = assets.match(IMAGES);
-    await cache.addAll(images);
-  } catch (e) {
-    console.error(e);
-    // cache will get populated on demand
   }
 }
 
@@ -121,9 +108,9 @@ async function cachedOrFetched(req) {
   return fetched;
 }
 
-self.onfetch = event => {
+self.onfetch = (event) => {
   const req = event.request;
-  if (req.method !== 'GET') return;
+  if (req.method !== "GET") return;
   const url = new URL(req.url);
   const dlmatch = DOWNLOAD_URL.exec(url.pathname);
   if (dlmatch) {
@@ -133,8 +120,8 @@ self.onfetch = event => {
   }
 };
 
-self.onmessage = event => {
-  if (event.data.request === 'init') {
+self.onmessage = (event) => {
+  if (event.data.request === "init") {
     noSave = event.data.noSave;
     const info = {
       key: event.data.key,
@@ -146,22 +133,22 @@ self.onmessage = event => {
       type: event.data.type,
       manifest: event.data.manifest,
       size: event.data.size,
-      progress: 0
+      progress: 0,
     };
     map.set(event.data.id, info);
 
-    event.ports[0].postMessage('file info received');
-  } else if (event.data.request === 'progress') {
+    event.ports[0].postMessage("file info received");
+  } else if (event.data.request === "progress") {
     const file = map.get(event.data.id);
     if (!file) {
-      event.ports[0].postMessage({ error: 'cancelled' });
+      event.ports[0].postMessage({ error: "cancelled" });
     } else {
       if (file.progress === file.size) {
         map.delete(event.data.id);
       }
       event.ports[0].postMessage({ progress: file.progress });
     }
-  } else if (event.data.request === 'cancel') {
+  } else if (event.data.request === "cancel") {
     const file = map.get(event.data.id);
     if (file) {
       if (file.download) {
@@ -169,6 +156,6 @@ self.onmessage = event => {
       }
       map.delete(event.data.id);
     }
-    event.ports[0].postMessage('download cancelled');
+    event.ports[0].postMessage("download cancelled");
   }
 };

@@ -3,7 +3,14 @@ import Keychain from "./keychain";
 import { downloadStream } from "./api";
 import { transformStream } from "./streams";
 import Zip from "./zip";
-import contentDisposition from "content-disposition";
+
+// Content-Disposition header generator with ASCII fallback
+function contentDisposition(filename) {
+  // ASCII fallback for old browsers + modern UTF-8 encoding
+  const asciiName = filename.replace(/[^\x20-\x7E]/g, '_');
+  const encodedName = encodeURIComponent(filename);
+  return `attachment; filename="${asciiName}"; filename*=UTF-8''${encodedName}`;
+}
 
 let noSave = false;
 const map = new Map();
@@ -17,14 +24,16 @@ self.addEventListener("install", () => {
 });
 
 self.addEventListener("activate", (event) => {
-  event.waitUntil(self.clients.claim());
+  event.waitUntil(self.clients.claim()).then(precache);
 });
 
 async function decryptStream(id) {
   const file = map.get(id);
   if (!file) {
+    console.error('[SW] File not found in map for id:', id);
     return new Response(null, { status: 400 });
   }
+  console.log('[SW] Starting decryptStream for', id, 'with nonce:', file.nonce);
   try {
     let size = file.size;
     let type = file.type;
@@ -33,6 +42,7 @@ async function decryptStream(id) {
       keychain.setPassword(file.password, file.url);
     }
 
+    console.log('[SW] Calling downloadStream...');
     file.download = downloadStream(id, keychain);
 
     const body = await file.download.result;
@@ -67,18 +77,32 @@ async function decryptStream(id) {
       "Content-Type": type,
       "Content-Length": size,
     };
+    console.log('[SW] Returning decrypted stream response');
     return new Response(responseStream, { headers });
   } catch (e) {
+    console.error('[SW] Error in decryptStream:', e, 'noSave:', noSave);
     if (noSave) {
       return new Response(null, { status: e.message });
     }
 
+    console.log('[SW] Redirecting to download page');
     return new Response(null, {
       status: 302,
       headers: {
-        Location: `/download/${id}/#${file.key}`,
+        Location: `/download/${id}#${file.key}`,
       },
     });
+  }
+}
+
+async function precache() {
+  try {
+    await cleanCache();
+    const cache = await caches.open(version);
+    const images = assets.match(IMAGES);
+    await cache.addAll(images);
+  } catch (e) {
+    console.error(e);
   }
 }
 
@@ -114,6 +138,7 @@ self.onfetch = (event) => {
   const url = new URL(req.url);
   const dlmatch = DOWNLOAD_URL.exec(url.pathname);
   if (dlmatch) {
+    console.log('[SW] Intercepted download request for:', dlmatch[1]);
     event.respondWith(decryptStream(dlmatch[1]));
   } else if (cacheable(url.pathname)) {
     event.respondWith(cachedOrFetched(req));
@@ -122,6 +147,7 @@ self.onfetch = (event) => {
 
 self.onmessage = (event) => {
   if (event.data.request === "init") {
+    console.log('[SW] Received init message for', event.data.id, 'nonce:', event.data.nonce);
     noSave = event.data.noSave;
     const info = {
       key: event.data.key,
@@ -136,6 +162,7 @@ self.onmessage = (event) => {
       progress: 0,
     };
     map.set(event.data.id, info);
+    console.log('[SW] File info stored in map');
 
     event.ports[0].postMessage("file info received");
   } else if (event.data.request === "progress") {

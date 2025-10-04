@@ -13,7 +13,7 @@ import (
 
 func NewMetadataHandler(db *storage.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id := strings.TrimPrefix(r.URL.Path, "/api/metadata/")
+		id := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/api/metadata/"), "/")
 
 		if id == "" {
 			http.Error(w, "Missing file ID", http.StatusBadRequest)
@@ -60,7 +60,7 @@ func NewMetadataHandler(db *storage.DB) http.HandlerFunc {
 
 func NewExistsHandler(db *storage.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id := strings.TrimPrefix(r.URL.Path, "/api/exists/")
+		id := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/api/exists/"), "/")
 
 		if id == "" {
 			http.Error(w, "Missing file ID", http.StatusBadRequest)
@@ -84,7 +84,7 @@ func NewDeleteHandler(db *storage.DB, cancelCleanup func(string)) http.HandlerFu
 			return
 		}
 
-		id := strings.TrimPrefix(r.URL.Path, "/api/delete/")
+		id := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/api/delete/"), "/")
 
 		if id == "" {
 			http.Error(w, "Missing file ID", http.StatusBadRequest)
@@ -135,7 +135,7 @@ func NewPasswordHandler(db *storage.DB) http.HandlerFunc {
 			return
 		}
 
-		id := strings.TrimPrefix(r.URL.Path, "/api/password/")
+		id := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/api/password/"), "/")
 
 		if id == "" {
 			http.Error(w, "Missing file ID", http.StatusBadRequest)
@@ -186,7 +186,7 @@ func NewInfoHandler(db *storage.DB) http.HandlerFunc {
 			return
 		}
 
-		id := strings.TrimPrefix(r.URL.Path, "/api/info/")
+		id := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/api/info/"), "/")
 
 		if id == "" {
 			http.Error(w, "Missing file ID", http.StatusBadRequest)

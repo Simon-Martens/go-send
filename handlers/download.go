@@ -16,6 +16,7 @@ func NewDownloadHandler(db *storage.DB, cancelCleanup func(string)) http.Handler
 		// Extract ID from path
 		id := strings.TrimPrefix(r.URL.Path, "/api/download/")
 		id = strings.TrimPrefix(id, "blob/")
+		id = strings.TrimSuffix(id, "/")
 
 		if id == "" {
 			http.Error(w, "Missing file ID", http.StatusBadRequest)

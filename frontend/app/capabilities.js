@@ -45,13 +45,7 @@ async function checkCrypto() {
     );
     return true;
   } catch (err) {
-    try {
-      window.asmCrypto = await import("asmcrypto.js");
-      await import("@dannycoates/webcrypto-liner/build/shim");
-      return true;
-    } catch (e) {
-      return false;
-    }
+    return false;
   }
 }
 
@@ -66,25 +60,12 @@ function checkStreams() {
   }
 }
 
-async function polyfillStreams() {
-  try {
-    await import("@mattiasbuelens/web-streams-polyfill");
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
-
 export default async function getCapabilities() {
   const browser = browserName();
   const isMobile = /mobi|android/i.test(navigator.userAgent);
   const serviceWorker = "serviceWorker" in navigator && browser !== "edge";
   let crypto = await checkCrypto();
-  const nativeStreams = checkStreams();
-  let polyStreams = false;
-  if (!nativeStreams) {
-    polyStreams = await polyfillStreams();
-  }
+  const streams = checkStreams();
   let account = typeof AUTH_CONFIG !== "undefined";
   try {
     account = account && !!localStorage;
@@ -104,8 +85,7 @@ export default async function getCapabilities() {
 
   console.log(
     "Stream Capabilities",
-    nativeStreams,
-    polyStreams,
+    streams,
     serviceWorker,
     browser,
     mobileFirefox,
@@ -115,10 +95,10 @@ export default async function getCapabilities() {
     account,
     crypto,
     serviceWorker,
-    streamUpload: nativeStreams || polyStreams,
+    streamUpload: streams,
     streamDownload:
-      nativeStreams && serviceWorker && browser !== "safari" && !mobileFirefox,
-    multifile: nativeStreams || polyStreams,
+      streams && serviceWorker && browser !== "safari" && !mobileFirefox,
+    multifile: streams,
     share,
     standalone,
   };

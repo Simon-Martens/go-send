@@ -47,7 +47,7 @@ func NewIndexHandler(tmpl *template.Template, manifest map[string]string, cfg *c
 
 func NewDownloadPageHandler(tmpl *template.Template, manifest map[string]string, db *storage.DB, cfg *config.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id := strings.TrimPrefix(r.URL.Path, "/download/")
+		id := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/download/"), "/")
 		log.Printf("Download page request - Path: %s, ID: %s", r.URL.Path, id)
 
 		nonce, err := generateNonce()

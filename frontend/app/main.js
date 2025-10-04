@@ -6,8 +6,6 @@ if (typeof window !== "undefined") {
 }
 
 import "core-js";
-import "fast-text-encoding"; // MS Edge support
-import "intl-pluralrules";
 import choo from "choo";
 import nanotiming from "nanotiming";
 import routes from "./routes";
@@ -37,7 +35,7 @@ if (process.env.NODE_ENV === "production") {
   }
   if (capabilities.serviceWorker) {
     try {
-      await navigator.serviceWorker.register('/serviceWorker.js', { type: 'module' });
+      await navigator.serviceWorker.register("/serviceWorker.js");
       await navigator.serviceWorker.ready;
     } catch (e) {
       // continue but disable streaming downloads

@@ -1,13 +1,13 @@
-import Nanobus from 'nanobus';
-import Keychain from './keychain';
-import { delay, bytes, streamToArrayBuffer } from './utils';
-import { downloadFile, metadata, getApiUrl } from './api';
-import { blobStream } from './streams';
-import Zip from './zip';
+import Nanobus from "nanobus";
+import Keychain from "./keychain";
+import { delay, bytes, streamToArrayBuffer } from "./utils";
+import { downloadFile, metadata, getApiUrl } from "./api";
+import { blobStream } from "./streams";
+import Zip from "./zip";
 
 export default class FileReceiver extends Nanobus {
   constructor(fileInfo) {
-    super('FileReceiver');
+    super("FileReceiver");
     this.keychain = new Keychain(fileInfo.secretKey, fileInfo.nonce);
     if (fileInfo.requiresPassword) {
       this.keychain.setPassword(fileInfo.password, fileInfo.url);
@@ -21,13 +21,13 @@ export default class FileReceiver extends Nanobus {
   }
 
   get progressIndefinite() {
-    return this.state !== 'downloading';
+    return this.state !== "downloading";
   }
 
   get sizes() {
     return {
       partialSize: bytes(this.progress[0]),
-      totalSize: bytes(this.progress[1])
+      totalSize: bytes(this.progress[1]),
     };
   }
 
@@ -38,8 +38,8 @@ export default class FileReceiver extends Nanobus {
   }
 
   reset() {
-    this.msg = 'fileSizeProgress';
-    this.state = 'initialized';
+    this.msg = "fileSizeProgress";
+    this.state = "initialized";
     this.progress = [0, 1];
   }
 
@@ -50,7 +50,7 @@ export default class FileReceiver extends Nanobus {
     this.fileInfo.iv = meta.iv;
     this.fileInfo.size = +meta.size;
     this.fileInfo.manifest = meta.manifest;
-    this.state = 'ready';
+    this.state = "ready";
   }
 
   // Removed: reportLink feature not implemented in Go backend
@@ -62,9 +62,9 @@ export default class FileReceiver extends Nanobus {
     return new Promise((resolve, reject) => {
       const channel = new MessageChannel();
 
-      channel.port1.onmessage = function(event) {
+      channel.port1.onmessage = function (event) {
         if (event.data === undefined) {
-          reject('bad response from serviceWorker');
+          reject("bad response from serviceWorker");
         } else if (event.data.error !== undefined) {
           reject(event.data.error);
         } else {
@@ -77,24 +77,24 @@ export default class FileReceiver extends Nanobus {
   }
 
   async downloadBlob(noSave = false) {
-    this.state = 'downloading';
+    this.state = "downloading";
     this.downloadRequest = await downloadFile(
       this.fileInfo.id,
       this.keychain,
-      p => {
+      (p) => {
         this.progress = [p, this.fileInfo.size];
-        this.emit('progress');
-      }
+        this.emit("progress");
+      },
     );
     try {
       const ciphertext = await this.downloadRequest.result;
       this.downloadRequest = null;
-      this.msg = 'decryptingFile';
-      this.state = 'decrypting';
-      this.emit('decrypting');
+      this.msg = "decryptingFile";
+      this.state = "decrypting";
+      this.emit("decrypting");
       let size = this.fileInfo.size;
       let plainStream = this.keychain.decryptStream(blobStream(ciphertext));
-      if (this.fileInfo.type === 'send-archive') {
+      if (this.fileInfo.type === "send-archive") {
         const zip = new Zip(this.fileInfo.manifest, plainStream);
         plainStream = zip.stream;
         size = zip.size;
@@ -104,12 +104,12 @@ export default class FileReceiver extends Nanobus {
         await saveFile({
           plaintext,
           name: decodeURIComponent(this.fileInfo.name),
-          type: this.fileInfo.type
+          type: this.fileInfo.type,
         });
       }
-      this.msg = 'downloadFinish';
-      this.emit('complete');
-      this.state = 'complete';
+      this.msg = "downloadFinish";
+      this.emit("complete");
+      this.state = "complete";
     } catch (e) {
       this.downloadRequest = null;
       throw e;
@@ -117,30 +117,30 @@ export default class FileReceiver extends Nanobus {
   }
 
   async downloadStream(noSave = false) {
-    // Fall back to blob download if service worker controller is not available
-    // (e.g., DevTools bypass mode or service worker not yet controlling the page)
+    // INFO: We check again, bc eg. openening chrome dev tools
+    // can cause the service worker to be NA.
     if (!navigator.serviceWorker.controller) {
-      console.log('Service worker controller not available, falling back to blob download');
+      console.log("Service worker NA, switching to legacy download");
       return this.downloadBlob(noSave);
     }
 
     const start = Date.now();
-    const onprogress = p => {
+    const onprogress = (p) => {
       this.progress = [p, this.fileInfo.size];
-      this.emit('progress');
+      this.emit("progress");
     };
 
     this.downloadRequest = {
       cancel: () => {
-        this.sendMessageToSw({ request: 'cancel', id: this.fileInfo.id });
-      }
+        this.sendMessageToSw({ request: "cancel", id: this.fileInfo.id });
+      },
     };
 
     try {
-      this.state = 'downloading';
+      this.state = "downloading";
 
       const info = {
-        request: 'init',
+        request: "init",
         id: this.fileInfo.id,
         filename: this.fileInfo.name,
         type: this.fileInfo.type,
@@ -151,7 +151,7 @@ export default class FileReceiver extends Nanobus {
         url: this.fileInfo.url,
         size: this.fileInfo.size,
         nonce: this.keychain.nonce,
-        noSave
+        noSave,
       };
       await this.sendMessageToSw(info);
 
@@ -168,7 +168,7 @@ export default class FileReceiver extends Nanobus {
         if (downloadUrl === downloadPath) {
           downloadUrl = `${location.protocol}//${location.host}${downloadPath}`;
         }
-        const a = document.createElement('a');
+        const a = document.createElement("a");
         a.href = downloadUrl;
         document.body.appendChild(a);
         a.click();
@@ -178,8 +178,8 @@ export default class FileReceiver extends Nanobus {
       let hangs = 0;
       while (prog < this.fileInfo.size) {
         const msg = await this.sendMessageToSw({
-          request: 'progress',
-          id: this.fileInfo.id
+          request: "progress",
+          id: this.fileInfo.id,
         });
         if (msg.progress === prog) {
           hangs++;
@@ -192,7 +192,7 @@ export default class FileReceiver extends Nanobus {
           // a hang. We may be able to detect
           // which end is hung in the service worker
           // to improve on this.
-          const e = new Error('hung download');
+          const e = new Error("hung download");
           e.duration = Date.now() - start;
           e.size = this.fileInfo.size;
           e.progress = prog;
@@ -204,12 +204,12 @@ export default class FileReceiver extends Nanobus {
       }
 
       this.downloadRequest = null;
-      this.msg = 'downloadFinish';
-      this.emit('complete');
-      this.state = 'complete';
+      this.msg = "downloadFinish";
+      this.emit("complete");
+      this.state = "complete";
     } catch (e) {
       this.downloadRequest = null;
-      if (e === 'cancelled' || e.message === '400') {
+      if (e === "cancelled" || e.message === "400") {
         throw new Error(0);
       }
       throw e;
@@ -225,7 +225,7 @@ export default class FileReceiver extends Nanobus {
 }
 
 async function saveFile(file) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     const dataView = new DataView(file.plaintext);
     const blob = new Blob([dataView], { type: file.type });
 
@@ -234,7 +234,7 @@ async function saveFile(file) {
       return resolve();
     } else {
       const downloadUrl = URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = downloadUrl;
       a.download = file.name;
       document.body.appendChild(a);

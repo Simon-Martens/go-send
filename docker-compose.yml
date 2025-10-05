@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  go-send:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - MAX_FILE_SIZE=2684354560
+      - MAX_EXPIRE_SECONDS=604800
+      - DEFAULT_DOWNLOADS=1
+      - MAX_DOWNLOADS=100
+      - DATABASE_PATH=/app/data/send.db
+      - UPLOADS_DIR=/app/uploads
+      - USER_FRONTEND_DIR=/app/userfrontend
+    volumes:
+      - ./data:/app/data
+      - ./uploads:/app/uploads
+      - ./userfrontend:/app/userfrontend
+    restart: unless-stopped

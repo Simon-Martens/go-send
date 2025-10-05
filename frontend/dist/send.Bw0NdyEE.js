@@ -1,0 +1,4 @@
+const n=`
+## Send version 2 strings
+
+`;export{n as default};

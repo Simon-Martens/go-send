@@ -1,18 +1,18 @@
 # Go-Send
 
-A lightweight, self-hostable file sharing service with client-side encryption. This is a fork of [timvisee/send](https://gitlab.com/timvisee/send) with the Node.js backend replaced by a Go implementation.
+A lightweight, self-hostable file sharing service with client-side encryption. This is a fork of [timvisee/send](https://gitlab.com/timvisee/send), which itself is a fork of Firefox Send.
 
-This fork replaces the original Node.js/Express backend with a Go server, keeping the original frontend completely as it was (nor now). All encryption and decryption still happens in the browser, and no encryption logic on the frontend was changed at all.
+This fork replaces the original Node.js/Express backend with a Go server, keeping the original frontend in large parts the same as it was (for now). All encryption and decryption still happens in the browser, and no encryption logic on the frontend was changed at all, except for a few conveniance changes.
 
 
 ### Why reimplement the backend?
 
-The original `send` has a lot of dependencies (1980 of them!) for a project that doesn't really do all that much. Also, the server still runs on Node 16. Needless to say, maintaining and updating this to the newest version of its dependencies is a nearly impossible task; much less for a hobby developer like me, who wants to use this in production. Luckily, the server runtime is mostly decoupled from the frontend; it used to be some server SSR and hydration; but the `choo` router htat formaerly Firefox Send used can be run in a browser alone. Which made the task of implementing a basic go server trivial.
+The original `send` has a lot of dependencies (1980 of them!) for a project that doesn't really do all that much. Also, the server still runs on Node 16. Needless to say, maintaining and updating this to the newest version of its dependencies is a nearly impossible task; much less for a hobby developer like me, who wants to use this in production. Luckily, the server runtime is mostly decoupled from the frontend; it used to be some server SSR and hydration; but the `choo` router that formerly Firefox Send used can be run in the browser alone. Which made the task of implementing a basic go server trivial.
 
 
 ### So what's the plan?
 
-The plan is to ultimate replace client side rounting (choo) with server-side routing, ~replace rimraf & webpack with vite~ (Done!) and use go templates as far as possible. Through the nature of this project, a lot of browser stuff is and will be still needed.
+The plan is to ultimate replace client side rounting (choo) with server-side routing, ~replace rimraf & webpack with vite~ (Done!) and use go templates as far as possible (started!). Through the nature of this project, a lot of browser stuff is and will be still needed.
 
 
 ### What is changed?
@@ -30,7 +30,7 @@ The plan is to ultimate replace client side rounting (choo) with server-side rou
 - Maybe **Sentry**: Better Error tracking than logging would be nice to have
 
 
-Almost all frontend code is still original Choo-based UI. This will be subject to change since our reimplementation of the backend might help us to implement a handful of new frontend features. Also, I might move header and footers to go templates, which may be overwritten by your custom template files.
+Almost all frontend code is still original Choo-based UI. This will be subject to change since our reimplementation of the backend might help us to implement a handful of new frontend features. Also, I moved header and footers to go templates, which may be overwritten by your custom template files.
 
 The compatibility with `ffsend` is kept as of right now.
 
@@ -60,8 +60,6 @@ This creates `dist/` with bundled assets.
 go mod tidy
 go run .
 ```
-
-
 
 Or use `air` to run the server in a live-reloading environment.
 
@@ -101,7 +99,6 @@ The Go server is configured via environment variables. All settings are optional
 |----------|---------|-------------|
 | `UI_COLOR_PRIMARY` | `#0A84FF` | Primary UI color |
 | `UI_COLOR_ACCENT` | `#003EAA` | Accent color (hover effects) |
-| `UI_CUSTOM_CSS` | (empty) | URL to custom CSS file |
 | `UI_CUSTOM_ASSETS_ICON` | (empty) | Custom logo icon |
 | `UI_CUSTOM_ASSETS_WORDMARK` | (empty) | Custom wordmark/text logo |
 | `CUSTOM_FOOTER_TEXT` | (empty) | Custom footer text |
@@ -110,13 +107,15 @@ The Go server is configured via environment variables. All settings are optional
 See all branding options: `config/config.go`
 
 
-## Custom Frontend Assets
+## Custom Frontend Assets & Templates
 
 Static assets embedded from `frontend/dist/` are always served. To customize or override them without rebuilding the binary, create a matching structure under `userfrontend/dist/`. Files placed there take precedence over the embedded versions, while any missing files continue to fall back to the embedded bundle.
 
 Additional standalone assets (for example `robots.txt` or custom CSS) can be placed in `userfrontend/public/` and are served from the root path as-is.
 
 Set `USER_FRONTEND_DIR` to point to a different overrides directory if needed.
+
+There's also a `userfrontend/templates/` directory, which is used to override the default templates. Look into `frontend/templates/` to see what can be overwitten. No matter what you do, include the `{{ template "_appheader" . }}` and `{{ template "_app" . }}` in you own template files to embed the apps header scripts, fonts and css and the app itself. Take a look at `handlers/templatedata.go`, there's quite some data passed to the templates you can use.
 
 
 ## API Endpoints implemented
@@ -203,6 +202,7 @@ Partly out of scope, partly this probably most needs an audit, since we have 3 m
 All code under frontend/ is licensed under the [Mozilla Public License Version 2.0](LICENSE), while the backend is licensed under the [GNU General Public License v3.0](LICENSE.backend).
 
 Original project by Mozilla, forked by timvisee.
+
 
 ## Acknowledgments
 

@@ -31,21 +31,21 @@
 		"id": "login.active_session_heading",
 		"translation": "Active session"
 	},
-	{
-		"id": "login.active_session_signed_in",
-		"translation": "Signed in as {username} ({role})."
-	},
+  {
+    "id": "login.active_session_signed_in",
+    "translation": "Signed in as {{.username}} ({{.role}})."
+  },
   {
     "id": "login.active_session_expires",
-    "translation": "Expires {time}"
+    "translation": "Expires {{.time}}"
   },
   {
     "id": "footer.signed_in",
-    "translation": "Signed in as {username}"
+    "translation": "Signed in as {{.username}}"
   },
   {
     "id": "footer.expires",
-    "translation": "(expires {time})"
+    "translation": "(expires {{.time}})"
   },
   {
     "id": "footer.cli",
@@ -58,5 +58,169 @@
   {
     "id": "footer.source",
     "translation": "Source"
+  },
+  {
+    "id": "footer.change_password",
+    "translation": "Change password"
+  },
+  {
+    "id": "footer.logout",
+    "translation": "Log out"
+  },
+  {
+    "id": "login.change_password",
+    "translation": "Change password"
+  },
+  {
+    "id": "account.password.title",
+    "translation": "Update Password"
+  },
+  {
+    "id": "account.password.description",
+    "translation": "Enter your current password and choose a new one."
+  },
+  {
+    "id": "account.password.user_hint",
+    "translation": "Currently changing the password for {{.username}}."
+  },
+  {
+    "id": "account.password.current_label",
+    "translation": "Current password"
+  },
+  {
+    "id": "account.password.new_label",
+    "translation": "New password"
+  },
+  {
+    "id": "account.password.confirm_label",
+    "translation": "Confirm new password"
+  },
+  {
+    "id": "account.password.submit",
+    "translation": "Update password"
+  },
+  {
+    "id": "account.password.success",
+    "translation": "Password updated successfully."
+  },
+  {
+    "id": "account.password.error_current",
+    "translation": "The current password you entered is incorrect."
+  },
+  {
+    "id": "account.password.error_mismatch",
+    "translation": "The new passwords do not match."
+  },
+  {
+    "id": "account.password.error_generic",
+    "translation": "Could not update the password. Please try again."
+  },
+  {
+    "id": "footer.manage_links",
+    "translation": "Manage links"
+  },
+  {
+    "id": "account.links.title",
+    "translation": "Upload Access Links"
+  },
+  {
+    "id": "account.links.description",
+    "translation": "Create invitation links that grant upload permissions."
+  },
+  {
+    "id": "account.links.form_heading",
+    "translation": "Create a new link"
+  },
+  {
+    "id": "account.links.form_hint",
+    "translation": "Links can optionally expire after a number of hours."
+  },
+  {
+    "id": "account.links.username_label",
+    "translation": "Label"
+  },
+  {
+    "id": "account.links.username_placeholder",
+    "translation": "Optional note to remember the recipient"
+  },
+  {
+    "id": "account.links.expires_label",
+    "translation": "Expires in (hours)"
+  },
+  {
+    "id": "account.links.expires_placeholder",
+    "translation": "Leave empty for no expiry"
+  },
+  {
+    "id": "account.links.submit",
+    "translation": "Generate link"
+  },
+  {
+    "id": "account.links.generated_heading",
+    "translation": "New link"
+  },
+  {
+    "id": "account.links.generated_help",
+    "translation": "Share this URL with the user. It will only be displayed once."
+  },
+  {
+    "id": "account.links.table_heading",
+    "translation": "Existing links"
+  },
+  {
+    "id": "account.links.table_hint",
+    "translation": "Review previously generated links and their expiration status."
+  },
+  {
+    "id": "account.links.column_username",
+    "translation": "Username / hint"
+  },
+  {
+    "id": "account.links.column_created",
+    "translation": "Created"
+  },
+  {
+    "id": "account.links.column_expires",
+    "translation": "Expires"
+  },
+  {
+    "id": "account.links.column_actions",
+    "translation": "Actions"
+  },
+  {
+    "id": "account.links.empty",
+    "translation": "No invitation links have been generated yet."
+  },
+  {
+    "id": "account.links.error_generic",
+    "translation": "Could not create the link. Please try again."
+  },
+  {
+    "id": "account.links.error_invalid_hours",
+    "translation": "Please enter a valid expiration in hours (1-720)."
+  },
+  {
+    "id": "account.links.success",
+    "translation": "Link generated successfully."
+  },
+  {
+    "id": "account.links.never",
+    "translation": "Never"
+  },
+  {
+    "id": "account.links.expired",
+    "translation": "Expired"
+  },
+  {
+    "id": "account.links.delete",
+    "translation": "Delete"
+  },
+  {
+    "id": "account.links.delete_success",
+    "translation": "Link deleted successfully."
+  },
+  {
+    "id": "account.links.delete_error",
+    "translation": "Could not delete the link. Please try again."
   }
 ]

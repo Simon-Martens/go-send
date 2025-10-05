@@ -22,10 +22,18 @@ module.exports = function (state) {
           href="/"
           class="btn rounded-lg flex items-center mt-4"
           role="button"
-          rel="external"
+          onclick=${forceNavigate}
           >${state.translate(btnText)}</a
         >
       </p>
     </div>
   `;
 };
+
+function forceNavigate(event) {
+  event.preventDefault();
+  const anchor = event.currentTarget;
+  if (anchor && anchor.href) {
+    window.location.assign(anchor.href);
+  }
+}

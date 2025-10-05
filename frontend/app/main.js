@@ -65,13 +65,24 @@ if (process.env.NODE_ENV === "production") {
   window.app = app;
   app.use((state, emitter) => {
     emitter.once("DOMContentLoaded", () => {
-      nanohref(
-        document.body,
-        (location) => emitter.emit("pushState", location.href),
-        {
-          filter: (anchor) => anchor.rel !== "external",
-        },
-      );
+      document.body.addEventListener("click", (event) => {
+        const anchor = event.target.closest("a[data-action='logout']");
+        if (!anchor) {
+          return;
+        }
+        event.preventDefault();
+        try {
+          if (typeof localStorage !== "undefined") {
+            localStorage.clear();
+          }
+          if (typeof sessionStorage !== "undefined") {
+            sessionStorage.clear();
+          }
+        } catch (err) {
+          console.warn("Failed to clear storage on logout", err);
+        }
+        window.location.assign(anchor.href);
+      });
     });
   });
   app.use(experiments);

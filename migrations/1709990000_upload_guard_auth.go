@@ -26,8 +26,6 @@ func up_1709990000_upload_guard_auth(app *core.App) error {
         token_hash TEXT NOT NULL UNIQUE,
         expires_at INTEGER,
         username TEXT,
-        max_uses INTEGER NOT NULL DEFAULT 1,
-        use_count INTEGER NOT NULL DEFAULT 0,
         created_at INTEGER NOT NULL,
         created_by_admin_id INTEGER,
         FOREIGN KEY(created_by_admin_id) REFERENCES admins(id) ON DELETE SET NULL
@@ -45,7 +43,7 @@ func up_1709990000_upload_guard_auth(app *core.App) error {
         expires_at INTEGER NOT NULL,
         created_at INTEGER NOT NULL,
         FOREIGN KEY(admin_id) REFERENCES admins(id) ON DELETE CASCADE,
-        FOREIGN KEY(link_id) REFERENCES auth_links(id) ON DELETE SET NULL
+        FOREIGN KEY(link_id) REFERENCES auth_links(id) ON DELETE CASCADE
     );
 
     CREATE INDEX IF NOT EXISTS idx_sessions_token_hash ON sessions(token_hash);

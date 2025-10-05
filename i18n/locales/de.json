@@ -31,21 +31,21 @@
 		"id": "login.active_session_heading",
 		"translation": "Aktive Sitzung"
 	},
-	{
-		"id": "login.active_session_signed_in",
-		"translation": "Angemeldet als {username} ({role})."
-	},
+  {
+    "id": "login.active_session_signed_in",
+    "translation": "Angemeldet als {{.username}} ({{.role}})."
+  },
   {
     "id": "login.active_session_expires",
-    "translation": "Läuft ab {time}"
+    "translation": "Läuft ab {{.time}}"
   },
   {
     "id": "footer.signed_in",
-    "translation": "Angemeldet als {username}"
+    "translation": "Angemeldet als {{.username}}"
   },
   {
     "id": "footer.expires",
-    "translation": "(läuft ab {time})"
+    "translation": "(läuft ab {{.time}})"
   },
   {
     "id": "footer.cli",
@@ -58,5 +58,169 @@
   {
     "id": "footer.source",
     "translation": "Quellcode"
+  },
+  {
+    "id": "footer.change_password",
+    "translation": "Passwort ändern"
+  },
+  {
+    "id": "footer.logout",
+    "translation": "Abmelden"
+  },
+  {
+    "id": "login.change_password",
+    "translation": "Passwort ändern"
+  },
+  {
+    "id": "account.password.title",
+    "translation": "Passwort aktualisieren"
+  },
+  {
+    "id": "account.password.description",
+    "translation": "Gib dein aktuelles Passwort ein und wähle ein neues."
+  },
+  {
+    "id": "account.password.user_hint",
+    "translation": "Passwort für {{.username}} wird geändert."
+  },
+  {
+    "id": "account.password.current_label",
+    "translation": "Aktuelles Passwort"
+  },
+  {
+    "id": "account.password.new_label",
+    "translation": "Neues Passwort"
+  },
+  {
+    "id": "account.password.confirm_label",
+    "translation": "Neues Passwort bestätigen"
+  },
+  {
+    "id": "account.password.submit",
+    "translation": "Passwort aktualisieren"
+  },
+  {
+    "id": "account.password.success",
+    "translation": "Passwort wurde erfolgreich geändert."
+  },
+  {
+    "id": "account.password.error_current",
+    "translation": "Das eingegebene aktuelle Passwort ist falsch."
+  },
+  {
+    "id": "account.password.error_mismatch",
+    "translation": "Die neuen Passwörter stimmen nicht überein."
+  },
+  {
+    "id": "account.password.error_generic",
+    "translation": "Das Passwort konnte nicht aktualisiert werden. Bitte versuche es erneut."
+  },
+  {
+    "id": "footer.manage_links",
+    "translation": "Links verwalten"
+  },
+  {
+    "id": "account.links.title",
+    "translation": "Upload-Zugangslinks"
+  },
+  {
+    "id": "account.links.description",
+    "translation": "Erstelle Einladungslinks, die Upload-Berechtigungen vergeben."
+  },
+  {
+    "id": "account.links.form_heading",
+    "translation": "Neuen Link erstellen"
+  },
+  {
+    "id": "account.links.form_hint",
+    "translation": "Links können optional nach einigen Stunden verfallen."
+  },
+  {
+    "id": "account.links.username_label",
+    "translation": "Bezeichnung"
+  },
+  {
+    "id": "account.links.username_placeholder",
+    "translation": "Optionaler Hinweis für den Empfänger"
+  },
+  {
+    "id": "account.links.expires_label",
+    "translation": "Läuft ab in (Stunden)"
+  },
+  {
+    "id": "account.links.expires_placeholder",
+    "translation": "Leer lassen für keinen Ablauf"
+  },
+  {
+    "id": "account.links.submit",
+    "translation": "Link generieren"
+  },
+  {
+    "id": "account.links.generated_heading",
+    "translation": "Neuer Link"
+  },
+  {
+    "id": "account.links.generated_help",
+    "translation": "Teile diese URL mit dem Nutzer. Sie wird nur einmal angezeigt."
+  },
+  {
+    "id": "account.links.table_heading",
+    "translation": "Bestehende Links"
+  },
+  {
+    "id": "account.links.table_hint",
+    "translation": "Überwache Einladungen und deren Ablaufstatus."
+  },
+  {
+    "id": "account.links.column_username",
+    "translation": "Benutzername / Hinweis"
+  },
+  {
+    "id": "account.links.column_created",
+    "translation": "Erstellt"
+  },
+  {
+    "id": "account.links.column_expires",
+    "translation": "Ablauf"
+  },
+  {
+    "id": "account.links.column_actions",
+    "translation": "Aktionen"
+  },
+  {
+    "id": "account.links.empty",
+    "translation": "Es wurden noch keine Einladungslinks erstellt."
+  },
+  {
+    "id": "account.links.error_generic",
+    "translation": "Der Link konnte nicht erstellt werden. Bitte versuche es erneut."
+  },
+  {
+    "id": "account.links.error_invalid_hours",
+    "translation": "Bitte gib eine gültige Ablaufzeit in Stunden (1-720) ein."
+  },
+  {
+    "id": "account.links.success",
+    "translation": "Link wurde erfolgreich erstellt."
+  },
+  {
+    "id": "account.links.never",
+    "translation": "Nie"
+  },
+  {
+    "id": "account.links.expired",
+    "translation": "Abgelaufen"
+  },
+  {
+    "id": "account.links.delete",
+    "translation": "Löschen"
+  },
+  {
+    "id": "account.links.delete_success",
+    "translation": "Link wurde gelöscht."
+  },
+  {
+    "id": "account.links.delete_error",
+    "translation": "Der Link konnte nicht gelöscht werden. Bitte versuche es erneut."
   }
 ]

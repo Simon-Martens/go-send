@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="{{ .Locale }}">
+  {{ template "head.gohtml" . }}
+  <body class="flex min-h-screen flex-col items-center bg-grey-10 font-sans text-grey-90 dark:bg-black dark:text-grey-10">
+    <main class="flex w-full flex-1 items-start justify-center px-6 py-12">
+      <section class="w-full max-w-4xl space-y-8 rounded-xl border border-default bg-white p-8 shadow-big md:p-10 dark:border-grey-70 dark:bg-grey-90">
+        <header class="space-y-2">
+          <span class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary">
+            {{ call .Translate "account.links.title" }}
+          </span>
+          <p class="text-sm leading-relaxed text-grey-70 dark:text-grey-40">
+            {{ call .Translate "account.links.description" }}
+          </p>
+        </header>
+
+        {{ if .Flash }}
+        <div class="rounded-default border px-4 py-3 text-sm font-medium leading-normal {{ if eq .Flash.Kind "success" }}border-primary bg-primary text-white dark:bg-primary{{ else }}border-red bg-red-40 text-grey-90 dark:border-red-40 dark:text-grey-10{{ end }}">
+          {{ .Flash.Message }}
+        </div>
+        {{ end }}
+
+        <section aria-labelledby="create-link" class="space-y-4">
+          <div class="space-y-1">
+            <h2 id="create-link" class="text-lg font-semibold text-grey-90 dark:text-grey-10">
+              {{ call .Translate "account.links.form_heading" }}
+            </h2>
+            <p class="text-xs text-grey-60 dark:text-grey-40">
+              {{ call .Translate "account.links.form_hint" }}
+            </p>
+          </div>
+
+          <form method="POST" action="/account/links" class="grid gap-5 md:grid-cols-2">
+            <input type="hidden" name="action" value="create">
+            <div class="space-y-2 md:col-span-2">
+              <label for="username" class="block text-xs font-semibold uppercase tracking-widest text-grey-70 dark:text-grey-40">
+                {{ call .Translate "account.links.username_label" }}
+              </label>
+              <input
+                id="username"
+                name="username"
+                type="text"
+                value="{{ .AccountLinks.Form.Username }}"
+                placeholder="{{ call .Translate "account.links.username_placeholder" }}"
+                class="w-full rounded-default border border-default bg-white px-4 py-3 text-base leading-normal text-grey-90 transition focus:border-primary focus:outline-none dark:border-grey-60 dark:bg-grey-80 dark:text-grey-10"
+              >
+            </div>
+
+            <div class="space-y-2">
+              <label for="expiresHours" class="block text-xs font-semibold uppercase tracking-widest text-grey-70 dark:text-grey-40">
+                {{ call .Translate "account.links.expires_label" }}
+              </label>
+              <input
+                id="expiresHours"
+                name="expiresHours"
+                type="number"
+                min="1"
+                max="720"
+                value="{{ .AccountLinks.Form.ExpiresInHours }}"
+                placeholder="{{ call .Translate "account.links.expires_placeholder" }}"
+                class="w-full rounded-default border border-default bg-white px-4 py-3 text-base leading-normal text-grey-90 transition focus:border-primary focus:outline-none dark:border-grey-60 dark:bg-grey-80 dark:text-grey-10"
+              >
+            </div>
+
+            <div class="md:col-span-2">
+              <button type="submit" class="btn mt-2 flex w-full items-center justify-center gap-2 rounded-lg text-base md:w-auto">
+                {{ call .Translate "account.links.submit" }}
+              </button>
+            </div>
+          </form>
+        </section>
+
+        {{ if .AccountLinks.Form.GeneratedLink }}
+        <section aria-labelledby="generated-link" class="space-y-3 rounded-default border border-default bg-grey-10 px-4 py-4 dark:border-grey-70 dark:bg-grey-80">
+          <h2 id="generated-link" class="text-sm font-semibold text-grey-80 dark:text-grey-20">
+            {{ call .Translate "account.links.generated_heading" }}
+          </h2>
+          <p class="text-xs text-grey-60 dark:text-grey-30">
+            {{ call .Translate "account.links.generated_help" }}
+          </p>
+          <textarea
+            readonly
+            rows="2"
+            class="w-full resize-none select-text rounded-default border border-dashed border-grey-30 bg-white px-3 py-2 text-sm leading-relaxed text-primary dark:border-grey-60 dark:bg-grey-90 dark:text-primary"
+          >{{- .AccountLinks.Form.GeneratedLink -}}</textarea>
+        </section>
+        {{ end }}
+
+        <section aria-labelledby="link-table" class="space-y-4">
+          <div class="space-y-1">
+            <h2 id="link-table" class="text-lg font-semibold text-grey-90 dark:text-grey-10">
+              {{ call .Translate "account.links.table_heading" }}
+            </h2>
+            <p class="text-xs text-grey-60 dark:text-grey-40">
+              {{ call .Translate "account.links.table_hint" }}
+            </p>
+          </div>
+
+          {{ if gt (len .AccountLinks.Links) 0 }}
+          <div class="overflow-hidden rounded-xl border border-default dark:border-grey-70">
+            <table class="min-w-full divide-y divide-grey-20 text-sm dark:divide-grey-70">
+              <thead class="bg-grey-10 text-xs uppercase tracking-widest text-grey-60 dark:bg-grey-85 dark:text-grey-40">
+                <tr>
+                  <th scope="col" class="px-4 py-3 text-left font-semibold">{{ call .Translate "account.links.column_username" }}</th>
+                  <th scope="col" class="px-4 py-3 text-left font-semibold">{{ call .Translate "account.links.column_created" }}</th>
+                  <th scope="col" class="px-4 py-3 text-left font-semibold">{{ call .Translate "account.links.column_expires" }}</th>
+                  <th scope="col" class="px-4 py-3 text-right font-semibold">{{ call .Translate "account.links.column_actions" }}</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-grey-20 bg-white dark:divide-grey-80 dark:bg-grey-90">
+                {{ range .AccountLinks.Links }}
+                <tr class="text-grey-80 dark:text-grey-20">
+                  <td class="px-4 py-3 text-sm font-medium">{{ .Username }}</td>
+                  <td class="px-4 py-3 text-xs text-grey-60 dark:text-grey-40">{{ .Created }}</td>
+                  <td class="px-4 py-3 text-xs text-grey-60 dark:text-grey-40">{{ .Expires }}</td>
+                  <td class="px-4 py-3 text-right">
+                    <form method="POST" action="/account/links" class="inline">
+                      <input type="hidden" name="action" value="delete">
+                      <input type="hidden" name="linkID" value="{{ .ID }}">
+                      <button type="submit" class="inline-flex items-center gap-1 rounded-default border border-red-50 px-3 py-1 text-xs font-semibold text-red-60 transition hover:bg-red-50 hover:text-red-70 focus:outline-none focus:ring-2 focus:ring-red-40 focus:ring-offset-1 dark:border-red-40 dark:text-red-30 dark:hover:bg-red-40/20">
+                        {{ call $.Translate "account.links.delete" }}
+                        <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                          <path fill-rule="evenodd" d="M5.5 5a.5.5 0 01.5-.5h8a.5.5 0 010 1H13v9a2 2 0 01-2 2H9a2 2 0 01-2-2V5.5H6a.5.5 0 01-.5-.5zm3 .5V15a1 1 0 001 1h2a1 1 0 001-1V5.5H8.5zM8 4a2 2 0 012-2h0a2 2 0 012 2h3a.5.5 0 010 1H5a.5.5 0 010-1h3z" clip-rule="evenodd" />
+                        </svg>
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+                {{ end }}
+              </tbody>
+            </table>
+          </div>
+          {{ else }}
+          <div class="rounded-default border border-default bg-grey-10 px-4 py-4 text-sm text-grey-70 dark:border-grey-70 dark:bg-grey-80 dark:text-grey-30">
+            {{ call .Translate "account.links.empty" }}
+          </div>
+          {{ end }}
+        </section>
+      </section>
+    </main>
+
+    {{ template "footer.gohtml" . }}
+  </body>
+</html>

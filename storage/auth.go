@@ -12,7 +12,6 @@ var (
 	ErrSessionExpired  = errors.New("session expired")
 	ErrLinkNotFound    = errors.New("auth link not found")
 	ErrLinkExpired     = errors.New("auth link expired")
-	ErrLinkDepleted    = errors.New("auth link depleted")
 )
 
 type Admin struct {
@@ -69,6 +68,49 @@ func (d *DB) ListAdmins() ([]Admin, error) {
 	return admins, nil
 }
 
+func (d *DB) UpdateAdminPassword(id int64, passwordHash string) error {
+	_, err := d.db.Exec(`UPDATE admins SET password_hash = ? WHERE id = ?`, passwordHash, id)
+	return err
+}
+
+func (d *DB) ListAuthLinks(limit int) ([]AuthLink, error) {
+	query := `SELECT id, token_hash, expires_at, created_at, created_by_admin_id, username FROM auth_links ORDER BY created_at DESC`
+	var rows *sql.Rows
+	var err error
+	if limit > 0 {
+		query = query + ` LIMIT ?`
+		rows, err = d.db.Query(query, limit)
+	} else {
+		rows, err = d.db.Query(query)
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var links []AuthLink
+	for rows.Next() {
+		var link AuthLink
+		if err := rows.Scan(
+			&link.ID,
+			&link.TokenHash,
+			&link.ExpiresAt,
+			&link.CreatedAt,
+			&link.CreatedBy,
+			&link.Username,
+		); err != nil {
+			return nil, err
+		}
+		links = append(links, link)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return links, nil
+}
+
 type Session struct {
 	ID        int64
 	TokenHash string
@@ -83,8 +125,6 @@ type AuthLink struct {
 	ID        int64
 	TokenHash string
 	ExpiresAt sql.NullInt64
-	MaxUses   int
-	UseCount  int
 	CreatedAt int64
 	CreatedBy sql.NullInt64
 	Username  sql.NullString
@@ -172,17 +212,15 @@ func (d *DB) DeleteSessionByID(id int64) error {
 }
 
 func (d *DB) CleanupExpiredSessions() error {
-	_, err := d.db.Exec(`DELETE FROM sessions WHERE expires_at <= ?`, time.Now().Unix())
+	_, err := d.db.Exec(`DELETE FROM sessions WHERE expires_at > 0 AND expires_at <= ?`, time.Now().Unix())
 	return err
 }
 
 func (d *DB) CreateAuthLink(link *AuthLink) (int64, error) {
 	res, err := d.db.Exec(
-		`INSERT INTO auth_links (token_hash, expires_at, max_uses, use_count, created_at, created_by_admin_id, username) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+		`INSERT INTO auth_links (token_hash, expires_at, created_at, created_by_admin_id, username) VALUES (?, ?, ?, ?, ?)`,
 		link.TokenHash,
 		nullableInt64(link.ExpiresAt),
-		link.MaxUses,
-		link.UseCount,
 		link.CreatedAt,
 		nullableInt64(link.CreatedBy),
 		nullableString(link.Username),
@@ -194,25 +232,12 @@ func (d *DB) CreateAuthLink(link *AuthLink) (int64, error) {
 }
 
 func (d *DB) ConsumeAuthLink(hash string) (*AuthLink, error) {
-	tx, err := d.db.Begin()
-	if err != nil {
-		return nil, err
-	}
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		}
-	}()
-
-	row := tx.QueryRow(`SELECT id, token_hash, expires_at, max_uses, use_count, created_at, created_by_admin_id, username FROM auth_links WHERE token_hash = ?`, hash)
-
 	link := &AuthLink{}
-	if err = row.Scan(
+	row := d.db.QueryRow(`SELECT id, token_hash, expires_at, created_at, created_by_admin_id, username FROM auth_links WHERE token_hash = ?`, hash)
+	if err := row.Scan(
 		&link.ID,
 		&link.TokenHash,
 		&link.ExpiresAt,
-		&link.MaxUses,
-		&link.UseCount,
 		&link.CreatedAt,
 		&link.CreatedBy,
 		&link.Username,
@@ -223,24 +248,30 @@ func (d *DB) ConsumeAuthLink(hash string) (*AuthLink, error) {
 		return nil, err
 	}
 
-	now := time.Now().Unix()
-	if link.ExpiresAt.Valid && link.ExpiresAt.Int64 < now {
+	if link.ExpiresAt.Valid && link.ExpiresAt.Int64 < time.Now().Unix() {
 		return nil, ErrLinkExpired
-	}
-	if link.UseCount >= link.MaxUses {
-		return nil, ErrLinkDepleted
-	}
-
-	_, err = tx.Exec(`UPDATE auth_links SET use_count = use_count + 1 WHERE id = ?`, link.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	if err = tx.Commit(); err != nil {
-		return nil, err
 	}
 
 	return link, nil
+}
+
+func (d *DB) DeleteAuthLinkByID(id int64) error {
+	tx, err := d.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	if _, err := tx.Exec(`DELETE FROM sessions WHERE link_id = ?`, id); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if _, err := tx.Exec(`DELETE FROM auth_links WHERE id = ?`, id); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit()
 }
 
 func (d *DB) CountAdmins() (int, error) {
@@ -251,13 +282,11 @@ func (d *DB) CountAdmins() (int, error) {
 
 func (d *DB) GetAuthLinkByID(id int64) (*AuthLink, error) {
 	link := &AuthLink{}
-	row := d.db.QueryRow(`SELECT id, token_hash, expires_at, max_uses, use_count, created_at, created_by_admin_id, username FROM auth_links WHERE id = ?`, id)
+	row := d.db.QueryRow(`SELECT id, token_hash, expires_at, created_at, created_by_admin_id, username FROM auth_links WHERE id = ?`, id)
 	if err := row.Scan(
 		&link.ID,
 		&link.TokenHash,
 		&link.ExpiresAt,
-		&link.MaxUses,
-		&link.UseCount,
 		&link.CreatedAt,
 		&link.CreatedBy,
 		&link.Username,

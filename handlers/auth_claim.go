@@ -10,8 +10,6 @@ import (
 	"github.com/Simon-Martens/go-send/storage"
 )
 
-const userSessionDuration = 24 * time.Hour
-
 func NewAuthClaimHandler(db *storage.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
@@ -34,8 +32,6 @@ func NewAuthClaimHandler(db *storage.DB) http.HandlerFunc {
 				http.Error(w, "Invalid link", http.StatusNotFound)
 			case storage.ErrLinkExpired:
 				http.Error(w, "Link expired", http.StatusGone)
-			case storage.ErrLinkDepleted:
-				http.Error(w, "Link already used", http.StatusGone)
 			default:
 				http.Error(w, "Unable to redeem link", http.StatusInternalServerError)
 			}
@@ -56,8 +52,20 @@ func NewAuthClaimHandler(db *storage.DB) http.HandlerFunc {
 				Int64: link.ID,
 				Valid: true,
 			},
-			ExpiresAt: time.Now().Add(userSessionDuration).Unix(),
 			CreatedAt: time.Now().Unix(),
+		}
+
+		var cookieMaxAge int
+		if link.ExpiresAt.Valid && link.ExpiresAt.Int64 > 0 {
+			expiresAt := link.ExpiresAt.Int64
+			session.ExpiresAt = expiresAt
+			ttl := time.Until(time.Unix(expiresAt, 0))
+			if ttl > 0 {
+				cookieMaxAge = int(ttl.Seconds())
+			}
+		} else {
+			session.ExpiresAt = 0
+			cookieMaxAge = 0
 		}
 
 		if _, err := db.CreateSession(session); err != nil {
@@ -65,7 +73,7 @@ func NewAuthClaimHandler(db *storage.DB) http.HandlerFunc {
 			return
 		}
 
-		auth.SetSessionCookie(w, sessionToken, r.TLS != nil, int(userSessionDuration.Seconds()))
+		auth.SetSessionCookie(w, sessionToken, r.TLS != nil, cookieMaxAge)
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	}
 }

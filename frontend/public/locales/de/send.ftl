@@ -88,7 +88,7 @@ totalSize = Gesamtgröße: { $size }
 copyLinkDescription = Diesen Link kopieren, um Ihre Datei zu teilen:
 copyLinkButton = Link kopieren
 downloadTitle = Dateien herunterladen
-downloadDescription = Diese Datei wurde über { -send-brand } mit Ende-zu-Ende-Verschlüsselung und einem automatisch ablaufenden Link geteilt.
+downloadDescription =  Diese Datei ist Ende-zu-Ende verschlüsselt. Laden Sie die Datei herunter, um sie zu öffnen.
 trySendDescription = Probieren Sie { -send-brand } aus, um einfach und sicher Dateien zu versenden.
 # count will always be > 10
 tooManyFiles =

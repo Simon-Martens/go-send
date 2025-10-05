@@ -24,6 +24,12 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 
 	loginHandler := handlers.NewLoginHandler(app.Template, app.Manifest, app.DB, app.Config, app.Translator, app.Logger)
 	mux.HandleFunc("/login", loginHandler)
+	accountPasswordHandler := handlers.NewAccountPasswordHandler(app.Template, app.Manifest, app.DB, app.Config, app.Translator, app.Logger)
+	mux.HandleFunc("/account/password", accountPasswordHandler)
+	accountLinksHandler := handlers.NewAccountLinksHandler(app.Template, app.Manifest, app.DB, app.Config, app.Translator, app.Logger)
+	mux.HandleFunc("/account/links", accountLinksHandler)
+	logoutHandler := handlers.NewLogoutHandler(app.DB, app.Logger)
+	mux.HandleFunc("/logout", logoutHandler)
 	mux.HandleFunc("/auth/claim/", handlers.NewAuthClaimHandler(app.DB))
 	// HTML routes
 	indexHandler := handlers.IndexHandler(app.Template, app.Manifest, app.DB, app.Config, app.Translator, app.Logger)

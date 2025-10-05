@@ -10,17 +10,19 @@ import (
 )
 
 type TemplateData struct {
-	Locale    string
-	NonceAttr template.HTMLAttr
-	Theme     ThemeConfig
-	Assets    AssetBundle
-	Footer    FooterLinks
-	State     TemplateState
-	Auth      AuthInfo
-	Flash     *FlashMessage
-	Admins    []LoginAdmin
-	LoginForm LoginFormState
-	Translate func(string, ...interface{}) string
+	Locale             string
+	NonceAttr          template.HTMLAttr
+	Theme              ThemeConfig
+	Assets             AssetBundle
+	Footer             FooterLinks
+	State              TemplateState
+	Auth               AuthInfo
+	Flash              *FlashMessage
+	Admins             []LoginAdmin
+	LoginForm          LoginFormState
+	Translate          func(string, ...interface{}) string
+	ChangePasswordForm ChangePasswordFormState
+	AccountLinks       AccountLinksView
 }
 
 type ThemeConfig struct {
@@ -111,6 +113,28 @@ type LoginFormState struct {
 	Username string
 }
 
+type ChangePasswordFormState struct {
+	Username string
+}
+
+type AccountLinksView struct {
+	Form  AccountLinkFormState
+	Links []AccountLinkView
+}
+
+type AccountLinkFormState struct {
+	Username       string
+	ExpiresInHours string
+	GeneratedLink  string
+}
+
+type AccountLinkView struct {
+	ID       int64
+	Username string
+	Created  string
+	Expires  string
+}
+
 func getTemplateData(manifest map[string]string, downloadMetadata string, cfg *config.Config, detectedLocale string, nonce string, translate func(string, map[string]interface{}) string) TemplateData {
 	assets := AssetBundle{
 		CSS:             assetFromManifest(manifest, "app.css", "app.css"),
@@ -183,6 +207,8 @@ func getTemplateData(manifest map[string]string, downloadMetadata string, cfg *c
 			}
 			return translate(id, data)
 		},
+		ChangePasswordForm: ChangePasswordFormState{},
+		AccountLinks:       AccountLinksView{},
 	}
 }
 

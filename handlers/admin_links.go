@@ -14,7 +14,6 @@ import (
 
 type CreateAuthLinkRequest struct {
 	ExpiresInSeconds *int    `json:"expiresInSeconds,omitempty"`
-	MaxUses          *int    `json:"maxUses,omitempty"`
 	Username         *string `json:"username,omitempty"`
 }
 
@@ -58,15 +57,6 @@ func NewCreateAuthLinkHandler(db *storage.DB, cfg *config.Config) http.HandlerFu
 			expires = sql.NullInt64{Int64: now.Add(time.Duration(*req.ExpiresInSeconds) * time.Second).Unix(), Valid: true}
 		}
 
-		maxUses := 1
-		if req.MaxUses != nil {
-			if *req.MaxUses <= 0 {
-				http.Error(w, "maxUses must be positive", http.StatusBadRequest)
-				return
-			}
-			maxUses = *req.MaxUses
-		}
-
 		token, err := auth.GenerateToken(24)
 		if err != nil {
 			http.Error(w, "Failed to generate token", http.StatusInternalServerError)
@@ -85,8 +75,6 @@ func NewCreateAuthLinkHandler(db *storage.DB, cfg *config.Config) http.HandlerFu
 		link := &storage.AuthLink{
 			TokenHash: hash,
 			ExpiresAt: expires,
-			MaxUses:   maxUses,
-			UseCount:  0,
 			CreatedAt: now.Unix(),
 			CreatedBy: session.AdminID,
 			Username:  username,

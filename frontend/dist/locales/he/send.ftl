@@ -1,4 +1,4 @@
-title = Send
+title = Go Send
 importingFile = מתבצע ייבוא…
 encryptingFile = מתבצעת הצפנה...
 decryptingFile = מתבצע פענוח...
@@ -44,8 +44,8 @@ passwordSetError = לא ניתן להגדיר את הססמה הזאת
 
 ## Send version 2 strings
 
--send-brand = Send
--send-short-brand = Send
+-send-brand = Go Send
+-send-short-brand = Go Send
 -firefox = Firefox
 -mozilla = Mozilla
 introTitle = שיתוף קבצים פרטי ופשוט

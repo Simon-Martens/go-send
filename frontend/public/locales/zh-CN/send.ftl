@@ -1,4 +1,4 @@
-title = Send
+title = Go Send
 importingFile = 正在导入…
 encryptingFile = 正在加密…
 decryptingFile = 正在解密…
@@ -46,8 +46,8 @@ passwordSetError = 未能设置此密码
 
 ## Send version 2 strings
 
--send-brand = Send
--send-short-brand = Send
+-send-brand = Go Send
+-send-short-brand = Go Send
 -firefox = Firefox
 -mozilla = Mozilla
 introTitle = 简单、私密的文件分享服务

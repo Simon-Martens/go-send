@@ -12,13 +12,13 @@
           <span class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary pb-6">
             {{ call .Translate "account.links.title" }}
           </span>
-          <p class="text-sm leading-relaxed text-grey-70 dark:text-grey-40">
+          <p class="text-sm leading-relaxed text-grey-70 dark:text-grey-40 max-w-[80ch] hyphens-auto">
             {{ call .Translate "account.links.description" }}
           </p>
         </header>
 
         {{ if .Flash }}
-        <div class="rounded-default border px-4 py-3 text-sm font-medium leading-normal {{ if eq .Flash.Kind "success" }}border-primary bg-primary text-white dark:bg-primary{{ else }}border-red bg-red-40 text-grey-90 dark:border-red-40 dark:text-grey-10{{ end }}">
+        <div class="rounded-default border px-4 py-3 text-sm font-medium leading-normal {{ if eq .Flash.Kind "success" }}border-primary bg-primary text-white dark:bg-primary{{ else }}border-red bg-red-40 text-grey-90 dark:border-red-40 dark:text-grey-10{{ end }} max-w-[80ch] hyphens-auto">
           {{ .Flash.Message }}
         </div>
         {{ end }}
@@ -34,7 +34,7 @@
             <h2 id="link-table" class="text-lg font-semibold text-grey-90 dark:text-grey-10">
               {{ call .Translate "account.links.table_heading" }}
             </h2>
-            <p class="text-xs text-grey-60 dark:text-grey-40">
+            <p class="text-xs text-grey-60 dark:text-grey-40 max-w-[80ch] hyphens-auto">
               {{ call .Translate "account.links.table_hint" }}
             </p>
           </div>
@@ -125,7 +125,7 @@
             </div>
           </div>
           {{ else }}
-          <div class="rounded-default border border-default bg-grey-10 px-4 py-4 text-sm text-grey-70 dark:border-grey-70 dark:bg-grey-80 dark:text-grey-30">
+          <div class="rounded-default border border-default bg-grey-10 px-4 py-4 text-sm text-grey-70 dark:border-grey-70 dark:bg-grey-80 dark:text-grey-30 max-w-[80ch] hyphens-auto">
             {{ call .Translate "account.links.empty" }}
           </div>
           {{ end }}
@@ -142,7 +142,7 @@
 
         <div class="space-y-6">
           <!-- Warning Message -->
-          <div class="rounded-default border border-orange-40 bg-orange-10 px-4 py-3 text-sm font-medium leading-normal text-grey-90 dark:border-orange-60 dark:bg-orange-90 dark:text-grey-10">
+          <div class="rounded-default border border-orange-40 bg-orange-10 px-4 py-3 text-sm font-medium leading-normal text-grey-90 dark:border-orange-60 dark:bg-orange-90 dark:text-grey-10 max-w-[80ch] hyphens-auto">
             {{ call .Translate "account.links.modal_warning" }}
           </div>
 
@@ -195,8 +195,7 @@
               type="button"
               id="modal-ok-button"
               disabled
-              style="cursor: default; background-color: #9ca3af; color: #6b7280;"
-              class="flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-base font-semibold transition"
+              class="flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-base font-semibold transition bg-grey-40 text-grey-60 cursor-default dark:bg-grey-70 dark:text-grey-50"
               data-enabled-class="bg-primary text-white hover:bg-primary_accent focus:bg-primary_accent"
             >
               {{ call .Translate "account.links.modal_ok" }}
@@ -227,16 +226,12 @@
 
             if (isEmpty) {
               // Disabled state
-              modalOkButton.style.cursor = "default";
-              modalOkButton.style.backgroundColor = "#9ca3af";
-              modalOkButton.style.color = "#6b7280";
-              modalOkButton.classList.remove("bg-primary", "text-white", "hover:bg-primary_accent");
+              modalOkButton.classList.remove("bg-primary", "text-white", "hover:bg-primary_accent", "cursor-pointer");
+              modalOkButton.classList.add("bg-grey-40", "text-grey-60", "cursor-default", "dark:bg-grey-70", "dark:text-grey-50");
             } else {
               // Enabled state
-              modalOkButton.style.cursor = "pointer";
-              modalOkButton.style.backgroundColor = "";
-              modalOkButton.style.color = "";
-              modalOkButton.classList.add("bg-primary", "text-white", "hover:bg-primary_accent");
+              modalOkButton.classList.remove("bg-grey-40", "text-grey-60", "cursor-default", "dark:bg-grey-70", "dark:text-grey-50");
+              modalOkButton.classList.add("bg-primary", "text-white", "hover:bg-primary_accent", "cursor-pointer");
             }
           };
 

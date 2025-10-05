@@ -1,4 +1,4 @@
-title = Send
+title = Go Send
 importingFile = Inportatzen…
 encryptingFile = Zifratzen...
 decryptingFile = Deszifratzen...
@@ -43,8 +43,8 @@ passwordSetError = Pasahitz hau ezin da ezarri
 
 ## Send version 2 strings
 
--send-brand = Send
--send-short-brand = Send
+-send-brand = Go Send
+-send-short-brand = Go Send
 -firefox = Firefox
 -mozilla = Mozilla
 introTitle = Partekatu fitxategiak modu sinple eta pribatuan

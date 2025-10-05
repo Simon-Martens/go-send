@@ -1,4 +1,4 @@
-title = Send
+title = Go Send
 importingFile = ইম্পোর্ট হচ্ছে...
 encryptingFile = ইনক্রিপট হচ্ছে...
 decryptingFile = ডিক্রিপট হচ্ছে...
@@ -43,7 +43,7 @@ passwordSetError = এই পাসওয়ার্ড সেট করা য
 
 ## Send version 2 strings
 
--send-brand = Send
+-send-brand = Go Send
 -send-short-brand = প্রেরণ
 -firefox = Firefox
 -mozilla = Mozilla

@@ -1,4 +1,4 @@
-title = Send
+title = Go Send
 importingFile = 匯入中…
 encryptingFile = 加密中…
 decryptingFile = 解密中…
@@ -46,8 +46,8 @@ passwordSetError = 無法設定此密碼
 
 ## Send version 2 strings
 
--send-brand = Send
--send-short-brand = Send
+-send-brand = Go Send
+-send-short-brand = Go Send
 -firefox = Firefox
 -mozilla = Mozilla
 

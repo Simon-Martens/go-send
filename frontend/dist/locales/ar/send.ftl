@@ -51,8 +51,8 @@ passwordSetError = يجب ألا تُضبط كلمة السر هذه
 
 ## Send version 2 strings
 
--send-brand = Send
--send-short-brand = Send
+-send-brand = Go Send
+-send-short-brand = Go Send
 -firefox = Firefox
 -mozilla = Mozilla
 introTitle = شارِك ملفاتك بلا عناء وبخصوصية تامة

@@ -1,4 +1,4 @@
-title = Send
+title = Go Send
 importingFile = Importerar…
 encryptingFile = Krypterar…
 decryptingFile = Avkodar…
@@ -43,8 +43,8 @@ passwordSetError = Det här lösenordet kunde inte ställas in
 
 ## Send version 2 strings
 
--send-brand = Send
--send-short-brand = Send
+-send-brand = Go Send
+-send-short-brand = Go Send
 -firefox = Firefox
 -mozilla = Mozilla
 introTitle = Enkel, privat fildelning

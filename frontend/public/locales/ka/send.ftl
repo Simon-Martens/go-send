@@ -1,4 +1,4 @@
-title = Send
+title = Go Send
 importingFile = გადმოტანა...
 encryptingFile = დაშიფვრა...
 decryptingFile = გაშიფვრა...
@@ -43,8 +43,8 @@ passwordSetError = ამ პაროლის დაყენება ვე�
 
 ## Send version 2 strings
 
--send-brand = Send
--send-short-brand = Send
+-send-brand = Go Send
+-send-short-brand = Go Send
 -firefox = Firefox
 -mozilla = Mozilla
 introTitle = ფაილის გაზიარება მარტივად, დაცულად

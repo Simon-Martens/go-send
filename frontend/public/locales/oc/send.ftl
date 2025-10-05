@@ -1,4 +1,4 @@
-title = Send
+title = Go Send
 importingFile = Importacion…
 encryptingFile = Chiframent…
 decryptingFile = Deschiframent…
@@ -43,8 +43,8 @@ passwordSetError = Aqueste senhal a pas pogut èsser definit
 
 ## Send version 2 strings
 
--send-brand = Send
--send-short-brand = Send
+-send-brand = Go Send
+-send-short-brand = Go Send
 -firefox = Firefox
 -mozilla = Mozilla
 introTitle = Partatge simple e privat de fichièrs

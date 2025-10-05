@@ -1,4 +1,4 @@
-title = Send
+title = Go Send
 importingFile = Импортирование...
 encryptingFile = Шифрование...
 decryptingFile = Расшифровка...
@@ -45,8 +45,8 @@ passwordSetError = Этот пароль не может быть установ
 
 ## Send version 2 strings
 
--send-brand = Send
--send-short-brand = Send
+-send-brand = Go Send
+-send-short-brand = Go Send
 -firefox = Firefox
 -mozilla = Mozilla
 introTitle = Простой и безопасный обмен файлами

@@ -1,4 +1,4 @@
-title = Send
+title = Go Send
 importingFile = Importuje sa…
 encryptingFile = Šifruje sa…
 decryptingFile = Dešifruje sa…
@@ -45,8 +45,8 @@ passwordSetError = Heslo nešlo nastaviť
 
 ## Send version 2 strings
 
--send-brand = Send
--send-short-brand = Send
+-send-brand = Go Send
+-send-short-brand = Go Send
 -firefox = Firefox
 -mozilla = Mozilla
 introTitle = Jednoduché a súkromné zdieľanie súborov

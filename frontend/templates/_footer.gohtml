@@ -1,13 +1,25 @@
 {{ define "_footer" }}
 	<ul class="flex flex-col md:flex-row items-start md:items-center md:justify-start">
+		<li class="m-2 flex items-center gap-4 text-xs md:text-sm font-semibold">
+			{{ if .Footer.SourceURL }}
+			<a href="{{ .Footer.SourceURL }}" target="_blank" class="italic text-grey-70 dark:text-grey-40 hover:text-grey-90 dark:hover:text-grey-10 transition">Go Send</a>
+			{{ else }}
+			<span class="italic text-grey-70 dark:text-grey-40">Go Send</span>
+			{{ end }}
+			{{ if .Auth.Authenticated }}
+			<span class="inline-flex h-3 w-3 rounded-full shadow-sm animate-pulse-subtle" style="background-color: #16a34a;"></span>
+			{{ else }}
+			<span class="inline-flex h-3 w-3 rounded-full shadow-sm animate-pulse-subtle" style="background-color: #dc2626;"></span>
+			{{ end }}
+		</li>
 		{{ if .Auth.Authenticated }}
 			{{ $username := .Auth.DisplayName }}
 			{{ if eq $username "" }}{{ $username = .Auth.UserType }}{{ end }}
 			{{ if eq .Auth.UserType "admin" }}
-		<li class="m-2 text-xs md:text-sm text-grey-50 dark:text-grey-40">
+		<li class="m-2 text-xs md:text-sm text-grey-50 dark:text-grey-40 max-w-[80ch] hyphens-auto">
 			{{ call .Translate "footer.signed_in" (dict "username" $username) }}
 			{{ if .Auth.ExpiresAtISO }}
-			<span class="ml-1 text-grey-50 dark:text-grey-40">{{ call .Translate "footer.expires" (dict "time" .Auth.ExpiresAtISO) }}</span>
+			<span class="ml-1 text-grey-50 dark:text-grey-40 max-w-[80ch] hyphens-auto">{{ call .Translate "footer.expires" (dict "time" .Auth.ExpiresAtISO) }}</span>
 			{{ end }}
 			{{ if .Features.AllowAccessLinks }}
 			<a href="/account/links" rel="external" class="ml-2 text-primary hover:text-primary_accent">
@@ -22,16 +34,16 @@
 			</a>
 		</li>
 			{{ else }}
-		<li class="m-2 text-xs md:text-sm text-grey-50 dark:text-grey-40">
+		<li class="m-2 text-xs md:text-sm text-grey-50 dark:text-grey-40 max-w-[80ch] hyphens-auto">
 			{{ $username }}
 			{{ if .Auth.ExpiresAtISO }}
-			<span class="ml-1 text-grey-50 dark:text-grey-40">{{ call .Translate "footer.expires" (dict "time" .Auth.ExpiresAtISO) }}</span>
+			<span class="ml-1 text-grey-50 dark:text-grey-40 max-w-[80ch] hyphens-auto">{{ call .Translate "footer.expires" (dict "time" .Auth.ExpiresAtISO) }}</span>
 			{{ end }}
 		</li>
 			{{ end }}
 		{{ end }}
 		{{ if .Footer.CustomText }}
-		<li class="m-2">
+		<li class="m-2 max-w-[80ch] hyphens-auto">
 			{{ if .Footer.CustomURL }}
 			<a href="{{ .Footer.CustomURL }}" target="_blank">{{ .Footer.CustomText }}</a>
 			{{ else }}

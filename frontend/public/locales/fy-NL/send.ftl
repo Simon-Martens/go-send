@@ -1,4 +1,4 @@
-title = Send
+title = Go Send
 importingFile = Ymportearje…
 encryptingFile = Fersiferje…
 decryptingFile = Untsiferje…
@@ -43,8 +43,8 @@ passwordSetError = Dit wachtwurd koe net ynsteld wurde
 
 ## Send version 2 strings
 
--send-brand = Send
--send-short-brand = Send
+-send-brand = Go Send
+-send-short-brand = Go Send
 -firefox = Firefox
 -mozilla = Mozilla
 introTitle = Ienfâldich, privee bestannen diele

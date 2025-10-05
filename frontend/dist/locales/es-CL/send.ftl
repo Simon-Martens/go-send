@@ -1,4 +1,4 @@
-title = Send
+title = Go Send
 importingFile = Importando…
 encryptingFile = Cifrando…
 decryptingFile = Descifrando…
@@ -43,8 +43,8 @@ passwordSetError = Esta contraseña no pudo ser establecida
 
 ## Send version 2 strings
 
--send-brand = Send
--send-short-brand = Send
+-send-brand = Go Send
+-send-short-brand = Go Send
 -firefox = Firefox
 -mozilla = Mozilla
 introTitle = Intercambio de archivos simple y privado

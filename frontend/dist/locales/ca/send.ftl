@@ -1,4 +1,4 @@
-title = Send
+title = Go Send
 importingFile = S'està important…
 encryptingFile = S'està xifrant…
 decryptingFile = S'està desxifrant…
@@ -43,8 +43,8 @@ passwordSetError = No s'ha pogut definir la contrasenya
 
 ## Send version 2 strings
 
--send-brand = Send
--send-short-brand = Send
+-send-brand = Go Send
+-send-short-brand = Go Send
 -firefox = Firefox
 -mozilla = Mozilla
 introTitle = Compartició de fitxers senzilla i privada

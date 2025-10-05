@@ -1,4 +1,4 @@
-title = Send
+title = Go Send
 importingFile = Po importohet…
 encryptingFile = Po fshehtëzohet…
 decryptingFile = Po shfshehtëzohet…
@@ -43,8 +43,8 @@ passwordSetError = Ky fjalëkalim s’u caktua dot
 
 ## Send version 2 strings
 
--send-brand = Send
--send-short-brand = Send
+-send-brand = Go Send
+-send-short-brand = Go Send
 -firefox = Firefox
 -mozilla = Mozilla
 introTitle = Ndarje e thjeshtë, private, kartelash me të tjerët

@@ -1,4 +1,4 @@
-title = Send
+title = Go Send
 importingFile = Eq'otzan
 encryptingFile = La muj isik'lele
 decryptingFile = Ni jaj ve't isik'lele'
@@ -32,7 +32,7 @@ expiresMinutes = { $minutes }m
 
 ## Send version 2 strings
 
--send-brand = Send
+-send-brand = Go Send
 -send-short-brand = Aq'b'en
 -firefox = Firefox
 -mozilla = Mozilla

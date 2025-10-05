@@ -1,4 +1,4 @@
-title = Send
+title = Go Send
 importingFile = İçe aktarılıyor…
 encryptingFile = Şifreleniyor…
 decryptingFile = Şifre çözülüyor…
@@ -39,8 +39,8 @@ passwordSetError = Parola ayarlanamadı
 
 ## Send version 2 strings
 
--send-brand = Send
--send-short-brand = Send
+-send-brand = Go Send
+-send-short-brand = Go Send
 -firefox = Firefox
 -mozilla = Mozilla
 introTitle = Basit ve gizli dosya paylaşımı

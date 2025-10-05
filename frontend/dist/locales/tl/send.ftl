@@ -1,4 +1,4 @@
-title = Send
+title = Go Send
 importingFile = Importing…
 encryptingFile = Encrypting…
 decryptingFile = Decrypting…
@@ -38,7 +38,7 @@ passwordSetError = Hindi maitakda ang password na ito
 
 ## Send version 2 strings
 
--send-brand = Send
+-send-brand = Go Send
 -send-short-brand = I-send
 -firefox = Firefox
 -mozilla = Mozilla

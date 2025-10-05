@@ -1,4 +1,4 @@
-title = Send
+title = Go Send
 importingFile = Importando…
 encryptingFile = Criptografando…
 decryptingFile = Descriptografando…
@@ -43,8 +43,8 @@ passwordSetError = Essa senha não pôde ser definida
 
 ## Send version 2 strings
 
--send-brand = Send
--send-short-brand = Send
+-send-brand = Go Send
+-send-short-brand = Go Send
 -firefox = Firefox
 -mozilla = Mozilla
 introTitle = Compartilhamento de arquivos fácil e privativo

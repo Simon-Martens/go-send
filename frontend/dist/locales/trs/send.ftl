@@ -1,4 +1,4 @@
-title = Send
+title = Go Send
 importingFile = Hìaj a'nïn huan'ānj…
 encryptingFile = Nagi'iaj hùij…
 decryptingFile = Hìaj nâ'nïn…
@@ -43,8 +43,8 @@ passwordSetError = Na'ue gārayinaj da'nga huìi
 
 ## Send version 2 strings
 
--send-brand = Send
--send-short-brand = Send
+-send-brand = Go Send
+-send-short-brand = Go Send
 -firefox = Firefox
 -mozilla = Mozilla
 introTitle = Hìo nī huì ga’ue duyingâ’t archîbo

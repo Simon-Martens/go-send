@@ -1,4 +1,4 @@
-title = Send
+title = Go Send
 importingFile = Ngimpor...
 encryptingFile = Ngénkripsi...
 decryptingFile = Ngadékripsi...
@@ -41,8 +41,8 @@ passwordSetError = Ieu kecap sandi teu bisa disét
 
 ## Send version 2 strings
 
--send-brand = Send
--send-short-brand = Send
+-send-brand = Go Send
+-send-short-brand = Go Send
 -firefox = Firefox
 -mozilla = Mozilla
 introTitle = Simpel, babagi koropak privat

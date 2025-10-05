@@ -82,7 +82,7 @@ passwordSetError =
 
 ## Send version 2 strings
 
--send-brand = Send
+-send-brand = Go Send
 -send-short-brand =
     Fi ránṣẹ́
     Firánṣẹ́

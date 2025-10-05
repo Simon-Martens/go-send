@@ -11,13 +11,13 @@
           <h1 class="text-3xl font-semibold leading-tight text-grey-90 dark:text-grey-10">
             {{ call .Translate "login.title" }}
           </h1>
-          <p class="text-sm leading-relaxed text-grey-70 dark:text-grey-40">
+          <p class="text-sm leading-relaxed text-grey-70 dark:text-grey-40 max-w-[80ch] hyphens-auto">
             {{ call .Translate "login.description" }}
           </p>
         </div>
 
         {{ if .Flash }}
-        <div class="rounded-default border border-red bg-red-40 px-4 py-3 text-sm font-medium leading-normal text-grey-90 dark:border-red-40 dark:text-grey-10">
+        <div class="rounded-default border border-red bg-red-40 px-4 py-3 text-sm font-medium leading-normal text-grey-90 dark:border-red-40 dark:text-grey-10 max-w-[80ch] hyphens-auto">
           {{ .Flash.Message }}
         </div>
         {{ end }}
@@ -68,15 +68,15 @@
           </button>
         </form>
         {{ else }}
-        <div class="rounded-default border border-default bg-grey-10 px-4 py-3 text-sm leading-relaxed text-grey-70 dark:border-grey-70 dark:bg-grey-80 dark:text-grey-30">
+        <div class="rounded-default border border-default bg-grey-10 px-4 py-3 text-sm leading-relaxed text-grey-70 dark:border-grey-70 dark:bg-grey-80 dark:text-grey-30 max-w-[80ch] hyphens-auto">
           {{ call .Translate "login.no_admins" }}
         </div>
         {{ end }}
 
         {{ if .Auth.Authenticated }}
-        <div class="rounded-default border border-default bg-grey-10 px-4 py-3 text-xs leading-relaxed text-grey-70 dark:border-grey-70 dark:bg-grey-80 dark:text-grey-30">
+        <div class="rounded-default border border-default bg-grey-10 px-4 py-3 text-xs leading-relaxed text-grey-70 dark:border-grey-70 dark:bg-grey-80 dark:text-grey-30 max-w-[80ch] hyphens-auto">
           <span class="font-semibold text-grey-90 dark:text-grey-10">{{ call .Translate "login.active_session_heading" }}</span>
-          <div class="mt-1 space-y-1">
+          <div class="mt-1 space-y-1 max-w-[80ch] hyphens-auto">
             {{ $username := .Auth.DisplayName }}
             {{ if eq $username "" }}
               {{ $username = .Auth.UserType }}

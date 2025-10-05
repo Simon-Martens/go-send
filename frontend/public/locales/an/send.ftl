@@ -1,4 +1,4 @@
-title = Send
+title = Go Send
 importingFile = Se ye importando…
 encryptingFile = Se ye cifrando…
 decryptingFile = Se ye descifrando…
@@ -43,8 +43,8 @@ passwordSetError = No s'ha puesto definir la clau
 
 ## Send version 2 strings
 
--send-brand = Send
--send-short-brand = Send
+-send-brand = Go Send
+-send-short-brand = Go Send
 -firefox = Firefox
 -mozilla = Mozilla
 introTitle = Compartición de fichers simpla y privada

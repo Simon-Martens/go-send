@@ -1,4 +1,4 @@
-title = Send
+title = Go Send
 importingFile = İdxal edilir…
 encryptingFile = Şifrələnir...
 decryptingFile = Şifrə açılır...
@@ -43,8 +43,8 @@ passwordSetError = Parol qurula bilmədi
 
 ## Send version 2 strings
 
--send-brand = Send
--send-short-brand = Send
+-send-brand = Go Send
+-send-short-brand = Go Send
 -firefox = Firefox
 -mozilla = Mozilla
 # byte abbreviation

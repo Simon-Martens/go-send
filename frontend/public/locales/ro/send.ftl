@@ -1,4 +1,4 @@
-title = Send
+title = Go Send
 importingFile = Se importă…
 encryptingFile = Se criptează…
 decryptingFile = Se decriptează…
@@ -45,8 +45,8 @@ passwordSetError = Această parolă nu a putut fi setată
 
 ## Send version 2 strings
 
--send-brand = Send
--send-short-brand = Send
+-send-brand = Go Send
+-send-short-brand = Go Send
 -firefox = Firefox
 -mozilla = Mozilla
 introTitle = Partajare de fișiere simplă și privată

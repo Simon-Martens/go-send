@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="{{ .Locale }}">
+  {{ template "head.gohtml" . }}
+  <body class="flex min-h-screen flex-col items-center font-sans bg-grey-10 text-grey-90 dark:bg-black dark:text-grey-10">
+    <main class="flex w-full flex-1 items-center justify-center px-6 py-12">
+      <section class="w-full max-w-lg space-y-6 rounded-xl border border-default bg-white p-8 shadow-big md:p-10 dark:border-grey-70 dark:bg-grey-90">
+        <div class="space-y-2">
+          <span class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary">
+            {{ call .Translate "login.admin_badge" }}
+          </span>
+          <h1 class="text-3xl font-semibold leading-tight text-grey-90 dark:text-grey-10">
+            {{ call .Translate "login.title" }}
+          </h1>
+          <p class="text-sm leading-relaxed text-grey-70 dark:text-grey-40">
+            {{ call .Translate "login.description" }}
+          </p>
+        </div>
+
+        {{ if .Flash }}
+        <div class="rounded-default border border-red bg-red-40 px-4 py-3 text-sm font-medium leading-normal text-grey-90 dark:border-red-40 dark:text-grey-10">
+          {{ .Flash.Message }}
+        </div>
+        {{ end }}
+
+        {{ if gt (len .Admins) 0 }}
+        <form method="POST" action="/login" class="space-y-5">
+          <div class="space-y-2">
+            <label for="username" class="block text-xs font-semibold uppercase tracking-widest text-grey-70 dark:text-grey-40">
+              {{ call .Translate "login.admin_label" }}
+            </label>
+            <div class="relative">
+              <select
+                id="username"
+                name="username"
+                required
+                class="appearance-none w-full cursor-pointer border border-default rounded-default bg-white pl-4 pr-10 py-3 text-base leading-normal text-grey-90 transition hover:border-primary focus:border-primary focus:outline-none dark:border-grey-60 dark:bg-grey-80 dark:text-grey-10"
+              >
+                {{ $selected := .LoginForm.Username }}
+                {{ range .Admins }}
+                <option value="{{ .Username }}" {{ if eq .Username $selected }}selected{{ end }}>{{ .Username }}</option>
+                {{ end }}
+              </select>
+              <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-grey-50 dark:text-grey-40">
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.086l3.71-3.855a.75.75 0 111.08 1.04l-4.24 4.408a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                </svg>
+              </span>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <label for="password" class="block text-xs font-semibold uppercase tracking-widest text-grey-70 dark:text-grey-40">
+              {{ call .Translate "login.password_label" }}
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              autofocus
+              required
+              class="w-full border border-default rounded-default bg-white px-4 py-3 text-base leading-normal text-grey-90 transition focus:border-primary focus:outline-none dark:border-grey-60 dark:bg-grey-80 dark:text-grey-10"
+            >
+          </div>
+
+          <button type="submit" class="btn mt-4 flex w-full items-center justify-center gap-2 rounded-lg text-base">
+            {{ call .Translate "login.submit" }}
+          </button>
+        </form>
+        {{ else }}
+        <div class="rounded-default border border-default bg-grey-10 px-4 py-3 text-sm leading-relaxed text-grey-70 dark:border-grey-70 dark:bg-grey-80 dark:text-grey-30">
+          {{ call .Translate "login.no_admins" }}
+        </div>
+        {{ end }}
+
+        {{ if .Auth.Authenticated }}
+        <div class="rounded-default border border-default bg-grey-10 px-4 py-3 text-xs leading-relaxed text-grey-70 dark:border-grey-70 dark:bg-grey-80 dark:text-grey-30">
+          <span class="font-semibold text-grey-90 dark:text-grey-10">{{ call .Translate "login.active_session_heading" }}</span>
+          <div class="mt-1">
+            {{ $username := .Auth.DisplayName }}
+            {{ if eq $username "" }}
+              {{ $username = .Auth.UserType }}
+            {{ end }}
+            {{ call .Translate "login.active_session_signed_in" (dict "username" $username "role" .Auth.UserType) }}
+            {{ if .Auth.ExpiresAtISO }}
+            <span class="block text-grey-60 dark:text-grey-40">{{ call .Translate "login.active_session_expires" (dict "time" .Auth.ExpiresAtISO) }}</span>
+            {{ end }}
+          </div>
+        </div>
+        {{ end }}
+      </section>
+    </main>
+
+    {{ template "footer.gohtml" . }}
+  </body>
+</html>

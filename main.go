@@ -7,6 +7,7 @@ import (
 
 	"github.com/Simon-Martens/go-send/config"
 	"github.com/Simon-Martens/go-send/core"
+	"github.com/Simon-Martens/go-send/i18n"
 	"github.com/Simon-Martens/go-send/migrations"
 	"github.com/Simon-Martens/go-send/server"
 	"github.com/Simon-Martens/go-send/storage"
@@ -42,7 +43,12 @@ func main() {
 
 	// INFO: the manifest is a file to connect request URLs to file names
 	manifest := core.LoadManifest(distFS, logger)
-	app := core.NewApp(db, cfg, tmpl, manifest, logger)
+	translator, err := i18n.New()
+	if err != nil {
+		logger.Error("Failed to load translations. Exiting", "error", err)
+		os.Exit(1)
+	}
+	app := core.NewApp(db, cfg, tmpl, manifest, translator, logger)
 	if err := migrations.RunPending(app); err != nil {
 		logger.Error("Failed to run migrations. Exiting", "error", err)
 		os.Exit(1)

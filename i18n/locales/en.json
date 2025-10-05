@@ -1,0 +1,62 @@
+[
+	{
+		"id": "login.admin_badge",
+		"translation": "Login"
+	},
+	{
+		"id": "login.title",
+		"translation": "Upload Access"
+	},
+	{
+		"id": "login.description",
+		"translation": "Sign in with the administrator password to manage uploads and invitation links."
+	},
+	{
+		"id": "login.admin_label",
+		"translation": "Administrator"
+	},
+	{
+		"id": "login.password_label",
+		"translation": "Password"
+	},
+	{
+		"id": "login.submit",
+		"translation": "Sign in"
+	},
+	{
+		"id": "login.no_admins",
+		"translation": "No administrator accounts are configured yet."
+	},
+	{
+		"id": "login.active_session_heading",
+		"translation": "Active session"
+	},
+	{
+		"id": "login.active_session_signed_in",
+		"translation": "Signed in as {username} ({role})."
+	},
+  {
+    "id": "login.active_session_expires",
+    "translation": "Expires {time}"
+  },
+  {
+    "id": "footer.signed_in",
+    "translation": "Signed in as {username}"
+  },
+  {
+    "id": "footer.expires",
+    "translation": "(expires {time})"
+  },
+  {
+    "id": "footer.cli",
+    "translation": "CLI"
+  },
+  {
+    "id": "footer.dmca",
+    "translation": "DMCA"
+  },
+  {
+    "id": "footer.source",
+    "translation": "Source"
+  }
+]

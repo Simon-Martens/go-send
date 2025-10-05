@@ -12,17 +12,6 @@ module.exports = ({ env }) => {
 
   if (!isDev) {
     plugins.push(
-      require("@fullhuman/postcss-purgecss")({
-        content: ["./app/**/*.js", "./common/**/*.js"],
-        extractors: [
-          {
-            extractor: TailwindExtractor,
-            extensions: ["js"],
-          },
-        ],
-      }),
-    );
-    plugins.push(
       require("cssnano")({
         preset: "default",
       }),

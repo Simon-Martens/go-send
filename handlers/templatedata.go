@@ -16,6 +16,11 @@ type TemplateData struct {
 	Assets    AssetBundle
 	Footer    FooterLinks
 	State     TemplateState
+	Auth      AuthInfo
+	Flash     *FlashMessage
+	Admins    []LoginAdmin
+	LoginForm LoginFormState
+	Translate func(string, ...interface{}) string
 }
 
 type ThemeConfig struct {
@@ -84,7 +89,29 @@ type DefaultsPayload struct {
 	ExpireSeconds      int   `json:"EXPIRE_SECONDS"`
 }
 
-func getTemplateData(manifest map[string]string, downloadMetadata string, cfg *config.Config, detectedLocale string, nonce string) TemplateData {
+type AuthInfo struct {
+	Authenticated bool
+	UserType      string
+	DisplayName   string
+	ExpiresAt     int64
+	ExpiresAtISO  string
+}
+
+type FlashMessage struct {
+	Message string
+	Kind    string
+}
+
+type LoginAdmin struct {
+	ID       int64
+	Username string
+}
+
+type LoginFormState struct {
+	Username string
+}
+
+func getTemplateData(manifest map[string]string, downloadMetadata string, cfg *config.Config, detectedLocale string, nonce string, translate func(string, map[string]interface{}) string) TemplateData {
 	assets := AssetBundle{
 		CSS:             assetFromManifest(manifest, "app.css", "app.css"),
 		JS:              assetFromManifest(manifest, "app.js", "app.js"),
@@ -144,6 +171,18 @@ func getTemplateData(manifest map[string]string, downloadMetadata string, cfg *c
 			SourceURL:  cfg.FooterSourceURL,
 		},
 		State: state,
+		Translate: func(id string, args ...interface{}) string {
+			var data map[string]interface{}
+			if len(args) > 0 {
+				if m, ok := args[0].(map[string]interface{}); ok {
+					data = m
+				}
+			}
+			if translate == nil {
+				return id
+			}
+			return translate(id, data)
+		},
 	}
 }
 

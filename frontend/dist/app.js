@@ -21409,7 +21409,7 @@ function qs(url) {
 var assert$4 = nanoassert;
 var safeExternalLink = /(noopener|noreferrer) (noopener|noreferrer)/;
 var protocolLink = /^[\w-_]+:/;
-var nanohref$1 = href;
+var nanohref$2 = href;
 function href(cb, root2) {
   assert$4.notEqual(typeof window, "undefined", "nanohref: expected window to exist");
   root2 = root2 || window.document;
@@ -21749,7 +21749,7 @@ var nanotiming = browser$2;
 var nanorouter = nanorouter$1;
 var nanomorph = nanomorph_1;
 var nanoquery = browser$1;
-var nanohref = nanohref$1;
+var nanohref$1 = nanohref$2;
 var nanoraf = nanoraf_1;
 var nanobus = nanobus$1;
 var assert = nanoassert;
@@ -21851,7 +21851,7 @@ Choo.prototype.start = function() {
       self2.emitter.emit(self2._events.POPSTATE);
     };
     if (self2._hrefEnabled) {
-      nanohref(function(location2) {
+      nanohref$1(function(location2) {
         var href2 = location2.href;
         var hash = location2.hash;
         if (href2 === window.location.href) {
@@ -23275,9 +23275,9 @@ function requireNotFound() {
   const assets = requireAssets();
   const modal2 = requireModal();
   notFound = function(state, emit) {
-    var _textCenter, _use, _textPrimary, _p, _btn, _my_, _flex, _main;
+    var _textCenter, _use, _textPrimary, _maxWMd, _btn, _my_, _flex, _main;
     const btnText = "sendYourFilesLink";
-    return _main = document.createElement("div"), _main.setAttribute("class", "main"), _appendChild(_main, ["\n      ", state.modal && modal2(state, emit), "\n      ", (_flex = document.createElement("section"), _flex.setAttribute("class", "flex flex-col items-center justify-center h-full w-full p-6 md:p-8 overflow-hidden md:rounded-xl md:shadow-big"), _appendChild(_flex, ["\n        ", (_textCenter = document.createElement("h1"), _textCenter.setAttribute("class", "text-center text-3xl font-bold my-2"), _appendChild(_textCenter, ["\n          ", state.translate("expiredTitle"), "\n        "]), _textCenter), "\n        ", (_textPrimary = document.createElementNS(_svgNamespace, "svg"), _textPrimary.setAttribute("class", "text-primary my-12"), _appendChild(_textPrimary, ["\n          ", (_use = document.createElementNS(_svgNamespace, "use"), _use.setAttributeNS(_xlinkNamespace, "xlink:href", "" + String(assets.get("notFound.svg")) + "#svg124"), _use), "\n        "]), _textPrimary), "\n        ", (_p = document.createElement("p"), _p.setAttribute("class", "max-w-md text-center text-grey-80 leading-normal dark:text-grey-40 " + String(state.user.loggedIn ? "hidden" : "")), _appendChild(_p, ["\n          ", state.translate("trySendDescription"), "\n        "]), _p), "\n        ", (_my_ = document.createElement("p"), _my_.setAttribute("class", "my-5"), _appendChild(_my_, ["\n          ", (_btn = document.createElement("a"), _btn.setAttribute("href", "/"), _btn.setAttribute("role", "button"), _btn.setAttribute("class", "btn rounded-lg flex items-center"), _appendChild(_btn, [state.translate(btnText)]), _btn), "\n        "]), _my_), "\n      "]), _flex), "\n    "]), _main;
+    return _main = document.createElement("div"), _main.setAttribute("class", "main"), _appendChild(_main, ["\n      ", state.modal && modal2(state, emit), "\n      ", (_flex = document.createElement("section"), _flex.setAttribute("class", "flex flex-col items-center justify-center h-full w-full p-6 md:p-8 overflow-hidden md:rounded-xl md:shadow-big"), _appendChild(_flex, ["\n        ", (_textCenter = document.createElement("h1"), _textCenter.setAttribute("class", "text-center text-3xl font-bold my-2"), _appendChild(_textCenter, ["\n          ", state.translate("expiredTitle"), "\n        "]), _textCenter), "\n        ", (_textPrimary = document.createElementNS(_svgNamespace, "svg"), _textPrimary.setAttribute("class", "text-primary my-12"), _appendChild(_textPrimary, ["\n          ", (_use = document.createElementNS(_svgNamespace, "use"), _use.setAttributeNS(_xlinkNamespace, "xlink:href", "" + String(assets.get("notFound.svg")) + "#svg124"), _use), "\n        "]), _textPrimary), "\n        ", (_maxWMd = document.createElement("p"), _maxWMd.setAttribute("class", "max-w-md text-center text-grey-80 leading-normal dark:text-grey-40"), _appendChild(_maxWMd, ["\n          ", state.translate("trySendDescription"), "\n        "]), _maxWMd), "\n        ", (_my_ = document.createElement("p"), _my_.setAttribute("class", "my-5"), _appendChild(_my_, ["\n          ", (_btn = document.createElement("a"), _btn.setAttribute("href", "/"), _btn.setAttribute("role", "button"), _btn.setAttribute("class", "btn rounded-lg flex items-center"), _appendChild(_btn, [state.translate(btnText)]), _btn), "\n        "]), _my_), "\n      "]), _flex), "\n    "]), _main;
   };
   return notFound;
 }
@@ -23333,7 +23333,7 @@ function requireDownloadCompleted() {
   downloadCompleted = function(state) {
     var _textCenter, _use, _my_, _textGrey_, _btn, _my_2, _downloadComplete;
     const btnText = "sendYourFilesLink";
-    return _downloadComplete = document.createElement("div"), _downloadComplete.setAttribute("id", "download-complete"), _downloadComplete.setAttribute("class", "flex flex-col items-center justify-center h-full w-full bg-white p-2 dark:bg-grey-90"), _appendChild(_downloadComplete, ["\n      ", (_textCenter = document.createElement("h1"), _textCenter.setAttribute("class", "text-center text-3xl font-bold my-2"), _appendChild(_textCenter, ["\n        ", state.translate("downloadFinish"), "\n      "]), _textCenter), "\n      ", (_my_ = document.createElementNS(_svgNamespace, "svg"), _my_.setAttribute("class", "my-8 h-48 text-primary"), _appendChild(_my_, ["\n        ", (_use = document.createElementNS(_svgNamespace, "use"), _use.setAttributeNS(_xlinkNamespace, "xlink:href", "" + String(assets.get("completed.svg")) + "#Page-1"), _use), "\n      "]), _my_), "\n      ", (_textGrey_ = document.createElement("p"), _textGrey_.setAttribute("class", "text-grey-80 leading-normal dark:text-grey-40"), _appendChild(_textGrey_, ["\n        ", state.translate("trySendDescription"), "\n      "]), _textGrey_), "\n      ", (_my_2 = document.createElement("p"), _my_2.setAttribute("class", "my-5"), _appendChild(_my_2, ["\n        ", (_btn = document.createElement("a"), _btn.setAttribute("href", "/"), _btn.setAttribute("role", "button"), _btn.setAttribute("class", "btn rounded-lg flex items-center mt-4"), _appendChild(_btn, [state.translate(btnText)]), _btn), "\n      "]), _my_2), "\n    "]), _downloadComplete;
+    return _downloadComplete = document.createElement("div"), _downloadComplete.setAttribute("id", "download-complete"), _downloadComplete.setAttribute("class", "flex flex-col items-center justify-center h-full w-full bg-white p-2 dark:bg-grey-90"), _appendChild(_downloadComplete, ["\n      ", (_textCenter = document.createElement("h1"), _textCenter.setAttribute("class", "text-center text-3xl font-bold my-2"), _appendChild(_textCenter, ["\n        ", state.translate("downloadFinish"), "\n      "]), _textCenter), "\n      ", (_my_ = document.createElementNS(_svgNamespace, "svg"), _my_.setAttribute("class", "my-8 h-48 text-primary"), _appendChild(_my_, ["\n        ", (_use = document.createElementNS(_svgNamespace, "use"), _use.setAttributeNS(_xlinkNamespace, "xlink:href", "" + String(assets.get("completed.svg")) + "#Page-1"), _use), "\n      "]), _my_), "\n      ", (_textGrey_ = document.createElement("p"), _textGrey_.setAttribute("class", "text-grey-80 leading-normal dark:text-grey-40"), _appendChild(_textGrey_, ["\n        ", state.translate("trySendDescription"), "\n      "]), _textGrey_), "\n      ", (_my_2 = document.createElement("p"), _my_2.setAttribute("class", "my-5"), _appendChild(_my_2, ["\n        ", (_btn = document.createElement("a"), _btn.setAttribute("href", "/"), _btn.setAttribute("role", "button"), _btn.setAttribute("rel", "external"), _btn.setAttribute("class", "btn rounded-lg flex items-center mt-4"), _appendChild(_btn, [state.translate(btnText)]), _btn), "\n      "]), _my_2), "\n    "]), _downloadComplete;
   };
   return downloadCompleted;
 }
@@ -29603,9 +29603,17 @@ if (typeof window !== "undefined") {
     locale: utilsExports.locale()
   };
   const app = routes(choo$1({
-    hash: true
+    hash: true,
+    href: false
   }));
   window.app = app;
+  app.use((state, emitter) => {
+    emitter.once("DOMContentLoaded", () => {
+      nanohref(document.body, (location2) => emitter.emit("pushState", location2.href), {
+        filter: (anchor2) => anchor2.rel !== "external"
+      });
+    });
+  });
   app.use(initialize);
   app.use(controller);
   app.use(dragManager);

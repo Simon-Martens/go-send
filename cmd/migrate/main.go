@@ -9,6 +9,7 @@ import (
 
 	"github.com/Simon-Martens/go-send/config"
 	"github.com/Simon-Martens/go-send/core"
+	"github.com/Simon-Martens/go-send/i18n"
 	"github.com/Simon-Martens/go-send/migrations"
 	"github.com/Simon-Martens/go-send/storage"
 
@@ -43,8 +44,13 @@ func main() {
 	}
 	defer db.Close()
 
+	translator, err := i18n.New()
+	if err != nil {
+		logger.Warn("Failed to load translations", "error", err)
+	}
+
 	// Create minimal app instance (without template/manifest)
-	app := core.NewApp(db, cfg, nil, nil, logger)
+	app := core.NewApp(db, cfg, nil, nil, translator, logger)
 
 	// Execute migration action
 	switch *action {

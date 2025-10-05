@@ -22,6 +22,53 @@ type Admin struct {
 	CreatedAt    int64
 }
 
+func (d *DB) GetAdminByID(id int64) (*Admin, error) {
+	admin := &Admin{}
+	row := d.db.QueryRow(`SELECT id, username, password_hash, created_at FROM admins WHERE id = ?`, id)
+	if err := row.Scan(&admin.ID, &admin.Username, &admin.PasswordHash, &admin.CreatedAt); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrAdminNotFound
+		}
+		return nil, err
+	}
+	return admin, nil
+}
+
+func (d *DB) GetAdminByUsername(username string) (*Admin, error) {
+	admin := &Admin{}
+	row := d.db.QueryRow(`SELECT id, username, password_hash, created_at FROM admins WHERE username = ?`, username)
+	if err := row.Scan(&admin.ID, &admin.Username, &admin.PasswordHash, &admin.CreatedAt); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrAdminNotFound
+		}
+		return nil, err
+	}
+	return admin, nil
+}
+
+func (d *DB) ListAdmins() ([]Admin, error) {
+	rows, err := d.db.Query(`SELECT id, username, created_at FROM admins ORDER BY username ASC`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var admins []Admin
+	for rows.Next() {
+		var admin Admin
+		if err := rows.Scan(&admin.ID, &admin.Username, &admin.CreatedAt); err != nil {
+			return nil, err
+		}
+		admins = append(admins, admin)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return admins, nil
+}
+
 type Session struct {
 	ID        int64
 	TokenHash string
@@ -112,7 +159,7 @@ func (d *DB) GetSessionByHash(hash string) (*Session, error) {
 	session.AdminID = adminID
 	session.LinkID = linkID
 
-	if session.ExpiresAt <= time.Now().Unix() {
+	if session.ExpiresAt > 0 && session.ExpiresAt <= time.Now().Unix() {
 		return session, ErrSessionExpired
 	}
 
@@ -200,4 +247,25 @@ func (d *DB) CountAdmins() (int, error) {
 	var count int
 	err := d.db.QueryRow(`SELECT COUNT(*) FROM admins`).Scan(&count)
 	return count, err
+}
+
+func (d *DB) GetAuthLinkByID(id int64) (*AuthLink, error) {
+	link := &AuthLink{}
+	row := d.db.QueryRow(`SELECT id, token_hash, expires_at, max_uses, use_count, created_at, created_by_admin_id, username FROM auth_links WHERE id = ?`, id)
+	if err := row.Scan(
+		&link.ID,
+		&link.TokenHash,
+		&link.ExpiresAt,
+		&link.MaxUses,
+		&link.UseCount,
+		&link.CreatedAt,
+		&link.CreatedBy,
+		&link.Username,
+	); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrLinkNotFound
+		}
+		return nil, err
+	}
+	return link, nil
 }

@@ -22,11 +22,12 @@ import (
 func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/login", handlers.NewLoginHandler(app.DB, app.Logger))
+	loginHandler := handlers.NewLoginHandler(app.Template, app.Manifest, app.DB, app.Config, app.Translator, app.Logger)
+	mux.HandleFunc("/login", loginHandler)
 	mux.HandleFunc("/auth/claim/", handlers.NewAuthClaimHandler(app.DB))
 	// HTML routes
-	indexHandler := handlers.IndexHandler(app.Template, app.Manifest, app.Config, app.Logger)
-	downloadPageHandler := handlers.DownloadPageHandler(app.Template, app.Manifest, app.DB, app.Config, app.Logger)
+	indexHandler := handlers.IndexHandler(app.Template, app.Manifest, app.DB, app.Config, app.Translator, app.Logger)
+	downloadPageHandler := handlers.DownloadPageHandler(app.Template, app.Manifest, app.DB, app.Config, app.Translator, app.Logger)
 	mux.HandleFunc("/download/", downloadPageHandler)
 	mux.HandleFunc("/error", indexHandler)
 
@@ -65,7 +66,7 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 				if errors.Is(err, storage.ErrSessionExpired) {
 					auth.ClearSessionCookie(w, r.TLS != nil)
 				}
-				http.Redirect(w, r, "/login", http.StatusSeeOther)
+				loginHandler(w, r)
 				return
 			}
 		}

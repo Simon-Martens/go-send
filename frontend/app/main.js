@@ -60,9 +60,20 @@ if (process.env.NODE_ENV === "production") {
     locale: locale(),
   };
 
-  const app = routes(choo({ hash: true }));
+  const app = routes(choo({ hash: true, href: false }));
   // eslint-disable-next-line require-atomic-updates
   window.app = app;
+  app.use((state, emitter) => {
+    emitter.once("DOMContentLoaded", () => {
+      nanohref(
+        document.body,
+        (location) => emitter.emit("pushState", location.href),
+        {
+          filter: (anchor) => anchor.rel !== "external",
+        },
+      );
+    });
+  });
   app.use(experiments);
   app.use(controller);
   app.use(dragManager);

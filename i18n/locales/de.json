@@ -1,0 +1,62 @@
+[
+	{
+		"id": "login.admin_badge",
+		"translation": "Login"
+	},
+	{
+		"id": "login.title",
+		"translation": "Upload"
+	},
+	{
+		"id": "login.description",
+		"translation": "Anmelden, um Dateien hochzuladen und zu verwalten"
+	},
+	{
+		"id": "login.admin_label",
+		"translation": "Administrator"
+	},
+	{
+		"id": "login.password_label",
+		"translation": "Passwort"
+	},
+	{
+		"id": "login.submit",
+		"translation": "Anmelden"
+	},
+	{
+		"id": "login.no_admins",
+		"translation": "Es sind noch keine Administrator-Konten konfiguriert."
+	},
+	{
+		"id": "login.active_session_heading",
+		"translation": "Aktive Sitzung"
+	},
+	{
+		"id": "login.active_session_signed_in",
+		"translation": "Angemeldet als {username} ({role})."
+	},
+  {
+    "id": "login.active_session_expires",
+    "translation": "Läuft ab {time}"
+  },
+  {
+    "id": "footer.signed_in",
+    "translation": "Angemeldet als {username}"
+  },
+  {
+    "id": "footer.expires",
+    "translation": "(läuft ab {time})"
+  },
+  {
+    "id": "footer.cli",
+    "translation": "CLI"
+  },
+  {
+    "id": "footer.dmca",
+    "translation": "DMCA"
+  },
+  {
+    "id": "footer.source",
+    "translation": "Quellcode"
+  }
+]

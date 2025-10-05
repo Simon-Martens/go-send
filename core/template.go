@@ -3,6 +3,7 @@ package core
 import (
 	"embed"
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"log/slog"
 	"os"
@@ -53,6 +54,26 @@ func templateFuncMap(logger *slog.Logger) template.FuncMap {
 			}
 		},
 		"assetURL": assetURL,
+		"dict": func(values ...interface{}) map[string]interface{} {
+			if len(values)%2 != 0 {
+				if logger != nil {
+					logger.Warn("dict called with odd number of arguments", "count", len(values))
+				}
+				return map[string]interface{}{}
+			}
+			m := make(map[string]interface{}, len(values)/2)
+			for i := 0; i < len(values); i += 2 {
+				key, ok := values[i].(string)
+				if !ok {
+					if logger != nil {
+						logger.Warn("dict key is not a string", "index", i, "type", fmt.Sprintf("%T", values[i]))
+					}
+					return map[string]interface{}{}
+				}
+				m[key] = values[i+1]
+			}
+			return m
+		},
 	}
 }
 

@@ -17,10 +17,7 @@ module.exports = function (state, emit) {
           <use xlink:href="${assets.get("notFound.svg")}#svg124" />
         </svg>
         <p
-          class="max-w-md text-center text-grey-80 leading-normal dark:text-grey-40 ${state
-            .user.loggedIn
-            ? "hidden"
-            : ""}"
+          class="max-w-md text-center text-grey-80 leading-normal dark:text-grey-40"
         >
           ${state.translate("trySendDescription")}
         </p>

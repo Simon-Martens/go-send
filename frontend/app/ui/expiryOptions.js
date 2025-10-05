@@ -21,7 +21,7 @@ module.exports = function (state, emit) {
   }
 
   const counts = state.DEFAULTS.DOWNLOAD_COUNTS.filter(
-    () => i <= state.LIMITS.MAX_DOWNLOADS,
+    (i) => i <= state.LIMITS.MAX_DOWNLOADS,
   );
 
   const dlCountSelect = el.querySelector("#dlCount");
@@ -41,7 +41,7 @@ module.exports = function (state, emit) {
   );
 
   const expires = state.DEFAULTS.EXPIRE_TIMES_SECONDS.filter(
-    () => i <= state.LIMITS.MAX_EXPIRE_SECONDS,
+    (i) => i <= state.LIMITS.MAX_EXPIRE_SECONDS,
   );
 
   const timeSelect = el.querySelector("#timespan");

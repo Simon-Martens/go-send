@@ -6,10 +6,12 @@
 			{{ else }}
 			<span class="italic text-grey-70 dark:text-grey-40">Go Send</span>
 			{{ end }}
-			{{ if .Auth.Authenticated }}
-			<span class="inline-flex h-3 w-3 rounded-full shadow-sm animate-pulse-subtle" style="background-color: #16a34a;"></span>
+			{{ if .IsDownloadPage }}
+			<div class="status-dot status-dot-blue"></div>
+			{{ else if .Auth.Authenticated }}
+			<div class="status-dot status-dot-green"></div>
 			{{ else }}
-			<span class="inline-flex h-3 w-3 rounded-full shadow-sm animate-pulse-subtle" style="background-color: #dc2626;"></span>
+			<div class="status-dot status-dot-red"></div>
 			{{ end }}
 		</li>
 		{{ if .Auth.Authenticated }}

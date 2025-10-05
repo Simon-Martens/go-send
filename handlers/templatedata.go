@@ -24,6 +24,7 @@ type TemplateData struct {
 	Translate          func(string, ...interface{}) string
 	ChangePasswordForm ChangePasswordFormState
 	AccountLinks       AccountLinksView
+	IsDownloadPage     bool
 }
 
 type ThemeConfig struct {

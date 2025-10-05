@@ -101,6 +101,7 @@ func DownloadPageHandler(tmpl *template.Template, manifest map[string]string, db
 		}
 		data := getTemplateData(manifest, downloadMetadata, cfg, detectedLocale, nonce, translate)
 		data.Auth = authInfo
+		data.IsDownloadPage = true
 
 		csp := fmt.Sprintf("script-src 'self' 'nonce-%s'; style-src 'self' 'nonce-%s'", nonce, nonce)
 		w.Header().Set("Content-Security-Policy", csp)

@@ -4,16 +4,17 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"log/slog"
 	"net/http"
 	"os"
 	"path/filepath"
 	"time"
 
-	"github.com/gorilla/websocket"
 	"github.com/Simon-Martens/go-send/auth"
 	"github.com/Simon-Martens/go-send/config"
 	"github.com/Simon-Martens/go-send/storage"
+	"github.com/gorilla/websocket"
 )
 
 var upgrader = websocket.Upgrader{
@@ -39,6 +40,16 @@ type UploadResponse struct {
 
 func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(fileID string, expiresAt int64) bool, logger *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		if cfg.UploadGuard {
+			if _, err := auth.GetSessionFromRequest(db, r); err != nil {
+				if errors.Is(err, storage.ErrSessionExpired) {
+					auth.ClearSessionCookie(w, r.TLS != nil)
+				}
+				http.Error(w, "Unauthorized", http.StatusUnauthorized)
+				return
+			}
+		}
+
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			logger.Error("WebSocket upgrade error", "error", err)

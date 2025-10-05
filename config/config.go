@@ -14,6 +14,7 @@ type Config struct {
 	FileDir         string
 	UserFrontendDir string
 	Environment     string // "development" or "production"
+	UploadGuard     bool
 
 	MaxFileSize          int64
 	MaxFilesPerArchive   int
@@ -55,6 +56,7 @@ func Load() *Config {
 		FileDir:         getEnv("FILE_DIR", DEFAULT_FILE_DIR),
 		UserFrontendDir: getEnv("USER_FRONTEND_DIR", DEFAULT_USER_FRONTEND_DIR),
 		Environment:     getEnv("SEND_ENV", DEFAULT_ENVIRONMENT),
+		UploadGuard:     getEnvBool("UPLOAD_GUARD", DEFAULT_UPLOAD_GUARD),
 
 		// Upload/Download Limits
 		MaxFileSize:          getEnvInt64("MAX_FILE_SIZE", DEFAULT_MAX_FILE_SIZE), // 2.5GB

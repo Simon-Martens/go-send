@@ -3,22 +3,27 @@ package server
 import (
 	"bytes"
 	"embed"
+	"errors"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/Simon-Martens/go-send/auth"
 	"github.com/Simon-Martens/go-send/config"
 	"github.com/Simon-Martens/go-send/core"
 	"github.com/Simon-Martens/go-send/handlers"
 	"github.com/Simon-Martens/go-send/server/middleware"
+	"github.com/Simon-Martens/go-send/storage"
 )
 
 // SetupRoutes configures all HTTP routes and handlers
 func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 	mux := http.NewServeMux()
 
+	mux.HandleFunc("/login", handlers.NewLoginHandler(app.DB, app.Logger))
+	mux.HandleFunc("/auth/claim/", handlers.NewAuthClaimHandler(app.DB))
 	// HTML routes
 	indexHandler := handlers.IndexHandler(app.Template, app.Manifest, app.Config, app.Logger)
 	downloadPageHandler := handlers.DownloadPageHandler(app.Template, app.Manifest, app.DB, app.Config, app.Logger)
@@ -27,6 +32,7 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 
 	// API routes
 	mux.HandleFunc("/config", handlers.NewConfigHandler(app.Config))
+	mux.HandleFunc("/api/admin/auth-links", handlers.NewCreateAuthLinkHandler(app.DB, app.Config))
 
 	// Upload endpoint with concurrency limiting (max 3 concurrent uploads per IP)
 	uploadHandler := handlers.NewUploadHandler(app.DB, app.Config, app.ScheduleCleanup, app.Logger)
@@ -54,6 +60,16 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 
 	// Root and static file handler
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if app.Config.UploadGuard && r.URL.Path == "/" {
+			if _, err := auth.GetSessionFromRequest(app.DB, r); err != nil {
+				if errors.Is(err, storage.ErrSessionExpired) {
+					auth.ClearSessionCookie(w, r.TLS != nil)
+				}
+				http.Redirect(w, r, "/login", http.StatusSeeOther)
+				return
+			}
+		}
+
 		if r.URL.Path != "/" && r.URL.Path != "/download" && r.URL.Path != "/error" {
 			if serveUserStaticFile(w, r, app.Config.UserFrontendDir, config.USER_DIST_SUBDIR) {
 				return

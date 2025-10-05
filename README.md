@@ -19,7 +19,7 @@ The plan is to ultimate replace client side rounting (choo) with server-side rou
 
 - ~Express server~: replaced with Go std lib server
 - ~Redis~: Replaced with **SQLite** for metadata storage
-- ~Firefox Accounts (FxA)~: Authentication removed (did not work in modern FF anyway)
+- ~Firefox Accounts (FxA)~: Authentication removed (did not work in modern FF anyway). Also removed from the frontend entirely.
 - ~Webpack~ removed, introduced **Vite**. We have a lot of fewer build features now
 - ~Ployfills~: Removed almost all polyfills and support for IE and older Edge browsers. Target browsers are: Chrome 89+, Firefox 102+, Safari 14.1+, Edge 89+, which is a very modern selection, but they will be old pretty fast. CanIUse reports 95.74% user coverage.
 

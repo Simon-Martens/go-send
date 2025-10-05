@@ -24,10 +24,20 @@ func up_1710000600_seed_ulrich_admin(app *core.App) error {
 		string(hash),
 		time.Now().Unix(),
 	)
-	return err
+	if err != nil {
+		return err
+	}
+
+	app.Logger.Info("Created ulrich test admin user")
+	return nil
 }
 
 func down_1710000600_seed_ulrich_admin(app *core.App) error {
 	_, err := app.DB.DB().Exec(`DELETE FROM admins WHERE username = ?`, "ulrich")
-	return err
+	if err != nil {
+		return err
+	}
+
+	app.Logger.Info("Removed ulrich test admin user")
+	return nil
 }

@@ -1,18 +1,14 @@
 package migrations
 
 import (
-	"database/sql"
-	"time"
-
 	"github.com/Simon-Martens/go-send/core"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func init() {
-	Register("1709990000_upload_guard_auth", up_1709990000_upload_guard_auth, down_1709990000_upload_guard_auth)
+	Register("1709990000_auth_system", up_1709990000_auth_system, down_1709990000_auth_system)
 }
 
-func up_1709990000_upload_guard_auth(app *core.App) error {
+func up_1709990000_auth_system(app *core.App) error {
 	schema := `
     CREATE TABLE IF NOT EXISTS admins (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -26,6 +22,8 @@ func up_1709990000_upload_guard_auth(app *core.App) error {
         token_hash TEXT NOT NULL UNIQUE,
         expires_at INTEGER,
         username TEXT,
+        token_preview TEXT,
+        active INTEGER DEFAULT 0,
         created_at INTEGER NOT NULL,
         created_by_admin_id INTEGER,
         FOREIGN KEY(created_by_admin_id) REFERENCES admins(id) ON DELETE SET NULL
@@ -50,40 +48,16 @@ func up_1709990000_upload_guard_auth(app *core.App) error {
     CREATE INDEX IF NOT EXISTS idx_sessions_expires_at ON sessions(expires_at);
     `
 
-	if _, err := app.DB.DB().Exec(schema); err != nil {
-		return err
-	}
-
-	if hasAdmins(app.DB.DB()) {
-		return nil
-	}
-
-	defaultPasswordHash, err := bcrypt.GenerateFromPassword([]byte("admin"), bcrypt.DefaultCost)
+	_, err := app.DB.DB().Exec(schema)
 	if err != nil {
 		return err
 	}
 
-	_, err = app.DB.DB().Exec(
-		"INSERT INTO admins (username, password_hash, created_at) VALUES (?, ?, ?)",
-		"admin",
-		string(defaultPasswordHash),
-		time.Now().Unix(),
-	)
-	if err == nil {
-		app.Logger.Info("Created default admin user with username 'admin'")
-	}
-	return err
+	app.Logger.Info("Created auth system tables and indexes")
+	return nil
 }
 
-func hasAdmins(db *sql.DB) bool {
-	var count int
-	if err := db.QueryRow("SELECT COUNT(*) FROM admins").Scan(&count); err != nil {
-		return false
-	}
-	return count > 0
-}
-
-func down_1709990000_upload_guard_auth(app *core.App) error {
+func down_1709990000_auth_system(app *core.App) error {
 	statements := []string{
 		"DROP TABLE IF EXISTS sessions",
 		"DROP TABLE IF EXISTS auth_links",
@@ -95,5 +69,7 @@ func down_1709990000_upload_guard_auth(app *core.App) error {
 			return err
 		}
 	}
+
+	app.Logger.Info("Dropped auth system tables")
 	return nil
 }

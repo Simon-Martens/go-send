@@ -74,7 +74,7 @@ func (d *DB) UpdateAdminPassword(id int64, passwordHash string) error {
 }
 
 func (d *DB) ListAuthLinks(limit int) ([]AuthLink, error) {
-	query := `SELECT id, token_hash, token_preview, expires_at, created_at, created_by_admin_id, username FROM auth_links ORDER BY created_at DESC`
+	query := `SELECT id, token_hash, token_preview, expires_at, active, created_at, created_by_admin_id, username FROM auth_links ORDER BY created_at DESC`
 	var rows *sql.Rows
 	var err error
 	if limit > 0 {
@@ -96,6 +96,7 @@ func (d *DB) ListAuthLinks(limit int) ([]AuthLink, error) {
 			&link.TokenHash,
 			&link.TokenPreview,
 			&link.ExpiresAt,
+			&link.Active,
 			&link.CreatedAt,
 			&link.CreatedBy,
 			&link.Username,
@@ -127,6 +128,7 @@ type AuthLink struct {
 	TokenHash    string
 	TokenPreview sql.NullString
 	ExpiresAt    sql.NullInt64
+	Active       bool
 	CreatedAt    int64
 	CreatedBy    sql.NullInt64
 	Username     sql.NullString
@@ -220,10 +222,11 @@ func (d *DB) CleanupExpiredSessions() error {
 
 func (d *DB) CreateAuthLink(link *AuthLink) (int64, error) {
 	res, err := d.db.Exec(
-		`INSERT INTO auth_links (token_hash, token_preview, expires_at, created_at, created_by_admin_id, username) VALUES (?, ?, ?, ?, ?, ?)`,
+		`INSERT INTO auth_links (token_hash, token_preview, expires_at, active, created_at, created_by_admin_id, username) VALUES (?, ?, ?, ?, ?, ?, ?)`,
 		link.TokenHash,
 		nullableString(link.TokenPreview),
 		nullableInt64(link.ExpiresAt),
+		link.Active,
 		link.CreatedAt,
 		nullableInt64(link.CreatedBy),
 		nullableString(link.Username),
@@ -236,7 +239,7 @@ func (d *DB) CreateAuthLink(link *AuthLink) (int64, error) {
 
 func (d *DB) UpdateAuthLinkSettings(id int64, username sql.NullString, expiresAt sql.NullInt64) error {
 	_, err := d.db.Exec(
-		`UPDATE auth_links SET username = ?, expires_at = ? WHERE id = ?`,
+		`UPDATE auth_links SET username = ?, expires_at = ?, active = 1 WHERE id = ?`,
 		nullableString(username),
 		nullableInt64(expiresAt),
 		id,
@@ -244,14 +247,20 @@ func (d *DB) UpdateAuthLinkSettings(id int64, username sql.NullString, expiresAt
 	return err
 }
 
+func (d *DB) ActivateAuthLink(id int64) error {
+	_, err := d.db.Exec(`UPDATE auth_links SET active = 1 WHERE id = ?`, id)
+	return err
+}
+
 func (d *DB) ConsumeAuthLink(hash string) (*AuthLink, error) {
 	link := &AuthLink{}
-	row := d.db.QueryRow(`SELECT id, token_hash, token_preview, expires_at, created_at, created_by_admin_id, username FROM auth_links WHERE token_hash = ?`, hash)
+	row := d.db.QueryRow(`SELECT id, token_hash, token_preview, expires_at, active, created_at, created_by_admin_id, username FROM auth_links WHERE token_hash = ?`, hash)
 	if err := row.Scan(
 		&link.ID,
 		&link.TokenHash,
 		&link.TokenPreview,
 		&link.ExpiresAt,
+		&link.Active,
 		&link.CreatedAt,
 		&link.CreatedBy,
 		&link.Username,
@@ -260,6 +269,10 @@ func (d *DB) ConsumeAuthLink(hash string) (*AuthLink, error) {
 			return nil, ErrLinkNotFound
 		}
 		return nil, err
+	}
+
+	if !link.Active {
+		return nil, ErrLinkNotFound
 	}
 
 	if link.ExpiresAt.Valid && link.ExpiresAt.Int64 < time.Now().Unix() {

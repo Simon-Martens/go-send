@@ -76,6 +76,64 @@ func NewAccountLinksHandler(tmpl *template.Template, manifest map[string]string,
 
 			action := strings.TrimSpace(r.FormValue("action"))
 			switch action {
+			case "activate":
+				linkIDStr := strings.TrimSpace(r.FormValue("linkID"))
+				linkID, err := strconv.ParseInt(linkIDStr, 10, 64)
+				if err != nil {
+					if isAjaxRequest(r) {
+						w.Header().Set("Content-Type", "application/json")
+						w.WriteHeader(http.StatusBadRequest)
+						json.NewEncoder(w).Encode(map[string]string{"error": "Invalid link ID"})
+						return
+					}
+					render(&FlashMessage{Message: translateMessage(translate, "account.links.update_error"), Kind: "error"}, baseForm)
+					return
+				}
+
+				// Label is required
+				label := strings.TrimSpace(r.FormValue("label"))
+				if label == "" {
+					if isAjaxRequest(r) {
+						w.Header().Set("Content-Type", "application/json")
+						w.WriteHeader(http.StatusBadRequest)
+						json.NewEncoder(w).Encode(map[string]string{"error": "Label is required"})
+						return
+					}
+					render(&FlashMessage{Message: translateMessage(translate, "account.links.error_label_required"), Kind: "error"}, baseForm)
+					return
+				}
+
+				// Activate the link
+				if err := db.ActivateAuthLink(linkID); err != nil {
+					logger.Error("Failed to activate auth link", "error", err, "link_id", linkID)
+					if isAjaxRequest(r) {
+						w.Header().Set("Content-Type", "application/json")
+						w.WriteHeader(http.StatusInternalServerError)
+						json.NewEncoder(w).Encode(map[string]string{"error": "Failed to activate"})
+						return
+					}
+					render(&FlashMessage{Message: translateMessage(translate, "account.links.update_error"), Kind: "error"}, baseForm)
+					return
+				}
+
+				// Save label
+				labelValue := sql.NullString{String: label, Valid: true}
+				if err := db.UpdateAuthLinkSettings(linkID, labelValue, sql.NullInt64{}); err != nil {
+					logger.Warn("Failed to update label after activation", "error", err, "link_id", linkID)
+				}
+
+				if isAjaxRequest(r) {
+					w.Header().Set("Content-Type", "application/json")
+					json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
+					return
+				}
+
+				setAccountLinksFlash(w, r, accountLinksFlashPayload{
+					Message: translateMessage(translate, "account.links.update_success"),
+					Kind:    "success",
+				})
+				http.Redirect(w, r, "/account/links", http.StatusSeeOther)
+				return
 			case "delete":
 				linkIDStr := strings.TrimSpace(r.FormValue("linkID"))
 				linkID, err := strconv.ParseInt(linkIDStr, 10, 64)
@@ -100,6 +158,12 @@ func NewAccountLinksHandler(tmpl *template.Template, manifest map[string]string,
 				linkIDStr := strings.TrimSpace(r.FormValue("linkID"))
 				linkID, err := strconv.ParseInt(linkIDStr, 10, 64)
 				if err != nil {
+					if isAjaxRequest(r) {
+						w.Header().Set("Content-Type", "application/json")
+						w.WriteHeader(http.StatusBadRequest)
+						json.NewEncoder(w).Encode(map[string]string{"error": "Invalid link ID"})
+						return
+					}
 					render(&FlashMessage{Message: translateMessage(translate, "account.links.update_error"), Kind: "error"}, baseForm)
 					return
 				}
@@ -111,6 +175,12 @@ func NewAccountLinksHandler(tmpl *template.Template, manifest map[string]string,
 				if expiresInput != "" {
 					hours, err := strconv.Atoi(expiresInput)
 					if err != nil || hours < 1 || hours > 24*30 {
+						if isAjaxRequest(r) {
+							w.Header().Set("Content-Type", "application/json")
+							w.WriteHeader(http.StatusBadRequest)
+							json.NewEncoder(w).Encode(map[string]string{"error": "Invalid hours"})
+							return
+						}
 						render(&FlashMessage{Message: translateMessage(translate, "account.links.error_invalid_hours"), Kind: "error"}, baseForm)
 						return
 					}
@@ -124,7 +194,19 @@ func NewAccountLinksHandler(tmpl *template.Template, manifest map[string]string,
 
 				if err := db.UpdateAuthLinkSettings(linkID, labelValue, expiresAt); err != nil {
 					logger.Error("Failed to update auth link", "error", err, "link_id", linkID)
+					if isAjaxRequest(r) {
+						w.Header().Set("Content-Type", "application/json")
+						w.WriteHeader(http.StatusInternalServerError)
+						json.NewEncoder(w).Encode(map[string]string{"error": "Failed to update"})
+						return
+					}
 					render(&FlashMessage{Message: translateMessage(translate, "account.links.update_error"), Kind: "error"}, baseForm)
+					return
+				}
+
+				if isAjaxRequest(r) {
+					w.Header().Set("Content-Type", "application/json")
+					json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
 					return
 				}
 
@@ -138,6 +220,12 @@ func NewAccountLinksHandler(tmpl *template.Template, manifest map[string]string,
 				token, err := auth.GenerateToken(24)
 				if err != nil {
 					logger.Error("Failed to generate auth link token", "error", err)
+					if isAjaxRequest(r) {
+						w.Header().Set("Content-Type", "application/json")
+						w.WriteHeader(http.StatusInternalServerError)
+						json.NewEncoder(w).Encode(map[string]string{"error": "Failed to generate token"})
+						return
+					}
 					render(&FlashMessage{Message: translateMessage(translate, "account.links.error_generic"), Kind: "error"}, baseForm)
 					return
 				}
@@ -149,6 +237,7 @@ func NewAccountLinksHandler(tmpl *template.Template, manifest map[string]string,
 				link := &storage.AuthLink{
 					TokenHash:    auth.HashToken(token),
 					TokenPreview: sql.NullString{String: token[:previewLength], Valid: previewLength > 0},
+					Active:       false, // Link is inactive until user clicks OK in modal
 					CreatedAt:    time.Now().Unix(),
 					CreatedBy: sql.NullInt64{
 						Int64: session.AdminID.Int64,
@@ -156,14 +245,31 @@ func NewAccountLinksHandler(tmpl *template.Template, manifest map[string]string,
 					},
 				}
 
-				_, err = db.CreateAuthLink(link)
+				linkID, err := db.CreateAuthLink(link)
 				if err != nil {
 					logger.Error("Failed to persist auth link", "error", err)
+					if isAjaxRequest(r) {
+						w.Header().Set("Content-Type", "application/json")
+						w.WriteHeader(http.StatusInternalServerError)
+						json.NewEncoder(w).Encode(map[string]string{"error": "Failed to create link"})
+						return
+					}
 					render(&FlashMessage{Message: translateMessage(translate, "account.links.error_generic"), Kind: "error"}, baseForm)
 					return
 				}
 
 				generatedURL := buildAuthLinkURL(cfg, r, token)
+
+				// Return JSON for AJAX requests
+				if isAjaxRequest(r) {
+					w.Header().Set("Content-Type", "application/json")
+					json.NewEncoder(w).Encode(map[string]interface{}{
+						"url": generatedURL,
+						"id":  linkID,
+					})
+					return
+				}
+
 				setAccountLinksFlash(w, r, accountLinksFlashPayload{
 					Message:       translateMessage(translate, "account.links.success"),
 					Kind:          "success",
@@ -337,4 +443,9 @@ func isRequestSecure(r *http.Request) bool {
 		return true
 	}
 	return false
+}
+
+func isAjaxRequest(r *http.Request) bool {
+	return r.Header.Get("X-Requested-With") == "XMLHttpRequest" ||
+		strings.Contains(r.Header.Get("Accept"), "application/json")
 }

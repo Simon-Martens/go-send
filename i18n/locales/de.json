@@ -121,7 +121,7 @@
   },
   {
     "id": "footer.manage_links",
-    "translation": "Links verwalten"
+    "translation": "Upload-Links verwalten"
   },
   {
     "id": "account.links.title",
@@ -157,7 +157,7 @@
   },
   {
     "id": "account.links.submit",
-    "translation": "Link generieren"
+    "translation": "Neuer Upload-Link"
   },
   {
     "id": "account.links.copy_link",
@@ -258,5 +258,33 @@
   {
     "id": "account.links.delete_error",
     "translation": "Der Link konnte nicht gelöscht werden. Bitte versuchen Sie es erneut."
+  },
+  {
+    "id": "account.links.modal_title",
+    "translation": "Neuer Upload-Link"
+  },
+  {
+    "id": "account.links.modal_link_label",
+    "translation": "Upload-Link"
+  },
+  {
+    "id": "account.links.modal_label_label",
+    "translation": "Bezeichnung"
+  },
+  {
+    "id": "account.links.label_placeholder",
+    "translation": "Geben Sie einen Namen für diesen Link ein..."
+  },
+  {
+    "id": "account.links.modal_ok",
+    "translation": "OK"
+  },
+  {
+    "id": "account.links.modal_warning",
+    "translation": "Dieser Link wird nur einmal angezeigt und kann später nicht abgerufen werden. Kopieren Sie ihn unbedingt, bevor Sie schließen."
+  },
+  {
+    "id": "account.links.modal_cancel",
+    "translation": "Abbrechen"
   }
 ]

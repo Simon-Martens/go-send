@@ -121,7 +121,7 @@
   },
   {
     "id": "footer.manage_links",
-    "translation": "Manage links"
+    "translation": "Manage Upload Links"
   },
   {
     "id": "account.links.title",
@@ -157,7 +157,7 @@
   },
   {
     "id": "account.links.submit",
-    "translation": "Generate link"
+    "translation": "New Upload Link"
   },
   {
     "id": "account.links.copy_link",
@@ -258,5 +258,33 @@
   {
     "id": "account.links.delete_error",
     "translation": "Could not delete the link. Please try again."
+  },
+  {
+    "id": "account.links.modal_title",
+    "translation": "New Upload Link"
+  },
+  {
+    "id": "account.links.modal_link_label",
+    "translation": "Upload Link"
+  },
+  {
+    "id": "account.links.modal_label_label",
+    "translation": "Label"
+  },
+  {
+    "id": "account.links.label_placeholder",
+    "translation": "Enter a name for this link..."
+  },
+  {
+    "id": "account.links.modal_ok",
+    "translation": "OK"
+  },
+  {
+    "id": "account.links.modal_warning",
+    "translation": "This link will only be shown once and cannot be retrieved later. Make sure to copy it before closing."
+  },
+  {
+    "id": "account.links.modal_cancel",
+    "translation": "Cancel"
   }
 ]

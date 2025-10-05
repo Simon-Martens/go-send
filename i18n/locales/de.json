@@ -129,7 +129,7 @@
   },
   {
     "id": "account.links.description",
-    "translation": "Verwalte Einladungslinks für Uploads. Erstelle einen Link und konfiguriere ihn anschließend."
+    "translation": "Verwalten Sie Einladungslinks für Uploads. Erstellen Sie einen Link und konfigurieren Sie ihn anschließend."
   },
   {
     "id": "account.links.form_heading",
@@ -137,7 +137,7 @@
   },
   {
     "id": "account.links.form_hint",
-    "translation": "Links werden ohne Bezeichnung oder Ablauf erstellt. Konfiguriere sie danach in der Liste unten."
+    "translation": "Links werden ohne Bezeichnung oder Ablauf erstellt. Konfigurieren Sie diese danach in der Liste unten."
   },
   {
     "id": "account.links.username_label",
@@ -169,7 +169,7 @@
   },
   {
     "id": "account.links.generated_help",
-    "translation": "Teile diese URL mit dem Nutzer. Sie wird nur einmal angezeigt."
+    "translation": "Teilen Sie diese URL mit dem Nutzer. Sie wird nur einmal angezeigt."
   },
   {
     "id": "account.links.table_heading",
@@ -177,7 +177,7 @@
   },
   {
     "id": "account.links.table_hint",
-    "translation": "Bearbeite Bezeichnungen oder Ablaufdaten bestehender Links."
+    "translation": "Bearbeiten Sie Bezeichnungen oder Ablaufdaten bestehender Links."
   },
   {
     "id": "account.links.back",
@@ -281,7 +281,7 @@
   },
   {
     "id": "account.links.modal_warning",
-    "translation": "Dieser Link wird nur einmal angezeigt und kann später nicht abgerufen werden. Kopieren Sie ihn unbedingt, bevor Sie schließen."
+    "translation": "Dieser Link wird nur einmal angezeigt und kann später nicht abgerufen werden. Bitte kopieren Sie ihn, bevor Sie dieses Fenster schließen."
   },
   {
     "id": "account.links.modal_cancel",

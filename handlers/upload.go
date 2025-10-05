@@ -206,7 +206,7 @@ func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(f
 
 		if err := db.CreateFile(meta); err != nil {
 			logger.Error("Database error creating file metadata", "error", err, "file_id", id)
-			storage.DeleteFile(id)
+			storage.DeleteFile(db.FileDir(), id)
 			sendError(conn, 500)
 			return
 		}

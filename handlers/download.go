@@ -49,7 +49,7 @@ func NewDownloadHandler(db *storage.DB, cancelCleanup func(string), logger *slog
 		w.Header().Set("WWW-Authenticate", "send-v1 "+newNonce)
 
 		// Open file
-		file, err := storage.OpenFile(id)
+		file, err := storage.OpenFile(db.FileDir(), id)
 		if err != nil {
 			logger.Error("Error opening file for download", "file_id", id, "error", err)
 			http.NotFound(w, r)
@@ -58,7 +58,7 @@ func NewDownloadHandler(db *storage.DB, cancelCleanup func(string), logger *slog
 		defer file.Close()
 
 		// Get file size
-		size, err := storage.GetFileSize(id)
+		size, err := storage.GetFileSize(db.FileDir(), id)
 		if err != nil {
 			logger.Error("Error getting file size", "file_id", id, "error", err)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -90,7 +90,7 @@ func NewDownloadHandler(db *storage.DB, cancelCleanup func(string), logger *slog
 
 			// Delete file and metadata
 			db.DeleteFile(id)
-			storage.DeleteFile(id)
+			storage.DeleteFile(db.FileDir(), id)
 			logger.Info("File deleted after reaching download limit", "file_id", id, "downloads", meta.DlCount)
 		}
 	}

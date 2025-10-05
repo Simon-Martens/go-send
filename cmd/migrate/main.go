@@ -37,7 +37,7 @@ func main() {
 	logger.Info("Migration tool starting", "action", *action)
 
 	// Initialize database
-	db, err := storage.NewDB(config.DB_PATH)
+	db, err := storage.NewDB(config.DB_PATH, cfg.FileDir)
 	if err != nil {
 		logger.Error("Failed to initialize database", "error", err)
 		os.Exit(1)

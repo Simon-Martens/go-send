@@ -6,15 +6,9 @@ import (
 	"path/filepath"
 )
 
-const uploadsDir = "./uploads"
-
-func init() {
-	os.MkdirAll(uploadsDir, 0755)
-}
-
 // SaveFile saves uploaded data to disk
-func SaveFile(id string, data io.Reader) error {
-	filePath := filepath.Join(uploadsDir, id)
+func SaveFile(fileDir, id string, data io.Reader) error {
+	filePath := filepath.Join(fileDir, id)
 	f, err := os.Create(filePath)
 	if err != nil {
 		return err
@@ -26,8 +20,8 @@ func SaveFile(id string, data io.Reader) error {
 }
 
 // GetFileSize returns the size of a file
-func GetFileSize(id string) (int64, error) {
-	filePath := filepath.Join(uploadsDir, id)
+func GetFileSize(fileDir, id string) (int64, error) {
+	filePath := filepath.Join(fileDir, id)
 	info, err := os.Stat(filePath)
 	if err != nil {
 		return 0, err
@@ -36,20 +30,20 @@ func GetFileSize(id string) (int64, error) {
 }
 
 // OpenFile opens a file for reading
-func OpenFile(id string) (*os.File, error) {
-	filePath := filepath.Join(uploadsDir, id)
+func OpenFile(fileDir, id string) (*os.File, error) {
+	filePath := filepath.Join(fileDir, id)
 	return os.Open(filePath)
 }
 
 // DeleteFile deletes a file from disk
-func DeleteFile(id string) error {
-	filePath := filepath.Join(uploadsDir, id)
+func DeleteFile(fileDir, id string) error {
+	filePath := filepath.Join(fileDir, id)
 	return os.Remove(filePath)
 }
 
 // FileExists checks if a file exists on disk
-func FileExists(id string) bool {
-	filePath := filepath.Join(uploadsDir, id)
+func FileExists(fileDir, id string) bool {
+	filePath := filepath.Join(fileDir, id)
 	_, err := os.Stat(filePath)
 	return err == nil
 }

@@ -124,7 +124,7 @@ func NewDeleteHandler(db *storage.DB, cancelCleanup func(string)) http.HandlerFu
 
 		// Delete file and metadata
 		db.DeleteFile(id)
-		storage.DeleteFile(id)
+		storage.DeleteFile(db.FileDir(), id)
 
 		w.WriteHeader(http.StatusOK)
 	}

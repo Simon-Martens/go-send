@@ -8,12 +8,18 @@ import (
 )
 
 type DB struct {
-	db *sql.DB
+	db      *sql.DB
+	fileDir string
 }
 
 // DB returns the underlying sql.DB for migrations and other low-level operations
 func (d *DB) DB() *sql.DB {
 	return d.db
+}
+
+// FileDir returns the configured file directory
+func (d *DB) FileDir() string {
+	return d.fileDir
 }
 
 type FileMetadata struct {
@@ -29,7 +35,7 @@ type FileMetadata struct {
 	ExpiresAt   int64
 }
 
-func NewDB(dbPath string) (*DB, error) {
+func NewDB(dbPath, fileDir string) (*DB, error) {
 	pragmas := "?_pragma=busy_timeout(10000)&_pragma=journal_mode(WAL)&_pragma=journal_size_limit(200000000)&_pragma=synchronous(NORMAL)&_pragma=foreign_keys(ON)&_pragma=temp_store(MEMORY)&_pragma=cache_size(-16000)"
 	dsn := dbPath + pragmas
 
@@ -39,7 +45,7 @@ func NewDB(dbPath string) (*DB, error) {
 	}
 
 	// Schema creation is now handled by migrations
-	return &DB{db: db}, nil
+	return &DB{db: db, fileDir: fileDir}, nil
 }
 
 func (d *DB) Ping() error {
@@ -160,7 +166,7 @@ func (d *DB) CleanupExpired() error {
 
 	// Delete files from disk
 	for _, id := range expiredIDs {
-		DeleteFile(id) // Ignore errors, file might already be deleted
+		DeleteFile(d.fileDir, id) // Ignore errors, file might already be deleted
 	}
 
 	// Delete database entries

@@ -35,7 +35,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	db, err := storage.NewDB(config.DB_PATH)
+	db, err := storage.NewDB(config.DB_PATH, cfg.FileDir)
 	if err != nil {
 		logger.Error("Failed to initialize database. Exiting", "error", err)
 		os.Exit(1)

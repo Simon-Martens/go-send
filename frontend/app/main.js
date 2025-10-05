@@ -65,6 +65,25 @@ if (process.env.NODE_ENV === "production") {
   window.app = app;
   app.use((state, emitter) => {
     emitter.once("DOMContentLoaded", () => {
+      // Clear storage and cookies on home page load
+      if (window.location.pathname === "/" || window.location.hash === "#/") {
+        try {
+          if (typeof localStorage !== "undefined") {
+            localStorage.clear();
+          }
+          if (typeof sessionStorage !== "undefined") {
+            sessionStorage.clear();
+          }
+          // Clear all cookies
+          document.cookie.split(";").forEach((cookie) => {
+            const name = cookie.split("=")[0].trim();
+            document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+          });
+        } catch (err) {
+          console.warn("Failed to clear storage on home page load", err);
+        }
+      }
+
       document.body.addEventListener("click", (event) => {
         const anchor = event.target.closest("a[data-action='logout']");
         if (!anchor) {

@@ -83,14 +83,6 @@ export default async function getCapabilities() {
 
   const mobileFirefox = browser === "firefox" && isMobile;
 
-  console.log(
-    "Stream Capabilities",
-    streams,
-    serviceWorker,
-    browser,
-    mobileFirefox,
-  );
-
   return {
     account,
     crypto,

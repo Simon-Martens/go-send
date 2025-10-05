@@ -25,6 +25,10 @@ function versionPlugin() {
       const pkg = JSON.parse(readFileSync("./package.json", "utf-8"));
       const version = JSON.stringify({
         commit,
+        name: pkg.name,
+        description: pkg.description,
+        license: pkg.license,
+        author: pkg.author,
         source: pkg.repository,
         version: process.env.CIRCLE_TAG || `v${pkg.version}`,
       });

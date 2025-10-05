@@ -1,4 +1,4 @@
-const $r = "3.4.27";
+const $r = "1.0.0-beta";
 var v = {};
 v.byteLength = jr;
 v.toByteArray = re;

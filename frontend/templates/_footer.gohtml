@@ -1,0 +1,25 @@
+{{ define "_footer" }}
+	<ul class="flex flex-col md:flex-row items-start md:items-center md:justify-start">
+		{{ if .Footer.CustomText }}
+		<li class="m-2">
+			{{ if .Footer.CustomURL }}
+			<a href="{{ .Footer.CustomURL }}" target="_blank">{{ .Footer.CustomText }}</a>
+			{{ else }}
+			{{ .CustomText }}
+			{{ end }}
+		</li>
+		{{ end }}
+	</ul>
+	<ul class="flex flex-col md:flex-row items-start md:items-center md:justify-end">
+		{{ if .Footer.CLIURL }}
+		<li class="m-2"><a href="{{ .Footer.CLIURL }}" target="_blank">CLI</a></li>
+		{{ end }}
+		{{ if .Footer.DMCAURL }}
+		<li class="m-2"><a href="{{ .Footer.DMCAURL }}" target="_blank">DMCA</a></li>
+		{{ end }}
+		{{ if .Footer.SourceURL }}
+		<li class="m-2"><a href="{{ .Footer.SourceURL }}" target="_blank">Source</a></li>
+		{{ end }}
+	</ul>
+
+{{ end }}

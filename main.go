@@ -29,6 +29,12 @@ func main() {
 	slog.SetDefault(logger)
 	logger.Info("go-send running", "environment", cfg.Environment)
 
+	// Ensure data directory exists before initializing database
+	if err := os.MkdirAll("./data", 0o755); err != nil {
+		logger.Error("Failed to create data directory. Exiting", "error", err)
+		os.Exit(1)
+	}
+
 	db, err := storage.NewDB(config.DB_PATH)
 	if err != nil {
 		logger.Error("Failed to initialize database. Exiting", "error", err)

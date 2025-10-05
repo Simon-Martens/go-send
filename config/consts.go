@@ -3,7 +3,7 @@ package config
 import "time"
 
 const (
-	DB_PATH = "./send.db"
+	DB_PATH = "./data/send.db"
 )
 
 const (
@@ -14,7 +14,7 @@ const (
 	DEFAULT_PORT               = "8080"
 	DEFAULT_BASE_URL           = ""
 	DEFAULT_DETECT_BASE_URL    = false
-	DEFAULT_FILE_DIR           = "./uploads"
+	DEFAULT_FILE_DIR           = "./data/uploads"
 	DEFAULT_USER_FRONTEND_DIR  = "./userfrontend"
 	DEFAULT_UPLOAD_GUARD       = true
 	DEFAULT_ALLOW_ACCESS_LINKS = false
@@ -23,7 +23,7 @@ const (
 	DEFAULT_MAX_FILES_PER_ARCHIVE        = 64
 	DEFAULT_MAX_EXPIRE_SECONDS           = 604800 // 7 days
 	DEFAULT_MAX_DOWNLOADS                = 100
-	DEFAULT_DEFAULT_DOWNLOADS            = 1
+	DEFAULT_DEFAULT_DOWNLOADS            = 5
 	DEFAULT_DEFAULT_EXPIRE_SECONDS       = 86400
 
 	DEFAULT_UI_COLOR_PRIMARY = "#0A84FF"

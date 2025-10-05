@@ -34,7 +34,7 @@ WORKDIR /app
 COPY --from=backend-builder /build/send-server .
 COPY --from=frontend-builder /build/frontend/dist ./frontend/dist
 
-RUN mkdir -p /app/uploads /app/userfrontend
+RUN mkdir -p /app/data/uploads /app/userfrontend
 
 EXPOSE 8080
 

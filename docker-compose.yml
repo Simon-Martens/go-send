@@ -13,11 +13,7 @@ services:
       - MAX_EXPIRE_SECONDS=604800
       - DEFAULT_DOWNLOADS=1
       - MAX_DOWNLOADS=100
-      - DATABASE_PATH=/app/data/send.db
-      - UPLOADS_DIR=/app/uploads
       - USER_FRONTEND_DIR=/app/userfrontend
     volumes:
       - ./data:/app/data
-      - ./uploads:/app/uploads
-      - ./userfrontend:/app/userfrontend
     restart: unless-stopped

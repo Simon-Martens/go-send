@@ -129,7 +129,7 @@
   },
   {
     "id": "account.links.description",
-    "translation": "Verwalten Sie Einladungslinks für Uploads. Erstellen Sie einen Link und konfigurieren Sie ihn anschließend."
+    "translation": "Upload-Links ermöglichen es anderen Personen, Dateien auf Ihren Server hochzuladen. Eine Erlaubnis kann jederzeit zurückgezogen werden. Bitte vergeben Sie bei der Erstellung von Berechtigungen kurze und sinnvolle Namen, um die Benuztung zu vereinfachen."
   },
   {
     "id": "account.links.form_heading",

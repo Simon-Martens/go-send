@@ -124,7 +124,7 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: "dist",
       emptyOutDir: true,
-      sourcemap: true,
+      sourcemap: isDev,
       chunkSizeWarningLimit: 1024,
 
       rollupOptions: {

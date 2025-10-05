@@ -9,7 +9,7 @@
 	},
 	{
 		"id": "login.description",
-		"translation": "Anmelden, um Dateien hochzuladen und zu verwalten"
+		"translation": "Anmelden, um Dateien hochzuladen"
 	},
 	{
 		"id": "login.admin_label",

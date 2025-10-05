@@ -148,4 +148,3 @@ shareMessage = Hent { $name } med { -send-brand } - simpel og sikker fildeling
 trailheadPromo = Beskyt dine digitale rettigheder. Slut dig til Firefox.
 learnMore = Læs mere.
 `;export{e as default};
-//# sourceMappingURL=send.CQh5trrU.js.map

@@ -1,11 +1,11 @@
-import Keychain from './keychain';
-import { arrayToB64 } from './utils';
-import { del, fileInfo, setParams, setPassword } from './api';
+import Keychain from "./keychain";
+import { arrayToB64 } from "./utils";
+import { del, fileInfo, setParams, setPassword } from "./api";
 
 export default class OwnedFile {
   constructor(obj) {
     if (!obj.manifest) {
-      throw new Error('invalid file object');
+      throw new Error("invalid file object");
     }
     this.id = obj.id;
     this.url = obj.url;
@@ -50,10 +50,10 @@ export default class OwnedFile {
     return del(this.id, this.ownerToken);
   }
 
-  changeLimit(dlimit, user = {}) {
+  changeLimit(dlimit) {
     if (this.dlimit !== dlimit) {
       this.dlimit = dlimit;
-      return setParams(this.id, this.ownerToken, user.bearerToken, { dlimit });
+      return setParams(this.id, this.ownerToken, { dlimit });
     }
     return Promise.resolve(true);
   }
@@ -66,7 +66,7 @@ export default class OwnedFile {
       this.dtotal = result.dtotal;
       this.dlimit = result.dlimit;
     } catch (e) {
-      if (e.message === '404') {
+      if (e.message === "404") {
         this.dtotal = this.dlimit;
       }
       // ignore other errors
@@ -90,7 +90,7 @@ export default class OwnedFile {
       dlimit: this.dlimit,
       dtotal: this.dtotal,
       hasPassword: this.hasPassword,
-      timeLimit: this.timeLimit
+      timeLimit: this.timeLimit,
     };
   }
 }

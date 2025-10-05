@@ -148,4 +148,3 @@ shareMessage = Emboguejy “{ $name }” { -send-brand } ndive: emoherakuã mara
 trailheadPromo = Mba’éichapa emo’ãta ne ñemigua. Eipuru Firefox.
 learnMore = Kuaave.
 `;export{e as default};
-//# sourceMappingURL=send.D1Trcqtf.js.map

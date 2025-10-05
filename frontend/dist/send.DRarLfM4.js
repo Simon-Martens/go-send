@@ -157,4 +157,3 @@ shareMessage = Сцягніце «{ $name }» з { -send-brand }: простаг
 trailheadPromo = Ёсць спосаб абараніць вашу прыватнасць. Далучайцеся да Firefox.
 learnMore = Падрабязней.
 `;export{n as default};
-//# sourceMappingURL=send.DRarLfM4.js.map

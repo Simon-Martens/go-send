@@ -144,4 +144,3 @@ shareLinkButton = 分享鏈結
 shareMessage = 使用 { -send-brand } 下載「{ $name }」: 簡單安全的檔案分享機制
 learnMore = 了解更多。
 `;export{n as default};
-//# sourceMappingURL=send.B0Oz-K0K.js.map

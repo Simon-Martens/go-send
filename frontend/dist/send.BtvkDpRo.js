@@ -148,4 +148,3 @@ shareMessage = Laadi “{ $name }” alla teenusega { -send-brand }, mis pakub l
 trailheadPromo = Oma privaatsust on võimalik kaitsta. Liitu Firefoxiga.
 learnMore = Rohkem teavet.
 `;export{e as default};
-//# sourceMappingURL=send.BtvkDpRo.js.map

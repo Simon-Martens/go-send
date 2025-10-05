@@ -155,4 +155,3 @@ learnMore = Learn more.
 
 sponsoredByThunderbird = Sponsored by Thunderbird
 `;export{e as default};
-//# sourceMappingURL=send.C4zONLES.js.map

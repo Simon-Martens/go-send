@@ -157,4 +157,3 @@ shareMessage = Preuzmi „{ $name }” pomoću { -send-brand }: jednostavno i si
 trailheadPromo = Postoji način, kako zaštititi vlastitu privatnost. Pridruži se Firefoxu.
 learnMore = Saznaj više.
 `;export{n as default};
-//# sourceMappingURL=send.5seAuWu_.js.map

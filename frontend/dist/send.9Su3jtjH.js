@@ -87,4 +87,3 @@ legalTitle = Nkwupụta Nzuzo
 legalDateStamp = 1.dị 1.0, akara ụbọchị Maachi 12, 2019
 okButton = O
 `;export{n as default};
-//# sourceMappingURL=send.9Su3jtjH.js.map

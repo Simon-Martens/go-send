@@ -4,9 +4,7 @@ import copyDialog from "./ui/copyDialog";
 import faviconProgressbar from "./ui/faviconProgressbar";
 import okDialog from "./ui/okDialog";
 import shareDialog from "./ui/shareDialog";
-import signupDialog from "./ui/signupDialog";
-import surveyDialog from "./ui/surveyDialog";
-import { bytes, locale } from "./utils";
+import { bytes } from "./utils";
 import { copyToClipboard, delay, openLinksInNewTab, percent } from "./utils";
 
 export default function (state, emitter) {
@@ -18,8 +16,8 @@ export default function (state, emitter) {
   }
 
   async function checkFiles() {
-    const changes = await state.user.syncFileList();
-    const rerender = changes.incoming || changes.downloadCount;
+    const changes = await state.storage.merge();
+    const rerender = changes.downloadCount;
     if (rerender) {
       render();
     }
@@ -45,15 +43,6 @@ export default function (state, emitter) {
 
   emitter.on("render", () => {
     lastRender = Date.now();
-  });
-
-  emitter.on("login", (email) => {
-    state.user.login(email);
-  });
-
-  emitter.on("logout", async () => {
-    await state.user.logout();
-    emitter.emit("pushState", "/");
   });
 
   emitter.on("removeUpload", (file) => {
@@ -83,7 +72,7 @@ export default function (state, emitter) {
     if (files.length < 1) {
       return;
     }
-    const maxSize = state.user.maxSize;
+    const maxSize = state.LIMITS.MAX_FILE_SIZE;
     try {
       state.archive.addFiles(
         files,
@@ -99,30 +88,6 @@ export default function (state, emitter) {
       );
     }
     render();
-  });
-
-  emitter.on("signup-cta", (source) => {
-    const query = state.query;
-    state.user.startAuthFlow(source, {
-      campaign: query.utm_campaign,
-      content: query.utm_content,
-      medium: query.utm_medium,
-      source: query.utm_source,
-      term: query.utm_term,
-    });
-    state.modal = signupDialog();
-    render();
-  });
-
-  emitter.on("authenticate", async (code, oauthState) => {
-    try {
-      await state.user.finishLogin(code, oauthState);
-      await state.user.syncFileList();
-      emitter.emit("replaceState", "/");
-    } catch (e) {
-      emitter.emit("replaceState", "/error");
-      setTimeout(render);
-    }
   });
 
   emitter.on("upload", async () => {
@@ -147,12 +112,12 @@ export default function (state, emitter) {
     const links = openLinksInNewTab();
     await delay(200);
     try {
-      const ownedFile = await sender.upload(archive, state.user.bearerToken);
+      const ownedFile = await sender.upload(archive);
       state.storage.totalUploads += 1;
       faviconProgressbar.updateFavicon(0);
 
       state.storage.addFile(ownedFile);
-      // TODO integrate password into /upload request
+      // TODO: integrate password into /upload request
       if (archive.password) {
         emitter.emit("password", {
           password: archive.password,
@@ -166,12 +131,6 @@ export default function (state, emitter) {
       if (err.message === "0") {
         //cancelled. do nothing
         render();
-      } else if (err.message === "401") {
-        const refreshed = await state.user.refresh();
-        if (refreshed) {
-          return emitter.emit("upload");
-        }
-        emitter.emit("pushState", "/error");
       } else {
         // eslint-disable-next-line no-console
         console.error(err);
@@ -182,7 +141,7 @@ export default function (state, emitter) {
       archive.clear();
       state.uploading = false;
       state.transfer = null;
-      await state.user.syncFileList();
+      await state.storage.merge();
       render();
     }
   });
@@ -263,18 +222,7 @@ export default function (state, emitter) {
   });
 
   emitter.on("closeModal", () => {
-    if (
-      state.PREFS.surveyUrl &&
-      ["copy", "share"].includes(state.modal.type) &&
-      locale().startsWith("en") &&
-      (state.storage.totalUploads > 1 || state.storage.totalDownloads > 0) &&
-      !state.user.surveyed
-    ) {
-      state.user.surveyed = true;
-      state.modal = surveyDialog();
-    } else {
-      state.modal = null;
-    }
+    state.modal = null;
     render();
   });
 

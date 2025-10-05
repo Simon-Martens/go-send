@@ -66,12 +66,6 @@ export default async function getCapabilities() {
   const serviceWorker = "serviceWorker" in navigator && browser !== "edge";
   let crypto = await checkCrypto();
   const streams = checkStreams();
-  let account = typeof AUTH_CONFIG !== "undefined";
-  try {
-    account = account && !!localStorage;
-  } catch (e) {
-    account = false;
-  }
   const share =
     isMobile &&
     typeof navigator.share === "function" &&
@@ -84,7 +78,6 @@ export default async function getCapabilities() {
   const mobileFirefox = browser === "firefox" && isMobile;
 
   return {
-    account,
     crypto,
     serviceWorker,
     streamUpload: streams,

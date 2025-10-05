@@ -148,4 +148,3 @@ shareMessage = “{ $name }” را با { -send-brand } دانلود کنید: 
 trailheadPromo = راهی برای محافظت از حریم خصوصی شما وجود دارد. به Firefox بپیوندید.
 learnMore = بیشتر بدانید.
 `;export{n as default};
-//# sourceMappingURL=send.BDQM2emG.js.map

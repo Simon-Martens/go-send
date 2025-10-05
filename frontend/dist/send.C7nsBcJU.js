@@ -157,4 +157,3 @@ shareMessage = Завантажте “{ $name }” з { -send-brand }: прос
 trailheadPromo = Існує спосіб захистити вашу приватність. Приєднуйтесь до Firefox.
 learnMore = Докладніше.
 `;export{n as default};
-//# sourceMappingURL=send.C7nsBcJU.js.map

@@ -148,4 +148,3 @@ shareMessage = Tiqasäx "{ $name }" rik'in { -send-brand }: man k'ayew ta chuqa'
 trailheadPromo = K'o jun rub'anikil richin nachajij ri awichinanem. Tatunu' awi' rik'in ri Firefox.
 learnMore = Tetamäx ch'aqa' chik.
 `;export{n as default};
-//# sourceMappingURL=send.BHd8cV4M.js.map

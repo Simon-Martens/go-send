@@ -111,4 +111,3 @@ noStreamsOptionDownload = Magpatuloy sa browser na ito
 shareLinkButton = Ibahagi ang link
 learnMore = Matuto ng higit pa.
 `;export{n as default};
-//# sourceMappingURL=send.Bp1IW1vv.js.map

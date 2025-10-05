@@ -148,4 +148,3 @@ shareMessage = Last ned ‹{ $name }› med { -send-brand }: enkel, trygg fildel
 trailheadPromo = Det finnes en måte å ta vare på personvernet ditt. Bruk Firefox.
 learnMore = Les mer.
 `;export{e as default};
-//# sourceMappingURL=send.BBRB3Hlv.js.map

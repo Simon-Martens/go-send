@@ -157,4 +157,3 @@ shareMessage = Преузмите „{ $name }“ помоћу програма 
 trailheadPromo = Постоји начин да заштитите вашу приватност. Придружите се Firefox-у.
 learnMore = Сазнајте више.
 `;export{n as default};
-//# sourceMappingURL=send.IGo7ftOa.js.map

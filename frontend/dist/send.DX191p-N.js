@@ -144,4 +144,3 @@ shareMessage = “{ $name }” dosyasını { -send-brand } ile indirin: basit ve
 trailheadPromo = Gizliliğinizi korumanın bir yolu var. Firefox’a katılın.
 learnMore = Daha fazla bilgi alın.
 `;export{n as default};
-//# sourceMappingURL=send.DX191p-N.js.map

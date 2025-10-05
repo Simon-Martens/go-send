@@ -148,4 +148,3 @@ shareMessage = Sider "{ $name }" s { -send-brand }: d fessas, d aɣelsan i beṭ
 trailheadPromo = Yella wallal n ummesten n tudert-ik tusligt. Ddu ɣer Firefox.
 learnMore = Issin ugar.
 `;export{e as default};
-//# sourceMappingURL=send.HQFDipEd.js.map

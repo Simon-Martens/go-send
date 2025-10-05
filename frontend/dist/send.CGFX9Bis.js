@@ -182,4 +182,3 @@ shareMessage = Prenesite "{ $name }" s { -send-brand }om: enostavno in varno del
 trailheadPromo = Vašo zasebnost lahko zaščitite. Pridružite se Firefoxu.
 learnMore = Več o tem.
 `;export{n as default};
-//# sourceMappingURL=send.CGFX9Bis.js.map

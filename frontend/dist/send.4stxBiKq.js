@@ -148,4 +148,3 @@ shareMessage = ⴰⴳⵎⴰⵜ "{ $name }" ⵙ { -send-brand }: ⴰⴱⵟⵟⵓ 
 trailheadPromo = ⵜⵍⵍⴰ ⵢⴰⵜ ⵜⵖⴰⵔⴰⵙⵜ ⴰⴼⴰⴷ ⴰⴷ ⵜⴼⵔⴳⵎ ⵜⵉⵏⵏⵓⵜⵍⴰ ⵏⵏⵓⵏ. ⵍⴽⵎⴰⵜ ⴼⴰⵢⵔⴼⵓⴽⵙ.
 learnMore = ⵙⵙⵏ ⵓⴳⴳⴰⵔ.
 `;export{n as default};
-//# sourceMappingURL=send.4stxBiKq.js.map

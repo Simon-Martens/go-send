@@ -148,4 +148,3 @@ shareMessage = ჩამოტვირთეთ „{ $name }“ { -send-brand }
 trailheadPromo = გზა, თქვენი პირადულობის დასაცავად. შემოუერთდით Firefox-ს.
 learnMore = იხილეთ ვრცლად.
 `;export{n as default};
-//# sourceMappingURL=send.BbkOCLei.js.map

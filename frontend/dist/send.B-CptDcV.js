@@ -14,4 +14,3 @@ passwordSetError = Pasiwedhi haina kuita
 ## Send version 2 strings
 
 `;export{n as default};
-//# sourceMappingURL=send.B-CptDcV.js.map

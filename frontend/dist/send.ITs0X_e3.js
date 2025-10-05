@@ -151,4 +151,3 @@ shareMessage = הורדת ״{ $name }״ עם { -send-brand }: שיתוף קבצ�
 trailheadPromo = ישנן דרכים נוספות להגן על הפרטיות שלכם. הצטרפו אל Firefox.
 learnMore = מידע נוסף.
 `;export{n as default};
-//# sourceMappingURL=send.ITs0X_e3.js.map

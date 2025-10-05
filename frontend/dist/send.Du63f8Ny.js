@@ -148,4 +148,3 @@ shareMessage = “{ $name }” دابگرە لەگەڵ { -send-brand }: سانا
 trailheadPromo = ڕێگەیەک هەیە بۆ پارێزگاریکردنی تایبەتێتی خۆت. بەشدار بە لە فایەرفۆکس.
 learnMore = زیاتر بزانە
 `;export{n as default};
-//# sourceMappingURL=send.Du63f8Ny.js.map

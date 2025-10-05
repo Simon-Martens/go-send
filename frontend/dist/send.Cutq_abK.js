@@ -150,4 +150,3 @@ learnMore = Learn more.
 
 sponsoredByThunderbird = Sponsored by Thunderbird
 `;export{e as default};
-//# sourceMappingURL=send.Cutq_abK.js.map

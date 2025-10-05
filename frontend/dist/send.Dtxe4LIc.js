@@ -148,4 +148,3 @@ shareMessage = Shiktemulti “{ $name }” iwan { -send-brand }: ichtaka wan te 
 trailheadPromo = Nemi ken pal tiktajpia ne muichtakayu. Shimuishtuka iwan Firefox.
 learnMore = Shimumachti ukchupi.
 `;export{i as default};
-//# sourceMappingURL=send.Dtxe4LIc.js.map

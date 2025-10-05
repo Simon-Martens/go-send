@@ -139,4 +139,3 @@ shareMessage = Xiktemoui “{ $name }” ika { -send-brand }: amo ouij uelis tik
 trailheadPromo = Kemaj, uelis tikyekpias tein moaxka itech tepos. Xipoui Firefox.
 learnMore = Xiktemoui tajkuilolmej archivos.
 `;export{i as default};
-//# sourceMappingURL=send.BvuDLUEK.js.map

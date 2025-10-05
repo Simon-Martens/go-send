@@ -148,4 +148,3 @@ shareMessage = Ladda ner "{ $name }" med { -send-brand }: enkel, säker fildelni
 trailheadPromo = Det finns ett sätt att skydda din integritet. Gå med i Firefox.
 learnMore = Läs mer.
 `;export{n as default};
-//# sourceMappingURL=send.xFOMJmPQ.js.map

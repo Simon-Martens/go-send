@@ -112,4 +112,3 @@ noStreamsOptionDownload = Tesiwaju pelu aṣàwákiri yi
 trailheadPromo = Ona wa lati dabobo ipamo re. Darapo mo Firefox
 learnMore = Keeko si
 `;export{n as default};
-//# sourceMappingURL=send.Dq9h2mot.js.map

@@ -148,4 +148,3 @@ shareMessage = Deskargatu "{ $name }" { -send-brand } erabiliz: fitxategi-partek
 trailheadPromo = Badago zure pribatutasuna babesteko modua. Egizu bat Firefoxekin.
 learnMore = Argibide gehiago.
 `;export{e as default};
-//# sourceMappingURL=send.BrkAZXqU.js.map

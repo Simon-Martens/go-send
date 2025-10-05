@@ -193,4 +193,3 @@ shareMessage = Stáhněte si soubor „{ $name }“ se { -send-brand(case: "ins"
 trailheadPromo = Existuje způsob, jak ochránit své soukromí. Používejte Firefox.
 learnMore = Zjistit více.
 `;export{n as default};
-//# sourceMappingURL=send.DhrAfXMJ.js.map

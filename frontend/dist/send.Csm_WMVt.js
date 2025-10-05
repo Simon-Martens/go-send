@@ -148,4 +148,3 @@ shareMessage = Baixeu «{ $name }» amb el { -send-brand }: compartició de fitx
 trailheadPromo = Hi ha una manera de protegir la vostra privadesa. Uniu-vos al Firefox.
 learnMore = Més informació.
 `;export{e as default};
-//# sourceMappingURL=send.Csm_WMVt.js.map

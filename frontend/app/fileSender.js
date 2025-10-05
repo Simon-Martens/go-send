@@ -1,13 +1,13 @@
-import Nanobus from 'nanobus';
-import OwnedFile from './ownedFile';
-import Keychain from './keychain';
-import { arrayToB64, bytes } from './utils';
-import { uploadWs } from './api';
-import { encryptedSize } from './utils';
+import Nanobus from "nanobus";
+import OwnedFile from "./ownedFile";
+import Keychain from "./keychain";
+import { arrayToB64, bytes } from "./utils";
+import { uploadWs } from "./api";
+import { encryptedSize } from "./utils";
 
 export default class FileSender extends Nanobus {
   constructor() {
-    super('FileSender');
+    super("FileSender");
     this.keychain = new Keychain();
     this.reset();
   }
@@ -18,20 +18,20 @@ export default class FileSender extends Nanobus {
 
   get progressIndefinite() {
     return (
-      ['fileSizeProgress', 'notifyUploadEncryptDone'].indexOf(this.msg) === -1
+      ["fileSizeProgress", "notifyUploadEncryptDone"].indexOf(this.msg) === -1
     );
   }
 
   get sizes() {
     return {
       partialSize: bytes(this.progress[0]),
-      totalSize: bytes(this.progress[1])
+      totalSize: bytes(this.progress[1]),
     };
   }
 
   reset() {
     this.uploadRequest = null;
-    this.msg = 'importingFile';
+    this.msg = "importingFile";
     this.progress = [0, 1];
     this.cancelled = false;
   }
@@ -43,12 +43,12 @@ export default class FileSender extends Nanobus {
     }
   }
 
-  async upload(archive, bearerToken) {
+  async upload(archive) {
     if (this.cancelled) {
       throw new Error(0);
     }
-    this.msg = 'encryptingFile';
-    this.emit('encrypting');
+    this.msg = "encryptingFile";
+    this.emit("encrypting");
     const totalSize = encryptedSize(archive.size);
     const encStream = await this.keychain.encryptStream(archive.stream);
     const metadata = await this.keychain.encryptMetadata(archive);
@@ -60,22 +60,21 @@ export default class FileSender extends Nanobus {
       authKeyB64,
       archive.timeLimit,
       archive.dlimit,
-      bearerToken,
-      p => {
+      (p) => {
         this.progress = [p, totalSize];
-        this.emit('progress');
-      }
+        this.emit("progress");
+      },
     );
 
     if (this.cancelled) {
       throw new Error(0);
     }
 
-    this.msg = 'fileSizeProgress';
-    this.emit('progress'); // HACK to kick MS Edge
+    this.msg = "fileSizeProgress";
+    this.emit("progress"); // HACK to kick MS Edge
     try {
       const result = await this.uploadRequest.result;
-      this.msg = 'notifyUploadEncryptDone';
+      this.msg = "notifyUploadEncryptDone";
       this.uploadRequest = null;
       this.progress = [1, 1];
       const secretKey = arrayToB64(this.keychain.rawSecret);
@@ -93,12 +92,12 @@ export default class FileSender extends Nanobus {
         nonce: this.keychain.nonce,
         ownerToken: result.ownerToken,
         dlimit: archive.dlimit,
-        timeLimit: archive.timeLimit
+        timeLimit: archive.timeLimit,
       });
 
       return ownedFile;
     } catch (e) {
-      this.msg = 'errorPageHeader';
+      this.msg = "errorPageHeader";
       this.uploadRequest = null;
       throw e;
     }

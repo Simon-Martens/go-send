@@ -148,4 +148,3 @@ shareMessage = Chaqasaj “{ $name }” ruk' { -send-brand }: man k'ax ta ub'ani
 trailheadPromo = K'o jun ub'e'al chech uchajixik le a'echeb'alil. Chat'iqa' awib' pa. Firefox.
 learnMore = Chaweta'maj nik'aj chik
 `;export{a as default};
-//# sourceMappingURL=send.Cv8jPD6o.js.map

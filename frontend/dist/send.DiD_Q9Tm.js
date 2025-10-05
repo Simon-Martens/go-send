@@ -52,4 +52,3 @@ emailPlaceholder = Aq'ku' a correo
 shareLinkButton = La jatxb'en u vaa'
 learnMore = Ootzi ka'te.
 `;export{n as default};
-//# sourceMappingURL=send.DiD_Q9Tm.js.map

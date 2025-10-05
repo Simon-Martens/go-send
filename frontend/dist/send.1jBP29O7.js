@@ -139,4 +139,3 @@ shareMessage = Unduh "{ $name }" dengan { -send-brand }: berbagi berkas dengan s
 trailheadPromo = Ada cara untuk melindungi privasi Anda. Bergabunglah dengan Firefox.
 learnMore = Pelajari lebih lanjut.
 `;export{n as default};
-//# sourceMappingURL=send.1jBP29O7.js.map

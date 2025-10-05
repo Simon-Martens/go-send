@@ -139,4 +139,3 @@ noStreamsWarning = Esti restolador quiciabes nun seya a descifrar un ficheru d'e
 trailheadPromo = Hai un mou de protexer la to privacidá. Xúnite a Firefox.
 learnMore = Deprender más.
 `;export{e as default};
-//# sourceMappingURL=send.Dwxflijf.js.map

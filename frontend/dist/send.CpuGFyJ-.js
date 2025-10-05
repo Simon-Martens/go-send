@@ -165,4 +165,3 @@ shareMessage = Atsisiųskite „{ $name }“ su „{ -send-brand }“: paprastas
 trailheadPromo = Yra būdas apsaugoti jūsų privatumą. Naudokite „Firefox“.
 learnMore = Sužinoti daugiau.
 `;export{i as default};
-//# sourceMappingURL=send.CpuGFyJ-.js.map

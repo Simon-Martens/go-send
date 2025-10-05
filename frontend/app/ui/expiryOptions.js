@@ -1,17 +1,17 @@
-const html = require('choo/html');
-const raw = require('choo/html/raw');
-const { secondsToL10nId } = require('../utils');
-const selectbox = require('./selectbox');
+const html = require("choo/html");
+const raw = require("choo/html/raw");
+const { secondsToL10nId } = require("../utils");
+const selectbox = require("./selectbox");
 
-module.exports = function(state, emit) {
+module.exports = function (state, emit) {
   const el = html`
     <div class="px-1">
       ${raw(
-        state.translate('archiveExpiryInfo', {
+        state.translate("archiveExpiryInfo", {
           downloadCount:
             '<span class="lg:inline-block md:block sm:inline-block block"></span><select id="dlCount"></select>',
-          timespan: '<select id="timespan"></select>'
-        })
+          timespan: '<select id="timespan"></select>',
+        }),
       )}
     </div>
   `;
@@ -21,52 +21,46 @@ module.exports = function(state, emit) {
   }
 
   const counts = state.DEFAULTS.DOWNLOAD_COUNTS.filter(
-    i => state.capabilities.account || i <= state.user.maxDownloads
+    () => i <= state.LIMITS.MAX_DOWNLOADS,
   );
 
-  const dlCountSelect = el.querySelector('#dlCount');
+  const dlCountSelect = el.querySelector("#dlCount");
   el.replaceChild(
     selectbox(
       state.archive.dlimit,
       counts,
-      num => state.translate('downloadCount', { num }),
-      value => {
+      (num) => state.translate("downloadCount", { num }),
+      (value) => {
         const selected = parseInt(value);
         state.archive.dlimit = selected;
-        emit('render');
-        if (selected > parseInt(state.user.maxDownloads || '0')) {
-          console.log('Chosen max download count is larger than the allowed limit', selected)
-        }
+        emit("render");
       },
-      'expire-after-dl-count-select'
+      "expire-after-dl-count-select",
     ),
-    dlCountSelect
+    dlCountSelect,
   );
 
   const expires = state.DEFAULTS.EXPIRE_TIMES_SECONDS.filter(
-    i => state.capabilities.account || i <= state.user.maxExpireSeconds
+    () => i <= state.LIMITS.MAX_EXPIRE_SECONDS,
   );
 
-  const timeSelect = el.querySelector('#timespan');
+  const timeSelect = el.querySelector("#timespan");
   el.replaceChild(
     selectbox(
       state.archive.timeLimit,
       expires,
-      num => {
+      (num) => {
         const l10n = secondsToL10nId(num);
         return state.translate(l10n.id, l10n);
       },
-      value => {
+      (value) => {
         const selected = parseInt(value);
         state.archive.timeLimit = selected;
-        emit('render');
-        if (selected > parseInt(state.user.maxExpireSeconds || '0')) {
-          console.log('Chosen download expiration is larger than the allowed limit', selected)
-        }
+        emit("render");
       },
-      'expire-after-time-select'
+      "expire-after-time-select",
     ),
-    timeSelect
+    timeSelect,
   );
 
   return el;

@@ -146,4 +146,3 @@ shareLinkButton = കണ്ണി പങ്കിടുക
 # $name is the name of the file
 shareMessage = "{ -send-brand }" ഉപയോഗിച്ച് { $name } ഡൌൺലോഡ് ചെയ്യുക: ലളിതവും സുരക്ഷിതവുമായ ഫയൽ പങ്കിടൽ
 `;export{n as default};
-//# sourceMappingURL=send.AP2bAnEo.js.map

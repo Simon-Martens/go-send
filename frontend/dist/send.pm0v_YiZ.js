@@ -175,4 +175,3 @@ shareMessage = Pellgargañ "{ $name }" gant { -send-brand }: rannañ restroù en
 trailheadPromo = Un doare a zo da wareziñ ho puhez prevez. Tremenit da Firefox.
 learnMore = Gouzout hiroc'h.
 `;export{e as default};
-//# sourceMappingURL=send.pm0v_YiZ.js.map

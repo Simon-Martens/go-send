@@ -157,4 +157,3 @@ shareMessage = Pobierz „{ $name }” za pomocą { -send-brand }: prostego i b
 trailheadPromo = Jest sposób na ochronę swojej prywatności. Dołącz do Firefoksa.
 learnMore = Więcej informacji.
 `;export{n as default};
-//# sourceMappingURL=send.DjhYKpbP.js.map

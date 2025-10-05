@@ -139,4 +139,3 @@ shareMessage = Tải xuống “{ $name }“ với { -send-brand }: chia sẻ t�
 trailheadPromo = Đây là một cách để bảo vệ sự riêng tư của bạn. Tham gia Firefox.
 learnMore = Tìm hiểu thêm.
 `;export{n as default};
-//# sourceMappingURL=send.DeEwEa9L.js.map

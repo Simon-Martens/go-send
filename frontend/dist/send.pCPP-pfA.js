@@ -146,4 +146,3 @@ shareMessage = Undeur "{ $name }" ku { -send-brand }: simpel, babagi koropak ama
 trailheadPromo = Aya cara pikeun ngamankeun privasi anjeun.  Jabung jeung Firefox.
 learnMore = Lenyepan.
 `;export{n as default};
-//# sourceMappingURL=send.pCPP-pfA.js.map

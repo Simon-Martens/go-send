@@ -166,4 +166,3 @@ shareMessage = Sćehńće „{ $name }“ z { -send-brand }: jednore, wěste dź
 trailheadPromo = Je móžnosć, wašu priwatnosć škitać. Přińdźće k Firefox.
 learnMore = Dalše informacije.
 `;export{n as default};
-//# sourceMappingURL=send.DybjqP7T.js.map

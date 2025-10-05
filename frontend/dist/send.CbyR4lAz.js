@@ -148,4 +148,3 @@ shareMessage = Shkarkojeni “{ $name }” me { -send-brand }: shkëmbim kartela
 trailheadPromo = Ka një rrugë për të mbrojtur privatësinë tuaj. Bëhuni pjesë e Firefox-it.
 learnMore = Mësoni më tepër.
 `;export{n as default};
-//# sourceMappingURL=send.CbyR4lAz.js.map

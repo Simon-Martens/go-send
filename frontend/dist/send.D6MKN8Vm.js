@@ -149,4 +149,3 @@ shareLinkButton = 分享链接
 shareMessage = 使用 { -send-brand } 下载“{ $name }”：简单、安全的文件分享服务
 learnMore = 详细了解。
 `;export{n as default};
-//# sourceMappingURL=send.D6MKN8Vm.js.map

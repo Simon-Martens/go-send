@@ -148,4 +148,3 @@ shareMessage = Baixe "{ $name }" com o { -send-brand }: compartilhamento de arqu
 trailheadPromo = Existe um meio de proteger sua privacidade. Use o Firefox.
 learnMore = Saiba mais.
 `;export{e as default};
-//# sourceMappingURL=send.DBiVHR8M.js.map

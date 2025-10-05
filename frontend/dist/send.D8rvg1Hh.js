@@ -18,4 +18,3 @@ gb = GB
 # localized number and byte abbreviation. example "2.5MB"
 fileSize = { $num }{ $units }
 `;export{n as default};
-//# sourceMappingURL=send.D8rvg1Hh.js.map

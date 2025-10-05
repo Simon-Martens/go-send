@@ -155,4 +155,3 @@ learnMore = Meer info.
 
 sponsoredByThunderbird = Gesponsord door Thunderbird
 `;export{e as default};
-//# sourceMappingURL=send.DvA3GzeR.js.map

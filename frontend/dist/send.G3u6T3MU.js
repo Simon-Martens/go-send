@@ -148,4 +148,3 @@ shareMessage = Discarga “{ $name }” con { -send-brand }: condivide files in 
 trailheadPromo = Il ha un via pro proteger tu confidentialitate. Junge te a Firefox!
 learnMore = Saper plus.
 `;export{e as default};
-//# sourceMappingURL=send.G3u6T3MU.js.map

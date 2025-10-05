@@ -65,4 +65,3 @@ okButton = Tamam
 downloadingTitle = Endirilir
 shareLinkButton = Keçidi paylaş
 `;export{n as default};
-//# sourceMappingURL=send.KduFeD3Q.js.map

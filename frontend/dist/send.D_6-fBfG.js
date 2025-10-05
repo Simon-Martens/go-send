@@ -157,4 +157,3 @@ shareMessage = Descarcă „{ $name }” cu { -send-brand }: partajare simplă �
 trailheadPromo = Există o modalitate de a-ți proteja viața privată. Folosește Firefox.
 learnMore = Află mai multe.
 `;export{e as default};
-//# sourceMappingURL=send.D_6-fBfG.js.map

@@ -140,4 +140,3 @@ shareMessage = Scarica “{ $name }” con { -send-brand }: condivisione di file
 trailheadPromo = C’è un modo per proteggere la tua privacy. Entra in Firefox.
 learnMore = Ulteriori informazioni.
 `;export{n as default};
-//# sourceMappingURL=send.D_Ag28DB.js.map

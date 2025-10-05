@@ -148,4 +148,3 @@ shareMessage = Transferir “{ $name }“ com o { -send-brand }: partilha de fic
 trailheadPromo = Existe um modo para proteger a sua privacidade. Adira ao Firefox.
 learnMore = Saiba mais.
 `;export{e as default};
-//# sourceMappingURL=send.Bh7FvuHR.js.map

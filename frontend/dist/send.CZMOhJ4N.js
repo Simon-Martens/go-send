@@ -58,4 +58,3 @@ copyUrlHover = Kupe'iya URL
 footerLinkAbout = Tomimbihu Test Pilot
 changePasswordButton = Boli'a
 `;export{o as default};
-//# sourceMappingURL=send.CZMOhJ4N.js.map

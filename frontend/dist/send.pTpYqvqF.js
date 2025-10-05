@@ -148,4 +148,3 @@ shareMessage = Ներբեռնեք “{ $name }”-ը { -send-brand }-ով ՝ պ�
 trailheadPromo = Ձեր գաղտնիությունը պաշտպանելու միջոց կա: Միացեք Firefox- ին:
 learnMore = Իմանալ ավելին
 `;export{n as default};
-//# sourceMappingURL=send.pTpYqvqF.js.map

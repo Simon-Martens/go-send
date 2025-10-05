@@ -94,4 +94,3 @@ signOut = Narun' sesiôn
 okButton = Ga'ue
 shareLinkButton = Duguachîn enlâse
 `;export{n as default};
-//# sourceMappingURL=send.1b-J9yFT.js.map

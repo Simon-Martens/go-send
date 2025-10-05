@@ -146,4 +146,3 @@ learnMore = Learn more.
 
 sponsoredByThunderbird = Sponsored by Thunderbird
 `;export{e as default};
-//# sourceMappingURL=send.C5mHomyq.js.map

@@ -16,7 +16,6 @@ import pasteManager from "./pasteManager";
 import storage from "./storage";
 import experiments from "./experiments";
 import "./main.css";
-import User from "./user";
 import { getTranslator } from "./locale";
 import Archive from "./archive";
 import { setTranslate, locale } from "./utils";
@@ -56,7 +55,6 @@ if (process.env.NODE_ENV === "production") {
     capabilities,
     translate,
     storage,
-    user: new User(storage, LIMITS, window.AUTH_CONFIG),
     transfer: null,
     fileInfo: null,
     locale: locale(),

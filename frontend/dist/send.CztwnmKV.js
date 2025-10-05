@@ -184,4 +184,3 @@ shareMessage = Llwytho i lawr “{ $name }” gyda { -send-brand }: rhannu ffeil
 trailheadPromo = Mae ffordd o ddiogelu eich preifatrwydd. Ymunwch â Firefox.
 learnMore = Dysgu rhagor.
 `;export{n as default};
-//# sourceMappingURL=send.CztwnmKV.js.map

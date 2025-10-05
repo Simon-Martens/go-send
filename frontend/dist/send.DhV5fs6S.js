@@ -110,4 +110,3 @@ maxPasswordLength = Panjang kata laluan maksimum: { $length }
 # A short status message shown when there was an error setting the password
 passwordSetError = Kata laluan ini tidak boleh ditetapkan
 `;export{a as default};
-//# sourceMappingURL=send.DhV5fs6S.js.map

@@ -157,4 +157,3 @@ shareMessage = Prevezmite si súbor „{ $name }“ so službou { -send-brand } 
 trailheadPromo = Existuje spôsob, ako chrániť vaše súkromie. Prihláste sa do Firefoxu.
 learnMore = Ďalšie informácie.
 `;export{n as default};
-//# sourceMappingURL=send.EwzH3bmc.js.map

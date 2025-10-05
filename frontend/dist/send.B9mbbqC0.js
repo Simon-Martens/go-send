@@ -148,4 +148,3 @@ shareMessage = Λήψη του “{ $name }” με το { -send-brand }: απλ
 trailheadPromo = Υπάρχει τρόπος να προστατέψετε το απόρρητό σας. Γίνετε μέλος του Firefox.
 learnMore = Μάθετε περισσότερα.
 `;export{n as default};
-//# sourceMappingURL=send.B9mbbqC0.js.map

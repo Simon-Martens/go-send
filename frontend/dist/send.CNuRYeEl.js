@@ -148,4 +148,3 @@ shareMessage = Telecargar « { $name } » amb { -send-brand } : un biais simp
 trailheadPromo = Existís un biais de protegir vòstra vida privada. Rejonhètz Firefox.
 learnMore = Ne saber mai.
 `;export{e as default};
-//# sourceMappingURL=send.CNuRYeEl.js.map

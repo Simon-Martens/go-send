@@ -130,4 +130,3 @@ shareMessage = “{ $name }”‌ని { -send-brand }తో దించుక
 trailheadPromo = మీ అంతరంగికతను కాపాడుకోడానికి ఓ మార్గం ఉంది. Firefoxతో చేరండి.
 learnMore = ఇంకా తెలుసుకోండి.
 `;export{n as default};
-//# sourceMappingURL=send.CWmZL9s8.js.map

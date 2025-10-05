@@ -148,4 +148,3 @@ shareMessage = „{ $name }” letöltése a { -send-brand } segítségével: eg
 trailheadPromo = Védje meg a magánszféráját. Csatlakozzon a Firefoxhoz.
 learnMore = További tudnivalók.
 `;export{e as default};
-//# sourceMappingURL=send.BaEOTlFx.js.map

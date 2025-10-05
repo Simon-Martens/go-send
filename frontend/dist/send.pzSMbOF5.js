@@ -148,4 +148,3 @@ shareMessage = Lataa tiedosto ”{ $name }” { -send-brand } -palvelusta: yksin
 trailheadPromo = On tapa suojata yksityisyyttään. Liity Firefoxiin.
 learnMore = Lue lisää.
 `;export{n as default};
-//# sourceMappingURL=send.pzSMbOF5.js.map

@@ -139,4 +139,3 @@ shareMessage = { -send-brand } で "{ $name }" をダウンロード: シンプ�
 trailheadPromo = プライバシーを保護する方法があります。Firefox を試してください。
 learnMore = 詳細情報
 `;export{n as default};
-//# sourceMappingURL=send.D1N8lqDz.js.map

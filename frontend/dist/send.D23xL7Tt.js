@@ -114,4 +114,3 @@ maxPasswordLength = Maksimalna veličina lozinke: { $length }
 # A short status message shown when there was an error setting the password
 passwordSetError = Ova lozinka se ne može postaviti
 `;export{e as default};
-//# sourceMappingURL=send.D23xL7Tt.js.map

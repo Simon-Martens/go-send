@@ -184,4 +184,3 @@ shareMessage = نزِّل ”{ $name }“ عبر { -send-brand }: خدمة لم�
 trailheadPromo = يمكنك حماية خصوصيتك، طبعا. انضم إلى فَيَرفُكس.
 learnMore = اطّلع على المزيد.
 `;export{n as default};
-//# sourceMappingURL=send.CnRh9zSF.js.map

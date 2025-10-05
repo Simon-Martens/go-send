@@ -147,4 +147,3 @@ shareMessage = Xinuu “{ $name }” jii { -send-brand }: ntu viji
 trailheadPromo = Iyo iin kuvi kumi privacidad noo´o. Nayonika Firefox.
 learnMore = Ka´vi kue´eka
 `;export{n as default};
-//# sourceMappingURL=send.D0MudrM-.js.map

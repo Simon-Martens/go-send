@@ -157,4 +157,3 @@ shareMessage = Загрузите «{ $name }» с { -send-brand }: просто
 trailheadPromo = Существует способ защитить вашу приватность. Присоединяйтесь к Firefox.
 learnMore = Подробнее.
 `;export{n as default};
-//# sourceMappingURL=send.Be7hfib7.js.map

@@ -145,4 +145,3 @@ shareMessage = Ka pa'ba' “{ $name }” k'al { -send-brand }: ka abna' a t'ojla
 trailheadPromo = U awil ka k'aniy axi tat a k'al. Kit tamkun k'al Firefox.
 learnMore = Ka ajiy más.
 `;export{a as default};
-//# sourceMappingURL=send.CNKZMhnO.js.map

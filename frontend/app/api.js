@@ -1,19 +1,19 @@
-import { arrayToB64, b64ToArray, delay } from './utils-worker';
-import { ECE_RECORD_SIZE } from './ece';
+import { arrayToB64, b64ToArray, delay } from "./utils-worker";
+import { ECE_RECORD_SIZE } from "./ece";
 
 let fileProtocolWssUrl = null;
 try {
-  fileProtocolWssUrl = localStorage.getItem('wssURL');
+  fileProtocolWssUrl = localStorage.getItem("wssURL");
 } catch (e) {
   // NOOP
 }
 if (!fileProtocolWssUrl) {
-  fileProtocolWssUrl = 'wss://send.firefox.com/api/ws';
+  fileProtocolWssUrl = "wss://send.firefox.com/api/ws";
 }
 
 export class ConnectionError extends Error {
   constructor(cancelled, duration, size) {
-    super(cancelled ? '0' : 'connection closed');
+    super(cancelled ? "0" : "connection closed");
     this.cancelled = cancelled;
     this.duration = duration;
     this.size = size;
@@ -21,7 +21,7 @@ export class ConnectionError extends Error {
 }
 
 export function setFileProtocolWssUrl(url) {
-  localStorage && localStorage.setItem('wssURL', url);
+  localStorage && localStorage.setItem("wssURL", url);
   fileProtocolWssUrl = url;
 }
 
@@ -29,7 +29,7 @@ export function getFileProtocolWssUrl() {
   return fileProtocolWssUrl;
 }
 
-let apiUrlPrefix = '';
+let apiUrlPrefix = "";
 export function getApiUrl(path) {
   return apiUrlPrefix + path;
 }
@@ -38,23 +38,20 @@ export function setApiUrlPrefix(prefix) {
   apiUrlPrefix = prefix;
 }
 
-function post(obj, bearerToken) {
+function post(obj) {
   const h = {
-    'Content-Type': 'application/json'
+    "Content-Type": "application/json",
   };
-  if (bearerToken) {
-    h['Authorization'] = `Bearer ${bearerToken}`;
-  }
   return {
-    method: 'POST',
+    method: "POST",
     headers: new Headers(h),
-    body: JSON.stringify(obj)
+    body: JSON.stringify(obj),
   };
 }
 
 export function parseNonce(header) {
-  header = header || '';
-  return header.split(' ')[1];
+  header = header || "";
+  return header.split(" ")[1];
 }
 
 async function fetchWithAuth(url, params, keychain) {
@@ -63,12 +60,12 @@ async function fetchWithAuth(url, params, keychain) {
   const h = await keychain.authHeader();
   params.headers = new Headers({
     Authorization: h,
-    'Content-Type': 'application/json'
+    "Content-Type": "application/json",
   });
   const response = await fetch(url, params);
   result.response = response;
   result.ok = response.ok;
-  const nonce = parseNonce(response.headers.get('WWW-Authenticate'));
+  const nonce = parseNonce(response.headers.get("WWW-Authenticate"));
   result.shouldRetry = response.status === 401 && nonce !== keychain.nonce;
   keychain.nonce = nonce;
   return result;
@@ -85,21 +82,18 @@ async function fetchWithAuthAndRetry(url, params, keychain) {
 export async function del(id, owner_token) {
   const response = await fetch(
     getApiUrl(`/api/delete/${id}`),
-    post({ owner_token })
+    post({ owner_token }),
   );
   return response.ok;
 }
 
-export async function setParams(id, owner_token, bearerToken, params) {
+export async function setParams(id, owner_token, params) {
   const response = await fetch(
     getApiUrl(`/api/params/${id}`),
-    post(
-      {
-        owner_token,
-        dlimit: params.dlimit
-      },
-      bearerToken
-    )
+    post({
+      owner_token,
+      dlimit: params.dlimit,
+    }),
   );
   return response.ok;
 }
@@ -107,7 +101,7 @@ export async function setParams(id, owner_token, bearerToken, params) {
 export async function fileInfo(id, owner_token) {
   const response = await fetch(
     getApiUrl(`/api/info/${id}`),
-    post({ owner_token })
+    post({ owner_token }),
   );
 
   if (response.ok) {
@@ -121,8 +115,8 @@ export async function fileInfo(id, owner_token) {
 export async function metadata(id, keychain) {
   const result = await fetchWithAuthAndRetry(
     getApiUrl(`/api/metadata/${id}`),
-    { method: 'GET' },
-    keychain
+    { method: "GET" },
+    keychain,
   );
   if (result.ok) {
     const data = await result.response.json();
@@ -133,7 +127,7 @@ export async function metadata(id, keychain) {
       iv: meta.iv,
       name: meta.name,
       type: meta.type,
-      manifest: meta.manifest
+      manifest: meta.manifest,
     };
   }
   throw new Error(result.response.status);
@@ -143,7 +137,7 @@ export async function setPassword(id, owner_token, keychain) {
   const auth = await keychain.authKeyB64();
   const response = await fetch(
     getApiUrl(`/api/password/${id}`),
-    post({ owner_token, auth })
+    post({ owner_token, auth }),
   );
   return response.ok;
 }
@@ -152,7 +146,7 @@ function asyncInitWebSocket(server) {
   return new Promise((resolve, reject) => {
     try {
       const ws = new WebSocket(server);
-      ws.addEventListener('open', () => resolve(ws), { once: true });
+      ws.addEventListener("open", () => resolve(ws), { once: true });
     } catch (e) {
       reject(new ConnectionError(false));
     }
@@ -163,11 +157,11 @@ function listenForResponse(ws, canceller) {
   return new Promise((resolve, reject) => {
     function handleClose(event) {
       // a 'close' event before a 'message' event means the request failed
-      ws.removeEventListener('message', handleMessage);
+      ws.removeEventListener("message", handleMessage);
       reject(new ConnectionError(canceller.cancelled));
     }
     function handleMessage(msg) {
-      ws.removeEventListener('close', handleClose);
+      ws.removeEventListener("close", handleClose);
       try {
         const response = JSON.parse(msg.data);
         if (response.error) {
@@ -179,8 +173,8 @@ function listenForResponse(ws, canceller) {
         reject(e);
       }
     }
-    ws.addEventListener('message', handleMessage, { once: true });
-    ws.addEventListener('close', handleClose, { once: true });
+    ws.addEventListener("message", handleMessage, { once: true });
+    ws.addEventListener("close", handleClose, { once: true });
   });
 }
 
@@ -190,19 +184,18 @@ async function upload(
   verifierB64,
   timeLimit,
   dlimit,
-  bearerToken,
   onprogress,
-  canceller
+  canceller,
 ) {
   let size = 0;
   const start = Date.now();
   const host = window.location.hostname;
   const port = window.location.port;
-  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
   const endpoint =
-    window.location.protocol === 'file:'
+    window.location.protocol === "file:"
       ? fileProtocolWssUrl
-      : `${protocol}//${host}${port ? ':' : ''}${port}/api/ws`;
+      : `${protocol}//${host}${port ? ":" : ""}${port}/api/ws`;
 
   const ws = await asyncInitWebSocket(endpoint);
 
@@ -211,9 +204,8 @@ async function upload(
     const fileMeta = {
       fileMetadata: metadataHeader,
       authorization: `send-v1 ${verifierB64}`,
-      bearer: bearerToken,
       timeLimit,
-      dlimit
+      dlimit,
     };
     const uploadInfoResponse = listenForResponse(ws, canceller);
     ws.send(JSON.stringify(fileMeta));
@@ -267,13 +259,12 @@ export function uploadWs(
   verifierB64,
   timeLimit,
   dlimit,
-  bearerToken,
-  onprogress
+  onprogress,
 ) {
   const canceller = { cancelled: false };
 
   return {
-    cancel: function() {
+    cancel: function () {
       canceller.cancelled = true;
     },
 
@@ -283,10 +274,9 @@ export function uploadWs(
       verifierB64,
       timeLimit,
       dlimit,
-      bearerToken,
       onprogress,
-      canceller
-    )
+      canceller,
+    ),
   };
 }
 
@@ -297,11 +287,11 @@ async function downloadS(id, keychain, signal) {
 
   const response = await fetch(getApiUrl(`/api/download/${id}`), {
     signal: signal,
-    method: 'GET',
-    headers: { Authorization: auth }
+    method: "GET",
+    headers: { Authorization: auth },
   });
 
-  const authHeader = response.headers.get('WWW-Authenticate');
+  const authHeader = response.headers.get("WWW-Authenticate");
   if (authHeader) {
     keychain.nonce = parseNonce(authHeader);
   }
@@ -318,11 +308,11 @@ async function tryDownloadStream(id, keychain, signal, tries = 2) {
     const result = await downloadS(id, keychain, signal);
     return result;
   } catch (e) {
-    if (e.message === '401' && --tries > 0) {
+    if (e.message === "401" && --tries > 0) {
       return tryDownloadStream(id, keychain, signal, tries);
     }
-    if (e.name === 'AbortError') {
-      throw new Error('0');
+    if (e.name === "AbortError") {
+      throw new Error("0");
     }
     throw e;
   }
@@ -335,7 +325,7 @@ export function downloadStream(id, keychain) {
   }
   return {
     cancel,
-    result: tryDownloadStream(id, keychain, controller.signal)
+    result: tryDownloadStream(id, keychain, controller.signal),
   };
 }
 
@@ -344,13 +334,13 @@ export function downloadStream(id, keychain) {
 async function download(id, keychain, onprogress, canceller) {
   const auth = await keychain.authHeader();
   const xhr = new XMLHttpRequest();
-  canceller.oncancel = function() {
+  canceller.oncancel = function () {
     xhr.abort();
   };
-  return new Promise(function(resolve, reject) {
-    xhr.addEventListener('loadend', function() {
-      canceller.oncancel = function() {};
-      const authHeader = xhr.getResponseHeader('WWW-Authenticate');
+  return new Promise(function (resolve, reject) {
+    xhr.addEventListener("loadend", function () {
+      canceller.oncancel = function () {};
+      const authHeader = xhr.getResponseHeader("WWW-Authenticate");
       if (authHeader) {
         keychain.nonce = parseNonce(authHeader);
       }
@@ -362,14 +352,14 @@ async function download(id, keychain, onprogress, canceller) {
       resolve(blob);
     });
 
-    xhr.addEventListener('progress', function(event) {
+    xhr.addEventListener("progress", function (event) {
       if (event.target.status === 200) {
         onprogress(event.loaded);
       }
     });
-    xhr.open('get', getApiUrl(`/api/download/blob/${id}`));
-    xhr.setRequestHeader('Authorization', auth);
-    xhr.responseType = 'blob';
+    xhr.open("get", getApiUrl(`/api/download/blob/${id}`));
+    xhr.setRequestHeader("Authorization", auth);
+    xhr.responseType = "blob";
     xhr.send();
     onprogress(0);
   });
@@ -380,7 +370,7 @@ async function tryDownload(id, keychain, onprogress, canceller, tries = 2) {
     const result = await download(id, keychain, onprogress, canceller);
     return result;
   } catch (e) {
-    if (e.message === '401' && --tries > 0) {
+    if (e.message === "401" && --tries > 0) {
       return tryDownload(id, keychain, onprogress, canceller, tries);
     }
     throw e;
@@ -389,14 +379,14 @@ async function tryDownload(id, keychain, onprogress, canceller, tries = 2) {
 
 export function downloadFile(id, keychain, onprogress) {
   const canceller = {
-    oncancel: function() {} // download() sets this
+    oncancel: function () {}, // download() sets this
   };
   function cancel() {
     canceller.oncancel();
   }
   return {
     cancel,
-    result: tryDownload(id, keychain, onprogress, canceller)
+    result: tryDownload(id, keychain, onprogress, canceller),
   };
 }
 
@@ -414,14 +404,14 @@ export async function setFileList(bearerToken, kid, data) {
   const headers = new Headers({ Authorization: `Bearer ${bearerToken}` });
   const response = await fetch(getApiUrl(`/api/filelist/${kid}`), {
     headers,
-    method: 'POST',
-    body: data
+    method: "POST",
+    body: data,
   });
   return response.ok;
 }
 
 export async function getConstants() {
-  const response = await fetch(getApiUrl('/config'));
+  const response = await fetch(getApiUrl("/config"));
 
   if (response.ok) {
     const obj = await response.json();

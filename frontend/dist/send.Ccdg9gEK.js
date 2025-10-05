@@ -139,4 +139,3 @@ shareMessage = ดาวน์โหลด “{ $name }” ด้วย { -send-
 trailheadPromo = มีวิธีปกป้องความเป็นส่วนตัวของคุณ เข้าร่วม Firefox
 learnMore = เรียนรู้เพิ่มเติม
 `;export{n as default};
-//# sourceMappingURL=send.Ccdg9gEK.js.map

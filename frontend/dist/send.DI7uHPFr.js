@@ -134,4 +134,3 @@ shareMessage = { -send-brand }으로 “{ $name }” 파일을 내려받으세�
 trailheadPromo = 개인 정보를 보호하는 방법이 있습니다. Firefox에 가입하세요.
 learnMore = 더 알아보기.
 `;export{n as default};
-//# sourceMappingURL=send.DI7uHPFr.js.map

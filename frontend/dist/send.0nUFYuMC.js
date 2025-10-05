@@ -148,4 +148,3 @@ shareMessage = Download ‘{ $name }’ mei { -send-brand }: ienfâldich, feilic
 trailheadPromo = Der is in manier om jo privacy te beskermjen. Doch mei mei Firefox.
 learnMore = Mear ynfo.
 `;export{e as default};
-//# sourceMappingURL=send.0nUFYuMC.js.map

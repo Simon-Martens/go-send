@@ -166,4 +166,3 @@ shareMessage = Ześěgniśo „{ $name }“ z { -send-brand }: jadnore, wěste �
 trailheadPromo = Jo móžnosć, wašu priwatnosć šćitaś. Pśiźćo k Firefox.
 learnMore = Dalšne informacije.
 `;export{n as default};
-//# sourceMappingURL=send.CaEVGUyE.js.map

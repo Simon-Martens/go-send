@@ -148,4 +148,3 @@ shareMessage = Snuu «{ $name }» tsi { -send-brand }: kue nchichi
 trailheadPromo = Ku china vau ña chau. Kita'an tsi Firefox.
 learnMore = Skua'a kuakaa.
 `;export{n as default};
-//# sourceMappingURL=send.BruC1XLc.js.map

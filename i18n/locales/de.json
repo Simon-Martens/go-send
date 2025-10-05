@@ -80,6 +80,10 @@
     "translation": "Gib dein aktuelles Passwort ein und wähle ein neues."
   },
   {
+    "id": "account.password.back",
+    "translation": "Zurück"
+  },
+  {
     "id": "account.password.user_hint",
     "translation": "Passwort für {{.username}} wird geändert."
   },
@@ -125,35 +129,39 @@
   },
   {
     "id": "account.links.description",
-    "translation": "Erstelle Einladungslinks, die Upload-Berechtigungen vergeben."
+    "translation": "Verwalte Einladungslinks für Uploads. Erstelle einen Link und konfiguriere ihn anschließend."
   },
   {
     "id": "account.links.form_heading",
-    "translation": "Neuen Link erstellen"
+    "translation": "Neuen Link generieren"
   },
   {
     "id": "account.links.form_hint",
-    "translation": "Links können optional nach einigen Stunden verfallen."
+    "translation": "Links werden ohne Bezeichnung oder Ablauf erstellt. Konfiguriere sie danach in der Liste unten."
   },
   {
     "id": "account.links.username_label",
-    "translation": "Bezeichnung"
+    "translation": "Link-Bezeichnung"
   },
   {
     "id": "account.links.username_placeholder",
-    "translation": "Optionaler Hinweis für den Empfänger"
+    "translation": "Optionale Bezeichnung für dich"
   },
   {
     "id": "account.links.expires_label",
-    "translation": "Läuft ab in (Stunden)"
+    "translation": "Ablauf (Stunden ab jetzt)"
   },
   {
     "id": "account.links.expires_placeholder",
-    "translation": "Leer lassen für keinen Ablauf"
+    "translation": "Leer lassen für unbegrenzten Zugriff"
   },
   {
     "id": "account.links.submit",
     "translation": "Link generieren"
+  },
+  {
+    "id": "account.links.copy_link",
+    "translation": "Kopieren"
   },
   {
     "id": "account.links.generated_heading",
@@ -169,11 +177,19 @@
   },
   {
     "id": "account.links.table_hint",
-    "translation": "Überwache Einladungen und deren Ablaufstatus."
+    "translation": "Bearbeite Bezeichnungen oder Ablaufdaten bestehender Links."
+  },
+  {
+    "id": "account.links.back",
+    "translation": "Zurück"
+  },
+  {
+    "id": "account.links.column_id",
+    "translation": "ID"
   },
   {
     "id": "account.links.column_username",
-    "translation": "Benutzername / Hinweis"
+    "translation": "Bezeichnung"
   },
   {
     "id": "account.links.column_created",
@@ -202,6 +218,26 @@
   {
     "id": "account.links.success",
     "translation": "Link wurde erfolgreich erstellt."
+  },
+  {
+    "id": "account.links.update_submit",
+    "translation": "Speichern"
+  },
+  {
+    "id": "account.links.edit",
+    "translation": "Bearbeiten"
+  },
+  {
+    "id": "account.links.cancel",
+    "translation": "Abbrechen"
+  },
+  {
+    "id": "account.links.update_success",
+    "translation": "Link-Einstellungen gespeichert."
+  },
+  {
+    "id": "account.links.update_error",
+    "translation": "Der Link konnte nicht aktualisiert werden. Bitte versuche es erneut."
   },
   {
     "id": "account.links.never",

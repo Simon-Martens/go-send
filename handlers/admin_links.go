@@ -41,6 +41,11 @@ func NewCreateAuthLinkHandler(db *storage.DB, cfg *config.Config) http.HandlerFu
 			return
 		}
 
+		if !cfg.AllowAccessLinks {
+			http.Error(w, "Forbidden", http.StatusForbidden)
+			return
+		}
+
 		var req CreateAuthLinkRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			http.Error(w, "Invalid JSON", http.StatusBadRequest)

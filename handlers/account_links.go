@@ -2,9 +2,12 @@ package handlers
 
 import (
 	"database/sql"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"log/slog"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -29,6 +32,11 @@ func NewAccountLinksHandler(tmpl *template.Template, manifest map[string]string,
 			return
 		}
 
+		if !cfg.AllowAccessLinks {
+			http.NotFound(w, r)
+			return
+		}
+
 		detectedLocale := detectLocale(r, cfg)
 		var translate func(string, map[string]interface{}) string
 		if translator != nil {
@@ -43,7 +51,21 @@ func NewAccountLinksHandler(tmpl *template.Template, manifest map[string]string,
 
 		switch r.Method {
 		case http.MethodGet:
-			render(nil, baseForm)
+			form := baseForm
+			var flashMessage *FlashMessage
+			if payload := popAccountLinksFlash(w, r); payload != nil {
+				if payload.GeneratedLink != "" {
+					form.GeneratedLink = payload.GeneratedLink
+				}
+				if payload.Message != "" {
+					kind := payload.Kind
+					if kind == "" {
+						kind = "info"
+					}
+					flashMessage = &FlashMessage{Message: payload.Message, Kind: kind}
+				}
+			}
+			render(flashMessage, form)
 			return
 		case http.MethodPost:
 			if err := r.ParseForm(); err != nil {
@@ -53,7 +75,8 @@ func NewAccountLinksHandler(tmpl *template.Template, manifest map[string]string,
 			}
 
 			action := strings.TrimSpace(r.FormValue("action"))
-			if action == "delete" {
+			switch action {
+			case "delete":
 				linkIDStr := strings.TrimSpace(r.FormValue("linkID"))
 				linkID, err := strconv.ParseInt(linkIDStr, 10, 64)
 				if err != nil {
@@ -67,59 +90,88 @@ func NewAccountLinksHandler(tmpl *template.Template, manifest map[string]string,
 					return
 				}
 
-				render(&FlashMessage{Message: translateMessage(translate, "account.links.delete_success"), Kind: "success"}, baseForm)
+				setAccountLinksFlash(w, r, accountLinksFlashPayload{
+					Message: translateMessage(translate, "account.links.delete_success"),
+					Kind:    "success",
+				})
+				http.Redirect(w, r, "/account/links", http.StatusSeeOther)
 				return
-			}
-
-			username := strings.TrimSpace(r.FormValue("username"))
-			expiresInput := strings.TrimSpace(r.FormValue("expiresHours"))
-
-			form := AccountLinkFormState{
-				Username:       username,
-				ExpiresInHours: expiresInput,
-			}
-
-			var expiresAt sql.NullInt64
-			if expiresInput != "" {
-				hours, err := strconv.Atoi(expiresInput)
-				if err != nil || hours < 1 || hours > 24*30 {
-					render(&FlashMessage{Message: translateMessage(translate, "account.links.error_invalid_hours"), Kind: "error"}, form)
+			case "update":
+				linkIDStr := strings.TrimSpace(r.FormValue("linkID"))
+				linkID, err := strconv.ParseInt(linkIDStr, 10, 64)
+				if err != nil {
+					render(&FlashMessage{Message: translateMessage(translate, "account.links.update_error"), Kind: "error"}, baseForm)
 					return
 				}
-				expiresAt = sql.NullInt64{Int64: time.Now().Add(time.Duration(hours) * time.Hour).Unix(), Valid: true}
-			}
 
-			token, err := auth.GenerateToken(24)
-			if err != nil {
-				logger.Error("Failed to generate auth link token", "error", err)
-				render(&FlashMessage{Message: translateMessage(translate, "account.links.error_generic"), Kind: "error"}, form)
+				label := strings.TrimSpace(r.FormValue("label"))
+				expiresInput := strings.TrimSpace(r.FormValue("expiresHours"))
+
+				var expiresAt sql.NullInt64
+				if expiresInput != "" {
+					hours, err := strconv.Atoi(expiresInput)
+					if err != nil || hours < 1 || hours > 24*30 {
+						render(&FlashMessage{Message: translateMessage(translate, "account.links.error_invalid_hours"), Kind: "error"}, baseForm)
+						return
+					}
+					expiresAt = sql.NullInt64{Int64: time.Now().Add(time.Duration(hours) * time.Hour).Unix(), Valid: true}
+				}
+
+				var labelValue sql.NullString
+				if label != "" {
+					labelValue = sql.NullString{String: label, Valid: true}
+				}
+
+				if err := db.UpdateAuthLinkSettings(linkID, labelValue, expiresAt); err != nil {
+					logger.Error("Failed to update auth link", "error", err, "link_id", linkID)
+					render(&FlashMessage{Message: translateMessage(translate, "account.links.update_error"), Kind: "error"}, baseForm)
+					return
+				}
+
+				setAccountLinksFlash(w, r, accountLinksFlashPayload{
+					Message: translateMessage(translate, "account.links.update_success"),
+					Kind:    "success",
+				})
+				http.Redirect(w, r, "/account/links", http.StatusSeeOther)
+				return
+			default:
+				token, err := auth.GenerateToken(24)
+				if err != nil {
+					logger.Error("Failed to generate auth link token", "error", err)
+					render(&FlashMessage{Message: translateMessage(translate, "account.links.error_generic"), Kind: "error"}, baseForm)
+					return
+				}
+
+				previewLength := 8
+				if len(token) < previewLength {
+					previewLength = len(token)
+				}
+				link := &storage.AuthLink{
+					TokenHash:    auth.HashToken(token),
+					TokenPreview: sql.NullString{String: token[:previewLength], Valid: previewLength > 0},
+					CreatedAt:    time.Now().Unix(),
+					CreatedBy: sql.NullInt64{
+						Int64: session.AdminID.Int64,
+						Valid: true,
+					},
+				}
+
+				_, err = db.CreateAuthLink(link)
+				if err != nil {
+					logger.Error("Failed to persist auth link", "error", err)
+					render(&FlashMessage{Message: translateMessage(translate, "account.links.error_generic"), Kind: "error"}, baseForm)
+					return
+				}
+
+				generatedURL := buildAuthLinkURL(cfg, r, token)
+				setAccountLinksFlash(w, r, accountLinksFlashPayload{
+					Message:       translateMessage(translate, "account.links.success"),
+					Kind:          "success",
+					GeneratedLink: generatedURL,
+				})
+				http.Redirect(w, r, "/account/links", http.StatusSeeOther)
 				return
 			}
-
-			link := &storage.AuthLink{
-				TokenHash: auth.HashToken(token),
-				ExpiresAt: expiresAt,
-				CreatedAt: time.Now().Unix(),
-				CreatedBy: sql.NullInt64{
-					Int64: session.AdminID.Int64,
-					Valid: true,
-				},
-			}
-			if username != "" {
-				link.Username = sql.NullString{String: username, Valid: true}
-			}
-
-			if _, err := db.CreateAuthLink(link); err != nil {
-				logger.Error("Failed to persist auth link", "error", err)
-				render(&FlashMessage{Message: translateMessage(translate, "account.links.error_generic"), Kind: "error"}, form)
-				return
-			}
-
-			generatedURL := buildAuthLinkURL(cfg, r, token)
-			form.GeneratedLink = generatedURL
-
-			render(&FlashMessage{Message: translateMessage(translate, "account.links.success"), Kind: "success"}, form)
-			return
 		default:
 			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 			return
@@ -144,6 +196,7 @@ func renderAccountLinksTemplate(w http.ResponseWriter, r *http.Request, tmpl *te
 	data.Auth = authInfoFromSession(db, session, logger)
 	data.Flash = flash
 	data.AccountLinks.Form = form
+	data.Assets.JS = ""
 
 	links, err := db.ListAuthLinks(100)
 	if err != nil {
@@ -153,29 +206,49 @@ func renderAccountLinksTemplate(w http.ResponseWriter, r *http.Request, tmpl *te
 	views := make([]AccountLinkView, 0, len(links))
 	now := time.Now()
 	for _, link := range links {
-		username := strings.TrimSpace(link.Username.String)
-		if username == "" {
-			username = "\u2014"
-		}
+		label := strings.TrimSpace(link.Username.String)
 		created := time.Unix(link.CreatedAt, 0).Format(time.RFC3339)
 
-		var expires string
+		var (
+			expiresDisplay string
+			expiresInput   string
+		)
+		tokenPreview := strings.TrimSpace(link.TokenPreview.String)
+		if tokenPreview == "" {
+			if hash := strings.TrimSpace(link.TokenHash); hash != "" {
+				runeCount := 8
+				if len(hash) < runeCount {
+					runeCount = len(hash)
+				}
+				tokenPreview = hash[:runeCount]
+			}
+		}
+		if tokenPreview != "" {
+			tokenPreview = tokenPreview + "..."
+		}
+
 		if !link.ExpiresAt.Valid || link.ExpiresAt.Int64 == 0 {
-			expires = translateMessage(translate, "account.links.never")
+			expiresDisplay = translateMessage(translate, "account.links.never")
 		} else {
 			expTime := time.Unix(link.ExpiresAt.Int64, 0)
 			if expTime.Before(now) {
-				expires = fmt.Sprintf("%s %s", translateMessage(translate, "account.links.expired"), expTime.Format(time.RFC3339))
+				expiresDisplay = fmt.Sprintf("%s %s", translateMessage(translate, "account.links.expired"), expTime.Format(time.RFC3339))
 			} else {
-				expires = expTime.Format(time.RFC3339)
+				expiresDisplay = expTime.Format(time.RFC3339)
+				hoursRemaining := time.Until(expTime).Hours()
+				if hoursRemaining > 0 {
+					expiresInput = strconv.Itoa(int(math.Ceil(hoursRemaining)))
+				}
 			}
 		}
 
 		views = append(views, AccountLinkView{
-			ID:       link.ID,
-			Username: username,
-			Created:  created,
-			Expires:  expires,
+			ID:             link.ID,
+			Label:          label,
+			Created:        created,
+			ExpiresDisplay: expiresDisplay,
+			ExpiresInHours: expiresInput,
+			TokenPreview:   tokenPreview,
 		})
 	}
 
@@ -189,4 +262,79 @@ func renderAccountLinksTemplate(w http.ResponseWriter, r *http.Request, tmpl *te
 		logger.Error("Failed to execute account links template", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
+}
+
+const accountLinksFlashCookieName = "account_links_flash"
+
+type accountLinksFlashPayload struct {
+	Message       string `json:"message"`
+	Kind          string `json:"kind"`
+	GeneratedLink string `json:"generated_link,omitempty"`
+}
+
+func setAccountLinksFlash(w http.ResponseWriter, r *http.Request, payload accountLinksFlashPayload) {
+	if payload.Message == "" && payload.GeneratedLink == "" {
+		return
+	}
+	data, err := json.Marshal(payload)
+	if err != nil {
+		return
+	}
+	cookie := &http.Cookie{
+		Name:     accountLinksFlashCookieName,
+		Value:    base64.RawURLEncoding.EncodeToString(data),
+		Path:     "/account/links",
+		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
+	}
+	if isRequestSecure(r) {
+		cookie.Secure = true
+	}
+	http.SetCookie(w, cookie)
+}
+
+func popAccountLinksFlash(w http.ResponseWriter, r *http.Request) *accountLinksFlashPayload {
+	cookie, err := r.Cookie(accountLinksFlashCookieName)
+	if err != nil {
+		return nil
+	}
+	clearAccountLinksFlashCookie(w, r)
+	if cookie.Value == "" {
+		return nil
+	}
+	data, err := base64.RawURLEncoding.DecodeString(cookie.Value)
+	if err != nil {
+		return nil
+	}
+	var payload accountLinksFlashPayload
+	if err := json.Unmarshal(data, &payload); err != nil {
+		return nil
+	}
+	return &payload
+}
+
+func clearAccountLinksFlashCookie(w http.ResponseWriter, r *http.Request) {
+	cookie := &http.Cookie{
+		Name:     accountLinksFlashCookieName,
+		Value:    "",
+		Path:     "/account/links",
+		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
+		MaxAge:   -1,
+		Expires:  time.Unix(0, 0),
+	}
+	if isRequestSecure(r) {
+		cookie.Secure = true
+	}
+	http.SetCookie(w, cookie)
+}
+
+func isRequestSecure(r *http.Request) bool {
+	if r.TLS != nil {
+		return true
+	}
+	if proto := r.Header.Get("X-Forwarded-Proto"); strings.EqualFold(proto, "https") {
+		return true
+	}
+	return false
 }

@@ -11,12 +11,13 @@ const (
 )
 
 const (
-	DEFAULT_PORT              = "8080"
-	DEFAULT_BASE_URL          = ""
-	DEFAULT_DETECT_BASE_URL   = false
-	DEFAULT_FILE_DIR          = "./uploads"
-	DEFAULT_USER_FRONTEND_DIR = "./userfrontend"
-	DEFAULT_UPLOAD_GUARD      = true
+	DEFAULT_PORT               = "8080"
+	DEFAULT_BASE_URL           = ""
+	DEFAULT_DETECT_BASE_URL    = false
+	DEFAULT_FILE_DIR           = "./uploads"
+	DEFAULT_USER_FRONTEND_DIR  = "./userfrontend"
+	DEFAULT_UPLOAD_GUARD       = true
+	DEFAULT_ALLOW_ACCESS_LINKS = false
 
 	DEFAULT_MAX_FILE_SIZE          int64 = 2684354560 // 2.5GB
 	DEFAULT_MAX_FILES_PER_ARCHIVE        = 64

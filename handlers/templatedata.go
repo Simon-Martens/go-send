@@ -15,6 +15,7 @@ type TemplateData struct {
 	Theme              ThemeConfig
 	Assets             AssetBundle
 	Footer             FooterLinks
+	Features           FeatureFlags
 	State              TemplateState
 	Auth               AuthInfo
 	Flash              *FlashMessage
@@ -45,6 +46,10 @@ type FooterLinks struct {
 	CLIURL     string
 	DMCAURL    string
 	SourceURL  string
+}
+
+type FeatureFlags struct {
+	AllowAccessLinks bool
 }
 
 type TemplateState struct {
@@ -123,16 +128,16 @@ type AccountLinksView struct {
 }
 
 type AccountLinkFormState struct {
-	Username       string
-	ExpiresInHours string
-	GeneratedLink  string
+	GeneratedLink string
 }
 
 type AccountLinkView struct {
-	ID       int64
-	Username string
-	Created  string
-	Expires  string
+	ID             int64
+	Label          string
+	Created        string
+	ExpiresDisplay string
+	ExpiresInHours string
+	TokenPreview   string
 }
 
 func getTemplateData(manifest map[string]string, downloadMetadata string, cfg *config.Config, detectedLocale string, nonce string, translate func(string, map[string]interface{}) string) TemplateData {
@@ -193,6 +198,9 @@ func getTemplateData(manifest map[string]string, downloadMetadata string, cfg *c
 			CLIURL:     cfg.FooterCLIURL,
 			DMCAURL:    cfg.FooterDMCAURL,
 			SourceURL:  cfg.FooterSourceURL,
+		},
+		Features: FeatureFlags{
+			AllowAccessLinks: cfg.AllowAccessLinks,
 		},
 		State: state,
 		Translate: func(id string, args ...interface{}) string {

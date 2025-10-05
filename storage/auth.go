@@ -74,7 +74,7 @@ func (d *DB) UpdateAdminPassword(id int64, passwordHash string) error {
 }
 
 func (d *DB) ListAuthLinks(limit int) ([]AuthLink, error) {
-	query := `SELECT id, token_hash, expires_at, created_at, created_by_admin_id, username FROM auth_links ORDER BY created_at DESC`
+	query := `SELECT id, token_hash, token_preview, expires_at, created_at, created_by_admin_id, username FROM auth_links ORDER BY created_at DESC`
 	var rows *sql.Rows
 	var err error
 	if limit > 0 {
@@ -94,6 +94,7 @@ func (d *DB) ListAuthLinks(limit int) ([]AuthLink, error) {
 		if err := rows.Scan(
 			&link.ID,
 			&link.TokenHash,
+			&link.TokenPreview,
 			&link.ExpiresAt,
 			&link.CreatedAt,
 			&link.CreatedBy,
@@ -122,12 +123,13 @@ type Session struct {
 }
 
 type AuthLink struct {
-	ID        int64
-	TokenHash string
-	ExpiresAt sql.NullInt64
-	CreatedAt int64
-	CreatedBy sql.NullInt64
-	Username  sql.NullString
+	ID           int64
+	TokenHash    string
+	TokenPreview sql.NullString
+	ExpiresAt    sql.NullInt64
+	CreatedAt    int64
+	CreatedBy    sql.NullInt64
+	Username     sql.NullString
 }
 
 func (d *DB) GetPrimaryAdmin() (*Admin, error) {
@@ -218,8 +220,9 @@ func (d *DB) CleanupExpiredSessions() error {
 
 func (d *DB) CreateAuthLink(link *AuthLink) (int64, error) {
 	res, err := d.db.Exec(
-		`INSERT INTO auth_links (token_hash, expires_at, created_at, created_by_admin_id, username) VALUES (?, ?, ?, ?, ?)`,
+		`INSERT INTO auth_links (token_hash, token_preview, expires_at, created_at, created_by_admin_id, username) VALUES (?, ?, ?, ?, ?, ?)`,
 		link.TokenHash,
+		nullableString(link.TokenPreview),
 		nullableInt64(link.ExpiresAt),
 		link.CreatedAt,
 		nullableInt64(link.CreatedBy),
@@ -231,12 +234,23 @@ func (d *DB) CreateAuthLink(link *AuthLink) (int64, error) {
 	return res.LastInsertId()
 }
 
+func (d *DB) UpdateAuthLinkSettings(id int64, username sql.NullString, expiresAt sql.NullInt64) error {
+	_, err := d.db.Exec(
+		`UPDATE auth_links SET username = ?, expires_at = ? WHERE id = ?`,
+		nullableString(username),
+		nullableInt64(expiresAt),
+		id,
+	)
+	return err
+}
+
 func (d *DB) ConsumeAuthLink(hash string) (*AuthLink, error) {
 	link := &AuthLink{}
-	row := d.db.QueryRow(`SELECT id, token_hash, expires_at, created_at, created_by_admin_id, username FROM auth_links WHERE token_hash = ?`, hash)
+	row := d.db.QueryRow(`SELECT id, token_hash, token_preview, expires_at, created_at, created_by_admin_id, username FROM auth_links WHERE token_hash = ?`, hash)
 	if err := row.Scan(
 		&link.ID,
 		&link.TokenHash,
+		&link.TokenPreview,
 		&link.ExpiresAt,
 		&link.CreatedAt,
 		&link.CreatedBy,
@@ -282,10 +296,11 @@ func (d *DB) CountAdmins() (int, error) {
 
 func (d *DB) GetAuthLinkByID(id int64) (*AuthLink, error) {
 	link := &AuthLink{}
-	row := d.db.QueryRow(`SELECT id, token_hash, expires_at, created_at, created_by_admin_id, username FROM auth_links WHERE id = ?`, id)
+	row := d.db.QueryRow(`SELECT id, token_hash, token_preview, expires_at, created_at, created_by_admin_id, username FROM auth_links WHERE id = ?`, id)
 	if err := row.Scan(
 		&link.ID,
 		&link.TokenHash,
+		&link.TokenPreview,
 		&link.ExpiresAt,
 		&link.CreatedAt,
 		&link.CreatedBy,

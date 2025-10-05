@@ -80,6 +80,10 @@
     "translation": "Enter your current password and choose a new one."
   },
   {
+    "id": "account.password.back",
+    "translation": "Back"
+  },
+  {
     "id": "account.password.user_hint",
     "translation": "Currently changing the password for {{.username}}."
   },
@@ -125,35 +129,39 @@
   },
   {
     "id": "account.links.description",
-    "translation": "Create invitation links that grant upload permissions."
+    "translation": "Manage invitation links for uploads. Generate a link and configure it afterwards."
   },
   {
     "id": "account.links.form_heading",
-    "translation": "Create a new link"
+    "translation": "Generate a new link"
   },
   {
     "id": "account.links.form_hint",
-    "translation": "Links can optionally expire after a number of hours."
+    "translation": "Links are created without a label or expiry. Use the table below to configure them after creation."
   },
   {
     "id": "account.links.username_label",
-    "translation": "Label"
+    "translation": "Link label"
   },
   {
     "id": "account.links.username_placeholder",
-    "translation": "Optional note to remember the recipient"
+    "translation": "Optional label for your own reference"
   },
   {
     "id": "account.links.expires_label",
-    "translation": "Expires in (hours)"
+    "translation": "Expiry (hours from now)"
   },
   {
     "id": "account.links.expires_placeholder",
-    "translation": "Leave empty for no expiry"
+    "translation": "Leave empty to keep unlimited access"
   },
   {
     "id": "account.links.submit",
     "translation": "Generate link"
+  },
+  {
+    "id": "account.links.copy_link",
+    "translation": "Copy"
   },
   {
     "id": "account.links.generated_heading",
@@ -169,11 +177,19 @@
   },
   {
     "id": "account.links.table_hint",
-    "translation": "Review previously generated links and their expiration status."
+    "translation": "Edit labels or expiration details for existing links."
+  },
+  {
+    "id": "account.links.back",
+    "translation": "Back"
+  },
+  {
+    "id": "account.links.column_id",
+    "translation": "ID"
   },
   {
     "id": "account.links.column_username",
-    "translation": "Username / hint"
+    "translation": "Label"
   },
   {
     "id": "account.links.column_created",
@@ -202,6 +218,26 @@
   {
     "id": "account.links.success",
     "translation": "Link generated successfully."
+  },
+  {
+    "id": "account.links.update_submit",
+    "translation": "Save"
+  },
+  {
+    "id": "account.links.edit",
+    "translation": "Edit"
+  },
+  {
+    "id": "account.links.cancel",
+    "translation": "Cancel"
+  },
+  {
+    "id": "account.links.update_success",
+    "translation": "Link settings saved."
+  },
+  {
+    "id": "account.links.update_error",
+    "translation": "Could not update the link. Please try again."
   },
   {
     "id": "account.links.never",

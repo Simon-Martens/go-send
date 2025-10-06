@@ -24,7 +24,7 @@ self.addEventListener("install", () => {
 });
 
 self.addEventListener("activate", (event) => {
-  event.waitUntil(self.clients.claim()).then(precache);
+  event.waitUntil(self.clients.claim());
 });
 
 async function decryptStream(id, signal) {
@@ -128,44 +128,7 @@ async function decryptStream(id, signal) {
   }
 }
 
-async function precache() {
-  try {
-    await cleanCache();
-    const cache = await caches.open(version);
-    const images = assets.match(IMAGES);
-    await cache.addAll(images);
-  } catch (e) {
-    console.error(e);
-  }
-}
-
-async function cleanCache() {
-  const oldCaches = await caches.keys();
-  for (const c of oldCaches) {
-    if (c !== version) {
-      await caches.delete(c);
-    }
-  }
-}
-
-function cacheable(url) {
-  return VERSIONED_ASSET.test(url) || FONT.test(url);
-}
-
-async function cachedOrFetched(req) {
-  const cache = await caches.open(version);
-  const cached = await cache.match(req);
-  if (cached) {
-    return cached;
-  }
-  const fetched = await fetch(req);
-  if (fetched.ok && cacheable(req.url)) {
-    cache.put(req, fetched.clone());
-  }
-  return fetched;
-}
-
-self.onfetch = (event) => {
+self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
@@ -173,12 +136,10 @@ self.onfetch = (event) => {
   if (dlmatch) {
     console.log("[SW] Intercepted download request for:", dlmatch[1]);
     event.respondWith(decryptStream(dlmatch[1], event.request.signal));
-  } else if (cacheable(url.pathname)) {
-    event.respondWith(cachedOrFetched(req));
   }
-};
+});
 
-self.onmessage = (event) => {
+self.addEventListener('message', (event) => {
   if (event.data.request === "init") {
     console.log(
       "[SW] Received init message for",
@@ -223,4 +184,4 @@ self.onmessage = (event) => {
     }
     event.ports[0].postMessage("download cancelled");
   }
-};
+});

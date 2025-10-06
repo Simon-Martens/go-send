@@ -3,7 +3,7 @@
   {{ template "head.gohtml" . }}
   <body class="flex min-h-screen flex-col items-center font-sans bg-grey-10 text-grey-90 dark:bg-black dark:text-grey-10">
     <main class="flex w-full flex-1 items-center justify-center px-6 py-12">
-      <section class="w-full max-w-lg space-y-6 rounded-xl border border-default bg-white p-8 shadow-big md:p-10 dark:border-grey-70 dark:bg-grey-90">
+      <section class="w-full max-w-md space-y-6 rounded-xl border border-default bg-white p-8 shadow-big md:p-10 dark:border-grey-70 dark:bg-grey-90">
         <div class="space-y-2">
           <span class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary">
             {{ call .Translate "login.admin_badge" }}
@@ -11,9 +11,6 @@
           <h1 class="text-3xl font-semibold leading-tight text-grey-90 dark:text-grey-10">
             {{ call .Translate "login.title" }}
           </h1>
-          <p class="text-sm leading-relaxed text-grey-70 dark:text-grey-40 max-w-[80ch] hyphens-auto">
-            {{ call .Translate "login.description" }}
-          </p>
         </div>
 
         {{ if .Flash }}

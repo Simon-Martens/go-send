@@ -72,6 +72,9 @@ func main() {
 
 	app.StartCleanupScheduler()
 
+	logger.Info("Pre-caching user static files")
+	server.PreCacheUserStaticFiles(cfg.UserFrontendDir, logger)
+
 	srv := server.New(app, distFS)
 	logger.Error("Server stopped. Exiting", "error", server.Start(srv, app))
 	os.Exit(1)

@@ -142,11 +142,24 @@ export async function setPassword(id, owner_token, keychain) {
   return response.ok;
 }
 
-function asyncInitWebSocket(server) {
+function asyncInitWebSocket(server, timeout = 10000) {
   return new Promise((resolve, reject) => {
     try {
       const ws = new WebSocket(server);
-      ws.addEventListener("open", () => resolve(ws), { once: true });
+      const timeoutId = setTimeout(() => {
+        ws.close();
+        reject(new Error("WebSocket connection timeout"));
+      }, timeout);
+
+      ws.addEventListener("open", () => {
+        clearTimeout(timeoutId);
+        resolve(ws);
+      }, { once: true });
+
+      ws.addEventListener("error", (e) => {
+        clearTimeout(timeoutId);
+        reject(new ConnectionError(false));
+      }, { once: true });
     } catch (e) {
       reject(new ConnectionError(false));
     }
@@ -197,7 +210,32 @@ async function upload(
       ? fileProtocolWssUrl
       : `${protocol}//${host}${port ? ":" : ""}${port}/api/ws`;
 
-  const ws = await asyncInitWebSocket(endpoint);
+  // Retry WebSocket connection with exponential backoff
+  let ws;
+  let lastError;
+  const maxRetries = 3;
+
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    if (canceller.cancelled) {
+      throw new ConnectionError(true);
+    }
+
+    try {
+      ws = await asyncInitWebSocket(endpoint);
+      break; // Success
+    } catch (e) {
+      lastError = e;
+      if (attempt < maxRetries - 1) {
+        // Exponential backoff: 500ms, 1000ms, 2000ms
+        const backoffMs = 500 * Math.pow(2, attempt);
+        await delay(backoffMs);
+      }
+    }
+  }
+
+  if (!ws) {
+    throw lastError || new ConnectionError(false);
+  }
 
   try {
     const metadataHeader = arrayToB64(new Uint8Array(metadata));

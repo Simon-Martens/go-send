@@ -21,6 +21,9 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		return true // Allow all origins for development
 	},
+	ReadBufferSize:  64 * 1024, // 64KB read buffer
+	WriteBufferSize: 64 * 1024, // 64KB write buffer
+	EnableCompression: false,    // Disable compression (files are already encrypted/compressed)
 }
 
 type UploadRequest struct {
@@ -52,26 +55,68 @@ func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(f
 
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
-			logger.Error("WebSocket upgrade error", "error", err)
+			logger.Error("WebSocket upgrade error",
+				"error", err,
+				"remote_addr", r.RemoteAddr,
+				"user_agent", r.Header.Get("User-Agent"))
 			return
 		}
 		defer conn.Close()
 
+		// Configure connection parameters
+		// Pong handler: reset read deadline when pong is received
+		conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+		conn.SetPongHandler(func(string) error {
+			conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+			return nil
+		})
+
+		// Start ping ticker to keep connection alive
+		pingTicker := time.NewTicker(30 * time.Second)
+		defer pingTicker.Stop()
+
+		// Channel to signal upload completion
+		done := make(chan struct{})
+		defer close(done)
+
+		// Ping goroutine
+		go func() {
+			for {
+				select {
+				case <-pingTicker.C:
+					if err := conn.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(10*time.Second)); err != nil {
+						return
+					}
+				case <-done:
+					return
+				}
+			}
+		}()
+
 		// Read first message with file metadata
 		_, message, err := conn.ReadMessage()
 		if err != nil {
-			logger.Error("WebSocket read error", "error", err)
+			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+				logger.Error("WebSocket unexpected close error", "error", err, "remote_addr", r.RemoteAddr)
+			} else {
+				logger.Error("WebSocket read error", "error", err, "remote_addr", r.RemoteAddr)
+			}
 			return
 		}
 
 		var req UploadRequest
 		if err := json.Unmarshal(message, &req); err != nil {
+			logger.Warn("Invalid upload request JSON", "error", err, "remote_addr", r.RemoteAddr)
 			sendError(conn, 400)
 			return
 		}
 
 		// Validate request
 		if req.FileMetadata == "" || req.Authorization == "" {
+			logger.Warn("Missing required fields in upload request",
+				"has_metadata", req.FileMetadata != "",
+				"has_auth", req.Authorization != "",
+				"remote_addr", r.RemoteAddr)
 			sendError(conn, 400)
 			return
 		}
@@ -118,6 +163,7 @@ func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(f
 			ID:         id,
 		}
 
+		conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
 		if err := conn.WriteJSON(resp); err != nil {
 			logger.Error("Error writing upload response", "error", err, "file_id", id)
 			return
@@ -141,10 +187,25 @@ func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(f
 		maxSize := cfg.MaxFileSize
 
 		for {
+			// Reset read deadline for each chunk
+			conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+
 			_, data, err := conn.ReadMessage()
 			if err != nil {
 				tmpFile.Close()
-				logger.Error("Error reading upload data", "error", err, "file_id", id)
+				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+					logger.Error("Upload interrupted - unexpected close",
+						"error", err,
+						"file_id", id,
+						"bytes_received", totalSize,
+						"remote_addr", r.RemoteAddr)
+				} else {
+					logger.Error("Error reading upload data",
+						"error", err,
+						"file_id", id,
+						"bytes_received", totalSize,
+						"remote_addr", r.RemoteAddr)
+				}
 				return
 			}
 
@@ -224,12 +285,19 @@ func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(f
 		}
 
 		// Send success response
+		conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
 		conn.WriteJSON(UploadResponse{OK: true})
 	}
 }
 
 func sendError(conn *websocket.Conn, code int) {
-	conn.WriteJSON(UploadResponse{Error: code})
+	conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+	if err := conn.WriteJSON(UploadResponse{Error: code}); err != nil {
+		// If we can't write the error, just close
+		return
+	}
+	// Give the client time to receive the error before connection closes
+	time.Sleep(100 * time.Millisecond)
 }
 
 func generateRandomHex(n int) string {

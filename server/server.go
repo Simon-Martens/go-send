@@ -57,10 +57,10 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 	mux.HandleFunc("/config", handlers.NewConfigHandler(app.Config))
 	mux.HandleFunc("/api/admin/auth-links", handlers.NewCreateAuthLinkHandler(app.DB, app.Config))
 
-	// Upload endpoint with concurrency limiting (max 3 concurrent uploads per IP)
+	// Upload endpoint (concurrency limiting disabled)
 	uploadHandler := handlers.NewUploadHandler(app.DB, app.Config, app.ScheduleCleanup, app.Logger)
-	uploadLimited := middleware.LimitConcurrency(config.MAX_CONCURRENT_UPLOADS_PER_IP)(uploadHandler)
-	mux.Handle("/api/ws", uploadLimited)
+	// uploadLimited := middleware.LimitConcurrency(config.MAX_CONCURRENT_UPLOADS_PER_IP)(uploadHandler)
+	mux.Handle("/api/ws", uploadHandler)
 
 	mux.HandleFunc("/api/download/", handlers.NewDownloadHandler(app.DB, app.CancelCleanup, app.Logger))
 	mux.HandleFunc("/api/metadata/", handlers.NewMetadataHandler(app.DB, app.Logger))
@@ -262,7 +262,7 @@ func ApplyMiddleware(handler http.Handler, cfg *config.Config) http.Handler {
 	handler = middleware.SecurityHeaders(isDev)(handler)
 	handler = middleware.CSP(isDev, cfg.BaseURL)(handler)
 	handler = middleware.LimitRequestBody(config.MAX_REQUEST_BODY_SIZE)(handler)
-	handler = middleware.RateLimit(config.RATE_LIMIT_REQUESTS_PER_SECOND, config.RATE_LIMIT_BURST_SIZE)(handler)
+	// handler = middleware.RateLimit(config.RATE_LIMIT_REQUESTS_PER_SECOND, config.RATE_LIMIT_BURST_SIZE)(handler)
 
 	return handler
 }

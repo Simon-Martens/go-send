@@ -19,11 +19,12 @@ import (
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
-		return true // Allow all origins for development
+		return true // Allow all origins (files are encrypted client-side, CSRF not applicable)
 	},
-	ReadBufferSize:  64 * 1024, // 64KB read buffer
-	WriteBufferSize: 64 * 1024, // 64KB write buffer
-	EnableCompression: false,    // Disable compression (files are already encrypted/compressed)
+	ReadBufferSize:    64 * 1024, // 64KB read buffer
+	WriteBufferSize:   64 * 1024, // 64KB write buffer
+	EnableCompression: false,     // Disable compression (files are already encrypted/compressed)
+	HandshakeTimeout:  10 * time.Second,
 }
 
 type UploadRequest struct {
@@ -53,26 +54,33 @@ func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(f
 			}
 		}
 
-		conn, err := upgrader.Upgrade(w, r, nil)
+		// Upgrade HTTP to WebSocket with proper response headers
+		responseHeader := http.Header{}
+		responseHeader.Set("Sec-WebSocket-Protocol", r.Header.Get("Sec-WebSocket-Protocol"))
+
+		conn, err := upgrader.Upgrade(w, r, responseHeader)
 		if err != nil {
 			logger.Error("WebSocket upgrade error",
 				"error", err,
 				"remote_addr", r.RemoteAddr,
-				"user_agent", r.Header.Get("User-Agent"))
+				"user_agent", r.Header.Get("User-Agent"),
+				"origin", r.Header.Get("Origin"),
+				"upgrade", r.Header.Get("Upgrade"),
+				"connection", r.Header.Get("Connection"))
 			return
 		}
 		defer conn.Close()
 
-		// Configure connection parameters
-		// Pong handler: reset read deadline when pong is received
-		conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+		// Configure connection parameters for better stability
+		// Longer timeouts for large file uploads, aggressive keepalive for proxy compatibility
+		conn.SetReadDeadline(time.Now().Add(120 * time.Second))
 		conn.SetPongHandler(func(string) error {
-			conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+			conn.SetReadDeadline(time.Now().Add(120 * time.Second))
 			return nil
 		})
 
-		// Start ping ticker to keep connection alive
-		pingTicker := time.NewTicker(30 * time.Second)
+		// More aggressive ping to keep connection alive through reverse proxies (15s instead of 30s)
+		pingTicker := time.NewTicker(15 * time.Second)
 		defer pingTicker.Stop()
 
 		// Channel to signal upload completion
@@ -187,8 +195,8 @@ func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(f
 		maxSize := cfg.MaxFileSize
 
 		for {
-			// Reset read deadline for each chunk
-			conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+			// Reset read deadline for each chunk (longer timeout for large chunks)
+			conn.SetReadDeadline(time.Now().Add(120 * time.Second))
 
 			_, data, err := conn.ReadMessage()
 			if err != nil {

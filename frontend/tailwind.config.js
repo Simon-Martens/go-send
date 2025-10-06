@@ -21,11 +21,24 @@ const colors = {
   cloud: "rgba(255, 255, 255, 0.8)",
   violet: "hsl(258, 57%, 35%)",
 
+  // Red color scale
+  "red-90": "#450a0a",
+  "red-80": "#991b1b",
+  "red-70": "#b91c1c",
+  "red-60": "#dc2626",
+  "red-40": "#f87171",
+
   // Status indicator colors
   "green-500": "#22c55e",
   "green-600": "#16a34a",
   "red-500": "#ef4444",
   "red-600": "#dc2626",
+
+  // Orange for warnings
+  "orange-90": "#7c2d12",
+  "orange-60": "#ea580c",
+  "orange-40": "#fb923c",
+  "orange-10": "#ffedd5",
 };
 
 module.exports = {

@@ -51,7 +51,7 @@
               </thead>
               <tbody class="divide-y divide-grey-20 bg-white dark:divide-grey-70 dark:bg-grey-90">
                 {{ range .AccountLinks.Links }}
-                <tr class="align-top text-grey-80 hover:bg-grey-10 transition dark:text-grey-20 dark:hover:bg-grey-80" data-link-row="{{ .ID }}">
+                <tr class="text-grey-80 hover:bg-grey-10 transition dark:text-grey-20 dark:hover:bg-grey-80" data-link-row="{{ .ID }}">
                   <td class="px-4 py-4 text-xs font-mono font-semibold text-grey-60 dark:text-grey-40">
                     {{ if .TokenPreview }}{{ .TokenPreview }}{{ else }}&mdash;{{ end }}
                   </td>
@@ -93,7 +93,7 @@
                   </td>
                   <td class="px-4 py-4 text-right">
                     <div class="flex flex-row items-center justify-end gap-2">
-                      <button type="button" class="inline-flex items-center justify-center rounded-default border border-grey-30 bg-white px-4 py-2 text-sm font-semibold text-grey-70 transition hover:border-grey-40 hover:bg-grey-10 hover:text-grey-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 dark:border-grey-60 dark:bg-grey-80 dark:text-grey-30 dark:hover:border-grey-50 dark:hover:bg-grey-70 dark:hover:text-grey-10" data-edit-button>
+                      <button type="button" class="inline-flex items-center justify-center rounded-default border-2 border-grey-40 bg-white px-4 py-2 text-sm font-semibold text-grey-70 transition hover:border-grey-50 hover:bg-grey-10 hover:text-grey-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 dark:border-grey-60 dark:bg-grey-80 dark:text-grey-30 dark:hover:border-grey-50 dark:hover:bg-grey-70 dark:hover:text-grey-10" data-edit-button>
                         {{ call $.Translate "account.links.edit" }}
                       </button>
                       <form id="update-form-{{ .ID }}" method="POST" action="/account/links" class="hidden" data-link-form data-save-form>
@@ -103,13 +103,13 @@
                           {{ call $.Translate "account.links.update_submit" }}
                         </button>
                       </form>
-                      <button type="button" class="hidden inline-flex items-center justify-center rounded-default border border-grey-30 bg-white px-4 py-2 text-sm font-semibold text-grey-70 transition hover:border-grey-40 hover:bg-grey-10 hover:text-grey-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 dark:border-grey-60 dark:bg-grey-80 dark:text-grey-30 dark:hover:border-grey-50 dark:hover:bg-grey-70 dark:hover:text-grey-10" data-cancel-button>
+                      <button type="button" class="hidden inline-flex items-center justify-center rounded-default border-2 border-grey-40 bg-white px-4 py-2 text-sm font-semibold text-grey-70 transition hover:border-grey-50 hover:bg-grey-10 hover:text-grey-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 dark:border-grey-60 dark:bg-grey-80 dark:text-grey-30 dark:hover:border-grey-50 dark:hover:bg-grey-70 dark:hover:text-grey-10" data-cancel-button>
                         {{ call $.Translate "account.links.cancel" }}
                       </button>
                       <form method="POST" action="/account/links" class="inline-flex" data-delete-form>
                         <input type="hidden" name="action" value="delete">
                         <input type="hidden" name="linkID" value="{{ .ID }}">
-                        <button type="submit" class="inline-flex items-center justify-center rounded-default bg-red-60 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-70 focus:outline-none focus:ring-2 focus:ring-red-40 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-60 dark:hover:bg-red-70 dark:focus:ring-offset-grey-90" data-delete-button>
+                        <button type="submit" class="inline-flex items-center justify-center rounded-default bg-red-70 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-80 focus:outline-none focus:ring-2 focus:ring-red-40 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-60 dark:hover:bg-red-70 dark:focus:ring-offset-grey-90" data-delete-button>
                           {{ call $.Translate "account.links.delete" }}
                         </button>
                       </form>
@@ -184,7 +184,7 @@
             <button
               type="button"
               id="modal-cancel-button"
-              class="inline-flex items-center justify-center rounded-default border border-grey-30 bg-white px-6 py-3 text-base font-semibold text-grey-70 transition hover:border-grey-40 hover:bg-grey-10 hover:text-grey-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 dark:border-grey-60 dark:bg-grey-80 dark:text-grey-30 dark:hover:border-grey-50 dark:hover:bg-grey-70 dark:hover:text-grey-10"
+              class="inline-flex items-center justify-center rounded-default border-2 border-grey-40 bg-white px-6 py-3 text-base font-semibold text-grey-70 transition hover:border-grey-50 hover:bg-grey-10 hover:text-grey-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 dark:border-grey-60 dark:bg-grey-80 dark:text-grey-30 dark:hover:border-grey-50 dark:hover:bg-grey-70 dark:hover:text-grey-10"
             >
               {{ call .Translate "account.links.modal_cancel" }}
             </button>

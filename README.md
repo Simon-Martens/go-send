@@ -23,6 +23,9 @@ The plan is to ultimate replace client side rounting (choo) with server-side rou
 - ~Webpack~ removed, introduced **Vite**. We have a lot of fewer build features now
 - ~Ployfills~: Removed almost all polyfills and support for IE and older Edge browsers. Target browsers are: Chrome 89+, Firefox 102+, Safari 14.1+, Edge 89+, which is a very modern selection, but they will be old pretty fast. CanIUse reports 95.74% user coverage.
 
+- Templates: Moved header and footers to go templates, which may be overwritten by your custom template files.
+- Upload guard. Added a login to guard the upload page, if `UPLOAD_GUARD` is set to true. The default user/pw is admin/admin. No admin registration and deltion yet.
+- Generate Upload links: Admins can generate upload links that allow guests to upload files, when `ALLOW_ACCESS_LINKS` is set.
 
 ### What will be Reimplemented?
 
@@ -30,9 +33,9 @@ The plan is to ultimate replace client side rounting (choo) with server-side rou
 - Maybe **Sentry**: Better Error tracking than logging would be nice to have
 
 
-Almost all frontend code is still original Choo-based UI. This will be subject to change since our reimplementation of the backend might help us to implement a handful of new frontend features. Also, I moved header and footers to go templates, which may be overwritten by your custom template files.
+Almost all frontend code is still original Choo-based UI. This will be subject to change since our reimplementation of the backend might help us to implement a handful of new frontend features.
 
-The compatibility with `ffsend` is kept as of right now.
+The compatibility with `ffsend` is kept as of right now, as long as the `UPLOAD_GUARD` is set to false.
 
 
 ## Quick Start
@@ -105,6 +108,13 @@ The Go server is configured via environment variables. All settings are optional
 | `CUSTOM_FOOTER_URL` | (empty) | Custom footer link URL |
 
 See all branding options: `config/config.go`
+
+### Upload Guard
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `UPLOAD_GUARD` | `true` | Enable upload guard |
+| `ALLOW_ACCESS_LINKS` | `admin` | Enable guest upload links generation |
 
 
 ## Custom Frontend Assets & Templates

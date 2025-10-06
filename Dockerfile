@@ -1,5 +1,5 @@
 # Build stage for frontend
-FROM node:16-alpine AS frontend-builder
+FROM node:24-alpine AS frontend-builder
 
 WORKDIR /build/frontend
 
@@ -10,19 +10,19 @@ COPY frontend/ ./
 RUN npm run build
 
 # Build stage for Go backend
-FROM golang:1.21-alpine AS backend-builder
+FROM golang:1.24-alpine AS backend-builder
 
 RUN apk add --no-cache gcc musl-dev sqlite-dev
 
 WORKDIR /build
 
 COPY go.mod go.sum ./
-RUN go mod download
+RUN go mod tidy
 
 COPY . .
 COPY --from=frontend-builder /build/frontend/dist ./frontend/dist
 
-RUN CGO_ENABLED=1 go build -ldflags="-s -w" -o send-server .
+RUN CGO_ENABLED=1 go build -o send-server .
 
 # Runtime stage
 FROM alpine:latest

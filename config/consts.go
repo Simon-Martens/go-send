@@ -13,7 +13,7 @@ const (
 const (
 	DEFAULT_PORT               = "8080"
 	DEFAULT_BASE_URL           = ""
-	DEFAULT_DETECT_BASE_URL    = false
+	DEFAULT_DETECT_BASE_URL    = true
 	DEFAULT_FILE_DIR           = "./data/uploads"
 	DEFAULT_USER_FRONTEND_DIR  = "./userfrontend"
 	DEFAULT_UPLOAD_GUARD       = true

@@ -55,7 +55,10 @@ func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(f
 
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
-			logger.Error("WebSocket upgrade error", "error", err)
+			logger.Error("WebSocket upgrade error",
+				"error", err,
+				"remote_addr", r.RemoteAddr,
+				"user_agent", r.Header.Get("User-Agent"))
 			return
 		}
 		defer conn.Close()
@@ -103,12 +106,17 @@ func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(f
 
 		var req UploadRequest
 		if err := json.Unmarshal(message, &req); err != nil {
+			logger.Warn("Invalid upload request JSON", "error", err, "remote_addr", r.RemoteAddr)
 			sendError(conn, 400)
 			return
 		}
 
 		// Validate request
 		if req.FileMetadata == "" || req.Authorization == "" {
+			logger.Warn("Missing required fields in upload request",
+				"has_metadata", req.FileMetadata != "",
+				"has_auth", req.Authorization != "",
+				"remote_addr", r.RemoteAddr)
 			sendError(conn, 400)
 			return
 		}
@@ -284,7 +292,12 @@ func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(f
 
 func sendError(conn *websocket.Conn, code int) {
 	conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
-	conn.WriteJSON(UploadResponse{Error: code})
+	if err := conn.WriteJSON(UploadResponse{Error: code}); err != nil {
+		// If we can't write the error, just close
+		return
+	}
+	// Give the client time to receive the error before connection closes
+	time.Sleep(100 * time.Millisecond)
 }
 
 func generateRandomHex(n int) string {

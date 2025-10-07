@@ -44,6 +44,8 @@
 		</li>
 			{{ end }}
 		{{ end }}
+	</ul>
+	<ul class="flex flex-col md:flex-row items-start md:items-center md:justify-end">
 		{{ if .Footer.CustomText }}
 		<li class="m-2 max-w-[80ch] hyphens-auto">
 			{{ if .Footer.CustomURL }}
@@ -53,8 +55,6 @@
 			{{ end }}
 		</li>
 		{{ end }}
-	</ul>
-	<ul class="flex flex-col md:flex-row items-start md:items-center md:justify-end">
 		{{ if .Footer.CLIURL }}
 		<li class="m-2"><a href="{{ .Footer.CLIURL }}" target="_blank">{{ call .Translate "footer.cli" }}</a></li>
 		{{ end }}

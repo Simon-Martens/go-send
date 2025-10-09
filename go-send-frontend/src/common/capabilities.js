@@ -1,0 +1,90 @@
+/* global AUTH_CONFIG */
+import { browserName, locale } from "./utils";
+
+async function checkCrypto() {
+  try {
+    const key = await crypto.subtle.generateKey(
+      {
+        name: "AES-GCM",
+        length: 128,
+      },
+      true,
+      ["encrypt", "decrypt"],
+    );
+    await crypto.subtle.exportKey("raw", key);
+    await crypto.subtle.encrypt(
+      {
+        name: "AES-GCM",
+        iv: crypto.getRandomValues(new Uint8Array(12)),
+        tagLength: 128,
+      },
+      key,
+      new ArrayBuffer(8),
+    );
+    await crypto.subtle.importKey(
+      "raw",
+      crypto.getRandomValues(new Uint8Array(16)),
+      "PBKDF2",
+      false,
+      ["deriveKey"],
+    );
+    await crypto.subtle.importKey(
+      "raw",
+      crypto.getRandomValues(new Uint8Array(16)),
+      "HKDF",
+      false,
+      ["deriveKey"],
+    );
+    await crypto.subtle.generateKey(
+      {
+        name: "ECDH",
+        namedCurve: "P-256",
+      },
+      true,
+      ["deriveBits"],
+    );
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
+function checkStreams() {
+  try {
+    new ReadableStream({
+      pull() {},
+    });
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+export default async function getCapabilities() {
+  const browser = browserName();
+  const isMobile = /mobi|android/i.test(navigator.userAgent);
+  const serviceWorker = "serviceWorker" in navigator && browser !== "edge";
+  let crypto = await checkCrypto();
+  const streams = checkStreams();
+  const share =
+    isMobile &&
+    typeof navigator.share === "function" &&
+    locale().startsWith("en"); // en until strings merge
+
+  const standalone =
+    window.matchMedia("(display-mode: standalone)").matches ||
+    navigator.standalone;
+
+  const mobileFirefox = browser === "firefox" && isMobile;
+
+  return {
+    crypto,
+    serviceWorker,
+    streamUpload: streams,
+    streamDownload:
+      streams && serviceWorker && browser !== "safari" && !mobileFirefox,
+    multifile: streams,
+    share,
+    standalone,
+  };
+}

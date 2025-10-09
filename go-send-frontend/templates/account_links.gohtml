@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="{{ .Locale }}">
+  {{ template "head.gohtml" . }}
+  <body class="flex min-h-screen flex-col items-center bg-grey-10 font-sans text-grey-90 dark:bg-black dark:text-grey-10">
+    <main class="flex w-full flex-1 items-center justify-center px-6 py-12">
+      <section class="w-full max-w-3xl space-y-6 rounded-xl border border-default bg-white p-8 shadow-big md:p-10 dark:border-grey-70 dark:bg-grey-90">
+        <header class="space-y-2">
+          <a href="/" class="inline-flex items-center gap-2 rounded-default py-1.5 pr-1.5 text-xs font-semibold uppercase tracking-widest text-grey-70 transition hover:text-grey-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 dark:border-grey-70 dark:text-grey-30 dark:hover:text-grey-10">
+            {{ call .Translate "account.links.back" }} |
+          </a>
+
+          <span class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary pb-6">
+            {{ call .Translate "account.links.title" }}
+          </span>
+          <p class="text-sm leading-relaxed text-grey-70 dark:text-grey-40 max-w-[80ch] hyphens-auto">
+            {{ call .Translate "account.links.description" }}
+          </p>
+        </header>
+
+        {{ if .Flash }}
+        <div class="rounded-default border px-4 py-3 text-sm font-medium leading-normal {{ if eq .Flash.Kind "success" }}border-primary bg-primary text-white dark:bg-primary{{ else }}border-red bg-red-40 text-grey-90 dark:border-red-40 dark:text-grey-10{{ end }} max-w-[80ch] hyphens-auto">
+          {{ .Flash.Message }}
+        </div>
+        {{ end }}
+
+        <section aria-labelledby="create-link" class="space-y-4">
+          <button type="button" id="generate-link-button" class="btn mt-2 flex w-full items-center justify-center gap-2 rounded-lg text-base md:w-auto">
+            {{ call .Translate "account.links.submit" }}
+          </button>
+        </section>
+
+        <section aria-labelledby="link-table" class="space-y-4">
+          <div class="space-y-1">
+            <h2 id="link-table" class="text-lg font-semibold text-grey-90 dark:text-grey-10">
+              {{ call .Translate "account.links.table_heading" }}
+            </h2>
+          </div>
+
+          {{ if gt (len .AccountLinks.Links) 0 }}
+          <div class="overflow-hidden rounded-xl border border-default dark:border-grey-70">
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-grey-20 text-sm dark:divide-grey-70">
+              <thead class="bg-grey-10 text-xs uppercase tracking-widest text-grey-60 dark:bg-grey-80 dark:text-grey-30">
+                <tr>
+                  <th scope="col" class="px-4 py-3 text-left font-semibold">{{ call .Translate "account.links.column_id" }}</th>
+                  <th scope="col" class="px-4 py-3 text-left font-semibold">{{ call .Translate "account.links.column_username" }}</th>
+                  <th scope="col" class="px-4 py-3 text-left font-semibold">{{ call .Translate "account.links.column_created" }}</th>
+                  <th scope="col" class="px-4 py-3 text-left font-semibold">{{ call .Translate "account.links.column_expires" }}</th>
+                  <th scope="col" class="px-4 py-3 text-right font-semibold">{{ call .Translate "account.links.column_actions" }}</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-grey-20 bg-white dark:divide-grey-70 dark:bg-grey-90">
+                {{ range .AccountLinks.Links }}
+                <tr class="text-grey-80 hover:bg-grey-10 transition dark:text-grey-20 dark:hover:bg-grey-80" data-link-row="{{ .ID }}">
+                  <td class="px-4 py-4 text-xs font-mono font-semibold text-grey-60 dark:text-grey-40">
+                    {{ if .TokenPreview }}{{ .TokenPreview }}{{ else }}&mdash;{{ end }}
+                  </td>
+                  <td class="px-4 py-4">
+                    <span data-label-view data-empty-label="—" class="block text-sm font-medium text-grey-80 dark:text-grey-20">{{ if .Label }}{{ .Label }}{{ else }}&mdash;{{ end }}</span>
+                    <input
+                      id="label-{{ .ID }}"
+                      form="update-form-{{ .ID }}"
+                      name="label"
+                      type="text"
+                      value="{{ .Label }}"
+                      data-initial="{{ .Label }}"
+                      data-label-input
+                      placeholder="{{ if .Label }}{{ .Label }}{{ else }}{{ call $.Translate "account.links.username_placeholder" }}{{ end }}"
+                      aria-label="{{ call $.Translate "account.links.username_label" }}"
+                      class="hidden w-full rounded-default border border-default bg-white px-3 py-2 text-sm leading-tight text-grey-90 transition focus:border-primary focus:outline-none dark:border-grey-60 dark:bg-grey-80 dark:text-grey-10"
+                    >
+                  </td>
+                  <td class="px-4 py-4 text-sm text-grey-60 dark:text-grey-40">
+                    {{ .Created }}
+                  </td>
+                  <td class="px-4 py-4">
+                    <span data-expires-view data-never-text="{{ call $.Translate "account.links.never" }}" class="block text-sm font-medium text-grey-80 dark:text-grey-20">{{ .ExpiresDisplay }}</span>
+                    <input
+                      id="expires-{{ .ID }}"
+                      form="update-form-{{ .ID }}"
+                      name="expiresHours"
+                      type="text"
+                      inputmode="numeric"
+                      pattern="[0-9]*"
+                      value="{{ .ExpiresInHours }}"
+                      data-initial="{{ .ExpiresInHours }}"
+                      data-expires-input
+                      placeholder="{{ .ExpiresDisplay }}"
+                      aria-label="{{ call $.Translate "account.links.expires_label" }}"
+                      class="hidden w-full rounded-default border border-default bg-white px-3 py-2 text-sm leading-tight text-grey-90 transition focus:border-primary focus:outline-none dark:border-grey-60 dark:bg-grey-80 dark:text-grey-10"
+                      autocomplete="off"
+                    >
+                  </td>
+                  <td class="px-4 py-4 text-right">
+                    <div class="flex flex-row items-center justify-end gap-2">
+                      <button type="button" class="inline-flex items-center justify-center rounded-default border-2 border-grey-40 bg-white px-4 py-2 text-sm font-semibold text-grey-70 transition hover:border-grey-50 hover:bg-grey-10 hover:text-grey-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 dark:border-grey-60 dark:bg-grey-80 dark:text-grey-30 dark:hover:border-grey-50 dark:hover:bg-grey-70 dark:hover:text-grey-10" data-edit-button>
+                        {{ call $.Translate "account.links.edit" }}
+                      </button>
+                      <form id="update-form-{{ .ID }}" method="POST" action="/account/links" class="hidden" data-link-form data-save-form>
+                        <input type="hidden" name="action" value="update">
+                        <input type="hidden" name="linkID" value="{{ .ID }}">
+                        <button type="submit" class="inline-flex items-center justify-center rounded-default bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary_accent focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 dark:focus:ring-offset-grey-90" data-save-button aria-disabled="true" disabled>
+                          {{ call $.Translate "account.links.update_submit" }}
+                        </button>
+                      </form>
+                      <button type="button" class="hidden inline-flex items-center justify-center rounded-default border-2 border-grey-40 bg-white px-4 py-2 text-sm font-semibold text-grey-70 transition hover:border-grey-50 hover:bg-grey-10 hover:text-grey-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 dark:border-grey-60 dark:bg-grey-80 dark:text-grey-30 dark:hover:border-grey-50 dark:hover:bg-grey-70 dark:hover:text-grey-10" data-cancel-button>
+                        {{ call $.Translate "account.links.cancel" }}
+                      </button>
+                      <form method="POST" action="/account/links" class="inline-flex" data-delete-form>
+                        <input type="hidden" name="action" value="delete">
+                        <input type="hidden" name="linkID" value="{{ .ID }}">
+                        <button type="submit" class="inline-flex items-center justify-center rounded-default bg-red-70 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-80 focus:outline-none focus:ring-2 focus:ring-red-40 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-60 dark:hover:bg-red-70 dark:focus:ring-offset-grey-90" data-delete-button>
+                          {{ call $.Translate "account.links.delete" }}
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              {{ end }}
+              </tbody>
+              </table>
+            </div>
+          </div>
+          {{ else }}
+          <div class="rounded-default border border-default bg-grey-10 px-4 py-4 text-sm text-grey-70 dark:border-grey-70 dark:bg-grey-80 dark:text-grey-30 max-w-[80ch] hyphens-auto">
+            {{ call .Translate "account.links.empty" }}
+          </div>
+          {{ end }}
+        </section>
+      </section>
+    </main>
+
+    <!-- Link Generation Modal -->
+    <div id="link-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-6" role="dialog" aria-labelledby="modal-title" aria-modal="true">
+      <div class="relative w-full max-w-2xl rounded-xl border border-default bg-white p-8 shadow-big dark:border-grey-70 dark:bg-grey-90">
+        <h2 id="modal-title" class="mb-4 text-lg font-semibold text-grey-90 dark:text-grey-10">
+          {{ call .Translate "account.links.modal_title" }}
+        </h2>
+
+        <div class="space-y-6">
+          <!-- Warning Message -->
+          <div class="rounded-default border border-orange-40 bg-orange-10 px-4 py-3 text-sm font-medium leading-normal text-grey-90 dark:border-orange-60 dark:bg-orange-90 dark:text-grey-10 max-w-[80ch] hyphens-auto">
+            {{ call .Translate "account.links.modal_warning" }}
+          </div>
+
+          <!-- Link Display -->
+          <div class="space-y-2">
+            <label for="modal-link-input" class="block text-xs font-semibold uppercase tracking-widest text-grey-70 dark:text-grey-40">
+              {{ call .Translate "account.links.modal_link_label" }}
+            </label>
+            <div class="flex items-center gap-2">
+              <input
+                id="modal-link-input"
+                type="text"
+                readonly
+                class="flex-1 rounded-default border border-dashed border-grey-30 bg-white px-4 py-3 text-sm font-mono text-primary focus:border-primary focus:outline-none dark:border-grey-60 dark:bg-grey-90 dark:text-primary"
+              >
+              <button
+                type="button"
+                id="modal-copy-button"
+                class="inline-flex items-center justify-center gap-2 rounded-default bg-primary px-4 py-3 text-sm font-semibold text-white transition hover:bg-primary_accent focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 dark:focus:ring-offset-grey-90 whitespace-nowrap"
+              >
+                {{ call .Translate "account.links.copy_link" }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Label Input -->
+          <div class="space-y-2">
+            <label for="modal-label-input" class="block text-base font-semibold text-grey-90 dark:text-grey-10">
+              {{ call .Translate "account.links.modal_label_label" }} <span class="text-red-60">*</span>
+            </label>
+            <input
+              id="modal-label-input"
+              type="text"
+              required
+              placeholder="{{ call .Translate "account.links.label_placeholder" }}"
+              class="w-full rounded-default border border-default bg-white px-4 py-3 text-base text-grey-90 transition focus:border-primary focus:outline-none dark:border-grey-60 dark:bg-grey-80 dark:text-grey-10"
+            >
+          </div>
+
+          <!-- Buttons -->
+          <div class="flex justify-end gap-3">
+            <button
+              type="button"
+              id="modal-cancel-button"
+              class="inline-flex items-center justify-center rounded-default border-2 border-grey-40 bg-white px-6 py-3 text-base font-semibold text-grey-70 transition hover:border-grey-50 hover:bg-grey-10 hover:text-grey-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 dark:border-grey-60 dark:bg-grey-80 dark:text-grey-30 dark:hover:border-grey-50 dark:hover:bg-grey-70 dark:hover:text-grey-10"
+            >
+              {{ call .Translate "account.links.modal_cancel" }}
+            </button>
+            <button
+              type="button"
+              id="modal-ok-button"
+              disabled
+              class="flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-base font-semibold transition bg-grey-40 text-grey-60 cursor-default dark:bg-grey-70 dark:text-grey-50"
+              data-enabled-class="bg-primary text-white hover:bg-primary_accent focus:bg-primary_accent"
+            >
+              {{ call .Translate "account.links.modal_ok" }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script {{ .NonceAttr }}>
+      document.addEventListener("DOMContentLoaded", function () {
+        var modal = document.getElementById("link-modal");
+        var modalLinkInput = document.getElementById("modal-link-input");
+        var modalLabelInput = document.getElementById("modal-label-input");
+        var modalCopyButton = document.getElementById("modal-copy-button");
+        var modalOkButton = document.getElementById("modal-ok-button");
+        var modalCancelButton = document.getElementById("modal-cancel-button");
+        var generateButton = document.getElementById("generate-link-button");
+        var currentLinkID = null;
+
+        // Enable/disable OK button based on label input
+        if (modalLabelInput && modalOkButton) {
+          var updateOkButton = function () {
+            var label = modalLabelInput.value.trim();
+            var isEmpty = label === "";
+
+            modalOkButton.disabled = isEmpty;
+
+            if (isEmpty) {
+              // Disabled state
+              modalOkButton.classList.remove("bg-primary", "text-white", "hover:bg-primary_accent", "cursor-pointer");
+              modalOkButton.classList.add("bg-grey-40", "text-grey-60", "cursor-default", "dark:bg-grey-70", "dark:text-grey-50");
+            } else {
+              // Enabled state
+              modalOkButton.classList.remove("bg-grey-40", "text-grey-60", "cursor-default", "dark:bg-grey-70", "dark:text-grey-50");
+              modalOkButton.classList.add("bg-primary", "text-white", "hover:bg-primary_accent", "cursor-pointer");
+            }
+          };
+
+          modalLabelInput.addEventListener("input", updateOkButton);
+          modalLabelInput.addEventListener("change", updateOkButton);
+        }
+
+        // Generate link button - fetch new link via AJAX
+        if (generateButton) {
+          generateButton.addEventListener("click", function () {
+            fetch("/account/links", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Accept": "application/json",
+                "X-Requested-With": "XMLHttpRequest"
+              },
+              body: "action=create",
+            })
+              .then(function (response) {
+                return response.json();
+              })
+              .then(function (data) {
+                if (data.url && data.id) {
+                  currentLinkID = data.id;
+                  modalLinkInput.value = data.url;
+                  modalLabelInput.value = "";
+                  modalOkButton.disabled = true;
+                  modal.classList.remove("hidden");
+                  modalLabelInput.focus();
+                }
+              })
+              .catch(function (error) {
+                console.error("Error generating link:", error);
+              });
+          });
+        }
+
+        // Modal copy button
+        if (modalCopyButton && modalLinkInput) {
+          var selectLink = function () {
+            modalLinkInput.focus();
+            modalLinkInput.select();
+          };
+
+          modalLinkInput.addEventListener("focus", selectLink);
+          modalLinkInput.addEventListener("click", selectLink);
+
+          modalCopyButton.addEventListener("click", function () {
+            selectLink();
+            var value = modalLinkInput.value;
+            if (!value) {
+              return;
+            }
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              navigator.clipboard.writeText(value).catch(function () {
+                document.execCommand("copy");
+              });
+            } else {
+              document.execCommand("copy");
+            }
+          });
+        }
+
+        // Modal Cancel button - delete the link and close
+        if (modalCancelButton) {
+          modalCancelButton.addEventListener("click", function () {
+            if (currentLinkID) {
+              // Delete the link via AJAX
+              fetch("/account/links", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/x-www-form-urlencoded",
+                  "Accept": "application/json",
+                  "X-Requested-With": "XMLHttpRequest"
+                },
+                body: "action=delete&linkID=" + encodeURIComponent(currentLinkID),
+              })
+                .then(function () {
+                  modal.classList.add("hidden");
+                  currentLinkID = null;
+                })
+                .catch(function (error) {
+                  console.error("Error deleting link:", error);
+                  modal.classList.add("hidden");
+                  currentLinkID = null;
+                });
+            } else {
+              modal.classList.add("hidden");
+            }
+          });
+        }
+
+        // Modal OK button - activate link, save label and close
+        if (modalOkButton) {
+          modalOkButton.addEventListener("click", function () {
+            var label = modalLabelInput.value.trim();
+
+            if (currentLinkID) {
+              // Activate link and save label via AJAX
+              var body = "action=activate&linkID=" + encodeURIComponent(currentLinkID);
+              if (label) {
+                body += "&label=" + encodeURIComponent(label);
+              }
+
+              fetch("/account/links", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/x-www-form-urlencoded",
+                  "Accept": "application/json",
+                  "X-Requested-With": "XMLHttpRequest"
+                },
+                body: body,
+              })
+                .then(function () {
+                  window.location.reload();
+                })
+                .catch(function (error) {
+                  console.error("Error activating link:", error);
+                  window.location.reload();
+                });
+            } else {
+              window.location.reload();
+            }
+          });
+        }
+
+        // Close modal on background click - also delete link
+        if (modal) {
+          modal.addEventListener("click", function (e) {
+            if (e.target === modal && currentLinkID) {
+              // Delete the link when closing without OK
+              fetch("/account/links", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/x-www-form-urlencoded",
+                  "Accept": "application/json",
+                  "X-Requested-With": "XMLHttpRequest"
+                },
+                body: "action=delete&linkID=" + encodeURIComponent(currentLinkID),
+              })
+                .then(function () {
+                  modal.classList.add("hidden");
+                  currentLinkID = null;
+                })
+                .catch(function (error) {
+                  console.error("Error deleting link:", error);
+                  modal.classList.add("hidden");
+                  currentLinkID = null;
+                });
+            }
+          });
+        }
+
+        var forms = document.querySelectorAll("form[data-link-form]");
+        forms.forEach(function (form) {
+          var submitButton = form.querySelector('[data-save-button]') || form.querySelector('button[type="submit"]');
+          if (!submitButton) {
+            return;
+          }
+
+          var inputs = Array.prototype.slice.call(
+            document.querySelectorAll('[form="' + form.id + '"]')
+          ).filter(function (el) {
+            return el.tagName === "INPUT";
+          });
+
+          var updateState = function () {
+            var changed = inputs.some(function (el) {
+              var current = (el.value || "").trim();
+              var initial = (el.getAttribute("data-initial") || "").trim();
+              return current !== initial;
+            });
+            submitButton.disabled = !changed;
+            if (changed) {
+              submitButton.removeAttribute("aria-disabled");
+            } else {
+              submitButton.setAttribute("aria-disabled", "true");
+            }
+          };
+
+          inputs.forEach(function (el) {
+            el.addEventListener("input", updateState);
+            el.addEventListener("change", updateState);
+          });
+
+          updateState();
+
+          form.__linkForm = {
+            submitButton: submitButton,
+            inputs: inputs,
+            updateState: updateState,
+          };
+        });
+
+        var rows = document.querySelectorAll('[data-link-row]');
+        rows.forEach(function (row) {
+          var editButton = row.querySelector('[data-edit-button]');
+          var cancelButton = row.querySelector('[data-cancel-button]');
+          var saveForm = row.querySelector('[data-save-form]');
+          var labelInput = row.querySelector('[data-label-input]');
+          var expiresInput = row.querySelector('[data-expires-input]');
+          var labelView = row.querySelector('[data-label-view]');
+          var expiresView = row.querySelector('[data-expires-view]');
+          var deleteButton = row.querySelector('[data-delete-button]');
+          var deleteForm = row.querySelector('[data-delete-form]');
+
+          if (!editButton || !saveForm) {
+            return;
+          }
+
+          var formMeta = saveForm.__linkForm;
+          var saveButton = formMeta ? formMeta.submitButton : null;
+          var inputs = formMeta ? formMeta.inputs : [];
+
+          var setEditing = function (editing) {
+            if (editing) {
+              row.classList.add('is-editing');
+              if (labelView) labelView.classList.add('hidden');
+              if (expiresView) expiresView.classList.add('hidden');
+              if (labelInput) labelInput.classList.remove('hidden');
+              if (expiresInput) expiresInput.classList.remove('hidden');
+              saveForm.classList.remove('hidden');
+              saveForm.classList.add('inline-flex');
+              if (cancelButton) cancelButton.classList.remove('hidden');
+              editButton.classList.add('hidden');
+              if (deleteButton) deleteButton.classList.add('hidden');
+              if (deleteForm) deleteForm.classList.add('pointer-events-none');
+              if (inputs.length > 0) {
+                inputs[0].focus();
+                inputs[0].select();
+              }
+            } else {
+              row.classList.remove('is-editing');
+              if (labelView) labelView.classList.remove('hidden');
+              if (expiresView) expiresView.classList.remove('hidden');
+              if (labelInput) labelInput.classList.add('hidden');
+              if (expiresInput) expiresInput.classList.add('hidden');
+              saveForm.classList.add('hidden');
+              saveForm.classList.remove('inline-flex');
+              if (cancelButton) cancelButton.classList.add('hidden');
+              editButton.classList.remove('hidden');
+              if (deleteButton) deleteButton.classList.remove('hidden');
+              if (deleteForm) deleteForm.classList.remove('pointer-events-none');
+            }
+            if (formMeta) {
+              formMeta.updateState();
+            }
+          };
+
+          editButton.addEventListener('click', function () {
+            setEditing(true);
+          });
+
+          if (cancelButton) {
+            cancelButton.addEventListener('click', function () {
+              inputs.forEach(function (el) {
+                var initial = el.getAttribute('data-initial') || '';
+                el.value = initial;
+              });
+              setEditing(false);
+            });
+          }
+
+          if (saveButton) {
+            saveForm.addEventListener('submit', function () {
+              inputs.forEach(function (el) {
+                var trimmed = (el.value || '').trim();
+                el.value = trimmed;
+                el.setAttribute('data-initial', trimmed);
+              });
+
+              if (labelView && labelInput) {
+                var labelText = (labelInput.value || '').trim();
+                var emptyLabel = labelView.getAttribute('data-empty-label') || '—';
+                labelView.textContent = labelText !== '' ? labelText : emptyLabel;
+              }
+
+              if (expiresView && expiresInput) {
+                var expiresText = (expiresInput.value || '').trim();
+                if (expiresText === '') {
+                  var neverText = expiresView.getAttribute('data-never-text');
+                  if (neverText) {
+                    expiresView.textContent = neverText;
+                  }
+                } else {
+                  expiresView.textContent = expiresText + ' h';
+                }
+              }
+
+              setEditing(false);
+            });
+          }
+        });
+      });
+    </script>
+
+    {{ template "footer.gohtml" . }}
+  </body>
+</html>

@@ -8,8 +8,14 @@ import (
 	"github.com/Simon-Martens/go-send/config"
 )
 
+type Manifest map[string]string
+
+func (m Manifest) Value(key string) string {
+	return m[key]
+}
+
 // LoadManifest loads the webpack manifest.json from embedded filesystem
-func LoadManifest(distFS embed.FS, logger *slog.Logger) map[string]string {
+func LoadManifest(distFS embed.FS, logger *slog.Logger) Manifest {
 	manifestData, err := distFS.ReadFile("frontend/dist/manifest.json")
 	if err != nil {
 		logger.Warn("manifest.json not found, using defaults")

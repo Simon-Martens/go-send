@@ -1,352 +1,296 @@
-import { arrayToB64, b64ToArray } from "../utils.js";
-// The translate function is initialized in main.js and made available.
-// We will call it when the component is connected to the DOM.
-import { setTranslate } from "../utils.js";
+/* global Android */
+let html;
+try {
+  html = require("choo/html");
+} catch (e) {
+  // running in the service worker
+}
+const b64 = require("base64-js");
 
-// --- SECURITY NOTE ---
-// Storing cryptographic keys in localStorage is vulnerable to Cross-Site Scripting (XSS).
-// SessionStorage is safer as it's cleared when the session ends (tab is closed),
-// but it is still accessible via XSS. The most secure method is storing the key in
-// memory only (e.g., in a variable within a Web Worker).
-const USER_SESSION_KEY_LOCAL = "user-decryption-key-local"; // For trusted browsers
-const USER_SESSION_KEY_SESSION = "user-decryption-key-session"; // For untrusted browsers
+function arrayToB64(array) {
+  return b64
+    .fromByteArray(array)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=/g, "");
+}
 
-let translate;
-setTranslate((t) => {
+function b64ToArray(str) {
+  return b64.toByteArray(str + "===".slice((str.length + 3) % 4));
+}
+
+function locale() {
+  return document.querySelector("html").lang;
+}
+
+function loadShim(polyfill) {
+  return new Promise((resolve, reject) => {
+    const shim = document.createElement("script");
+    shim.src = polyfill;
+    shim.addEventListener("load", () => resolve(true));
+    shim.addEventListener("error", () => resolve(false));
+    document.head.appendChild(shim);
+  });
+}
+
+function isFile(id) {
+  return /^[0-9a-fA-F]{10,16}$/.test(id);
+}
+
+function copyToClipboard(str) {
+  const aux = document.createElement("input");
+  aux.setAttribute("value", str);
+  aux.contentEditable = true;
+  aux.readOnly = true;
+  document.body.appendChild(aux);
+  if (navigator.userAgent.match(/iphone|ipad|ipod/i)) {
+    const range = document.createRange();
+    range.selectNodeContents(aux);
+    const sel = getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    aux.setSelectionRange(0, str.length);
+  } else {
+    aux.select();
+  }
+  const result = document.execCommand("copy");
+  document.body.removeChild(aux);
+  return result;
+}
+
+const LOCALIZE_NUMBERS = !!(
+  typeof Intl === "object" &&
+  Intl &&
+  typeof Intl.NumberFormat === "function" &&
+  typeof navigator === "object"
+);
+
+const UNITS = ["bytes", "kb", "mb", "gb"];
+function bytes(num) {
+  if (num < 1) {
+    return "0B";
+  }
+  const exponent = Math.min(Math.floor(Math.log10(num) / 3), UNITS.length - 1);
+  const n = Number(num / Math.pow(1024, exponent));
+  const decimalDigits = Math.floor(n) === n ? 0 : 1;
+  let nStr = n.toFixed(decimalDigits);
+  if (LOCALIZE_NUMBERS) {
+    try {
+      nStr = n.toLocaleString(locale(), {
+        minimumFractionDigits: decimalDigits,
+        maximumFractionDigits: decimalDigits,
+      });
+    } catch (e) {
+      // fall through
+    }
+  }
+  return translate("fileSize", {
+    num: nStr,
+    units: translate(UNITS[exponent]),
+  });
+}
+
+function percent(ratio) {
+  if (LOCALIZE_NUMBERS) {
+    try {
+      return ratio.toLocaleString(locale(), { style: "percent" });
+    } catch (e) {
+      // fall through
+    }
+  }
+  return `${Math.floor(ratio * 100)}%`;
+}
+
+function number(n) {
+  if (LOCALIZE_NUMBERS) {
+    return n.toLocaleString(locale());
+  }
+  return n.toString();
+}
+
+function allowedCopy() {
+  const support = !!document.queryCommandSupported;
+  return support ? document.queryCommandSupported("copy") : false;
+}
+
+function delay(delay = 100) {
+  return new Promise((resolve) => setTimeout(resolve, delay));
+}
+
+function fadeOut(selector) {
+  const classes = document.querySelector(selector).classList;
+  classes.remove("effect--fadeIn");
+  classes.add("effect--fadeOut");
+  return delay(300);
+}
+
+function openLinksInNewTab(links, should = true) {
+  links = links || Array.from(document.querySelectorAll("a:not([target])"));
+  if (should) {
+    links.forEach((l) => {
+      l.setAttribute("target", "_blank");
+      l.setAttribute("rel", "noopener noreferrer");
+    });
+  } else {
+    links.forEach((l) => {
+      l.removeAttribute("target");
+      l.removeAttribute("rel");
+    });
+  }
+  return links;
+}
+
+function browserName() {
+  try {
+    // order of these matters
+    if (/firefox/i.test(navigator.userAgent)) {
+      return "firefox";
+    }
+    if (/edge/i.test(navigator.userAgent)) {
+      return "edge";
+    }
+    if (/edg/i.test(navigator.userAgent)) {
+      return "edgium";
+    }
+    if (/trident/i.test(navigator.userAgent)) {
+      return "ie";
+    }
+    if (/chrome/i.test(navigator.userAgent)) {
+      return "chrome";
+    }
+    if (/safari/i.test(navigator.userAgent)) {
+      return "safari";
+    }
+    if (/send android/i.test(navigator.userAgent)) {
+      return "android-app";
+    }
+    return "other";
+  } catch (e) {
+    return "unknown";
+  }
+}
+
+async function streamToArrayBuffer(stream, size) {
+  const reader = stream.getReader();
+  let state = await reader.read();
+
+  if (size) {
+    const result = new Uint8Array(size);
+    let offset = 0;
+    while (!state.done) {
+      result.set(state.value, offset);
+      offset += state.value.length;
+      state = await reader.read();
+    }
+    return result.buffer;
+  }
+
+  const parts = [];
+  let len = 0;
+  while (!state.done) {
+    parts.push(state.value);
+    len += state.value.length;
+    state = await reader.read();
+  }
+  let offset = 0;
+  const result = new Uint8Array(len);
+  for (const part of parts) {
+    result.set(part, offset);
+    offset += part.length;
+  }
+  return result.buffer;
+}
+
+function list(items, ulStyle = "", liStyle = "") {
+  const lis = items.map((i) => html` <li class="${liStyle}">${i}</li> `);
+  return html`
+    <ul class="${ulStyle}">
+      ${lis}
+    </ul>
+  `;
+}
+
+function secondsToL10nId(seconds) {
+  if (seconds < 3600) {
+    return { id: "timespanMinutes", num: Math.floor(seconds / 60) };
+  } else if (seconds < 86400) {
+    return { id: "timespanHours", num: Math.floor(seconds / 3600) };
+  } else {
+    return { id: "timespanDays", num: Math.floor(seconds / 86400) };
+  }
+}
+
+function timeLeft(milliseconds) {
+  if (milliseconds < 1) {
+    return { id: "linkExpiredAlt" };
+  }
+  const minutes = Math.floor(milliseconds / 1000 / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  if (days >= 1) {
+    return {
+      id: "expiresDaysHoursMinutes",
+      days,
+      hours: hours % 24,
+      minutes: minutes % 60,
+    };
+  }
+  if (hours >= 1) {
+    return {
+      id: "expiresHoursMinutes",
+      hours,
+      minutes: minutes % 60,
+    };
+  } else if (hours === 0) {
+    if (minutes === 0) {
+      return { id: "expiresMinutes", minutes: "< 1" };
+    }
+    return { id: "expiresMinutes", minutes };
+  }
+  return null;
+}
+
+function platform() {
+  if (typeof Android === "object") {
+    return "android";
+  }
+  return "web";
+}
+
+const ECE_RECORD_SIZE = 1024 * 64;
+const TAG_LENGTH = 16;
+function encryptedSize(size, rs = ECE_RECORD_SIZE, tagLength = TAG_LENGTH) {
+  const chunk_meta = tagLength + 1; // Chunk metadata, tag and delimiter
+  return 21 + size + chunk_meta * Math.ceil(size / (rs - chunk_meta));
+}
+
+let translate = function () {
+  throw new Error("uninitialized translate function. call setTranslate first");
+};
+function setTranslate(t) {
   translate = t;
-});
-
-class LoginForm extends HTMLElement {
-  constructor() {
-    super();
-    // This worker will handle all crypto operations, isolating keys from the main thread.
-    this.authWorker = new Worker(
-      new URL("../auth-worker.js", import.meta.url),
-      { type: "module" },
-    );
-
-    this.innerHTML = `
-      <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto lg:py-0">
-        <a href="/" class="flex items-center mb-6 text-2xl font-semibold text-gray-900">
-          <img class="w-8 h-8 mr-2" src="/icon.svg" alt="logo">
-          Go Send
-        </a>
-        <div class="w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0">
-          <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
-            <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl" data-l10n-id="login-header">
-              Sign in to your account
-            </h1>
-            <form class="space-y-4 md:space-y-6" id="login-form">
-              <div>
-                <label for="username" class="block mb-2 text-sm font-medium text-gray-900" data-l10n-id="login-username-label">Your username</label>
-                <input type="text" name="username" id="username" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" placeholder="username" required autocomplete="username">
-              </div>
-              <div>
-                <label for="password" class="block mb-2 text-sm font-medium text-gray-900" data-l10n-id="login-password-label">Password</label>
-                <input type="password" name="password" id="password" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" required autocomplete="current-password">
-              </div>
-              <div class="flex items-center">
-                  <input id="trust-browser" aria-describedby="trust-browser" type="checkbox" class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300">
-                <div class="ml-3 text-sm">
-                  <label for="trust-browser" class="text-gray-500" data-l10n-id="login-trust-browser-label">Trust this browser</label>
-                </div>
-              </div>
-              <button type="submit" class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center" data-l10n-id="login-submit-button">Sign in</button>
-              <p id="error-message" class="text-sm font-light text-red-500 hidden"></p>
-            </form>
-          </div>
-        </div>
-      </div>
-    `;
-    this._onSubmit = this._onSubmit.bind(this);
-  }
-
-  connectedCallback() {
-    this.form = this.querySelector("#login-form");
-    this.errorMessage = this.querySelector("#error-message");
-    this.form.addEventListener("submit", this._onSubmit);
-    if (typeof translate === "function") {
-      translate(this);
-    }
-  }
-
-  disconnectedCallback() {
-    this.form.removeEventListener("submit", this._onSubmit);
-    this.authWorker.terminate(); // Clean up the worker when the component is removed
-  }
-
-  _workerCommand(command, data) {
-    return new Promise((resolve, reject) => {
-      const messageListener = (event) => {
-        if (event.data.status === "SUCCESS" && event.data.command === command) {
-          this.authWorker.removeEventListener("message", messageListener);
-          resolve(event.data.result);
-        } else if (event.data.status === "ERROR") {
-          this.authWorker.removeEventListener("message", messageListener);
-          reject(new Error(event.data.message || "Worker command failed"));
-        }
-      };
-      this.authWorker.addEventListener("message", messageListener);
-      this.authWorker.postMessage({ command, data });
-    });
-  }
-
-  async _onSubmit(event) {
-    event.preventDefault();
-    const submitButton = this.form.querySelector('button[type="submit"]');
-    submitButton.disabled = true;
-    submitButton.setAttribute("data-l10n-id", "login-submit-button-loading");
-    if (typeof translate === "function") {
-      translate(submitButton);
-    }
-
-    this.errorMessage.classList.add("hidden");
-
-    const username = this.form.elements.username.value;
-    const password = this.form.elements.password.value;
-    const trustBrowser = this.form.elements["trust-browser"].checked;
-
-    try {
-      const challengeResponse = await fetch("/api/login/challenge", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username }),
-      });
-
-      if (challengeResponse.status === 404) {
-        throw new Error("user-not-found");
-      }
-      if (!challengeResponse.ok) {
-        throw new Error("server-error");
-      }
-
-      const { salt, nonce } = await challengeResponse.json();
-
-      const { signature, privateKey } = await this._workerCommand(
-        "DERIVE_AND_SIGN",
-        {
-          password,
-          salt: b64ToArray(salt),
-          nonce,
-        },
-      );
-
-      const loginResponse = await fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, signature }),
-      });
-
-      if (loginResponse.ok) {
-        const exportedPrivateKey = await window.crypto.subtle.exportKey(
-          "jwk",
-          privateKey,
-        );
-
-        localStorage.removeItem(USER_SESSION_KEY_LOCAL);
-        sessionStorage.removeItem(USER_SESSION_KEY_SESSION);
-
-        if (trustBrowser) {
-          localStorage.setItem(
-            USER_SESSION_KEY_LOCAL,
-            JSON.stringify(exportedPrivateKey),
-          );
-        } else {
-          sessionStorage.setItem(
-            USER_SESSION_KEY_SESSION,
-            JSON.stringify(exportedPrivateKey),
-          );
-        }
-
-        window.location.href = "/account/links";
-      } else {
-        throw new Error("invalid-credentials");
-      }
-    } catch (error) {
-      console.error("Login failed:", error);
-      let errorMessageId = "login-error-unexpected";
-      if (
-        error.message === "invalid-credentials" ||
-        error.message === "user-not-found"
-      ) {
-        errorMessageId = "login-error-invalid";
-      }
-      this.errorMessage.setAttribute("data-l10n-id", errorMessageId);
-      if (typeof translate === "function") {
-        translate(this.errorMessage);
-      }
-      this.errorMessage.classList.remove("hidden");
-    } finally {
-      submitButton.disabled = false;
-      submitButton.setAttribute("data-l10n-id", "login-submit-button");
-      if (typeof translate === "function") {
-        translate(submitButton);
-      }
-    }
-  }
 }
 
-class PasswordReset extends HTMLElement {
-  constructor() {
-    super();
-    this.authWorker = new Worker(
-      new URL("../auth-worker.js", import.meta.url),
-      { type: "module" },
-    );
-    this.innerHTML = `
-            <div class="w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0">
-                <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
-                    <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl" data-l10n-id="reset-password-header">
-                        Change password
-                    </h1>
-                    <form class="space-y-4 md:space-y-6" id="reset-form">
-                        <div>
-                            <label for="new-password" class="block mb-2 text-sm font-medium text-gray-900" data-l10n-id="reset-password-new-label">New Password</label>
-                            <input type="password" name="new-password" id="new-password" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" required autocomplete="new-password">
-                        </div>
-                        <div>
-                            <label for="confirm-password" class="block mb-2 text-sm font-medium text-gray-900" data-l10n-id="reset-password-confirm-label">Confirm New Password</label>
-                            <input type="password" name="confirm-password" id="confirm-password" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" required autocomplete="new-password">
-                        </div>
-                        <button type="submit" class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center" data-l10n-id="reset-password-submit-button">Reset Password</button>
-                        <p id="reset-message" class="text-sm font-light text-green-500 hidden"></p>
-                        <p id="reset-error" class="text-sm font-light text-red-500 hidden"></p>
-                    </form>
-                </div>
-            </div>
-        `;
-    this._onSubmit = this._onSubmit.bind(this);
-  }
-
-  connectedCallback() {
-    this.form = this.querySelector("#reset-form");
-    this.message = this.querySelector("#reset-message");
-    this.error = this.querySelector("#reset-error");
-    this.form.addEventListener("submit", this._onSubmit);
-    if (typeof translate === "function") {
-      translate(this);
-    }
-  }
-
-  disconnectedCallback() {
-    this.form.removeEventListener("submit", this._onSubmit);
-    this.authWorker.terminate();
-  }
-
-  _workerCommand(command, data) {
-    return new Promise((resolve, reject) => {
-      const messageListener = (event) => {
-        if (event.data.status === "SUCCESS" && event.data.command === command) {
-          this.authWorker.removeEventListener("message", messageListener);
-          resolve(event.data.result);
-        } else if (event.data.status === "ERROR") {
-          this.authWorker.removeEventListener("message", messageListener);
-          reject(new Error(event.data.message || "Worker command failed"));
-        }
-      };
-      this.authWorker.addEventListener("message", messageListener);
-      this.authWorker.postMessage({ command, data });
-    });
-  }
-
-  async _onSubmit(event) {
-    event.preventDefault();
-    const submitButton = this.form.querySelector('button[type="submit"]');
-    submitButton.disabled = true;
-    submitButton.setAttribute(
-      "data-l10n-id",
-      "reset-password-submit-button-loading",
-    );
-    if (typeof translate === "function") {
-      translate(submitButton);
-    }
-
-    this.message.classList.add("hidden");
-    this.error.classList.add("hidden");
-
-    const newPassword = this.form.elements["new-password"].value;
-    const confirmPassword = this.form.elements["confirm-password"].value;
-
-    if (newPassword !== confirmPassword) {
-      this.error.setAttribute("data-l10n-id", "reset-password-error-mismatch");
-      if (typeof translate === "function") {
-        translate(this.error);
-      }
-      this.error.classList.remove("hidden");
-      submitButton.disabled = false;
-      submitButton.setAttribute("data-l10n-id", "reset-password-submit-button");
-      if (typeof translate === "function") {
-        translate(submitButton);
-      }
-      return;
-    }
-
-    try {
-      const newSalt = window.crypto.getRandomValues(new Uint8Array(16));
-
-      const { newPublicEncKey, newPublicSignKey, privateKey } =
-        await this._workerCommand("DERIVE_KEYS_FOR_RESET", {
-          newPassword,
-          newSalt,
-        });
-
-      const response = await fetch("/api/account/password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          salt: arrayToB64(newSalt),
-          publicEncKey: newPublicEncKey,
-          publicSignKey: newPublicSignKey,
-        }),
-      });
-
-      if (response.ok) {
-        const exportedPrivateKey = await window.crypto.subtle.exportKey(
-          "jwk",
-          privateKey,
-        );
-
-        if (localStorage.getItem(USER_SESSION_KEY_LOCAL)) {
-          localStorage.setItem(
-            USER_SESSION_KEY_LOCAL,
-            JSON.stringify(exportedPrivateKey),
-          );
-        } else if (sessionStorage.getItem(USER_SESSION_KEY_SESSION)) {
-          sessionStorage.setItem(
-            USER_SESSION_KEY_SESSION,
-            JSON.stringify(exportedPrivateKey),
-          );
-        }
-
-        this.message.setAttribute("data-l10n-id", "reset-password-success");
-        if (typeof translate === "function") {
-          translate(this.message);
-        }
-        this.message.classList.remove("hidden");
-        this.form.reset();
-      } else {
-        throw new Error("Failed to update password on the server.");
-      }
-    } catch (err) {
-      console.error("Password reset failed:", err);
-      this.error.setAttribute(
-        "data-l10n-id",
-        "reset-password-error-unexpected",
-      );
-      if (typeof translate === "function") {
-        translate(this.error);
-      }
-      this.error.classList.remove("hidden");
-    } finally {
-      submitButton.disabled = false;
-      submitButton.setAttribute("data-l10n-id", "reset-password-submit-button");
-      if (typeof translate === "function") {
-        translate(submitButton);
-      }
-    }
-  }
-}
-
-// Define the custom elements so they can be used in HTML
-customElements.define("login-form", LoginForm);
-customElements.define("password-reset", PasswordReset);
+module.exports = {
+  locale,
+  fadeOut,
+  delay,
+  allowedCopy,
+  bytes,
+  percent,
+  number,
+  copyToClipboard,
+  arrayToB64,
+  b64ToArray,
+  loadShim,
+  isFile,
+  openLinksInNewTab,
+  browserName,
+  streamToArrayBuffer,
+  list,
+  secondsToL10nId,
+  timeLeft,
+  platform,
+  encryptedSize,
+  setTranslate,
+};

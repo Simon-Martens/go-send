@@ -1,7 +1,5 @@
-import { arrayToB64, b64ToArray } from "../utils.js";
-// The translate function is initialized in main.js and made available.
-// We will call it when the component is connected to the DOM.
-import { setTranslate } from "../utils.js";
+import { arrayToB64, b64ToArray, setTranslate } from "../utils.js";
+import { workerCommand } from "../auth-worker-client.js";
 
 // --- SECURITY NOTE ---
 // Storing cryptographic keys in localStorage is vulnerable to Cross-Site Scripting (XSS).
@@ -19,12 +17,6 @@ setTranslate((t) => {
 class LoginForm extends HTMLElement {
   constructor() {
     super();
-    // This worker will handle all crypto operations, isolating keys from the main thread.
-    this.authWorker = new Worker(
-      new URL("../auth-worker.js", import.meta.url),
-      { type: "module" },
-    );
-
     this.innerHTML = `
       <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto lg:py-0">
         <a href="/" class="flex items-center mb-6 text-2xl font-semibold text-gray-900">
@@ -72,23 +64,7 @@ class LoginForm extends HTMLElement {
 
   disconnectedCallback() {
     this.form.removeEventListener("submit", this._onSubmit);
-    this.authWorker.terminate(); // Clean up the worker when the component is removed
-  }
-
-  _workerCommand(command, data) {
-    return new Promise((resolve, reject) => {
-      const messageListener = (event) => {
-        if (event.data.status === "SUCCESS" && event.data.command === command) {
-          this.authWorker.removeEventListener("message", messageListener);
-          resolve(event.data.result);
-        } else if (event.data.status === "ERROR") {
-          this.authWorker.removeEventListener("message", messageListener);
-          reject(new Error(event.data.message || "Worker command failed"));
-        }
-      };
-      this.authWorker.addEventListener("message", messageListener);
-      this.authWorker.postMessage({ command, data });
-    });
+    // We no longer terminate the worker here, so it persists.
   }
 
   async _onSubmit(event) {
@@ -107,7 +83,7 @@ class LoginForm extends HTMLElement {
     const trustBrowser = this.form.elements["trust-browser"].checked;
 
     try {
-      const challengeResponse = await fetch("/api/login/challenge", {
+      const challengeResponse = await fetch("/api/v1/login/challenge", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username }),
@@ -122,16 +98,13 @@ class LoginForm extends HTMLElement {
 
       const { salt, nonce } = await challengeResponse.json();
 
-      const { signature, privateKey } = await this._workerCommand(
-        "DERIVE_AND_SIGN",
-        {
-          password,
-          salt: b64ToArray(salt),
-          nonce,
-        },
-      );
+      const { signature, privateKey } = await workerCommand("DERIVE_AND_SIGN", {
+        password,
+        salt: b64ToArray(salt),
+        nonce,
+      });
 
-      const loginResponse = await fetch("/api/login", {
+      const loginResponse = await fetch("/api/v1/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, signature }),
@@ -189,10 +162,6 @@ class LoginForm extends HTMLElement {
 class PasswordReset extends HTMLElement {
   constructor() {
     super();
-    this.authWorker = new Worker(
-      new URL("../auth-worker.js", import.meta.url),
-      { type: "module" },
-    );
     this.innerHTML = `
             <div class="w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0">
                 <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
@@ -230,23 +199,6 @@ class PasswordReset extends HTMLElement {
 
   disconnectedCallback() {
     this.form.removeEventListener("submit", this._onSubmit);
-    this.authWorker.terminate();
-  }
-
-  _workerCommand(command, data) {
-    return new Promise((resolve, reject) => {
-      const messageListener = (event) => {
-        if (event.data.status === "SUCCESS" && event.data.command === command) {
-          this.authWorker.removeEventListener("message", messageListener);
-          resolve(event.data.result);
-        } else if (event.data.status === "ERROR") {
-          this.authWorker.removeEventListener("message", messageListener);
-          reject(new Error(event.data.message || "Worker command failed"));
-        }
-      };
-      this.authWorker.addEventListener("message", messageListener);
-      this.authWorker.postMessage({ command, data });
-    });
   }
 
   async _onSubmit(event) {
@@ -285,12 +237,12 @@ class PasswordReset extends HTMLElement {
       const newSalt = window.crypto.getRandomValues(new Uint8Array(16));
 
       const { newPublicEncKey, newPublicSignKey, privateKey } =
-        await this._workerCommand("DERIVE_KEYS_FOR_RESET", {
+        await workerCommand("DERIVE_KEYS_FOR_RESET", {
           newPassword,
           newSalt,
         });
 
-      const response = await fetch("/api/account/password", {
+      const response = await fetch("/api/v1/account/password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -306,6 +258,7 @@ class PasswordReset extends HTMLElement {
           privateKey,
         );
 
+        // Maintain the user's original trust decision
         if (localStorage.getItem(USER_SESSION_KEY_LOCAL)) {
           localStorage.setItem(
             USER_SESSION_KEY_LOCAL,

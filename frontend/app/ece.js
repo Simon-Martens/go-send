@@ -1,15 +1,15 @@
-import { Buffer } from 'buffer';
+import { Buffer } from "buffer";
 // Make Buffer available globally for compatibility
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   window.Buffer = Buffer;
 }
-import { transformStream } from './streams';
+import { transformStream } from "./streams";
 
 const NONCE_LENGTH = 12;
 const TAG_LENGTH = 16;
 const KEY_LENGTH = 16;
-const MODE_ENCRYPT = 'encrypt';
-const MODE_DECRYPT = 'decrypt';
+const MODE_ENCRYPT = "encrypt";
+const MODE_DECRYPT = "decrypt";
 export const ECE_RECORD_SIZE = 1024 * 64;
 
 const encoder = new TextEncoder();
@@ -33,56 +33,56 @@ class ECETransformer {
 
   async generateKey() {
     const inputKey = await crypto.subtle.importKey(
-      'raw',
+      "raw",
       this.ikm,
-      'HKDF',
+      "HKDF",
       false,
-      ['deriveKey']
+      ["deriveKey"],
     );
 
     return crypto.subtle.deriveKey(
       {
-        name: 'HKDF',
+        name: "HKDF",
         salt: this.salt,
-        info: encoder.encode('Content-Encoding: aes128gcm\0'),
-        hash: 'SHA-256'
+        info: encoder.encode("Content-Encoding: aes128gcm\0"),
+        hash: "SHA-256",
       },
       inputKey,
       {
-        name: 'AES-GCM',
-        length: 128
+        name: "AES-GCM",
+        length: 128,
       },
       true, // Edge polyfill requires key to be extractable to encrypt :/
-      ['encrypt', 'decrypt']
+      ["encrypt", "decrypt"],
     );
   }
 
   async generateNonceBase() {
     const inputKey = await crypto.subtle.importKey(
-      'raw',
+      "raw",
       this.ikm,
-      'HKDF',
+      "HKDF",
       false,
-      ['deriveKey']
+      ["deriveKey"],
     );
 
     const base = await crypto.subtle.exportKey(
-      'raw',
+      "raw",
       await crypto.subtle.deriveKey(
         {
-          name: 'HKDF',
+          name: "HKDF",
           salt: this.salt,
-          info: encoder.encode('Content-Encoding: nonce\0'),
-          hash: 'SHA-256'
+          info: encoder.encode("Content-Encoding: nonce\0"),
+          hash: "SHA-256",
         },
         inputKey,
         {
-          name: 'AES-GCM',
-          length: 128
+          name: "AES-GCM",
+          length: 128,
         },
         true,
-        ['encrypt', 'decrypt']
-      )
+        ["encrypt", "decrypt"],
+      ),
     );
 
     return Buffer.from(base.slice(0, NONCE_LENGTH));
@@ -90,7 +90,7 @@ class ECETransformer {
 
   generateNonce(seq) {
     if (seq > 0xffffffff) {
-      throw new Error('record sequence number exceeds limit');
+      throw new Error("record sequence number exceeds limit");
     }
     const nonce = Buffer.from(this.nonceBase);
     const m = nonce.readUIntBE(nonce.length - 4, 4);
@@ -103,7 +103,7 @@ class ECETransformer {
   pad(data, isLast) {
     const len = data.length;
     if (len + TAG_LENGTH >= this.rs) {
-      throw new Error('data too large for record size');
+      throw new Error("data too large for record size");
     }
 
     if (isLast) {
@@ -123,17 +123,17 @@ class ECETransformer {
       if (data[i]) {
         if (isLast) {
           if (data[i] !== 2) {
-            throw new Error('delimiter of final record is not 2');
+            throw new Error("delimiter of final record is not 2");
           }
         } else {
           if (data[i] !== 1) {
-            throw new Error('delimiter of not final record is not 1');
+            throw new Error("delimiter of not final record is not 1");
           }
         }
         return data.slice(0, i);
       }
     }
-    throw new Error('no delimiter found');
+    throw new Error("no delimiter found");
   }
 
   createHeader() {
@@ -145,7 +145,7 @@ class ECETransformer {
 
   readHeader(buffer) {
     if (buffer.length < 21) {
-      throw new Error('chunk too small for reading header');
+      throw new Error("chunk too small for reading header");
     }
     const header = {};
     header.salt = buffer.buffer.slice(0, KEY_LENGTH);
@@ -158,9 +158,9 @@ class ECETransformer {
   async encryptRecord(buffer, seq, isLast) {
     const nonce = this.generateNonce(seq);
     const encrypted = await crypto.subtle.encrypt(
-      { name: 'AES-GCM', iv: nonce },
+      { name: "AES-GCM", iv: nonce },
       this.key,
-      this.pad(buffer, isLast)
+      this.pad(buffer, isLast),
     );
     return Buffer.from(encrypted);
   }
@@ -169,12 +169,12 @@ class ECETransformer {
     const nonce = this.generateNonce(seq);
     const data = await crypto.subtle.decrypt(
       {
-        name: 'AES-GCM',
+        name: "AES-GCM",
         iv: nonce,
-        tagLength: 128
+        tagLength: 128,
       },
       this.key,
-      buffer
+      buffer,
     );
 
     return this.unpad(Buffer.from(data), isLast);
@@ -186,14 +186,14 @@ class ECETransformer {
       this.nonceBase = await this.generateNonceBase();
       controller.enqueue(this.createHeader());
     } else if (this.mode !== MODE_DECRYPT) {
-      throw new Error('mode must be either encrypt or decrypt');
+      throw new Error("mode must be either encrypt or decrypt");
     }
   }
 
   async transformPrevChunk(isLast, controller) {
     if (this.mode === MODE_ENCRYPT) {
       controller.enqueue(
-        await this.encryptRecord(this.prevChunk, this.seq, isLast)
+        await this.encryptRecord(this.prevChunk, this.seq, isLast),
       );
       this.seq++;
     } else {
@@ -206,7 +206,7 @@ class ECETransformer {
         this.nonceBase = await this.generateNonceBase();
       } else {
         controller.enqueue(
-          await this.decryptRecord(this.prevChunk, this.seq - 1, isLast)
+          await this.decryptRecord(this.prevChunk, this.seq - 1, isLast),
         );
       }
       this.seq++;
@@ -285,30 +285,105 @@ class StreamSlicer {
   }
 }
 
-/*
-input: a ReadableStream containing data to be transformed
-key:  Uint8Array containing key of size KEY_LENGTH
-rs:   int containing record size, optional
-salt: ArrayBuffer containing salt of KEY_LENGTH length, optional
-*/
-export function encryptStream(
-  input,
-  key,
-  rs = ECE_RECORD_SIZE,
-  salt = generateSalt(KEY_LENGTH)
-) {
-  const mode = 'encrypt';
-  const inputStream = transformStream(input, new StreamSlicer(rs, mode));
-  return transformStream(inputStream, new ECETransformer(mode, key, rs, salt));
+/**
+ * Derives cryptographic keys for encryption and signing from a user's password.
+ * This function is designed to be slow to protect against brute-force attacks.
+ *
+ * @param {string} password - The user's password.
+ * @param {Uint8Array} salt - A random salt (should be stored on the server per-user).
+ * @returns {Promise<{encryptionKeyPair: CryptoKeyPair, signingKeyPair: CryptoKeyPair}>}
+ * An object containing two key pairs: one for ECDH (encryption) and one for ECDSA (signing).
+ */
+export async function deriveKeysFromPassword(password, salt) {
+  // 1. Get a master key from the password using PBKDF2. This is the slow part.
+  const masterKey = await window.crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(password),
+    { name: "PBKDF2" },
+    false,
+    ["deriveBits"],
+  );
+
+  // INFO: OWASP recommentd 600.000 iterations for PBKDF2, although it might be a bit much for the browser?
+  const derivedBits = await window.crypto.subtle.deriveBits(
+    {
+      name: "PBKDF2",
+      salt: salt,
+      iterations: 600000,
+      hash: "SHA-256",
+    },
+    masterKey,
+    512, // We derive 512 bits in total.
+  );
+
+  // 2. Use the derived bits as a seed to create the specific key pairs.
+  // We use HKDF to derive separate, cryptographically strong keys for each purpose
+  // from the single master key. This is a best practice.
+  const hkdfKey = await window.crypto.subtle.importKey(
+    "raw",
+    derivedBits,
+    { name: "HKDF" },
+    false,
+    ["deriveKey"],
+  );
+
+  // Derive the encryption key pair
+  const encryptionKeyPair = await window.crypto.subtle.deriveKey(
+    {
+      name: "HKDF",
+      salt: new Uint8Array(),
+      info: new TextEncoder().encode("encryption"),
+      hash: "SHA-256",
+    },
+    hkdfKey,
+    { name: "ECDH", namedCurve: "P-256" },
+    true,
+    ["deriveKey", "deriveBits"],
+  );
+
+  // Derive the signing key pair
+  const signingKeyPair = await window.crypto.subtle.deriveKey(
+    {
+      name: "HKDF",
+      salt: new Uint8Array(),
+      info: new TextEncoder().encode("signing"),
+      hash: "SHA-256",
+    },
+    hkdfKey,
+    { name: "ECDSA", namedCurve: "P-256" },
+    true,
+    ["sign", "verify"],
+  );
+
+  return { encryptionKeyPair, signingKeyPair };
 }
 
-/*
-input: a ReadableStream containing data to be transformed
-key:  Uint8Array containing key of size KEY_LENGTH
-rs:   int containing record size, optional
-*/
-export function decryptStream(input, key, rs = ECE_RECORD_SIZE) {
-  const mode = 'decrypt';
-  const inputStream = transformStream(input, new StreamSlicer(rs, mode));
-  return transformStream(inputStream, new ECETransformer(mode, key, rs));
+/**
+ * Signs a challenge string using the user's private signing key.
+ *
+ * @param {CryptoKey} privateSigningKey - The private key from the ECDSA key pair.
+ * @param {string} challenge - The random nonce received from the server.
+ * @returns {Promise<ArrayBuffer>} - The signature as an ArrayBuffer.
+ */
+export async function signChallenge(privateSigningKey, challenge) {
+  const challengeBuffer = new TextEncoder().encode(challenge);
+  const signature = await window.crypto.subtle.sign(
+    {
+      name: "ECDSA",
+      hash: { name: "SHA-256" },
+    },
+    privateSigningKey,
+    challengeBuffer,
+  );
+
+  return signature;
+}
+
+/**
+ * A helper function to export a CryptoKey to a raw, storable format.
+ * @param {CryptoKey} key The public key to export.
+ * @returns {Promise<ArrayBuffer>} The exported key.
+ */
+export async function exportPublicKey(key) {
+  return await window.crypto.subtle.exportKey("raw", key);
 }

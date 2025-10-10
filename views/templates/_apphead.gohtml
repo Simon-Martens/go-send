@@ -1,0 +1,22 @@
+<link rel="stylesheet" href="/inter.css">
+<style {{.NonceAttr}}>
+:root {
+	--color-primary: {{ .Theme.Primary }};
+	--color-primary-accent: {{ .Theme.Accent }};
+}
+</style>
+{{if .Assets.CSS}}
+<link rel="stylesheet" href="{{ assetURL .Assets.CSS }}">{{end}}
+<!-- <link rel="manifest" href="/app.webmanifest"> -->
+{{if .Assets.AppleTouchIcon}}
+<link rel="apple-touch-icon" sizes="180x180" href="{{ assetURL .Assets.AppleTouchIcon }}">{{end}}
+{{if .Assets.Favicon32}}
+<link rel="icon" type="image/png" sizes="32x32" href="{{ assetURL .Assets.Favicon32 }}">{{end}}
+{{if .Assets.Favicon16}}
+<link rel="icon" type="image/png" sizes="16x16" href="{{ assetURL .Assets.Favicon16 }}">{{end}}
+{{if .Assets.SafariPinnedTab}}
+<link rel="mask-icon" href="{{ assetURL .Assets.SafariPinnedTab }}" color="#838383">{{end}}
+<link rel="icon" href="/favicon.ico">
+{{if .Assets.JS}}
+<script type="module" defer src="{{ assetURL .Assets.JS }}"></script>{{end}}
+

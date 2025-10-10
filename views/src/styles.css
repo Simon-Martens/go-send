@@ -4,3 +4,43 @@
 /* Paths are relative to project root, not this file */
 @source "templates/**/*.gohtml";
 @source "src/**/*.{js,mjs}";
+
+@theme {
+  --color-transparent: transparent;
+  --color-primary: var(--color-primary);
+  --color-primary-accent: var(--color-primary-accent);
+
+  --color-black: #000000;
+  --color-grey-90: #0c0c0d;
+  --color-grey-80: #2a2a2e;
+  --color-grey-70: #38383d;
+  --color-grey-60: #4a4a4f;
+  --color-grey-50: #737373;
+  --color-grey: #b1b1b3;
+  --color-grey-40: #b1b1b3;
+  --color-grey-30: #d7d7db;
+  --color-grey-banner: #f0f0f4;
+  --color-grey-transparent: hsla(250, 13%, 9%, 0.2);
+  --color-grey-20: #ededf0;
+  --color-grey-10: #f9f9fa;
+  --color-white: #ffffff;
+
+  --color-cloud: rgba(255, 255, 255, 0.8);
+  --color-violet: hsl(258, 57%, 35%);
+
+  --color-red-90: #450a0a;
+  --color-red-80: #991b1b;
+  --color-red-70: #b91c1c;
+  --color-red-60: #dc2626;
+  --color-red-40: #f87171;
+
+  --color-green-500: #22c55e;
+  --color-green-600: #16a34a;
+  --color-red-500: #ef4444;
+  --color-red-600: #dc2626;
+
+  --color-orange-90: #7c2d12;
+  --color-orange-60: #ea580c;
+  --color-orange-40: #fb923c;
+  --color-orange-10: #ffedd5;
+}

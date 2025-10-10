@@ -1,28 +1,3 @@
-{{ define "_apphead" }}
-	<link rel="stylesheet" href="/inter.css">
-	<style {{.NonceAttr}}>
-		:root {
-			--color-primary: {{ .Theme.Primary }};
-			--color-primary-accent: {{ .Theme.Accent }};
-		}
-	</style>
-	{{if .Assets.CSS}}
-	<link rel="stylesheet" href="{{ assetURL .Assets.CSS }}">{{end}}
-	<!-- <link rel="manifest" href="/app.webmanifest"> -->
-	{{if .Assets.AppleTouchIcon}}
-	<link rel="apple-touch-icon" sizes="180x180" href="{{ assetURL .Assets.AppleTouchIcon }}">{{end}}
-	{{if .Assets.Favicon32}}
-	<link rel="icon" type="image/png" sizes="32x32" href="{{ assetURL .Assets.Favicon32 }}">{{end}}
-	{{if .Assets.Favicon16}}
-	<link rel="icon" type="image/png" sizes="16x16" href="{{ assetURL .Assets.Favicon16 }}">{{end}}
-	{{if .Assets.SafariPinnedTab}}
-	<link rel="mask-icon" href="{{ assetURL .Assets.SafariPinnedTab }}" color="#838383">{{end}}
-	<link rel="icon" href="/favicon.ico">
-	{{if .Assets.JS}}
-	<script type="module" defer src="{{ assetURL .Assets.JS }}"></script>{{end}}
-{{ end }}
-
-{{ define "_app" }}
 <noscript>
 	<div class="noscript bg-grey-10 text-grey-90 dark:bg-grey-90 dark:text-grey-10 max-w-[80ch] hyphens-auto">
 		<h2 class="text-grey-90 dark:text-grey-10">JavaScript Required</h2>
@@ -30,7 +5,9 @@
 	</div>
 </noscript>
 	
-<main class="flex flex-col grow-1 shrink-0"></main>
+<main class="flex flex-col grow-1 shrink-0">
+	<go-send></go-send>
+</main>
 
 <script {{.NonceAttr}}>
 	var LIMITS = {{toJSON .State.Limits}};
@@ -39,5 +16,50 @@
 	var PREFS = {};
 	var downloadMetadata = {{rawJSON .State.DownloadMetadata}};
 </script>
-{{ end }}
 
+<template id="go-send">
+	<div class="flex flex-col items-center font-sans md:h-screen w-full realtive max-w=[64rem]" id="app">
+		<slot id="app-content"></slot>
+	</div>
+</template>
+
+<template id="upload-layout">
+	<section class="h-full w-full p-6 md:p-8 overflow-hidden md:flex md:flex-row md:rounded-xl md:shadow-big">
+		<div class="px-2 w-full md:px-0 md:mr-8 md:w-1/2">
+			<upload-left></upload-left>
+		</div>
+		<div class="mt-6 w-full md:w-1/2 md:-m-2">
+			<upload-right></upload-right>
+		</div>
+	</section>
+</template>
+
+<template id="upload-area-default">
+
+</template>
+
+<template id="upload-area-uploading">
+
+</template>
+
+<template id="upload-area-complete">
+
+</template>
+
+<template id="upload-area-list">
+
+</template>
+
+
+<template id="upload-title">
+	<div class="flex flex-col items-center justify-center bg-white px-6 md:py-0 py-6 mb-0 h-full w-full dark:bg-grey-90">	
+		<div class="mt-12 flex flex-col h-full">
+			<h1 class="text-3xl font-bold md:pb-2">
+				${state.translate("introTitle")}
+			</h1>
+			<p class="max-w-sm leading-loose mt-6 md:mt-2 md:pr-14">
+				${state.translate("introDescription")}
+			</p>
+		</div>
+	</div>
+</template>

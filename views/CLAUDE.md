@@ -1,59 +1,23 @@
-# Claude Code Context: go-send New Frontend (views/)
+# Claude Code Context: go-send Frontend (views/)
 
-## ⚠️ CRITICAL: Frontend Rewrite in Progress
+## Project Overview
 
-**THIS IS AN ACTIVE FRONTEND REWRITE. DO NOT USE THE OLD CHOO-BASED FRONTEND AS A REFERENCE FOR ARCHITECTURE.**
+This directory contains the **new frontend** for go-send, a self-hostable file sharing service with client-side encryption. This is a complete rewrite of the legacy Choo-based frontend (`../frontend/`) using modern, minimal technologies.
 
-We are **completely replacing** the legacy frontend (`../frontend/`) with a modern, minimal implementation that:
+### Core Philosophy
 
-### 🚨 MANDATORY REQUIREMENTS
+- **No framework overhead** - Use native Web APIs and browser capabilities
+- **Simple build process** - ESBuild only, no complex tooling
+- **Server-side structure** - Go templates provide HTML structure, JavaScript adds interactivity
+- **Client-side security** - All encryption happens in the browser; server never sees keys
 
-1. **NO BUILD SYSTEM (Vite/Webpack)** → Use **ESBuild** ONLY
-   - Simple, fast bundling
-   - No complex configuration
-   - Direct ES module support
+### Technology Stack
 
-2. **NO FRONTEND FRAMEWORK (Choo)** → Use **Browser-Native Web Components**
-   - NO Shadow DOM (incompatible with Tailwind)
-   - Custom elements with `class extends HTMLElement`
-   - Reactive updates via direct DOM manipulation
-
-3. **NO CLIENT-SIDE ROUTING** → Use **Go Template `<template>` Elements**
-   - Go templates (`templates/*.gohtml`) contain `<template>` elements for different views
-   - JavaScript shows/hides templates based on application state
-   - Server-side rendering of initial HTML structure
-
-4. **Tailwind CSS** for styling
-   - Use Tailwind utility classes throughout
-   - No Shadow DOM to ensure Tailwind works correctly
-   - Processed via ESBuild plugin or PostCSS
-
-### What We're Keeping from `../frontend/`
-
-The **business logic** and **crypto implementation** are sound. Reuse these JavaScript modules:
-
-- **`api.js`** - HTTP/WebSocket API client for upload/download/metadata
-- **`ece.js`** - Encrypted Content-Encoding (RFC 8188) implementation
-- **`keychain.js`** - HKDF key derivation, auth key management
-- **`fileSender.js`** - Upload orchestration with encryption
-- **`fileReceiver.js`** - Download orchestration with decryption
-- **`ownedFile.js`** - File metadata model
-- **`archive.js`** - Archive/ZIP file handling
-- **`storage.js`** - localStorage/IndexedDB abstraction
-- **`locale.js`** - i18n localization logic
-- **`qrcode.js`** - QR code generation
-- **`capabilities.js`** - Browser feature detection
-- **`streams.js`** - Stream transformation utilities
-- **`utils.js`** - General utilities
-- **`serviceWorker.js`** - Service worker for stream downloads
-
-### What We're Replacing
-
-- **Choo framework** → Web Components + vanilla JS
-- **`routes.js`** → Template-based view switching
-- **All `ui/*.js` files** → Rewritten as Web Components
-- **Webpack** → ESBuild
-- **`main.js`** → Simplified initialization without Choo
+- **Build**: ESBuild (bundling + minification)
+- **Styling**: Tailwind CSS 4.x via PostCSS
+- **Templates**: Go HTML templates (`.gohtml`)
+- **JavaScript**: ES Modules (`.mjs`)
+- **No framework**: Vanilla JavaScript with Web Components (planned)
 
 ---
 
@@ -61,399 +25,315 @@ The **business logic** and **crypto implementation** are sound. Reuse these Java
 
 ```
 views/
-├── CLAUDE.md              # This file - FRONTEND REWRITE CONTEXT
-├── templates/             # Go HTML templates (server-rendered)
-│   ├── index.gohtml      # Main page with <template> elements for views
-│   ├── footer.gohtml     # Footer component
-│   ├── head.gohtml       # <head> with assets, CSP nonce
-│   ├── body.gohtml       # <body> wrapper
-│   ├── login.gohtml      # Login page (if auth enabled)
-│   ├── account_*.gohtml  # Account management pages
-│   └── README.md         # Template documentation
+├── src/                    # JavaScript source files (ES Modules)
+│   ├── main.mjs           # Entry point - app initialization
+│   ├── styles.css         # Tailwind CSS entry point
+│   │
+│   ├── api.mjs            # HTTP/WebSocket API client
+│   ├── ece.mjs            # Encrypted Content-Encoding (RFC 8188)
+│   ├── keychain.mjs       # HKDF key derivation, auth keys
+│   ├── fileSender.mjs     # Upload orchestration + encryption
+│   ├── fileReceiver.mjs   # Download orchestration + decryption
+│   │
+│   ├── archive.mjs        # Archive/ZIP handling
+│   ├── storage.mjs        # localStorage/IndexedDB abstraction
+│   ├── locale.mjs         # i18n localization
+│   ├── qrcode.mjs         # QR code generation
+│   ├── capabilities.mjs   # Browser feature detection
+│   ├── streams.mjs        # Stream transformation utilities
+│   ├── utils.mjs          # General utilities
+│   ├── controller.mjs     # Application state management
+│   ├── ownedFile.mjs      # File metadata model
+│   ├── serviceWorker.mjs  # Service worker for stream downloads
+│   ├── zip.mjs            # ZIP file operations
+│   └── utils-worker.mjs   # Web Worker utilities
 │
-├── ES/                    # JavaScript modules (ESM) - BUSINESS LOGIC
-│   ├── main.js           # Entry point (NO CHOO, init web components)
-│   ├── api.mjs           # API client (KEEP FROM OLD FRONTEND)
-│   ├── ece.js            # Encryption (KEEP)
-│   ├── keychain.js       # Key derivation (KEEP)
-│   ├── fileSender.js     # Upload logic (KEEP)
-│   ├── fileReceiver.js   # Download logic (KEEP)
-│   ├── archive.mjs       # Archive handling (KEEP)
-│   ├── storage.js        # Storage abstraction (KEEP)
-│   ├── locale.js         # i18n (KEEP)
-│   ├── qrcode.js         # QR codes (KEEP)
-│   ├── capabilities.js   # Feature detection (KEEP)
-│   ├── streams.js        # Stream utils (KEEP)
-│   ├── utils.js          # Utilities (KEEP)
-│   ├── serviceWorker.js  # Service worker (KEEP)
-│   ├── dragManager.js    # Drag-and-drop (KEEP, ADAPT)
-│   ├── pasteManager.js   # Paste handler (KEEP, ADAPT)
-│   ├── controller.js     # State management (REWRITE - NO CHOO)
-│   ├── ownedFile.js      # File model (KEEP)
-│   └── main.css          # Global CSS (minimal, mostly Tailwind)
+├── templates/              # Go HTML templates (server-rendered)
+│   ├── index.gohtml       # Main page template
+│   ├── head.gohtml        # HTML <head> with assets, CSP nonce
+│   ├── body.gohtml        # <body> wrapper
+│   ├── footer.gohtml      # Footer component
+│   ├── _app.gohtml        # App container (used by index)
+│   ├── _footer.gohtml     # Footer partial
+│   ├── login.gohtml       # Login page (if auth enabled)
+│   ├── account_*.gohtml   # Account management pages
+│   └── README.md          # Template documentation
 │
-├── components/            # Web Components (NEW - TO BE CREATED)
-│   ├── upload-form.js    # File upload UI component
-│   ├── download-view.js  # File download UI component
-│   ├── file-list.js      # Uploaded files list
-│   ├── expiry-options.js # Download limit/expiry selectors
-│   ├── progress-bar.js   # Upload/download progress
-│   ├── share-dialog.js   # Share link dialog
-│   ├── password-dialog.js # Password protection UI
-│   ├── qr-dialog.js      # QR code display
-│   └── ...               # More components as needed
+├── assets/                 # Static assets (icons, images)
+├── assets_src/             # Source assets (SVG, etc.)
+├── common/                 # Shared utilities
+│   ├── assets.js          # Asset path mapping
+│   └── generate_asset_map.js
 │
-├── assets/                # Static assets (icons, images)
-│   └── ...
+├── public/                 # Additional static files
+│   └── inter.css          # Inter font CSS
 │
-├── assets_src/            # Source assets (SVG, etc.)
-│   └── ...
+├── dist/                   # Build output (gitignored)
+│   ├── main.*.js          # Bundled JavaScript (with hash)
+│   ├── main.*.css         # Bundled CSS (with hash)
+│   ├── styles.*.css       # Additional styles (with hash)
+│   └── manifest.json      # Asset manifest for Go server
 │
-├── common/                # Shared utilities
-│   └── assets.js         # Asset path mapping
+├── scripts/                # Build and dev scripts
+│   └── dev.mjs            # Development watch script
 │
-└── dist/                  # Build output (ESBuild) - GITIGNORED
-    ├── bundle.js         # Bundled JS
-    ├── bundle.css        # Bundled CSS (Tailwind + custom)
-    └── manifest.json     # Asset manifest for cache busting
+├── esbuild.config.mjs      # ESBuild configuration
+├── postcss.config.mjs      # PostCSS configuration (Tailwind)
+├── package.json            # Node dependencies and scripts
+└── CLAUDE.md              # This file
 ```
 
 ---
 
-## Architecture Overview
+## Architecture
 
-### 1. Go Templates (`templates/*.gohtml`)
+### 1. Server-Side Rendering (Go Templates)
 
-Server renders HTML structure with embedded `<template>` elements for different views:
+Go templates (`templates/*.gohtml`) provide the initial HTML structure. The server:
+- Renders the base HTML with CSP nonces
+- Injects asset URLs with cache-busting hashes from `dist/manifest.json`
+- Provides initial configuration via `window.LIMITS`, `window.DEFAULTS`, `window.WEB_UI`, `window.PREFS`
 
+**Example template usage:**
 ```html
 <!-- templates/index.gohtml -->
 <!DOCTYPE html>
 <html>
-<head>
-  <link rel="stylesheet" href="/{{.CSS}}">
-</head>
-<body>
-  <main id="app">
-    <!-- Upload view -->
-    <template id="upload-view">
-      <upload-form></upload-form>
-      <file-list></file-list>
-    </template>
-
-    <!-- Download view -->
-    <template id="download-view">
-      <download-view file-id="{{.FileID}}"></download-view>
-    </template>
-
-    <!-- Error view -->
-    <template id="error-view">
-      <div class="error">...</div>
-    </template>
-  </main>
-
-  <script type="module" src="/{{.JS}}"></script>
-</body>
+  {{template "head.gohtml" .}}
+  <body>
+    {{template "body.gohtml" .}}
+  </body>
 </html>
 ```
 
-**Key Points:**
-- Go templates provide initial HTML structure
-- `<template>` elements are inert until activated by JS
-- No client-side routing library needed
-- CSP nonce: `{{.Nonce}}` for inline scripts/styles
+### 2. JavaScript Architecture
 
-### 2. Web Components (`components/*.js`)
+**Entry Point (`src/main.mjs`):**
+- Detects browser capabilities
+- Registers service worker (if supported)
+- Loads translations
+- Initializes `window.initialState` with app configuration
 
-Custom elements for UI components WITHOUT Shadow DOM:
+**Core Modules (Business Logic):**
+These modules contain the critical encryption and file transfer logic from the original Firefox Send implementation. **DO NOT rewrite these** - they have been thoroughly tested and audited:
 
-```javascript
-// components/upload-form.js
-export class UploadForm extends HTMLElement {
-  connectedCallback() {
-    this.innerHTML = `
-      <div class="max-w-xl mx-auto p-6 bg-white rounded-lg shadow-lg">
-        <input type="file" multiple class="hidden" id="file-input">
-        <button class="btn-primary" onclick="this.previousElementSibling.click()">
-          Select Files
-        </button>
-      </div>
-    `;
+- `api.mjs` - Backend communication
+- `ece.mjs` - Encryption/decryption (RFC 8188)
+- `keychain.mjs` - HKDF key derivation
+- `fileSender.mjs` - Upload with encryption
+- `fileReceiver.mjs` - Download with decryption
 
-    this.querySelector('#file-input').addEventListener('change', (e) => {
-      this.dispatchEvent(new CustomEvent('files-selected', {
-        detail: { files: e.target.files },
-        bubbles: true
-      }));
-    });
-  }
-}
+**Support Modules:**
+- `archive.mjs` - Manages file collections
+- `storage.mjs` - Browser storage abstraction
+- `locale.mjs` - i18n support
+- `controller.mjs` - Application state (to be adapted)
+- `utils.mjs` - Helper functions
 
-customElements.define('upload-form', UploadForm);
+### 3. Build Process (ESBuild)
+
+The build system is simple and fast:
+
+```bash
+# Production build
+npm run build
+
+# Development watch mode
+npm run watch
 ```
 
-**Why No Shadow DOM?**
-- Tailwind classes need to reach component internals
-- Simpler debugging (everything in main DOM tree)
-- Better accessibility (easier to inspect/test)
+**What happens during build:**
+1. ESBuild bundles `src/main.mjs` → `dist/main.[hash].js`
+2. PostCSS processes `src/styles.css` with Tailwind → `dist/main.[hash].css`
+3. Assets are copied with cache-busting hashes
+4. `dist/manifest.json` is generated with file mappings
 
-### 3. Application State (`ES/controller.js`)
+**ESBuild Configuration (`esbuild.config.mjs`):**
+- Entry: `src/main.mjs`, `src/styles.css`
+- Output: `dist/` with hash-based filenames
+- Plugins: PostCSS for Tailwind processing
+- Minification and sourcemaps in production
 
-Simple state management without Choo:
+### 4. Styling (Tailwind CSS 4.x)
 
-```javascript
-// ES/controller.js
-export class AppController {
-  constructor() {
-    this.state = {
-      view: 'upload',
-      archive: new Archive(),
-      transfer: null,
-      capabilities: {},
-      translate: () => {},
-    };
-    this.listeners = new Set();
-  }
-
-  setState(updates) {
-    Object.assign(this.state, updates);
-    this.notify();
-  }
-
-  subscribe(listener) {
-    this.listeners.add(listener);
-    return () => this.listeners.delete(listener);
-  }
-
-  notify() {
-    this.listeners.forEach(fn => fn(this.state));
-  }
-
-  showView(viewName) {
-    const app = document.getElementById('app');
-    const template = document.getElementById(`${viewName}-view`);
-    if (!template) return;
-
-    const clone = template.content.cloneNode(true);
-    app.innerHTML = '';
-    app.appendChild(clone);
-
-    this.setState({ view: viewName });
-  }
-}
-```
-
-### 4. Entry Point (`ES/main.js`)
-
-Initialize app without Choo:
-
-```javascript
-// ES/main.js
-import { AppController } from './controller.js';
-import { getCapabilities } from './capabilities.js';
-import { getTranslator } from './locale.js';
-import './components/upload-form.js';
-import './components/download-view.js';
-// ... import all components
-
-(async function init() {
-  const capabilities = await getCapabilities();
-  const translate = await getTranslator(navigator.language);
-
-  window.app = new AppController();
-  window.app.setState({
-    capabilities,
-    translate,
-    LIMITS: window.LIMITS,
-    DEFAULTS: window.DEFAULTS,
-  });
-
-  // Initial view based on URL
-  const path = window.location.pathname;
-  if (path.includes('/download/')) {
-    window.app.showView('download');
-  } else {
-    window.app.showView('upload');
-  }
-})();
-```
-
-### 5. Build Process (ESBuild)
-
-Simple `esbuild.config.js`:
-
-```javascript
-import esbuild from 'esbuild';
-import tailwindcss from 'tailwindcss';
-import autoprefixer from 'autoprefixer';
-import postcss from 'postcss';
-
-esbuild.build({
-  entryPoints: ['ES/main.js', 'ES/main.css'],
-  bundle: true,
-  minify: true,
-  sourcemap: true,
-  outdir: 'dist',
-  plugins: [
-    {
-      name: 'postcss',
-      setup(build) {
-        build.onLoad({ filter: /\.css$/ }, async (args) => {
-          const css = await fs.readFile(args.path, 'utf8');
-          const result = await postcss([tailwindcss, autoprefixer]).process(css, {
-            from: args.path
-          });
-          return { contents: result.css, loader: 'css' };
-        });
-      }
-    }
-  ]
-}).catch(() => process.exit(1));
-```
-
----
-
-## Key Differences from Old Frontend
-
-| Old (`../frontend/`) | New (`views/`) |
-|----------------------|----------------|
-| Choo framework | Vanilla JS + Web Components |
-| Client-side routing | Template-based view switching |
-| Webpack | ESBuild |
-| `ui/*.js` Choo components | `components/*.js` Web Components |
-| `routes.js` | Go templates with `<template>` elements |
-| Complex build | Simple build |
-| Shadow DOM (no Tailwind) | No Shadow DOM (Tailwind-friendly) |
+Tailwind utilities are used throughout the project:
+- Entry point: `src/styles.css`
+- Processed via PostCSS plugin
+- No Shadow DOM (so Tailwind classes work everywhere)
 
 ---
 
 ## Development Workflow
 
-### Running the App
+### Setup
 
 ```bash
-# Build frontend
-cd views
+# Install dependencies
 npm install
-npm run build  # Runs ESBuild
 
-# Start Go server (from project root)
-cd ..
-go run .
+# Build frontend
+npm run build
+
+# Development mode (watch for changes)
+npm run watch
 ```
 
-### Building Frontend Only
+### Running with Go Server
 
 ```bash
-cd views
-npm run build        # Production build
-npm run dev          # Watch mode for development
+# From project root (not views/)
+go run .
+
+# Server automatically picks up dist/ assets
+# Hot reload requires rebuilding frontend
 ```
 
-### Adding a New Component
+### Adding New Features
 
-1. Create `components/my-component.js`
-2. Define custom element (NO Shadow DOM)
-3. Use Tailwind classes for styling
-4. Import in `ES/main.js`
-5. Use in Go template: `<my-component></my-component>`
+**Add a new module:**
+1. Create `src/my-module.mjs`
+2. Export functions/classes
+3. Import in `src/main.mjs` or other modules
 
-### Adding a New View
+**Add styles:**
+1. Add Tailwind utilities directly in templates
+2. For custom CSS, add to `src/styles.css`
 
-1. Add `<template id="my-view">` to `templates/index.gohtml`
-2. Call `window.app.showView('my-view')` from JS
-3. Populate with web components
-
----
-
-## Critical Implementation Notes
-
-### ✅ DO
-
-- Use Web Components without Shadow DOM
-- Keep crypto/upload/download logic from old frontend
-- Use Tailwind utility classes everywhere
-- Use `<template>` elements in Go templates
-- Use ESBuild for bundling
-- Dispatch custom events for component communication
-- Use `window.app` for global state
-
-### ❌ DON'T
-
-- Import Choo or any frontend framework
-- Use Shadow DOM (breaks Tailwind)
-- Use client-side routing libraries
-- Create a complex build system
-- Rewrite crypto logic (keep it!)
-- Use `document.write()` or `innerHTML` for untrusted data
+**Add templates:**
+1. Create `templates/my-template.gohtml`
+2. Reference from other templates or handlers
+3. Use `{{.Nonce}}` for CSP compliance
 
 ---
 
-## Security Considerations
+## What Changed from Old Frontend
 
-- **CSP Nonce**: Use `{{.Nonce}}` in Go templates for inline scripts
-- **XSS Prevention**: Sanitize user input before rendering
-- **Client-Side Encryption**: All encryption MUST happen in browser
-- **No Secrets in JS**: Server never sees decryption keys
-- **HTTPS Only**: Enforce HTTPS in production
-
----
-
-## Reference Files (from `../frontend/`)
-
-When implementing new features, refer to these old frontend files for **logic only** (not architecture):
-
-- **Upload flow**: `../frontend/app/fileSender.js`
-- **Download flow**: `../frontend/app/fileReceiver.js`
-- **Encryption**: `../frontend/app/ece.js`
-- **API calls**: `../frontend/app/api.js`
-- **UI components**: `../frontend/app/ui/*.js` (for BEHAVIOR, not structure)
-
-**DO NOT copy the Choo-based architecture. Only extract the core logic.**
+| Old (`../frontend/`) | New (`views/`) |
+|---------------------|----------------|
+| Choo framework | Vanilla JS (Web Components planned) |
+| Webpack | ESBuild |
+| `app/` directory | `src/` directory |
+| `.js` extension | `.mjs` extension |
+| Complex build config | Simple config |
+| Client-side routing | Server-side routing |
+| 1980+ npm dependencies | ~6 dependencies |
 
 ---
 
-## Status of Migration
+## Current Status
 
 ### ✅ Completed
-- Directory structure created
-- Core JS modules copied (api, ece, keychain, etc.)
-- Go templates set up
+
+- ESBuild + PostCSS + Tailwind build pipeline
+- Core business logic modules migrated (api, ece, keychain, fileSender, fileReceiver)
+- Go template structure
+- Asset management with cache busting
+- Service worker setup
+- Localization framework
 
 ### 🚧 In Progress
-- Web Components implementation
-- ESBuild configuration
-- Tailwind integration
+
+- UI implementation (no components built yet)
 - View switching logic
+- Upload/download UI
+- File list management
+- Share dialogs
 
 ### ❌ Not Started
+
+- Web Components implementation
+- Drag-and-drop UI (logic exists in `dragManager.mjs.old`)
+- Paste handling UI (logic exists in `pasteManager.mjs.old`)
+- QR code display component
+- Password protection UI
+- Progress indicators
+- Error handling UI
+- Accessibility improvements
 - Testing framework
-- CI/CD for frontend builds
-- Accessibility audit
-- Localization integration with new components
 
 ---
 
-## Questions? Check These First
+## Important Notes
 
-1. **"Should I use a framework?"** → NO. Web Components only.
-2. **"Can I use Shadow DOM?"** → NO. Tailwind won't work.
-3. **"Should I use Vite?"** → NO. ESBuild only.
-4. **"Can I rewrite the crypto logic?"** → NO. Keep it from old frontend.
-5. **"How do I add routing?"** → Use `window.app.showView()` + templates.
+### Security
+
+- **Client-side encryption ONLY** - Server never sees decryption keys
+- **CSP nonce** - Use `{{.Nonce}}` in templates for inline scripts/styles
+- **XSS prevention** - Sanitize all user input before rendering
+- **HTTPS required** - Never deploy without HTTPS in production
+
+### DO
+
+- Keep crypto logic intact (api, ece, keychain, fileSender, fileReceiver)
+- Use ES Modules (`.mjs` extension)
+- Use Tailwind utility classes for styling
+- Reference assets via `dist/manifest.json` mappings
+- Use Go templates for HTML structure
+- Follow the existing code style
+
+### DON'T
+
+- Rewrite or "improve" the encryption modules
+- Add unnecessary dependencies
+- Use Shadow DOM (breaks Tailwind)
+- Create complex build configurations
+- Use `document.write()` or `innerHTML` with untrusted data
+- Add client-side routing libraries
 
 ---
 
-## Contact & Resources
+## Key Files Reference
 
-- **Old Frontend**: `../frontend/` (logic reference only)
-- **Backend**: `../` (main Go server)
-- **Templates Docs**: `templates/README.md`
-- **Web Components**: https://developer.mozilla.org/en-US/docs/Web/API/Web_components
-- **Tailwind**: https://tailwindcss.com/docs
+### Must Understand
+
+- `src/main.mjs` - Application initialization
+- `src/api.mjs` - Backend API client
+- `src/ece.mjs` - Encryption implementation
+- `templates/index.gohtml` - Main template
+- `esbuild.config.mjs` - Build configuration
+
+### For Upload Flow
+
+1. User selects files → UI (to be built)
+2. `archive.mjs` - Creates file collection
+3. `fileSender.mjs` - Orchestrates upload
+4. `ece.mjs` - Encrypts file chunks
+5. `api.mjs` - WebSocket upload to server
+
+### For Download Flow
+
+1. User opens download link → `templates/index.gohtml`
+2. `api.mjs` - Fetches encrypted metadata
+3. `keychain.mjs` - Derives decryption key from URL fragment
+4. `fileReceiver.mjs` - Orchestrates download
+5. `ece.mjs` - Decrypts file chunks
+6. Browser downloads decrypted file
+
+---
+
+## Next Steps
+
+The immediate priorities are:
+
+1. **Build UI components** - Create upload form, file list, download view
+2. **Implement view switching** - Route-based template rendering
+3. **Connect UI to business logic** - Wire up fileSender/fileReceiver
+4. **Add interactivity** - Drag-and-drop, paste, progress indicators
+5. **Polish UX** - Error handling, loading states, responsive design
+
+---
+
+## Resources
+
+- **Old Frontend**: `../frontend/` (reference for logic only, not architecture)
+- **Backend**: `../` (Go server that serves this frontend)
+- **Templates**: `templates/README.md`
+- **Tailwind CSS**: https://tailwindcss.com/docs
 - **ESBuild**: https://esbuild.github.io/
+- **Web Crypto API**: https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API
+- **RFC 8188 (ECE)**: https://tools.ietf.org/html/rfc8188
 
 ---
 
 **Last Updated**: 2025-10-10
-**Status**: Active Development - Frontend Rewrite Phase
+**Status**: Early Development - Core Infrastructure Complete, UI Implementation Pending

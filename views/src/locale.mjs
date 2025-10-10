@@ -1,4 +1,4 @@
-import { FluentBundle, FluentResource } from '@fluent/bundle';
+import { FluentBundle, FluentResource } from "@fluent/bundle";
 
 function makeBundle(locale, ftl) {
   const bundle = new FluentBundle(locale, { useIsolating: false });
@@ -11,15 +11,13 @@ export async function getTranslator(locale) {
   // In production, files are in dist/public/locales/
   // The path is relative to the source file during build, but at runtime
   // the dynamic import will resolve from the built chunks
-  const { default: en } = await import('../public/locales/en-US/send.ftl');
-  if (locale !== 'en-US') {
-    const { default: ftl } = await import(
-      `../public/locales/${locale}/send.ftl`
-    );
+  const { default: en } = await import("../locales/en-US.ftl");
+  if (locale !== "en-US") {
+    const { default: ftl } = await import(`../locales/${locale}.ftl`);
     bundles.push(makeBundle(locale, ftl));
   }
-  bundles.push(makeBundle('en-US', en));
-  return function(id, data) {
+  bundles.push(makeBundle("en-US", en));
+  return function (id, data) {
     for (let bundle of bundles) {
       if (bundle.hasMessage(id)) {
         return bundle.formatPattern(bundle.getMessage(id).value, data);

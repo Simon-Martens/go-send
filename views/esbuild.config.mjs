@@ -1,14 +1,11 @@
 import * as esbuild from "esbuild";
-import { createRequire } from "module";
 import {
   ftlPlugin,
   manifestPlugin,
   versionPlugin,
   copyPublicPlugin,
+  tailwindPlugin,
 } from "./scripts/build-plugins.mjs";
-
-const require = createRequire(import.meta.url);
-const postCssPlugin = require("esbuild-plugin-postcss").default;
 
 // Check if running in dev mode
 const isDev =
@@ -17,6 +14,32 @@ const isDev =
 console.log(`🔨 Building in ${isDev ? "DEVELOPMENT" : "PRODUCTION"} mode...`);
 
 try {
+  // Build main app and service worker separately to control hashing
+  // Service worker must have stable filename for registration
+  await esbuild.build({
+    // Service worker build (no hash)
+    entryPoints: ["src/serviceWorker.mjs"],
+    bundle: true,
+    outdir: "dist",
+    format: "esm",
+    entryNames: "serviceWorker", // Always serviceWorker.js
+    resolveExtensions: [".mjs", ".js", ".css", ".json"],
+    conditions: ["style", "import", "module", "browser", "default"],
+    minify: !isDev,
+    sourcemap: isDev,
+    target: ["es2020", "chrome87", "firefox78", "safari14", "edge88"],
+    treeShaking: true,
+    define: {
+      "process.env.NODE_ENV": isDev ? '"development"' : '"production"',
+      global: "globalThis",
+    },
+    loader: {
+      ".json": "json",
+    },
+    logLevel: "info",
+  });
+
+  // Main app build (with hash)
   await esbuild.build({
     // Entry points
     entryPoints: ["src/main.mjs", "src/styles.css"],
@@ -33,8 +56,8 @@ try {
 
     // Cache busting: add content hash to filenames in production
     entryNames: isDev ? "[name]" : "[name].[hash]",
-    chunkNames: isDev ? "chunks/[name]" : "chunks/[name].[hash]",
-    assetNames: isDev ? "assets/[name]" : "assets/[name].[hash]",
+    chunkNames: isDev ? "[name]" : "[name].[hash]",
+    assetNames: isDev ? "[name]" : "[name].[hash]",
 
     // Optimization
     minify: !isDev,
@@ -46,10 +69,7 @@ try {
 
     // Plugins
     plugins: [
-      postCssPlugin({
-        // Use existing postcss.config.mjs
-        plugins: [],
-      }),
+      tailwindPlugin(), // Process CSS with PostCSS and Tailwind
       ftlPlugin(), // Load .ftl (Fluent) translation files as text
       copyPublicPlugin(), // Copy public/locales to dist/locales
       manifestPlugin(), // Generate manifest.json for Go server
@@ -80,6 +100,7 @@ try {
       ".eot": "file",
       ".ttf": "file",
       ".otf": "file",
+      ".json": "json", // Allow importing JSON files
     },
 
     // Log level

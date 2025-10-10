@@ -17,10 +17,10 @@ import (
 	_ "github.com/Simon-Martens/go-send/migrations"
 )
 
-//go:embed frontend/templates/*
+//go:embed views/templates/*
 var templatesFS embed.FS
 
-//go:embed frontend/dist
+//go:embed views/dist
 var distFS embed.FS
 
 func main() {

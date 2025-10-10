@@ -55,9 +55,9 @@ var (
 )
 
 const (
-	EMBEDDED_TEMPLATES_PATH   = "frontend/templates/*.gohtml"
-	EMBEDDED_TEMPLATES_PREFIX = "frontend/templates/"
-	EMBEDDED_DIST_PATH        = "frontend/dist"
+	EMBEDDED_TEMPLATES_PATH   = "views/templates/*.gohtml"
+	EMBEDDED_TEMPLATES_PREFIX = "views/templates/"
+	EMBEDDED_DIST_PATH        = "views/dist"
 	USER_TEMPLATES_SUBDIR     = "templates"
 	USER_PUBLIC_SUBDIR        = "public"
 	USER_DIST_SUBDIR          = "dist"
@@ -65,8 +65,8 @@ const (
 )
 
 const (
-	DEFAULT_MANIFEST_JS  = "app.js"
-	DEFAULT_MANIFEST_CSS = "app.css"
+	DEFAULT_MANIFEST_JS  = "main.js"
+	DEFAULT_MANIFEST_CSS = "styles.css"
 )
 
 const (

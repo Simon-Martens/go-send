@@ -16,12 +16,12 @@ func (m Manifest) Value(key string) string {
 
 // LoadManifest loads the webpack manifest.json from embedded filesystem
 func LoadManifest(distFS embed.FS, logger *slog.Logger) Manifest {
-	manifestData, err := distFS.ReadFile("frontend/dist/manifest.json")
+	manifestData, err := distFS.ReadFile("views/dist/manifest.json")
 	if err != nil {
 		logger.Warn("manifest.json not found, using defaults")
 		return map[string]string{
-			"app.js":  config.DEFAULT_MANIFEST_JS,
-			"app.css": config.DEFAULT_MANIFEST_CSS,
+			"main.js":    config.DEFAULT_MANIFEST_JS,
+			"styles.css": config.DEFAULT_MANIFEST_CSS,
 		}
 	}
 
@@ -29,8 +29,8 @@ func LoadManifest(distFS embed.FS, logger *slog.Logger) Manifest {
 	if err := json.Unmarshal(manifestData, &manifest); err != nil {
 		logger.Warn("Failed to parse manifest.json, using defaults", "error", err)
 		return map[string]string{
-			"app.js":  config.DEFAULT_MANIFEST_JS,
-			"app.css": config.DEFAULT_MANIFEST_CSS,
+			"main.js":    config.DEFAULT_MANIFEST_JS,
+			"styles.css": config.DEFAULT_MANIFEST_CSS,
 		}
 	}
 

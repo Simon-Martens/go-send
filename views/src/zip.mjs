@@ -1,4 +1,5 @@
-import crc32 from 'crc/crc32';
+// INFO: we use calculators/crc32, bc it operates on a UInt8Array, so it works int the browser
+import crc32 from "crc/calculators/crc32";
 
 const encoder = new TextEncoder();
 
@@ -167,7 +168,7 @@ class ZipStreamController {
 
 export default class Zip {
   constructor(manifest, source) {
-    this.files = manifest.files.map(info => new File(info));
+    this.files = manifest.files.map((info) => new File(info));
     this.source = source;
   }
 
@@ -178,7 +179,7 @@ export default class Zip {
   get size() {
     const entries = this.files.reduce(
       (total, file) => total + file.byteLength * 2 - file.size,
-      0
+      0,
     );
     const eod = 22;
     return entries + eod;

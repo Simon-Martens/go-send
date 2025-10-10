@@ -1,3 +1,6 @@
-@import "tailwindcss/theme.css";
-@import "tailwindcss/preflight.css";
-@import "tailwindcss/utilities.css";
+@import "tailwindcss";
+
+/* Tell Tailwind 4 which files to scan for utility classes */
+/* Paths are relative to project root, not this file */
+@source "templates/**/*.gohtml";
+@source "src/**/*.{js,mjs}";

@@ -1,0 +1,44 @@
+{
+  "name": "go-send-views",
+  "version": "1.0.0",
+  "description": "Views and frontend package for Go Send",
+  "keywords": [
+    "Go",
+    "Send",
+    "Filesharing",
+    "File",
+    "encryption",
+    "Secure",
+    "storage"
+  ],
+  "homepage": "https://github.com/Simon-Martens/go-send#readme",
+  "bugs": {
+    "url": "https://github.com/Simon-Martens/go-send/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Simon-Martens/go-send.git"
+  },
+  "license": "MPL-2.0",
+  "author": "Simon Martens",
+  "type": "module",
+  "main": "src/main.mjs",
+  "scripts": {
+    "build": "node esbuild.config.mjs",
+    "dev": "node esbuild.config.mjs --dev",
+    "watch": "node scripts/dev.mjs",
+    "clean": "rm -rf dist",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.1.14",
+    "esbuild": "0.25.10",
+    "esbuild-plugin-postcss": "^0.3.0",
+    "postcss": "8.5.6",
+    "tailwindcss": "4.1.14"
+  },
+  "dependencies": {
+    "@fluent/bundle": "^0.18.0",
+    "@fluent/langneg": "^0.7.0"
+  }
+}

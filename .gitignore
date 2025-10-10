@@ -1,5 +1,4 @@
 *.db
-*.env
 /go-send
 /uploads
 /data

@@ -4,17 +4,17 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/Simon-Martens/go-send/config"
+	"github.com/Simon-Martens/go-send/core"
 )
 
-func NewConfigHandler(cfg *config.Config) http.HandlerFunc {
+func NewConfigHandler(app *core.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		response := map[string]interface{}{
-			"DOWNLOAD_COUNTS":      cfg.DownloadCounts,
-			"EXPIRE_TIMES_SECONDS": cfg.ExpireTimesSeconds,
-			"MAX_FILE_SIZE":        cfg.MaxFileSize,
-			"MAX_DOWNLOADS":        cfg.MaxDownloads,
-			"MAX_EXPIRE_SECONDS":   cfg.MaxExpireSeconds,
+			"DOWNLOAD_COUNTS":      app.Config.DownloadCounts,
+			"EXPIRE_TIMES_SECONDS": app.Config.ExpireTimesSeconds,
+			"MAX_FILE_SIZE":        app.Config.MaxFileSize,
+			"MAX_DOWNLOADS":        app.Config.MaxDownloads,
+			"MAX_EXPIRE_SECONDS":   app.Config.MaxExpireSeconds,
 		}
 
 		w.Header().Set("Content-Type", "application/json")

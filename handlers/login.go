@@ -4,16 +4,13 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"html/template"
-	"log/slog"
 	"net/http"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/Simon-Martens/go-send/auth"
-	"github.com/Simon-Martens/go-send/config"
-	"github.com/Simon-Martens/go-send/i18n"
+	"github.com/Simon-Martens/go-send/core"
 	"github.com/Simon-Martens/go-send/storage"
 )
 
@@ -21,52 +18,54 @@ const (
 	adminSessionLifetime = 24 * time.Hour * 365 * 10 // roughly ten years
 )
 
-func NewLoginHandler(tmpl *template.Template, manifest map[string]string, db *storage.DB, cfg *config.Config, translator *i18n.Translator, logger *slog.Logger) http.HandlerFunc {
+func NewLoginHandler(app *core.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if _, err := auth.GetSessionFromRequest(db, r); err == nil {
+		if _, err := auth.GetSessionFromRequest(app.DB, r); err == nil {
 			http.Redirect(w, r, "/", http.StatusSeeOther)
 			return
 		} else if errors.Is(err, storage.ErrSessionExpired) {
 			auth.ClearSessionCookie(w, r.TLS != nil)
 		}
 
+		errorFunc := renderError(app, w, r)
+
 		switch r.Method {
 		case http.MethodGet:
-			renderLoginTemplate(w, r, tmpl, manifest, db, cfg, translator, logger, nil, "")
+			renderLoginTemplate(w, r, app, nil, "")
 		case http.MethodPost:
 			if err := r.ParseForm(); err != nil {
-				logger.Warn("Failed to parse login form", "error", err)
-				renderLoginTemplate(w, r, tmpl, manifest, db, cfg, translator, logger, &FlashMessage{Message: "Invalid request", Kind: "error"}, "")
+				app.Logger.Warn("Failed to parse login form", "error", err)
+				renderLoginTemplate(w, r, app, &FlashMessage{Message: "Invalid request", Kind: "error"}, "")
 				return
 			}
 
 			username := r.FormValue("username")
 			password := r.FormValue("password")
 			if username == "" || password == "" {
-				renderLoginTemplate(w, r, tmpl, manifest, db, cfg, translator, logger, &FlashMessage{Message: "Username and password are required", Kind: "error"}, username)
+				errorFunc("Username and password are required")
 				return
 			}
 
-			admin, err := db.GetAdminByUsername(username)
+			admin, err := app.DB.GetAdminByUsername(username)
 			if err != nil {
 				if errors.Is(err, storage.ErrAdminNotFound) {
-					renderLoginTemplate(w, r, tmpl, manifest, db, cfg, translator, logger, &FlashMessage{Message: "Unknown administrator", Kind: "error"}, username)
+					errorFunc("Unknown administrator")
 					return
 				}
-				logger.Error("Failed to load admin user", "error", err)
-				renderLoginTemplate(w, r, tmpl, manifest, db, cfg, translator, logger, &FlashMessage{Message: "Internal server error", Kind: "error"}, username)
+				app.Logger.Error("Failed to load admin user", "error", err)
+				errorFunc("Internal server error")
 				return
 			}
 
 			if bcrypt.CompareHashAndPassword([]byte(admin.PasswordHash), []byte(password)) != nil {
-				renderLoginTemplate(w, r, tmpl, manifest, db, cfg, translator, logger, &FlashMessage{Message: "Invalid password", Kind: "error"}, username)
+				errorFunc("Invalid password")
 				return
 			}
 
 			token, err := auth.GenerateToken(32)
 			if err != nil {
-				logger.Error("Failed to generate session token", "error", err)
-				renderLoginTemplate(w, r, tmpl, manifest, db, cfg, translator, logger, &FlashMessage{Message: "Internal server error", Kind: "error"}, username)
+				app.Logger.Error("Failed to generate session token", "error", err)
+				errorFunc("Internal server error")
 				return
 			}
 
@@ -84,15 +83,13 @@ func NewLoginHandler(tmpl *template.Template, manifest map[string]string, db *st
 				CreatedAt: time.Now().Unix(),
 			}
 
-			if _, err = db.CreateSession(session); err != nil {
-				logger.Error("Failed to create admin session", "error", err)
-				renderLoginTemplate(w, r, tmpl, manifest, db, cfg, translator, logger, &FlashMessage{Message: "Internal server error", Kind: "error"}, username)
+			if _, err = app.DB.CreateSession(session); err != nil {
+				app.Logger.Error("Failed to create admin session", "error", err)
+				errorFunc("Internal server error")
 				return
 			}
 
-			secure := r.TLS != nil
-			auth.SetSessionCookie(w, token, secure, int(adminSessionLifetime.Seconds()))
-
+			auth.SetSessionCookie(w, token, int(adminSessionLifetime.Seconds()))
 			http.Redirect(w, r, "/", http.StatusSeeOther)
 		default:
 			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
@@ -100,26 +97,32 @@ func NewLoginHandler(tmpl *template.Template, manifest map[string]string, db *st
 	}
 }
 
-func renderLoginTemplate(w http.ResponseWriter, r *http.Request, tmpl *template.Template, manifest map[string]string, db *storage.DB, cfg *config.Config, translator *i18n.Translator, logger *slog.Logger, flash *FlashMessage, username string) {
+func renderError(app *core.App, w http.ResponseWriter, r *http.Request) func(msg string) {
+	return func(msg string) {
+		renderLoginTemplate(w, r, app, &FlashMessage{Message: msg, Kind: "error"}, "")
+	}
+}
+
+func renderLoginTemplate(w http.ResponseWriter, r *http.Request, app *core.App, flash *FlashMessage, username string) {
 	nonce, err := generateNonce()
 	if err != nil {
-		logger.Error("Failed to generate nonce", "error", err)
+		app.Logger.Error("Failed to generate nonce", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
-	detectedLocale := detectLocale(r, cfg)
+	detectedLocale := detectLocale(r, app.Config)
 	var translate func(string, map[string]interface{}) string
-	if translator != nil {
-		translate = translator.Func(detectedLocale)
+	if app.Translator != nil {
+		translate = app.Translator.Func(detectedLocale)
 	}
-	data := getTemplateData(manifest, "{}", cfg, detectedLocale, nonce, translate)
-	data.Auth = resolveAuthContext(db, r, logger)
+	data := getTemplateData(app.Manifest, "{}", app.Config, detectedLocale, nonce, translate)
+	data.Auth = resolveAuthContext(app.DB, r, app.Logger)
 	data.Flash = flash
 	data.LoginForm.Username = username
 
-	if admins, err := db.ListAdmins(); err != nil {
-		logger.Error("Failed to list admins", "error", err)
+	if admins, err := app.DB.ListAdmins(); err != nil {
+		app.Logger.Error("Failed to list admins", "error", err)
 	} else {
 		loginAdmins := make([]LoginAdmin, 0, len(admins))
 		for _, a := range admins {
@@ -135,8 +138,8 @@ func renderLoginTemplate(w http.ResponseWriter, r *http.Request, tmpl *template.
 	w.Header().Set("Content-Security-Policy", csp)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	if err := tmpl.ExecuteTemplate(w, "login.gohtml", data); err != nil {
-		logger.Error("Failed to execute login template", "error", err)
+	if err := app.Template.ExecuteTemplate(w, "login.gohtml", data); err != nil {
+		app.Logger.Error("Failed to execute login template", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 }

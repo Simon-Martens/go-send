@@ -5,14 +5,13 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
-	"log/slog"
 	"net/http"
 	"os"
 	"path/filepath"
 	"time"
 
 	"github.com/Simon-Martens/go-send/auth"
-	"github.com/Simon-Martens/go-send/config"
+	"github.com/Simon-Martens/go-send/core"
 	"github.com/Simon-Martens/go-send/storage"
 	"github.com/gorilla/websocket"
 )
@@ -42,10 +41,10 @@ type UploadResponse struct {
 	Error      int    `json:"error,omitempty"`
 }
 
-func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(fileID string, expiresAt int64) bool, logger *slog.Logger) http.HandlerFunc {
+func NewUploadHandler(app *core.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if cfg.UploadGuard {
-			if _, err := auth.GetSessionFromRequest(db, r); err != nil {
+		if app.Config.UploadGuard {
+			if _, err := auth.GetSessionFromRequest(app.DB, r); err != nil {
 				if errors.Is(err, storage.ErrSessionExpired) {
 					auth.ClearSessionCookie(w, r.TLS != nil)
 				}
@@ -60,7 +59,7 @@ func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(f
 
 		conn, err := upgrader.Upgrade(w, r, responseHeader)
 		if err != nil {
-			logger.Error("WebSocket upgrade error",
+			app.Logger.Error("WebSocket upgrade error",
 				"error", err,
 				"remote_addr", r.RemoteAddr,
 				"user_agent", r.Header.Get("User-Agent"),
@@ -105,23 +104,23 @@ func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(f
 		_, message, err := conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				logger.Error("WebSocket unexpected close error", "error", err, "remote_addr", r.RemoteAddr)
+				app.Logger.Error("WebSocket unexpected close error", "error", err, "remote_addr", r.RemoteAddr)
 			} else {
-				logger.Error("WebSocket read error", "error", err, "remote_addr", r.RemoteAddr)
+				app.Logger.Error("WebSocket read error", "error", err, "remote_addr", r.RemoteAddr)
 			}
 			return
 		}
 
 		var req UploadRequest
 		if err := json.Unmarshal(message, &req); err != nil {
-			logger.Warn("Invalid upload request JSON", "error", err, "remote_addr", r.RemoteAddr)
+			app.Logger.Warn("Invalid upload request JSON", "error", err, "remote_addr", r.RemoteAddr)
 			sendError(conn, 400)
 			return
 		}
 
 		// Validate request
 		if req.FileMetadata == "" || req.Authorization == "" {
-			logger.Warn("Missing required fields in upload request",
+			app.Logger.Warn("Missing required fields in upload request",
 				"has_metadata", req.FileMetadata != "",
 				"has_auth", req.Authorization != "",
 				"remote_addr", r.RemoteAddr)
@@ -137,23 +136,23 @@ func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(f
 
 		// Set defaults
 		if req.TimeLimit == 0 {
-			req.TimeLimit = cfg.DefaultExpireSeconds
+			req.TimeLimit = app.Config.DefaultExpireSeconds
 		}
 		if req.Dlimit == 0 {
-			req.Dlimit = cfg.DefaultDownloads
+			req.Dlimit = app.Config.DefaultDownloads
 		}
 
 		// Validate limits
-		if req.TimeLimit > cfg.MaxExpireSeconds {
-			req.TimeLimit = cfg.MaxExpireSeconds
+		if req.TimeLimit > app.Config.MaxExpireSeconds {
+			req.TimeLimit = app.Config.MaxExpireSeconds
 		}
-		if req.Dlimit > cfg.MaxDownloads {
-			req.Dlimit = cfg.MaxDownloads
+		if req.Dlimit > app.Config.MaxDownloads {
+			req.Dlimit = app.Config.MaxDownloads
 		}
 
 		// Build URL
-		baseURL := cfg.BaseURL
-		if baseURL == "" && cfg.DetectBaseURL {
+		baseURL := app.Config.BaseURL
+		if baseURL == "" && app.Config.DetectBaseURL {
 			// Auto-detect from request
 			scheme := "http"
 			if r.TLS != nil {
@@ -161,7 +160,7 @@ func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(f
 			}
 			baseURL = scheme + "://" + r.Host
 		} else if baseURL == "" {
-			baseURL = "http://localhost:" + cfg.Port
+			baseURL = "http://localhost:" + app.Config.Port
 		}
 
 		// Send response with file info
@@ -173,17 +172,17 @@ func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(f
 
 		conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
 		if err := conn.WriteJSON(resp); err != nil {
-			logger.Error("Error writing upload response", "error", err, "file_id", id)
+			app.Logger.Error("Error writing upload response", "error", err, "file_id", id)
 			return
 		}
 
 		// Create temporary file for streaming upload
-		tmpDir := filepath.Join(cfg.FileDir, "tmp")
+		tmpDir := filepath.Join(app.Config.FileDir, "tmp")
 		os.MkdirAll(tmpDir, 0755)
 
 		tmpFile, err := os.CreateTemp(tmpDir, "upload-*")
 		if err != nil {
-			logger.Error("Failed to create temp file for upload", "error", err)
+			app.Logger.Error("Failed to create temp file for upload", "error", err)
 			sendError(conn, 500)
 			return
 		}
@@ -192,7 +191,7 @@ func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(f
 
 		// Stream file data directly to disk with size limiting
 		var totalSize int64
-		maxSize := cfg.MaxFileSize
+		maxSize := app.Config.MaxFileSize
 
 		for {
 			// Reset read deadline for each chunk (longer timeout for large chunks)
@@ -202,13 +201,13 @@ func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(f
 			if err != nil {
 				tmpFile.Close()
 				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-					logger.Error("Upload interrupted - unexpected close",
+					app.Logger.Error("Upload interrupted - unexpected close",
 						"error", err,
 						"file_id", id,
 						"bytes_received", totalSize,
 						"remote_addr", r.RemoteAddr)
 				} else {
-					logger.Error("Error reading upload data",
+					app.Logger.Error("Error reading upload data",
 						"error", err,
 						"file_id", id,
 						"bytes_received", totalSize,
@@ -225,7 +224,7 @@ func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(f
 			// Check size limit before writing
 			if totalSize+int64(len(data)) > maxSize {
 				tmpFile.Close()
-				logger.Warn("File size limit exceeded",
+				app.Logger.Warn("File size limit exceeded",
 					"attempted_size", totalSize+int64(len(data)),
 					"max_size", maxSize,
 					"file_id", id)
@@ -237,7 +236,7 @@ func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(f
 			n, err := tmpFile.Write(data)
 			if err != nil {
 				tmpFile.Close()
-				logger.Error("Error writing upload data", "error", err, "file_id", id)
+				app.Logger.Error("Error writing upload data", "error", err, "file_id", id)
 				sendError(conn, 500)
 				return
 			}
@@ -246,14 +245,14 @@ func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(f
 
 		// Close and move file to final location
 		if err := tmpFile.Close(); err != nil {
-			logger.Error("Error closing temp file", "error", err, "file_id", id)
+			app.Logger.Error("Error closing temp file", "error", err, "file_id", id)
 			sendError(conn, 500)
 			return
 		}
 
-		finalPath := filepath.Join(cfg.FileDir, id)
+		finalPath := filepath.Join(app.Config.FileDir, id)
 		if err := os.Rename(tmpPath, finalPath); err != nil {
-			logger.Error("Error moving uploaded file", "error", err, "file_id", id)
+			app.Logger.Error("Error moving uploaded file", "error", err, "file_id", id)
 			sendError(conn, 500)
 			return
 		}
@@ -273,14 +272,14 @@ func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(f
 			ExpiresAt:  now + int64(req.TimeLimit),
 		}
 
-		if err := db.CreateFile(meta); err != nil {
-			logger.Error("Database error creating file metadata", "error", err, "file_id", id)
-			storage.DeleteFile(db.FileDir(), id)
+		if err := app.DB.CreateFile(meta); err != nil {
+			app.Logger.Error("Database error creating file metadata", "error", err, "file_id", id)
+			storage.DeleteFile(app.DB.FileDir(), id)
 			sendError(conn, 500)
 			return
 		}
 
-		logger.Info("File uploaded successfully",
+		app.Logger.Info("File uploaded successfully",
 			"file_id", id,
 			"size_bytes", totalSize,
 			"dl_limit", req.Dlimit,
@@ -289,7 +288,7 @@ func NewUploadHandler(db *storage.DB, cfg *config.Config, scheduleCleanup func(f
 		// Schedule cleanup if file expires within 1 hour
 		ttl := time.Until(time.Unix(meta.ExpiresAt, 0))
 		if ttl <= 1*time.Hour && ttl > 0 {
-			scheduleCleanup(id, meta.ExpiresAt)
+			app.ScheduleCleanup(id, meta.ExpiresAt)
 		}
 
 		// Send success response

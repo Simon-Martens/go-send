@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"html/template"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -14,7 +13,7 @@ import (
 
 	"github.com/Simon-Martens/go-send/auth"
 	"github.com/Simon-Martens/go-send/config"
-	"github.com/Simon-Martens/go-send/i18n"
+	"github.com/Simon-Martens/go-send/core"
 	"github.com/Simon-Martens/go-send/locale"
 	"github.com/Simon-Martens/go-send/storage"
 )
@@ -29,61 +28,61 @@ func generateNonce() (string, error) {
 	return base64.StdEncoding.EncodeToString(b), nil
 }
 
-func IndexHandler(tmpl *template.Template, manifest map[string]string, db *storage.DB, cfg *config.Config, translator *i18n.Translator, logger *slog.Logger) http.HandlerFunc {
+func IndexHandler(app *core.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		nonce, err := generateNonce()
 		if err != nil {
-			logger.Error("Failed to generate nonce", "error", err)
+			app.Logger.Error("Failed to generate nonce", "error", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
 
-		detectedLocale := detectLocale(r, cfg)
+		detectedLocale := detectLocale(r, app.Config)
 
-		authInfo := resolveAuthContext(db, r, logger)
+		authInfo := resolveAuthContext(app.DB, r, app.Logger)
 		var translate func(string, map[string]interface{}) string
-		if translator != nil {
-			translate = translator.Func(detectedLocale)
+		if app.Translator != nil {
+			translate = app.Translator.Func(detectedLocale)
 		}
-		data := getTemplateData(manifest, "{}", cfg, detectedLocale, nonce, translate)
+		data := getTemplateData(app.Manifest, "{}", app.Config, detectedLocale, nonce, translate)
 		data.Auth = authInfo
 
 		csp := fmt.Sprintf("script-src 'self' 'nonce-%s'; style-src 'self' 'nonce-%s'", nonce, nonce)
 		w.Header().Set("Content-Security-Policy", csp)
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-		if err := tmpl.ExecuteTemplate(w, "index.gohtml", data); err != nil {
-			logger.Error("Failed to execute index template", "error", err)
+		if err := app.Template.ExecuteTemplate(w, "upload.gohtml", data); err != nil {
+			app.Logger.Error("Failed to execute upload template", "error", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
 	}
 }
 
-func DownloadPageHandler(tmpl *template.Template, manifest map[string]string, db *storage.DB, cfg *config.Config, translator *i18n.Translator, logger *slog.Logger) http.HandlerFunc {
+func DownloadPageHandler(app *core.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/download/"), "/")
-		logger.Debug("Download page request", "path", r.URL.Path, "file_id", id)
+		app.Logger.Debug("Download page request", "path", r.URL.Path, "file_id", id)
 
 		nonce, err := generateNonce()
 		if err != nil {
-			logger.Error("Failed to generate nonce", "error", err)
+			app.Logger.Error("Failed to generate nonce", "error", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
 
-		detectedLocale := detectLocale(r, cfg)
+		detectedLocale := detectLocale(r, app.Config)
 
 		// Try to get file metadata
-		meta, err := db.GetFile(id)
+		meta, err := app.DB.GetFile(id)
 		var downloadMetadata string
 
 		if err != nil {
 			// File not found - render 404 state
-			logger.Debug("File not found for download page", "file_id", id, "error", err)
+			app.Logger.Debug("File not found for download page", "file_id", id, "error", err)
 			downloadMetadata = `{"status": 404}`
 		} else {
-			logger.Debug("File found for download page", "file_id", id, "nonce", meta.Nonce)
+			app.Logger.Debug("File found for download page", "file_id", id, "nonce", meta.Nonce)
 			// File found - provide nonce and password flag
 			metaJSON, _ := json.Marshal(map[string]interface{}{
 				"nonce": meta.Nonce,
@@ -94,12 +93,12 @@ func DownloadPageHandler(tmpl *template.Template, manifest map[string]string, db
 			w.Header().Set("WWW-Authenticate", "send-v1 "+meta.Nonce)
 		}
 
-		authInfo := resolveAuthContext(db, r, logger)
+		authInfo := resolveAuthContext(app.DB, r, app.Logger)
 		var translate func(string, map[string]interface{}) string
-		if translator != nil {
-			translate = translator.Func(detectedLocale)
+		if app.Translator != nil {
+			translate = app.Translator.Func(detectedLocale)
 		}
-		data := getTemplateData(manifest, downloadMetadata, cfg, detectedLocale, nonce, translate)
+		data := getTemplateData(app.Manifest, downloadMetadata, app.Config, detectedLocale, nonce, translate)
 		data.Auth = authInfo
 		data.IsDownloadPage = true
 
@@ -107,8 +106,8 @@ func DownloadPageHandler(tmpl *template.Template, manifest map[string]string, db
 		w.Header().Set("Content-Security-Policy", csp)
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-		if err := tmpl.ExecuteTemplate(w, "index.gohtml", data); err != nil {
-			logger.Error("Failed to execute download page template", "error", err)
+		if err := app.Template.ExecuteTemplate(w, "download.gohtml", data); err != nil {
+			app.Logger.Error("Failed to execute download page template", "error", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}

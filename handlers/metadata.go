@@ -3,16 +3,16 @@ package handlers
 import (
 	"crypto/subtle"
 	"encoding/json"
-	"log/slog"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/Simon-Martens/go-send/auth"
+	"github.com/Simon-Martens/go-send/core"
 	"github.com/Simon-Martens/go-send/storage"
 )
 
-func NewMetadataHandler(db *storage.DB, logger *slog.Logger) http.HandlerFunc {
+func NewMetadataHandler(app *core.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/api/metadata/"), "/")
 
@@ -22,7 +22,7 @@ func NewMetadataHandler(db *storage.DB, logger *slog.Logger) http.HandlerFunc {
 		}
 
 		// Get file metadata
-		meta, err := db.GetFile(id)
+		meta, err := app.DB.GetFile(id)
 		if err != nil {
 			http.NotFound(w, r)
 			return
@@ -30,19 +30,19 @@ func NewMetadataHandler(db *storage.DB, logger *slog.Logger) http.HandlerFunc {
 
 		// Verify HMAC auth
 		authHeader := r.Header.Get("Authorization")
-		if !auth.VerifyHMAC(authHeader, meta.AuthKey, meta.Nonce, logger) {
+		if !auth.VerifyHMAC(authHeader, meta.AuthKey, meta.Nonce, app.Logger) {
 			// Generate new nonce for retry
 			newNonce := auth.GenerateNonce()
-			db.UpdateNonce(id, newNonce)
+			app.DB.UpdateNonce(id, newNonce)
 			w.Header().Set("WWW-Authenticate", "send-v1 "+newNonce)
-			logger.Warn("Metadata auth failed", "file_id", id)
+			app.Logger.Warn("Metadata auth failed", "file_id", id)
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
 
 		// Rotate nonce after successful auth
 		newNonce := auth.GenerateNonce()
-		db.UpdateNonce(id, newNonce)
+		app.DB.UpdateNonce(id, newNonce)
 		w.Header().Set("WWW-Authenticate", "send-v1 "+newNonce)
 
 		// Calculate TTL
@@ -60,7 +60,7 @@ func NewMetadataHandler(db *storage.DB, logger *slog.Logger) http.HandlerFunc {
 	}
 }
 
-func NewExistsHandler(db *storage.DB) http.HandlerFunc {
+func NewExistsHandler(app *core.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/api/exists/"), "/")
 
@@ -69,7 +69,7 @@ func NewExistsHandler(db *storage.DB) http.HandlerFunc {
 			return
 		}
 
-		exists, err := db.Exists(id)
+		exists, err := app.DB.Exists(id)
 		if err != nil || !exists {
 			http.NotFound(w, r)
 			return
@@ -79,7 +79,7 @@ func NewExistsHandler(db *storage.DB) http.HandlerFunc {
 	}
 }
 
-func NewDeleteHandler(db *storage.DB, cancelCleanup func(string)) http.HandlerFunc {
+func NewDeleteHandler(app *core.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -103,7 +103,7 @@ func NewDeleteHandler(db *storage.DB, cancelCleanup func(string)) http.HandlerFu
 		}
 
 		// Get file metadata
-		meta, err := db.GetFile(id)
+		meta, err := app.DB.GetFile(id)
 		if err != nil {
 			http.NotFound(w, r)
 			return
@@ -120,17 +120,17 @@ func NewDeleteHandler(db *storage.DB, cancelCleanup func(string)) http.HandlerFu
 		}
 
 		// Cancel any scheduled cleanup goroutine
-		cancelCleanup(id)
+		app.CancelCleanup(id)
 
 		// Delete file and metadata
-		db.DeleteFile(id)
-		storage.DeleteFile(db.FileDir(), id)
+		app.DB.DeleteFile(id)
+		storage.DeleteFile(app.DB.FileDir(), id)
 
 		w.WriteHeader(http.StatusOK)
 	}
 }
 
-func NewPasswordHandler(db *storage.DB) http.HandlerFunc {
+func NewPasswordHandler(app *core.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -155,7 +155,7 @@ func NewPasswordHandler(db *storage.DB) http.HandlerFunc {
 		}
 
 		// Get file metadata
-		meta, err := db.GetFile(id)
+		meta, err := app.DB.GetFile(id)
 		if err != nil {
 			http.NotFound(w, r)
 			return
@@ -172,7 +172,7 @@ func NewPasswordHandler(db *storage.DB) http.HandlerFunc {
 		}
 
 		// Set password (update auth key)
-		if err := db.SetPassword(id, req.Auth); err != nil {
+		if err := app.DB.SetPassword(id, req.Auth); err != nil {
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
@@ -181,7 +181,7 @@ func NewPasswordHandler(db *storage.DB) http.HandlerFunc {
 	}
 }
 
-func NewInfoHandler(db *storage.DB) http.HandlerFunc {
+func NewInfoHandler(app *core.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -205,7 +205,7 @@ func NewInfoHandler(db *storage.DB) http.HandlerFunc {
 		}
 
 		// Get file metadata
-		meta, err := db.GetFile(id)
+		meta, err := app.DB.GetFile(id)
 		if err != nil {
 			http.NotFound(w, r)
 			return

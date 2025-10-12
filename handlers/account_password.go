@@ -3,21 +3,18 @@ package handlers
 import (
 	"errors"
 	"fmt"
-	"html/template"
-	"log/slog"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/Simon-Martens/go-send/auth"
-	"github.com/Simon-Martens/go-send/config"
-	"github.com/Simon-Martens/go-send/i18n"
+	"github.com/Simon-Martens/go-send/core"
 	"github.com/Simon-Martens/go-send/storage"
 )
 
-func NewAccountPasswordHandler(tmpl *template.Template, manifest map[string]string, db *storage.DB, cfg *config.Config, translator *i18n.Translator, logger *slog.Logger) http.HandlerFunc {
+func NewAccountPasswordHandler(app *core.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		session, err := auth.GetSessionFromRequest(db, r)
+		session, err := auth.GetSessionFromRequest(app.DB, r)
 		if err != nil {
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
@@ -28,25 +25,28 @@ func NewAccountPasswordHandler(tmpl *template.Template, manifest map[string]stri
 			return
 		}
 
-		detectedLocale := detectLocale(r, cfg)
+		detectedLocale := detectLocale(r, app.Config)
 		var translate func(string, map[string]interface{}) string
-		if translator != nil {
-			translate = translator.Func(detectedLocale)
+		if app.Translator != nil {
+			// WARNING: is this safe? We need to get a default locale and fallback
+			// Translator...
+			translate = app.Translator.Func(detectedLocale)
 		}
 
-		render := func(flash *FlashMessage) {
-			renderAccountPasswordTemplate(w, r, tmpl, manifest, db, cfg, translator, logger, session, translate, flash)
+		renderError := func(flash string) {
+			message := translateMessage(translate, flash)
+			renderAccountPasswordTemplate(w, r, session, translate, &FlashMessage{Message: message, Kind: "error"}, app)
 		}
 
 		switch r.Method {
 		case http.MethodGet:
-			render(nil)
+			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 			return
 
 		case http.MethodPost:
 			if err := r.ParseForm(); err != nil {
-				logger.Warn("Failed to parse password change form", "error", err)
-				render(&FlashMessage{Message: translateMessage(translate, "account.password.error_generic"), Kind: "error"})
+				app.Logger.Warn("Failed to parse password change form", "error", err)
+				renderError("account.password.error_generic")
 				return
 			}
 
@@ -54,46 +54,42 @@ func NewAccountPasswordHandler(tmpl *template.Template, manifest map[string]stri
 			next := r.FormValue("newPassword")
 			confirm := r.FormValue("confirmPassword")
 
-			if next == "" || confirm == "" {
-				render(&FlashMessage{Message: translateMessage(translate, "account.password.error_mismatch"), Kind: "error"})
+			if next == "" || confirm == "" || (next != confirm) {
+				renderError("account.password.error_mismatch")
 				return
 			}
 
-			if next != confirm {
-				render(&FlashMessage{Message: translateMessage(translate, "account.password.error_mismatch"), Kind: "error"})
-				return
-			}
-
-			admin, err := db.GetAdminByID(session.AdminID.Int64)
+			admin, err := app.DB.GetAdminByID(session.AdminID.Int64)
 			if err != nil {
 				if errors.Is(err, storage.ErrAdminNotFound) {
 					http.Error(w, "Forbidden", http.StatusForbidden)
 					return
 				}
-				logger.Error("Failed to look up admin for password change", "error", err)
-				render(&FlashMessage{Message: translateMessage(translate, "account.password.error_generic"), Kind: "error"})
+				app.Logger.Error("Failed to look up admin for password change", "error", err)
+				renderError("account.password.error_generic")
 				return
 			}
 
 			if bcrypt.CompareHashAndPassword([]byte(admin.PasswordHash), []byte(current)) != nil {
-				render(&FlashMessage{Message: translateMessage(translate, "account.password.error_current"), Kind: "error"})
+				renderError("account.password.error_current")
 				return
 			}
 
 			newHash, err := bcrypt.GenerateFromPassword([]byte(next), bcrypt.DefaultCost)
 			if err != nil {
-				logger.Error("Failed to hash new password", "error", err)
-				render(&FlashMessage{Message: translateMessage(translate, "account.password.error_generic"), Kind: "error"})
+				app.Logger.Error("Failed to hash new password", "error", err)
+				renderError("account.password.error_generic")
 				return
 			}
 
-			if err := db.UpdateAdminPassword(admin.ID, string(newHash)); err != nil {
-				logger.Error("Failed to update admin password", "error", err)
-				render(&FlashMessage{Message: translateMessage(translate, "account.password.error_generic"), Kind: "error"})
+			if err := app.DB.UpdateAdminPassword(admin.ID, string(newHash)); err != nil {
+				app.Logger.Error("Failed to update admin password", "error", err)
+				renderError("account.password.error_generic")
 				return
 			}
 
-			render(&FlashMessage{Message: translateMessage(translate, "account.password.success"), Kind: "success"})
+			message := translateMessage(translate, "account.password.success")
+			renderAccountPasswordTemplate(w, r, session, translate, &FlashMessage{Message: message, Kind: "success"}, app)
 			return
 
 		default:
@@ -103,26 +99,26 @@ func NewAccountPasswordHandler(tmpl *template.Template, manifest map[string]stri
 	}
 }
 
-func renderAccountPasswordTemplate(w http.ResponseWriter, r *http.Request, tmpl *template.Template, manifest map[string]string, db *storage.DB, cfg *config.Config, translator *i18n.Translator, logger *slog.Logger, session *storage.Session, translate func(string, map[string]interface{}) string, flash *FlashMessage) {
+func renderAccountPasswordTemplate(w http.ResponseWriter, r *http.Request, session *storage.Session, translate func(string, map[string]interface{}) string, flash *FlashMessage, app *core.App) {
 	nonce, err := generateNonce()
 	if err != nil {
-		logger.Error("Failed to generate nonce", "error", err)
+		app.Logger.Error("Failed to generate nonce", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
-	detectedLocale := detectLocale(r, cfg)
-	if translate == nil && translator != nil {
-		translate = translator.Func(detectedLocale)
+	detectedLocale := detectLocale(r, app.Config)
+	if translate == nil && app.Translator != nil {
+		translate = app.Translator.Func(detectedLocale)
 	}
 
-	data := getTemplateData(manifest, "{}", cfg, detectedLocale, nonce, translate)
-	data.Auth = authInfoFromSession(db, session, logger)
+	data := getTemplateData(app.Manifest, "{}", app.Config, detectedLocale, nonce, translate)
+	data.Auth = authInfoFromSession(app.DB, session, app.Logger)
 	data.Flash = flash
 
 	// keep username in form
 	if session != nil && session.UserType == "admin" && session.AdminID.Valid {
-		if admin, err := db.GetAdminByID(session.AdminID.Int64); err == nil {
+		if admin, err := app.DB.GetAdminByID(session.AdminID.Int64); err == nil {
 			data.ChangePasswordForm.Username = admin.Username
 		}
 	}
@@ -131,8 +127,8 @@ func renderAccountPasswordTemplate(w http.ResponseWriter, r *http.Request, tmpl 
 	w.Header().Set("Content-Security-Policy", csp)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	if err := tmpl.ExecuteTemplate(w, "account_password.gohtml", data); err != nil {
-		logger.Error("Failed to execute change password template", "error", err)
+	if err := app.Template.ExecuteTemplate(w, "account_password.gohtml", data); err != nil {
+		app.Logger.Error("Failed to execute change password template", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 }

@@ -35,6 +35,10 @@ type ThemeConfig struct {
 type AssetBundle struct {
 	CSS             string
 	JS              string
+	UploadCSS       string
+	UploadJS        string
+	DownloadCSS     string
+	DownloadJS      string
 	AppleTouchIcon  string
 	Favicon16       string
 	Favicon32       string
@@ -143,8 +147,12 @@ type AccountLinkView struct {
 
 func getTemplateData(manifest map[string]string, downloadMetadata string, cfg *config.Config, detectedLocale string, nonce string, translate func(string, map[string]interface{}) string) TemplateData {
 	assets := AssetBundle{
-		CSS:             assetFromManifest(manifest, "styles.css", "styles.css"),
-		JS:              assetFromManifest(manifest, "main.js", "main.js"),
+		CSS:             assetFromManifest(manifest, "main.css", "main.css"),
+		JS:              assetFromManifest(manifest, "app.js", "app.js"),
+		UploadCSS:       assetFromManifest(manifest, "main.css", "main.css"),
+		UploadJS:        assetFromManifest(manifest, "upload.js", "upload.js"),
+		DownloadCSS:     assetFromManifest(manifest, "main.css", "main.css"),
+		DownloadJS:      assetFromManifest(manifest, "download.js", "download.js"),
 		AppleTouchIcon:  chooseAsset(cfg.CustomAssetsAppleTouchIcon, "apple-touch-icon.png"),
 		Favicon16:       chooseAsset(cfg.CustomAssetsFavicon16, "favicon-16x16.png"),
 		Favicon32:       chooseAsset(cfg.CustomAssetsFavicon32, "favicon-32x32.png"),

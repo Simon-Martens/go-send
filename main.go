@@ -10,6 +10,7 @@ import (
 	"github.com/Simon-Martens/go-send/i18n"
 	"github.com/Simon-Martens/go-send/migrations"
 	"github.com/Simon-Martens/go-send/server"
+	"github.com/Simon-Martens/go-send/server/middleware"
 	"github.com/Simon-Martens/go-send/storage"
 
 	// INFO: Importing migrations so they are visible
@@ -17,10 +18,10 @@ import (
 	_ "github.com/Simon-Martens/go-send/migrations"
 )
 
-//go:embed views/templates/*
+//go:embed go-send-frontend/templates/*
 var templatesFS embed.FS
 
-//go:embed views/dist
+//go:embed go-send-frontend/dist
 var distFS embed.FS
 
 func main() {
@@ -73,7 +74,7 @@ func main() {
 	app.StartCleanupScheduler()
 
 	logger.Info("Pre-caching user static files")
-	server.PreCacheUserStaticFiles(cfg.UserFrontendDir, logger)
+	middleware.PreCacheUserStaticFiles(cfg.UserFrontendDir, logger)
 
 	srv := server.New(app, distFS)
 	logger.Error("Server stopped. Exiting", "error", server.Start(srv, app))

@@ -14,7 +14,6 @@ import controller from "./controller";
 import dragManager from "./dragManager";
 import pasteManager from "./pasteManager";
 import storage from "./storage";
-import experiments from "./experiments";
 import "./main.css";
 import { getTranslator } from "./locale";
 import Archive from "./archive";
@@ -104,7 +103,6 @@ if (process.env.NODE_ENV === "production") {
       });
     });
   });
-  app.use(experiments);
   app.use(controller);
   app.use(dragManager);
   app.use(pasteManager);

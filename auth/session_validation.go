@@ -8,9 +8,7 @@ import (
 	"github.com/Simon-Martens/go-send/storage"
 )
 
-var (
-	ErrNoSessionCookie = errors.New("no session cookie present")
-)
+var ErrNoSessionCookie = errors.New("no session cookie present")
 
 func GetSessionFromRequest(db *storage.DB, r *http.Request) (*storage.Session, error) {
 	cookie, err := r.Cookie(SessionCookieName)
@@ -30,13 +28,13 @@ func GetSessionFromRequest(db *storage.DB, r *http.Request) (*storage.Session, e
 	return session, nil
 }
 
-func SetSessionCookie(w http.ResponseWriter, token string, secure bool, maxAge int) {
+func SetSessionCookie(w http.ResponseWriter, token string, maxAge int) {
 	cookie := &http.Cookie{
 		Name:     SessionCookieName,
 		Value:    token,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   secure,
+		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
 	}
 	if maxAge > 0 {

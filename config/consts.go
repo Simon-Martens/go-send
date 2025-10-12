@@ -59,7 +59,6 @@ const (
 	EMBEDDED_TEMPLATES_PREFIX = "views/templates/"
 	EMBEDDED_DIST_PATH        = "views/dist"
 	USER_TEMPLATES_SUBDIR     = "templates"
-	USER_PUBLIC_SUBDIR        = "public"
 	USER_DIST_SUBDIR          = "dist"
 	TEMPLATE_FILE_EXTENSION   = ".gohtml"
 )

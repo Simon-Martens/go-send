@@ -7,10 +7,11 @@ import (
 	"time"
 
 	"github.com/Simon-Martens/go-send/auth"
+	"github.com/Simon-Martens/go-send/core"
 	"github.com/Simon-Martens/go-send/storage"
 )
 
-func NewAuthClaimHandler(db *storage.DB) http.HandlerFunc {
+func NewAuthClaimHandler(app *core.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
 			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
@@ -25,7 +26,7 @@ func NewAuthClaimHandler(db *storage.DB) http.HandlerFunc {
 		}
 
 		hash := auth.HashToken(token)
-		link, err := db.ConsumeAuthLink(hash)
+		link, err := app.DB.ConsumeAuthLink(hash)
 		if err != nil {
 			switch err {
 			case storage.ErrLinkNotFound:
@@ -68,12 +69,12 @@ func NewAuthClaimHandler(db *storage.DB) http.HandlerFunc {
 			cookieMaxAge = 0
 		}
 
-		if _, err := db.CreateSession(session); err != nil {
+		if _, err := app.DB.CreateSession(session); err != nil {
 			http.Error(w, "Unable to persist session", http.StatusInternalServerError)
 			return
 		}
 
-		auth.SetSessionCookie(w, sessionToken, r.TLS != nil, cookieMaxAge)
+		auth.SetSessionCookie(w, sessionToken, cookieMaxAge)
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	}
 }

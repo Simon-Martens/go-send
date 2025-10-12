@@ -9,6 +9,7 @@ import (
 
 	"github.com/Simon-Martens/go-send/auth"
 	"github.com/Simon-Martens/go-send/config"
+	"github.com/Simon-Martens/go-send/core"
 	"github.com/Simon-Martens/go-send/storage"
 )
 
@@ -23,14 +24,14 @@ type CreateAuthLinkResponse struct {
 	Username *string `json:"username,omitempty"`
 }
 
-func NewCreateAuthLinkHandler(db *storage.DB, cfg *config.Config) http.HandlerFunc {
+func NewCreateAuthLinkHandler(app *core.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 			return
 		}
 
-		session, err := auth.GetSessionFromRequest(db, r)
+		session, err := auth.GetSessionFromRequest(app.DB, r)
 		if err != nil {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
@@ -41,7 +42,7 @@ func NewCreateAuthLinkHandler(db *storage.DB, cfg *config.Config) http.HandlerFu
 			return
 		}
 
-		if !cfg.AllowAccessLinks {
+		if !app.Config.AllowAccessLinks {
 			http.Error(w, "Forbidden", http.StatusForbidden)
 			return
 		}
@@ -85,12 +86,12 @@ func NewCreateAuthLinkHandler(db *storage.DB, cfg *config.Config) http.HandlerFu
 			Username:  username,
 		}
 
-		if _, err := db.CreateAuthLink(link); err != nil {
+		if _, err := app.DB.CreateAuthLink(link); err != nil {
 			http.Error(w, "Failed to store token", http.StatusInternalServerError)
 			return
 		}
 
-		url := buildAuthLinkURL(cfg, r, token)
+		url := buildAuthLinkURL(app.Config, r, token)
 
 		w.Header().Set("Content-Type", "application/json")
 		var usernamePtr *string

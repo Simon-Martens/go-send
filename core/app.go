@@ -17,7 +17,7 @@ type App struct {
 	DB         *storage.DB
 	Config     *config.Config
 	Template   *template.Template
-	Manifest   map[string]string
+	Manifest   Manifest
 	Logger     *slog.Logger
 	Translator *i18n.Translator
 
@@ -27,7 +27,7 @@ type App struct {
 }
 
 // NewApp creates and initializes a new App instance
-func NewApp(db *storage.DB, cfg *config.Config, tmpl *template.Template, manifest map[string]string, translator *i18n.Translator, logger *slog.Logger) *App {
+func NewApp(db *storage.DB, cfg *config.Config, tmpl *template.Template, manifest Manifest, translator *i18n.Translator, logger *slog.Logger) *App {
 	return &App{
 		DB:             db,
 		Config:         cfg,

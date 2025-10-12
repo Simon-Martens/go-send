@@ -5,8 +5,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"html/template"
-	"log/slog"
 	"math"
 	"net/http"
 	"strconv"
@@ -14,14 +12,13 @@ import (
 	"time"
 
 	"github.com/Simon-Martens/go-send/auth"
-	"github.com/Simon-Martens/go-send/config"
-	"github.com/Simon-Martens/go-send/i18n"
+	"github.com/Simon-Martens/go-send/core"
 	"github.com/Simon-Martens/go-send/storage"
 )
 
-func NewAccountLinksHandler(tmpl *template.Template, manifest map[string]string, db *storage.DB, cfg *config.Config, translator *i18n.Translator, logger *slog.Logger) http.HandlerFunc {
+func NewAccountLinksHandler(app *core.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		session, err := auth.GetSessionFromRequest(db, r)
+		session, err := auth.GetSessionFromRequest(app.DB, r)
 		if err != nil {
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
@@ -32,21 +29,21 @@ func NewAccountLinksHandler(tmpl *template.Template, manifest map[string]string,
 			return
 		}
 
-		if !cfg.AllowAccessLinks {
+		if !app.Config.AllowAccessLinks {
 			http.NotFound(w, r)
 			return
 		}
 
-		detectedLocale := detectLocale(r, cfg)
+		detectedLocale := detectLocale(r, app.Config)
 		var translate func(string, map[string]interface{}) string
-		if translator != nil {
-			translate = translator.Func(detectedLocale)
+		if app.Translator != nil {
+			translate = app.Translator.Func(detectedLocale)
 		}
 
 		baseForm := AccountLinkFormState{}
 
 		render := func(flash *FlashMessage, form AccountLinkFormState) {
-			renderAccountLinksTemplate(w, r, tmpl, manifest, db, cfg, translator, logger, session, translate, flash, form)
+			renderAccountLinksTemplate(w, r, app, session, translate, flash, form)
 		}
 
 		switch r.Method {
@@ -69,7 +66,7 @@ func NewAccountLinksHandler(tmpl *template.Template, manifest map[string]string,
 			return
 		case http.MethodPost:
 			if err := r.ParseForm(); err != nil {
-				logger.Warn("Failed to parse auth link form", "error", err)
+				app.Logger.Warn("Failed to parse auth link form", "error", err)
 				render(&FlashMessage{Message: translateMessage(translate, "account.links.error_generic"), Kind: "error"}, baseForm)
 				return
 			}
@@ -104,8 +101,8 @@ func NewAccountLinksHandler(tmpl *template.Template, manifest map[string]string,
 				}
 
 				// Activate the link
-				if err := db.ActivateAuthLink(linkID); err != nil {
-					logger.Error("Failed to activate auth link", "error", err, "link_id", linkID)
+				if err := app.DB.ActivateAuthLink(linkID); err != nil {
+					app.Logger.Error("Failed to activate auth link", "error", err, "link_id", linkID)
 					if isAjaxRequest(r) {
 						w.Header().Set("Content-Type", "application/json")
 						w.WriteHeader(http.StatusInternalServerError)
@@ -118,8 +115,8 @@ func NewAccountLinksHandler(tmpl *template.Template, manifest map[string]string,
 
 				// Save label
 				labelValue := sql.NullString{String: label, Valid: true}
-				if err := db.UpdateAuthLinkSettings(linkID, labelValue, sql.NullInt64{}); err != nil {
-					logger.Warn("Failed to update label after activation", "error", err, "link_id", linkID)
+				if err := app.DB.UpdateAuthLinkSettings(linkID, labelValue, sql.NullInt64{}); err != nil {
+					app.Logger.Warn("Failed to update label after activation", "error", err, "link_id", linkID)
 				}
 
 				if isAjaxRequest(r) {
@@ -142,8 +139,8 @@ func NewAccountLinksHandler(tmpl *template.Template, manifest map[string]string,
 					return
 				}
 
-				if err := db.DeleteAuthLinkByID(linkID); err != nil {
-					logger.Error("Failed to delete auth link", "error", err, "link_id", linkID)
+				if err := app.DB.DeleteAuthLinkByID(linkID); err != nil {
+					app.Logger.Error("Failed to delete auth link", "error", err, "link_id", linkID)
 					render(&FlashMessage{Message: translateMessage(translate, "account.links.delete_error"), Kind: "error"}, baseForm)
 					return
 				}
@@ -192,8 +189,8 @@ func NewAccountLinksHandler(tmpl *template.Template, manifest map[string]string,
 					labelValue = sql.NullString{String: label, Valid: true}
 				}
 
-				if err := db.UpdateAuthLinkSettings(linkID, labelValue, expiresAt); err != nil {
-					logger.Error("Failed to update auth link", "error", err, "link_id", linkID)
+				if err := app.DB.UpdateAuthLinkSettings(linkID, labelValue, expiresAt); err != nil {
+					app.Logger.Error("Failed to update auth link", "error", err, "link_id", linkID)
 					if isAjaxRequest(r) {
 						w.Header().Set("Content-Type", "application/json")
 						w.WriteHeader(http.StatusInternalServerError)
@@ -219,7 +216,7 @@ func NewAccountLinksHandler(tmpl *template.Template, manifest map[string]string,
 			default:
 				token, err := auth.GenerateToken(24)
 				if err != nil {
-					logger.Error("Failed to generate auth link token", "error", err)
+					app.Logger.Error("Failed to generate auth link token", "error", err)
 					if isAjaxRequest(r) {
 						w.Header().Set("Content-Type", "application/json")
 						w.WriteHeader(http.StatusInternalServerError)
@@ -245,9 +242,9 @@ func NewAccountLinksHandler(tmpl *template.Template, manifest map[string]string,
 					},
 				}
 
-				linkID, err := db.CreateAuthLink(link)
+				linkID, err := app.DB.CreateAuthLink(link)
 				if err != nil {
-					logger.Error("Failed to persist auth link", "error", err)
+					app.Logger.Error("Failed to persist auth link", "error", err)
 					if isAjaxRequest(r) {
 						w.Header().Set("Content-Type", "application/json")
 						w.WriteHeader(http.StatusInternalServerError)
@@ -258,7 +255,7 @@ func NewAccountLinksHandler(tmpl *template.Template, manifest map[string]string,
 					return
 				}
 
-				generatedURL := buildAuthLinkURL(cfg, r, token)
+				generatedURL := buildAuthLinkURL(app.Config, r, token)
 
 				// Return JSON for AJAX requests
 				if isAjaxRequest(r) {
@@ -285,28 +282,28 @@ func NewAccountLinksHandler(tmpl *template.Template, manifest map[string]string,
 	}
 }
 
-func renderAccountLinksTemplate(w http.ResponseWriter, r *http.Request, tmpl *template.Template, manifest map[string]string, db *storage.DB, cfg *config.Config, translator *i18n.Translator, logger *slog.Logger, session *storage.Session, translate func(string, map[string]interface{}) string, flash *FlashMessage, form AccountLinkFormState) {
+func renderAccountLinksTemplate(w http.ResponseWriter, r *http.Request, app *core.App, session *storage.Session, translate func(string, map[string]interface{}) string, flash *FlashMessage, form AccountLinkFormState) {
 	nonce, err := generateNonce()
 	if err != nil {
-		logger.Error("Failed to generate nonce", "error", err)
+		app.Logger.Error("Failed to generate nonce", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
-	detectedLocale := detectLocale(r, cfg)
-	if translate == nil && translator != nil {
-		translate = translator.Func(detectedLocale)
+	detectedLocale := detectLocale(r, app.Config)
+	if translate == nil && app.Translator != nil {
+		translate = app.Translator.Func(detectedLocale)
 	}
 
-	data := getTemplateData(manifest, "{}", cfg, detectedLocale, nonce, translate)
-	data.Auth = authInfoFromSession(db, session, logger)
+	data := getTemplateData(app.Manifest, "{}", app.Config, detectedLocale, nonce, translate)
+	data.Auth = authInfoFromSession(app.DB, session, app.Logger)
 	data.Flash = flash
 	data.AccountLinks.Form = form
 	data.Assets.JS = ""
 
-	links, err := db.ListAuthLinks(100)
+	links, err := app.DB.ListAuthLinks(100)
 	if err != nil {
-		logger.Error("Failed to list auth links", "error", err)
+		app.Logger.Error("Failed to list auth links", "error", err)
 	}
 
 	views := make([]AccountLinkView, 0, len(links))
@@ -364,8 +361,8 @@ func renderAccountLinksTemplate(w http.ResponseWriter, r *http.Request, tmpl *te
 	w.Header().Set("Content-Security-Policy", csp)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	if err := tmpl.ExecuteTemplate(w, "account_links.gohtml", data); err != nil {
-		logger.Error("Failed to execute account links template", "error", err)
+	if err := app.Template.ExecuteTemplate(w, "account_links.gohtml", data); err != nil {
+		app.Logger.Error("Failed to execute account links template", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 }

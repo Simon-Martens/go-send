@@ -48,7 +48,13 @@
 html {
   line-height: 1.15;
   /* Background provided by <go-send-bg> web component */
-  background: #000000;
+  background: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    background: #000000;
+  }
 }
 
 :not(input) {
@@ -225,7 +231,7 @@ details[open] > summary > svg {
 }
 
 .main section {
-  @apply bg-white dark:bg-grey-90;
+  /* @apply bg-white dark:bg-grey-90; */
 }
 
 #password-msg::after {
@@ -521,18 +527,32 @@ go-send-bg {
   display: block;
 }
 
-/* Base background - black */
+/* Base background - white in light mode, black in dark mode */
 .go-send-bg-base {
-  fill: #000000;
+  fill: #ffffff;
 }
 
-/* File tiles - white boxes, no borders, no shadows */
+/* File tiles - black in light mode, white in dark mode */
 .go-send-bg-tile {
-  fill: #ffffff;
+  fill: #000000;
   stroke: none;
 }
 
 /* Hidden tiles - blend into background */
 .go-send-bg-tile-hidden {
-  fill: #000000;
+  fill: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  .go-send-bg-base {
+    fill: #000000;
+  }
+
+  .go-send-bg-tile {
+    fill: #ffffff;
+  }
+
+  .go-send-bg-tile-hidden {
+    fill: #000000;
+  }
 }

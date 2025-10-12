@@ -1,6 +1,8 @@
-<body class="flex flex-col items-center font-sans md:h-screen md:bg-grey-10 dark:bg-black">
+<body class="flex flex-col items-center font-sans md:h-screen bg-transparent">
+	<go-send-bg></go-send-bg>
 	{{ block "header.gohtml" . }}{{ end }}
 	{{ template "_app.gohtml" . }}
 	{{ block "footer.gohtml" . }}{{ end }}
+	{{ template "_background.gohtml" . }}
 </body>
 

@@ -5,8 +5,8 @@
 	</div>
 </noscript>
 	
-<main class="flex flex-col grow-1 shrink-0">
-	<go-send></go-send>
+<main class="flex flex-col items-center font-sans md:h-screen w-full">
+	<go-send id="app" class="main"></go-send>
 </main>
 
 <script {{.NonceAttr}}>
@@ -18,9 +18,7 @@
 </script>
 
 <template id="go-send">
-	<div class="flex flex-col items-center font-sans md:h-screen w-full realtive max-w=[64rem]" id="app">
-		<slot id="app-content"></slot>
-	</div>
+	<slot id="app-content"></slot>
 </template>
 
 <template id="upload-layout">

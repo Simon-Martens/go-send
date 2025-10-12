@@ -1,4 +1,5 @@
 {
+  "go-send.js": "go-send.js",
   "upload-area.js": "upload-area.js",
   "upload-right.js": "upload-right.js",
   "uk.js": "uk.js",
@@ -8,7 +9,7 @@
   "zgh.js": "zgh.js",
   "zh-CN.js": "zh-CN.js",
   "zh-TW.js": "zh-TW.js",
-  "go-send.js": "go-send.js",
+  "go-send-bg.js": "go-send-bg.js",
   "sr.js": "sr.js",
   "su.js": "su.js",
   "sv-SE.js": "sv-SE.js",

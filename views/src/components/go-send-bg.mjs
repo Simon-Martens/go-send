@@ -83,12 +83,12 @@ class GoSendBackground extends HTMLElement {
     const viewBoxHeight = 1080;
 
     // Grid cell dimensions
-    const cellWidth = 18;
-    const cellHeight = 22;
+    const cellWidth = 15;
+    const cellHeight = 18;
 
     // Tile dimensions (smaller than cells to create spacing)
-    const tileWidth = 14;
-    const tileHeight = 18;
+    const tileWidth = 13;
+    const tileHeight = 16;
 
     // Calculate offset to center tiles in cells
     const offsetX = (cellWidth - tileWidth) / 2;
@@ -99,7 +99,7 @@ class GoSendBackground extends HTMLElement {
     const rows = Math.ceil(viewBoxHeight / cellHeight);
 
     // Generate cluster centers
-    const clusterCenters = this.generateClusterCenters(cols, rows, 25);
+    const clusterCenters = this.generateClusterCenters(cols, rows, 30);
 
     // Get exclusion zones (areas where tiles should not be drawn)
     const exclusionZones = this.getExclusionZones(viewBoxWidth, viewBoxHeight);
@@ -116,7 +116,15 @@ class GoSendBackground extends HTMLElement {
         const y = row * cellHeight + offsetY;
 
         // Check if tile overlaps with any exclusion zone
-        if (this.tileOverlapsExclusionZone(x, y, tileWidth, tileHeight, exclusionZones)) {
+        if (
+          this.tileOverlapsExclusionZone(
+            x,
+            y,
+            tileWidth,
+            tileHeight,
+            exclusionZones,
+          )
+        ) {
           continue;
         }
 
@@ -157,51 +165,45 @@ class GoSendBackground extends HTMLElement {
     const svg = this.querySelector("svg");
     if (!svg) return zones;
 
-    // Get the SVG's screen dimensions
+    // Get the SVG's actual rendered dimensions on screen
     const svgRect = svg.getBoundingClientRect();
     if (svgRect.width === 0 || svgRect.height === 0) return zones;
 
-    // Calculate scale factors from screen to viewBox coordinates
-    // Account for preserveAspectRatio="xMidYMid slice"
-    const scaleX = viewBoxWidth / svgRect.width;
-    const scaleY = viewBoxHeight / svgRect.height;
-
-    // Buffer around exclusion zones (in viewBox coordinates)
-    const buffer = 2;
-
     // Find elements to exclude
     const selectors = [
-      "go-send#app section",   // Section inside go-send app
-      "footer",                // Footer element
+      "#app", // Main app section
+      "footer", // Footer element
     ];
 
     for (const selector of selectors) {
       const element = document.querySelector(selector);
       if (!element) continue;
 
-      const rect = element.getBoundingClientRect();
+      // Get element's actual position and size on screen
+      const elemRect = element.getBoundingClientRect();
 
-      // Convert screen coordinates to SVG viewBox coordinates
-      // Account for SVG position on screen
-      let x = (rect.left - svgRect.left) * scaleX;
-      let y = (rect.top - svgRect.top) * scaleY;
-      let width = rect.width * scaleX;
-      let height = rect.height * scaleY;
+      // Convert screen pixel coordinates to SVG viewBox coordinates
+      // using proper coordinate transformation
+      const point = svg.createSVGPoint();
 
-      // Add buffer around the zone
-      x = Math.max(0, x - buffer);
-      y = Math.max(0, y - buffer);
-      width = width + buffer * 2;
-      height = height + buffer * 2;
+      // Top-left corner
+      point.x = elemRect.left;
+      point.y = elemRect.top;
+      const topLeft = point.matrixTransform(svg.getScreenCTM().inverse());
+
+      // Bottom-right corner
+      point.x = elemRect.right;
+      point.y = elemRect.bottom;
+      const bottomRight = point.matrixTransform(svg.getScreenCTM().inverse());
 
       zones.push({
         selector,
-        x,
-        y,
-        width,
-        height,
-        right: x + width,
-        bottom: y + height,
+        x: topLeft.x,
+        y: topLeft.y,
+        width: bottomRight.x - topLeft.x,
+        height: bottomRight.y - topLeft.y,
+        right: bottomRight.x,
+        bottom: bottomRight.y,
       });
     }
 
@@ -211,17 +213,23 @@ class GoSendBackground extends HTMLElement {
   /**
    * Check if a tile overlaps with any exclusion zone
    */
-  tileOverlapsExclusionZone(tileX, tileY, tileWidth, tileHeight, exclusionZones) {
+  tileOverlapsExclusionZone(
+    tileX,
+    tileY,
+    tileWidth,
+    tileHeight,
+    exclusionZones,
+  ) {
     const tileRight = tileX + tileWidth;
     const tileBottom = tileY + tileHeight;
 
     for (const zone of exclusionZones) {
       // Check for rectangle overlap
       const overlaps = !(
-        tileRight <= zone.x ||      // tile is left of zone
-        tileX >= zone.right ||      // tile is right of zone
-        tileBottom <= zone.y ||     // tile is above zone
-        tileY >= zone.bottom        // tile is below zone
+        tileRight <= zone.x || // tile is left of zone
+        tileX >= zone.right || // tile is right of zone
+        tileBottom <= zone.y || // tile is above zone
+        tileY >= zone.bottom // tile is below zone
       );
 
       if (overlaps) {
@@ -241,7 +249,7 @@ class GoSendBackground extends HTMLElement {
       centers.push({
         col: Math.random() * cols,
         row: Math.random() * rows,
-        radius: 8 + Math.random() * 12,
+        radius: 8 + Math.random() * 14, // Larger, more spread out clusters
       });
     }
     return centers;
@@ -249,6 +257,8 @@ class GoSendBackground extends HTMLElement {
 
   /**
    * Determine if a tile should be hidden based on clustering
+   * Tiles NEAR cluster centers are VISIBLE (not hidden)
+   * Tiles FAR from cluster centers are HIDDEN
    */
   shouldHideTile(col, row, clusterCenters) {
     // Find distance to nearest cluster center
@@ -266,11 +276,15 @@ class GoSendBackground extends HTMLElement {
       }
     }
 
-    // Probability decreases with distance from cluster center
+    // Probability of being VISIBLE decreases with distance from cluster center
+    // Tiles close to centers = high visibility = DON'T hide
+    // Tiles far from centers = low visibility = DO hide
+    // Lower exponent = more scattered, tiles visible further from centers
     const normalizedDistance = minDistance / nearestRadius;
-    const probability = Math.exp(-normalizedDistance * 1.5);
+    const visibilityProbability = Math.exp(-normalizedDistance * 1.5);
 
-    return Math.random() < probability;
+    // Invert: hide if NOT visible
+    return Math.random() > visibilityProbability;
   }
 
   disconnectedCallback() {

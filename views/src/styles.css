@@ -43,6 +43,8 @@
   --color-orange-60: #ea580c;
   --color-orange-40: #fb923c;
   --color-orange-10: #ffedd5;
+
+  --font-family-sans: "Agave Nerd Font Mono", sans-serif;
 }
 
 html {
@@ -322,7 +324,7 @@ select {
     @apply self-center;
     @apply items-center;
     @apply m-auto;
-    @apply py-8;
+    @apply px-2.5;
 
     max-height: 42rem;
     width: calc(100% - 3rem);
@@ -362,7 +364,6 @@ select {
   }
 
   .main > section {
-    @apply bg-grey-90;
   }
 
   @media (min-width: 768px) {

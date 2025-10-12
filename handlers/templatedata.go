@@ -147,12 +147,8 @@ type AccountLinkView struct {
 
 func getTemplateData(manifest map[string]string, downloadMetadata string, cfg *config.Config, detectedLocale string, nonce string, translate func(string, map[string]interface{}) string) TemplateData {
 	assets := AssetBundle{
-		CSS:             assetFromManifest(manifest, "main.css", "main.css"),
-		JS:              assetFromManifest(manifest, "app.js", "app.js"),
-		UploadCSS:       assetFromManifest(manifest, "main.css", "main.css"),
-		UploadJS:        assetFromManifest(manifest, "upload.js", "upload.js"),
-		DownloadCSS:     assetFromManifest(manifest, "main.css", "main.css"),
-		DownloadJS:      assetFromManifest(manifest, "download.js", "download.js"),
+		CSS:             assetFromManifest(manifest, config.DEFAULT_MANIFEST_CSS, config.DEFAULT_MANIFEST_CSS),
+		JS:              assetFromManifest(manifest, config.DEFAULT_MANIFEST_JS, config.DEFAULT_MANIFEST_JS),
 		AppleTouchIcon:  chooseAsset(cfg.CustomAssetsAppleTouchIcon, "apple-touch-icon.png"),
 		Favicon16:       chooseAsset(cfg.CustomAssetsFavicon16, "favicon-16x16.png"),
 		Favicon32:       chooseAsset(cfg.CustomAssetsFavicon32, "favicon-32x32.png"),

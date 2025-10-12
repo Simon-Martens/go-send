@@ -1,6 +1,8 @@
 import { readFile, writeFile, cp } from "fs/promises";
+import { watch } from "fs";
 import { execSync } from "child_process";
 import path from "path";
+import { glob } from "glob";
 import postcss from "postcss";
 import tailwindcss from "@tailwindcss/postcss";
 
@@ -25,7 +27,8 @@ export function ftlPlugin() {
 
 /**
  * ESBuild plugin to generate manifest.json
- * Maps logical filenames (app.js, app.css) to hashed output files (app.abc12345.js)
+ * Maps logical filenames to hashed output files
+ * Example: main.mjs → main.abc123.js AND main.abc123.css (if CSS is imported)
  * This manifest is consumed by the Go server to inject correct asset URLs in templates
  */
 export function manifestPlugin() {
@@ -43,7 +46,7 @@ export function manifestPlugin() {
         for (const [outfile, info] of Object.entries(result.metafile.outputs)) {
           const filename = path.basename(outfile);
 
-          // Map entry point files (main.mjs → main.abc12345.js)
+          // Handle direct entry points (JS files, service worker)
           if (info.entryPoint) {
             const entryName = path.basename(
               info.entryPoint,
@@ -52,6 +55,20 @@ export function manifestPlugin() {
             const ext = path.extname(filename);
             const logicalName = `${entryName}${ext}`;
             manifest[logicalName] = filename;
+          }
+
+          // Handle CSS extracted from JS imports
+          // ESBuild doesn't set entryPoint on extracted CSS, so we detect by pattern
+          // Example: main.ABC123.css → main.css
+          else if (filename.endsWith('.css')) {
+            // Extract base name before the hash
+            // Pattern: name.HASH.css or name.css
+            const match = filename.match(/^([^.]+)(?:\.[A-Z0-9]+)?\.css$/);
+            if (match) {
+              const baseName = match[1];
+              const logicalName = `${baseName}.css`;
+              manifest[logicalName] = filename;
+            }
           }
         }
 
@@ -178,6 +195,47 @@ export function copyPublicPlugin() {
           console.log("✓ Copied assets/ contents to dist/");
         } catch (e) {
           console.warn("⚠ Could not copy static directories:", e.message);
+        }
+      });
+    },
+  };
+}
+
+/**
+ * ESBuild plugin to watch Go templates and trigger rebuilds
+ * This ensures Tailwind rebuilds when you add classes to .gohtml files
+ * Only active in watch mode
+ */
+export function templateWatchPlugin() {
+  let watchers = new Set();
+
+  return {
+    name: "template-watch",
+    setup(build) {
+      build.onStart(async () => {
+        // Clean up old watchers
+        watchers.forEach((watcher) => watcher.close());
+        watchers.clear();
+
+        // Find all .gohtml files
+        const templates = await glob("templates/**/*.gohtml");
+
+        // Watch each template file
+        templates.forEach((templatePath) => {
+          const watcher = watch(templatePath, (eventType) => {
+            if (eventType === "change") {
+              console.log(`📝 Template changed: ${templatePath} - Tailwind will rebuild`);
+            }
+          });
+          watchers.add(watcher);
+        });
+      });
+
+      // Cleanup on build end
+      build.onEnd(() => {
+        if (!build.initialOptions.watch) {
+          watchers.forEach((watcher) => watcher.close());
+          watchers.clear();
         }
       });
     },

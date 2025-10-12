@@ -26,7 +26,7 @@
 <template id="upload-layout">
 	<section class="h-full w-full p-6 md:p-8 overflow-hidden md:flex md:flex-row md:rounded-xl md:shadow-big">
 		<div class="px-2 w-full md:px-0 md:mr-8 md:w-1/2">
-			<upload-left></upload-left>
+			<upload-area></upload-area>
 		</div>
 		<div class="mt-6 w-full md:w-1/2 md:-m-2">
 			<upload-right></upload-right>
@@ -35,7 +35,36 @@
 </template>
 
 <template id="upload-area-default">
-
+	<div class="flex flex-col items-center justify-center border-2 border-dashed border-grey-transparent rounded-default px-6 py-16 h-full w-full dark:border-grey-60">
+		<svg class="w-10 h-10 text-primary dark:text-blue-50">
+			<use xlink:href="/addfiles.svg#plus" />
+		</svg>
+		<div class="pt-6 pb-2 text-center text-lg font-bold tracking-wide text-grey-90 dark:text-grey-10">
+			<span id="dragAndDropFiles" data-type="lang">
+				Drag and drop files
+			</span>
+		</div>
+		<!-- TODO: translate with arguments -->
+		<div class="pb-6 text-center text-base text-grey-70 dark:text-grey-40">
+			<span id="orClickWithSize" data-type="lang">
+				or click to select files
+			</span>
+		</div>
+		<input
+			id="file-upload"
+			class="opacity-0 w-0 h-0 appearance-none absolute overflow-hidden"
+			type="file"
+			multiple
+		/>
+		<!-- TODO: translate in title tag -->
+		<label
+			for="file-upload"
+			role="button"
+			class="btn rounded-lg flex items-center mt-4 text-white dark:text-grey-90 bg-primary dark:bg-blue-50">
+			<span id="addFilesButton" data-type="lang">
+				Select files
+			</span>
+		</label>
 </template>
 
 <template id="upload-area-uploading">
@@ -52,13 +81,18 @@
 
 
 <template id="upload-title">
-	<div class="flex flex-col items-center justify-center bg-white px-6 md:py-0 py-6 mb-0 h-full w-full dark:bg-grey-90">	
+	<div class="flex flex-col items-center justify-center bg-white px-6 md:py-0 py-6 mb-0 h-full w-full dark:bg-grey-90">
 		<div class="mt-12 flex flex-col h-full">
-			<h1 class="text-3xl font-bold md:pb-2">
-				${state.translate("introTitle")}
+			<slot name="custom-notice"></slot>
+			<h1 class="text-3xl font-bold md:pb-2 text-grey-90 dark:text-grey-10">
+				<span id="introTitle" data-type="lang">
+					Simple, private file sharing
+				</span>
 			</h1>
-			<p class="max-w-sm leading-loose mt-6 md:mt-2 md:pr-14">
-				${state.translate("introDescription")}
+			<p class="max-w-sm leading-loose mt-6 md:mt-2 md:pr-14 text-grey-70 dark:text-grey-40">
+				<span id="introDescription" data-type="lang">
+					Go Send lets you share files with end-to-end encryption and a link that automatically expires. So you can keep what you share private and make sure your stuff doesn't stay online forever.
+				</span>
 			</p>
 		</div>
 	</div>

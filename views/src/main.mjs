@@ -27,6 +27,10 @@ import { setTranslate, locale } from "./utils.mjs";
 
   const translate = await getTranslator(locale());
   setTranslate(translate);
+
+  // Make translate globally available for components
+  window.translate = translate;
+
   // eslint-disable-next-line require-atomic-updates
   window.initialState = {
     LIMITS,
@@ -41,4 +45,9 @@ import { setTranslate, locale } from "./utils.mjs";
     fileInfo: null,
     locale: locale(),
   };
+
+  // Import and register custom elements
+  await import('./ui/go-send.mjs');
+  await import('./ui/upload-area.mjs');
+  await import('./ui/upload-right.mjs');
 })();

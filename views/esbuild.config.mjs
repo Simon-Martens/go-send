@@ -5,110 +5,131 @@ import {
   versionPlugin,
   copyPublicPlugin,
   tailwindPlugin,
+  templateWatchPlugin,
 } from "./scripts/build-plugins.mjs";
 
-// Check if running in dev mode
+// Detect mode
 const isDev =
-  process.argv.includes("--dev") || process.env.NODE_ENV === "development";
+  process.argv.includes("--dev") ||
+  process.argv.includes("--watch") ||
+  process.env.NODE_ENV === "development";
 
-console.log(`🔨 Building in ${isDev ? "DEVELOPMENT" : "PRODUCTION"} mode...`);
+const isWatch = process.argv.includes("--watch");
 
-try {
-  // Build main app and service worker separately to control hashing
-  // Service worker must have stable filename for registration
-  await esbuild.build({
-    // Service worker build (no hash)
-    entryPoints: ["src/serviceWorker.mjs"],
-    bundle: true,
-    outdir: "dist",
-    format: "esm",
-    entryNames: "serviceWorker", // Always serviceWorker.js
-    resolveExtensions: [".mjs", ".js", ".css", ".json"],
-    conditions: ["style", "import", "module", "browser", "default"],
-    minify: !isDev,
-    sourcemap: isDev,
-    target: ["es2020", "chrome87", "firefox78", "safari14", "edge88"],
-    treeShaking: true,
-    define: {
-      "process.env.NODE_ENV": isDev ? '"development"' : '"production"',
-      global: "globalThis",
-    },
-    loader: {
-      ".json": "json",
-    },
-    logLevel: "info",
-  });
+console.log(
+  `🔨 Building in ${isDev ? "DEVELOPMENT" : "PRODUCTION"} mode${isWatch ? " (watch)" : ""}...`,
+);
 
-  // Main app build (with hash)
-  await esbuild.build({
-    // Entry points
-    entryPoints: ["src/main.mjs", "src/styles.css"],
+/**
+ * Shared base configuration for both main app and service worker
+ */
+const baseConfig = {
+  bundle: true,
+  format: "esm",
+  resolveExtensions: [".mjs", ".js", ".css", ".json"],
+  conditions: ["style", "import", "module", "browser", "default"],
+  minify: !isDev,
+  sourcemap: isDev,
+  target: ["es2020", "chrome87", "firefox78", "safari14", "edge88"],
+  treeShaking: !isDev, // Faster rebuilds in dev
+  define: {
+    "process.env.NODE_ENV": isDev ? '"development"' : '"production"',
+    global: "globalThis",
+    // Injected by Go templates
+    DEFAULTS: "DEFAULTS",
+    LIMITS: "LIMITS",
+    WEB_UI: "WEB_UI",
+    PREFS: "PREFS",
+  },
+  loader: {
+    ".svg": "file",
+    ".png": "file",
+    ".jpg": "file",
+    ".jpeg": "file",
+    ".gif": "file",
+    ".webp": "file",
+    ".woff": "file",
+    ".woff2": "file",
+    ".eot": "file",
+    ".ttf": "file",
+    ".otf": "file",
+    ".json": "json",
+  },
+  logLevel: "info",
+};
 
-    // Output configuration
-    bundle: true,
-    outdir: "dist",
-    format: "esm", // ES modules format
-    splitting: true, // Enable code splitting for dynamic imports (87 locale files!)
+/**
+ * Service worker configuration (stable filename, no hash)
+ */
+const serviceWorkerConfig = {
+  ...baseConfig,
+  entryPoints: ["src/serviceWorker.mjs"],
+  outdir: "dist",
+  entryNames: "serviceWorker", // Always serviceWorker.js
+};
 
-    // Resolve configuration
-    resolveExtensions: [".mjs", ".js", ".css", ".json"],
-    conditions: ["style", "import", "module", "browser", "default"],
+/**
+ * Main app configuration (with hashing for cache busting)
+ */
+const mainConfig = {
+  ...baseConfig,
+  entryPoints: ["src/main.mjs"], // CSS is imported from main.mjs
+  outdir: "dist",
+  splitting: true, // Enable code splitting for 87 locale files
+  // Cache busting: add content hash in production, clean names in dev
+  entryNames: isDev ? "[name]" : "[name].[hash]",
+  chunkNames: isDev ? "chunks/[name]" : "chunks/[name].[hash]",
+  assetNames: isDev ? "assets/[name]" : "assets/[name].[hash]",
+  plugins: [
+    tailwindPlugin(), // Process CSS with PostCSS + Tailwind
+    ftlPlugin(), // Load .ftl locale files as text
+    copyPublicPlugin(), // Copy public/ and assets/ to dist/
+    manifestPlugin(), // Generate manifest.json for Go server
+    versionPlugin(), // Generate version.json with build metadata
+    ...(isWatch ? [templateWatchPlugin()] : []), // Watch templates for Tailwind class changes
+  ],
+};
 
-    // Cache busting: add content hash to filenames in production
-    entryNames: isDev ? "[name]" : "[name].[hash]",
-    chunkNames: isDev ? "[name]" : "[name].[hash]",
-    assetNames: isDev ? "[name]" : "[name].[hash]",
+/**
+ * Build or watch
+ */
+async function build() {
+  try {
+    if (isWatch) {
+      // Watch mode - rebuild on file changes
+      const [swCtx, mainCtx] = await Promise.all([
+        esbuild.context(serviceWorkerConfig),
+        esbuild.context(mainConfig),
+      ]);
 
-    // Optimization
-    minify: !isDev,
-    sourcemap: isDev,
-    treeShaking: true,
+      await Promise.all([swCtx.watch(), mainCtx.watch()]);
 
-    // Target modern browsers (same as Vite config)
-    target: ["es2020", "chrome87", "firefox78", "safari14", "edge88"],
+      console.log("✅ Watching for file changes... (Press Ctrl+C to stop)");
+      console.log("");
+      console.log("📝 Files being watched:");
+      console.log("  - src/**/*.{js,mjs,css}");
+      console.log("  - templates/**/*.gohtml (triggers Tailwind rebuild)");
+      console.log("  - public/locales/**/*.ftl");
+      console.log("");
 
-    // Plugins
-    plugins: [
-      tailwindPlugin(), // Process CSS with PostCSS and Tailwind
-      ftlPlugin(), // Load .ftl (Fluent) translation files as text
-      copyPublicPlugin(), // Copy public/locales to dist/locales
-      manifestPlugin(), // Generate manifest.json for Go server
-      versionPlugin(), // Generate version.json with build metadata
-    ],
-
-    // Global variable definitions (for compatibility with old code)
-    define: {
-      "process.env.NODE_ENV": isDev ? '"development"' : '"production"',
-      global: "globalThis",
-      // These are injected by Go templates, so we keep them as-is
-      DEFAULTS: "DEFAULTS",
-      LIMITS: "LIMITS",
-      WEB_UI: "WEB_UI",
-      PREFS: "PREFS",
-    },
-
-    // File loaders for assets
-    loader: {
-      ".svg": "file",
-      ".png": "file",
-      ".jpg": "file",
-      ".jpeg": "file",
-      ".gif": "file",
-      ".webp": "file",
-      ".woff": "file",
-      ".woff2": "file",
-      ".eot": "file",
-      ".ttf": "file",
-      ".otf": "file",
-      ".json": "json", // Allow importing JSON files
-    },
-
-    // Log level
-    logLevel: "info",
-  });
-
-  console.log("✅ Build completed successfully!");
-} catch (error) {
-  console.error("❌ Build failed:", error);
-  process.exit(1);
+      // Handle graceful shutdown
+      process.on("SIGINT", async () => {
+        console.log("\n🛑 Stopping watch mode...");
+        await Promise.all([swCtx.dispose(), mainCtx.dispose()]);
+        process.exit(0);
+      });
+    } else {
+      // One-time build
+      await Promise.all([
+        esbuild.build(serviceWorkerConfig),
+        esbuild.build(mainConfig),
+      ]);
+      console.log("✅ Build completed successfully!");
+    }
+  } catch (error) {
+    console.error("❌ Build failed:", error);
+    process.exit(1);
+  }
 }
+
+build();

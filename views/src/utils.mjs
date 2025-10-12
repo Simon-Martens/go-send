@@ -265,3 +265,28 @@ let translate = function () {
 export function setTranslate(t) {
   translate = t;
 }
+
+export { translate };
+
+/**
+ * Translates all elements with data-type="lang" attribute within the given root.
+ * Uses the element's id attribute as the translation key.
+ * @param {HTMLElement} root - The root element to search within
+ */
+export function translateElement(root) {
+  const elements = root.querySelectorAll('[data-type="lang"]');
+  elements.forEach((el) => {
+    const key = el.id;
+    if (key) {
+      try {
+        const translated = translate(key);
+        if (translated) {
+          el.textContent = translated;
+        }
+      } catch (e) {
+        // Keep original text if translation fails
+        console.warn(`Translation missing for key: ${key}`);
+      }
+    }
+  });
+}

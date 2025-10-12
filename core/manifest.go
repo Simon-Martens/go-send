@@ -20,8 +20,8 @@ func LoadManifest(distFS embed.FS, logger *slog.Logger) Manifest {
 	if err != nil {
 		logger.Warn("manifest.json not found, using defaults")
 		return map[string]string{
-			"main.js":    config.DEFAULT_MANIFEST_JS,
-			"styles.css": config.DEFAULT_MANIFEST_CSS,
+			config.DEFAULT_MANIFEST_JS:  config.DEFAULT_MANIFEST_JS,
+			config.DEFAULT_MANIFEST_CSS: config.DEFAULT_MANIFEST_CSS,
 		}
 	}
 
@@ -29,8 +29,8 @@ func LoadManifest(distFS embed.FS, logger *slog.Logger) Manifest {
 	if err := json.Unmarshal(manifestData, &manifest); err != nil {
 		logger.Warn("Failed to parse manifest.json, using defaults", "error", err)
 		return map[string]string{
-			"main.js":    config.DEFAULT_MANIFEST_JS,
-			"styles.css": config.DEFAULT_MANIFEST_CSS,
+			config.DEFAULT_MANIFEST_JS:  config.DEFAULT_MANIFEST_JS,
+			config.DEFAULT_MANIFEST_CSS: config.DEFAULT_MANIFEST_CSS,
 		}
 	}
 

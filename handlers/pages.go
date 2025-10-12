@@ -51,7 +51,7 @@ func IndexHandler(app *core.App) http.HandlerFunc {
 		w.Header().Set("Content-Security-Policy", csp)
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-		if err := app.Template.ExecuteTemplate(w, "upload.gohtml", data); err != nil {
+		if err := app.Template.ExecuteTemplate(w, "index.gohtml", data); err != nil {
 			app.Logger.Error("Failed to execute upload template", "error", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
@@ -106,7 +106,7 @@ func DownloadPageHandler(app *core.App) http.HandlerFunc {
 		w.Header().Set("Content-Security-Policy", csp)
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-		if err := app.Template.ExecuteTemplate(w, "download.gohtml", data); err != nil {
+		if err := app.Template.ExecuteTemplate(w, "index.gohtml", data); err != nil {
 			app.Logger.Error("Failed to execute download page template", "error", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return

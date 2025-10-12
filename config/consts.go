@@ -65,7 +65,7 @@ const (
 
 const (
 	DEFAULT_MANIFEST_JS  = "main.js"
-	DEFAULT_MANIFEST_CSS = "styles.css"
+	DEFAULT_MANIFEST_CSS = "main.css"
 )
 
 const (

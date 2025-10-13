@@ -31,6 +31,7 @@ export class Controller {
     this.handleDelete = this.handleDelete.bind(this);
     this.handleCopy = this.handleCopy.bind(this);
     this.handleShare = this.handleShare.bind(this);
+    this.handleUpdateOptions = this.handleUpdateOptions.bind(this);
 
     // Track intervals for cleanup
     this.intervals = [];
@@ -48,6 +49,7 @@ export class Controller {
     this.root.addEventListener("delete", this.handleDelete);
     this.root.addEventListener("copy", this.handleCopy);
     this.root.addEventListener("share", this.handleShare);
+    this.root.addEventListener("updateoptions", this.handleUpdateOptions);
 
     // Set up periodic tasks (like in old controller)
     this.intervals.push(
@@ -69,6 +71,7 @@ export class Controller {
     this.root.removeEventListener("delete", this.handleDelete);
     this.root.removeEventListener("copy", this.handleCopy);
     this.root.removeEventListener("share", this.handleShare);
+    this.root.removeEventListener("updateoptions", this.handleUpdateOptions);
 
     // Clear intervals
     this.intervals.forEach(id => clearInterval(id));
@@ -98,12 +101,17 @@ export class Controller {
         this.state.LIMITS.MAX_FILES_PER_ARCHIVE
       );
 
-      // TODO: Render/update UI
-      // this.render();
     } catch (e) {
       console.error("[Controller] Error adding files:", e);
       // TODO: Show error dialog
       // this.state.modal = okDialog(...)
+    } finally {
+      if (
+        this.root.currentLayout &&
+        typeof this.root.currentLayout.refreshArchiveState === "function"
+      ) {
+        this.root.currentLayout.refreshArchiveState();
+      }
     }
   }
 
@@ -117,8 +125,46 @@ export class Controller {
       this.state.archive.clear();
     }
 
-    // TODO: Render/update UI
-    // this.render();
+    if (
+      this.root.currentLayout &&
+      typeof this.root.currentLayout.refreshArchiveState === "function"
+    ) {
+      this.root.currentLayout.refreshArchiveState();
+    }
+  }
+
+  handleUpdateOptions(event) {
+    const { timeLimit, downloadLimit, password } = event.detail;
+    const archive = this.state.archive;
+
+    if (!archive) {
+      return;
+    }
+
+    if (typeof timeLimit === "number" && !Number.isNaN(timeLimit)) {
+      archive.timeLimit = timeLimit;
+    }
+
+    if (typeof downloadLimit === "number" && !Number.isNaN(downloadLimit)) {
+      archive.dlimit = downloadLimit;
+    }
+
+    if (password !== undefined) {
+      archive.password = password ? password : null;
+    }
+
+    console.log("[Controller] Updated archive options", {
+      timeLimit: archive.timeLimit,
+      downloadLimit: archive.dlimit,
+      password: archive.password ? "***" : null,
+    });
+
+    if (
+      this.root.currentLayout &&
+      typeof this.root.currentLayout.refreshArchiveState === "function"
+    ) {
+      this.root.currentLayout.refreshArchiveState();
+    }
   }
 
   async handleUpload(event) {
@@ -140,6 +186,13 @@ export class Controller {
     this.state.transfer = sender;
     this.state.uploading = true;
     this.render();
+
+    if (
+      this.root.currentLayout &&
+      typeof this.root.currentLayout.refreshArchiveState === "function"
+    ) {
+      this.root.currentLayout.refreshArchiveState();
+    }
 
     const links = openLinksInNewTab();
     await delay(200);
@@ -179,6 +232,13 @@ export class Controller {
       this.state.transfer = null;
       await this.state.storage.merge();
       this.render();
+
+      if (
+        this.root.currentLayout &&
+        typeof this.root.currentLayout.refreshArchiveState === "function"
+      ) {
+        this.root.currentLayout.refreshArchiveState();
+      }
     }
   }
 
@@ -188,6 +248,13 @@ export class Controller {
     if (this.state.transfer) {
       this.state.transfer.cancel();
       // faviconProgressbar.updateFavicon(0);
+    }
+
+    if (
+      this.root.currentLayout &&
+      typeof this.root.currentLayout.refreshArchiveState === "function"
+    ) {
+      this.root.currentLayout.refreshArchiveState();
     }
   }
 

@@ -1,264 +1,184 @@
-import { translateElement } from "../utils.mjs";
+import { bytes } from "../utils.mjs";
+import "./upload-area-empty.mjs";
+import "./upload-area-list.mjs";
+import "./upload-area-uploading.mjs";
 
-/**
- * <upload-area> - Left column upload component
- *
- * Responsibilities:
- * - Display different templates based on state (default, list, uploading, complete)
- * - Handle file input interaction
- * - Emit events: addfiles, removeupload, upload, cancel
- *
- * Fine-grained rendering:
- * - switchToX() methods replace entire template
- * - addFileToList(), updateProgress(), etc. update specific elements without template switch
- */
+const VIEW_TAGS = {
+  empty: "upload-empty-view",
+  list: "upload-list-view",
+  uploading: "upload-uploading-view",
+};
+
 class UploadAreaElement extends HTMLElement {
   constructor() {
     super();
-    this.currentTemplate = null; // 'default', 'list', 'uploading', 'complete'
-
-    // Cached element references (populated by switchToX methods)
-    this.elements = {
-      fileInput: null,
-      fileList: null,
-      uploadButton: null,
-      progressBar: null,
-      progressText: null,
-      cancelButton: null,
-      copyButton: null,
-      shareButton: null,
-    };
-
-    this._afterPaintFrame = null;
-    this._boundFileSelect = this.handleFileSelect.bind(this);
+    this._currentView = null;
+    this._currentViewKey = null;
+    this._app = null;
   }
 
   connectedCallback() {
-    // Show default template (empty upload area)
-    this.switchToDefault();
+    if (!this._app) {
+      this._app = this.closest("go-send");
+    }
+    this.refresh();
   }
 
   disconnectedCallback() {
-    if (this._afterPaintFrame !== null) {
-      cancelAnimationFrame(this._afterPaintFrame);
-      this._afterPaintFrame = null;
-    }
+    this._currentView = null;
   }
 
-  _renderTemplate(templateId, onReady) {
-    const template = document.getElementById(templateId);
-    if (!template) {
-      console.error(`Template #${templateId} not found`);
+  refresh() {
+    const state = this._getAppState();
+    if (!state) {
       return;
     }
 
-    const content = template.content.cloneNode(true);
-    this.innerHTML = "";
-    this.appendChild(content);
+    const archive = state.archive;
+    const isUploading = Boolean(state.uploading && state.transfer);
+    const hasFiles = Boolean(archive && archive.files && archive.files.length > 0);
 
-    if (this._afterPaintFrame !== null) {
-      cancelAnimationFrame(this._afterPaintFrame);
+    let desiredView = "empty";
+    if (isUploading) {
+      desiredView = "uploading";
+    } else if (hasFiles) {
+      desiredView = "list";
     }
 
-    this._afterPaintFrame = requestAnimationFrame(() => {
-      this._afterPaintFrame = null;
-      if (!this.isConnected) {
-        return;
-      }
+    this._ensureView(desiredView);
 
-      translateElement(this);
-
-      if (typeof onReady === "function") {
-        onReady();
-      }
-    });
-  }
-
-  /**
-   * Template Switching Methods
-   * These replace the entire innerHTML with a new template
-   */
-
-  /**
-   * Switch to default state (empty upload area with file selection)
-   * Uses template: #upload-area-default
-   */
-  switchToDefault() {
-    this._renderTemplate("upload-area-default", () => {
-      this.elements.fileInput = this.querySelector("#file-upload");
-
-      if (this.elements.fileInput) {
-        this.elements.fileInput.addEventListener(
-          "change",
-          this._boundFileSelect,
-        );
-      }
-
-      this.currentTemplate = "default";
-    });
-  }
-
-  /**
-   * Switch to list state (shows selected files before upload)
-   * Uses template: #upload-area-list
-   */
-  switchToList() {
-    const template = document.getElementById("upload-area-list");
-    if (!template) {
-      console.error("Template #upload-area-list not found");
-      return;
+    switch (desiredView) {
+      case "empty":
+        this._configureEmptyView(state);
+        break;
+      case "list":
+        this._configureListView(state);
+        break;
+      case "uploading":
+        this._configureUploadingView(state);
+        break;
+      default:
+        break;
     }
-
-    // TODO: Implement when template is ready
-    console.log("switchToList not yet implemented - template pending");
-    this.currentTemplate = "list";
   }
 
-  /**
-   * Switch to uploading state (shows progress bar)
-   * Uses template: #upload-area-uploading
-   */
-  switchToUploading() {
-    const templateId = "upload-area-uploading";
-    const template = document.getElementById(templateId);
-    if (!template) {
-      console.error(`Template #${templateId} not found`);
-      return;
-    }
-
-    // TODO: Implement when template is ready
-    console.log("switchToUploading not yet implemented - template pending");
-    this.currentTemplate = "uploading";
-  }
-
-  /**
-   * Switch to complete state (shows share link)
-   * Uses template: #upload-area-complete
-   */
-  switchToComplete() {
-    const template = document.getElementById("upload-area-complete");
-    if (!template) {
-      console.error("Template #upload-area-complete not found");
-      return;
-    }
-
-    // TODO: Implement when template is ready
-    console.log("switchToComplete not yet implemented - template pending");
-    this.currentTemplate = "complete";
-  }
-
-  /**
-   * Fine-Grained Update Methods
-   * These update specific elements without switching templates
-   */
-
-  /**
-   * Add a file to the file list (when in 'list' template)
-   */
-  addFileToList(file) {
-    if (this.currentTemplate !== "list") {
-      console.warn("addFileToList called but not in list template");
-      return;
-    }
-
-    // TODO: Implement when list template is ready
-    console.log("addFileToList:", file);
-  }
-
-  /**
-   * Remove a file from the file list (when in 'list' template)
-   */
-  removeFileFromList(fileId) {
-    if (this.currentTemplate !== "list") {
-      console.warn("removeFileFromList called but not in list template");
-      return;
-    }
-
-    // TODO: Implement when list template is ready
-    console.log("removeFileFromList:", fileId);
-  }
-
-  /**
-   * Update progress bar value (when in 'uploading' template)
-   */
-  updateProgress(ratio) {
-    if (
-      this.currentTemplate !== "uploading" ||
-      !this.elements.progressBar
-    ) {
-      return;
-    }
-
-    this.elements.progressBar.value = ratio;
-  }
-
-  /**
-   * Update progress text (when in 'uploading' template)
-   */
-  updateProgressText(text) {
-    if (
-      this.currentTemplate !== "uploading" ||
-      !this.elements.progressText
-    ) {
-      return;
-    }
-
-    this.elements.progressText.textContent = text;
-  }
-
-  /**
-   * Update total file size display (when in 'list' template)
-   */
-  updateTotalSize(bytes) {
-    if (this.currentTemplate !== "list") {
-      return;
-    }
-
-    // TODO: Implement when list template is ready
-    console.log("updateTotalSize:", bytes);
-  }
-
-  /**
-   * Enable/disable upload button (when in 'list' template)
-   */
   setUploadButtonEnabled(enabled) {
-    if (
-      this.currentTemplate !== "list" ||
-      !this.elements.uploadButton
-    ) {
-      return;
+    if (this._currentViewKey === "list" && this._currentView && typeof this._currentView.setUploadEnabled === "function") {
+      this._currentView.setUploadEnabled(enabled);
     }
-
-    this.elements.uploadButton.disabled = !enabled;
   }
 
-  /**
-   * Event Handlers
-   */
+  updateProgress(ratio, bytesUploaded, totalBytes) {
+    if (this._currentViewKey === "uploading" && this._currentView && typeof this._currentView.setProgress === "function") {
+      const uploadedLabel = bytes(bytesUploaded || 0);
+      const totalLabel = bytes(totalBytes || 0);
+      const label = `${uploadedLabel} / ${totalLabel}`;
+      this._currentView.setProgress({ percent: ratio, label });
+    } else if (this._currentViewKey === "list" && this._currentView && typeof this._currentView.updateProgress === "function") {
+      this._currentView.updateProgress(ratio, bytesUploaded, totalBytes);
+    }
+  }
 
-  /**
-   * Handle file input change event
-   * Emits 'addfiles' custom event with selected files
-   */
-  handleFileSelect(event) {
-    const files = Array.from(event.target.files);
+  updateProgressText(text) {
+    if (this._currentViewKey === "uploading" && this._currentView && typeof this._currentView.setStatus === "function") {
+      this._currentView.setStatus(text);
+    } else if (this._currentViewKey === "list" && this._currentView && typeof this._currentView.updateProgressText === "function") {
+      this._currentView.updateProgressText(text);
+    }
+  }
 
-    if (files.length === 0) {
+  ensureView(viewKey) {
+    this._ensureView(viewKey);
+  }
+
+  _ensureView(viewKey) {
+    if (this._currentViewKey === viewKey && this._currentView && this._currentView.parentElement === this) {
       return;
     }
 
-    // Emit custom event (bubbles up to <go-send>)
-    this.dispatchEvent(
-      new CustomEvent("addfiles", {
-        bubbles: true,
-        detail: { files },
-      })
-    );
+    this.innerHTML = "";
+    const tagName = VIEW_TAGS[viewKey] || VIEW_TAGS.empty;
+    const view = document.createElement(tagName);
+    this.appendChild(view);
+    this._currentView = view;
+    this._currentViewKey = viewKey;
+  }
 
-    // Reset input so the same file can be selected again
-    event.target.value = "";
+  _configureEmptyView(state) {
+    const view = this._currentView;
+    if (!view || typeof view.setConfig !== "function") {
+      return;
+    }
+
+    const limits = state.LIMITS || {};
+    const sizeLabel = bytes(limits.MAX_FILE_SIZE || 0);
+    const orClickText = this._translate("orClickWithSize", `or click to select files (max ${sizeLabel})`, { size: sizeLabel }, state);
+    const addFilesLabel = this._translate("addFilesButton", "Select files", null, state);
+    const noticeHTML = state.WEB_UI?.UPLOAD_AREA_NOTICE_HTML || "";
+
+    view.setConfig({ orClickText, addFilesLabel, noticeHTML });
+  }
+
+  _configureListView(state) {
+    const view = this._currentView;
+    if (!view || typeof view.setState !== "function") {
+      return;
+    }
+
+    const archive = state.archive;
+    const limits = state.LIMITS || {};
+    const defaults = state.DEFAULTS || {};
+
+    view.setState({
+      files: archive?.files || [],
+      totalSize: archive?.size || 0,
+      maxFiles: limits.MAX_FILES_PER_ARCHIVE || 0,
+      limits,
+      defaults,
+      translate: state.translate,
+      timeLimit: archive?.timeLimit ?? null,
+      downloadLimit: archive?.dlimit ?? null,
+      password: archive?.password ?? "",
+    });
+  }
+
+  _configureUploadingView(state) {
+    const view = this._currentView;
+    if (!view) {
+      return;
+    }
+
+    const transfer = state.transfer;
+    if (transfer && typeof view.setProgress === "function") {
+      const ratio = transfer.progressRatio || 0;
+      const [uploadedBytes = 0, totalBytes = 0] = transfer.progress || [];
+      const uploadedLabel = bytes(uploadedBytes);
+      const totalLabel = bytes(totalBytes);
+      view.setProgress({ percent: ratio, label: `${uploadedLabel} / ${totalLabel}` });
+    }
+  }
+
+  _getAppState() {
+    if (!this._app || !this._app.state) {
+      this._app = this.closest("go-send");
+    }
+    return this._app?.state || null;
+  }
+
+  _translate(key, fallback, params, state) {
+    const translator = state?.translate || window.translate;
+    if (typeof translator === "function") {
+      try {
+        const value = translator(key, params);
+        if (value) {
+          return value;
+        }
+      } catch (err) {
+        // ignore missing key
+      }
+    }
+    return fallback;
   }
 }
 
-// Register the custom element
 customElements.define("upload-area", UploadAreaElement);

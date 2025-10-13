@@ -18,6 +18,8 @@ class UploadLayoutElement extends HTMLElement {
     // Child component references (owned by this layout)
     this.uploadArea = null;
     this.uploadRight = null;
+    this.app = null;
+    this._waitingForUploadAreaUpgrade = false;
 
     // Upload state
     this.state = {
@@ -66,6 +68,7 @@ class UploadLayoutElement extends HTMLElement {
 
       this.uploadArea = this.querySelector("upload-area");
       this.uploadRight = this.querySelector("upload-right");
+      this.app = this.closest("go-send") || this.app;
 
       if (!this._handlersBound) {
         this.addEventListener("addfiles", this._boundHandlers.addfiles);
@@ -74,6 +77,8 @@ class UploadLayoutElement extends HTMLElement {
         this.addEventListener("cancel", this._boundHandlers.cancel);
         this._handlersBound = true;
       }
+
+      this.refreshArchiveState();
     });
   }
 
@@ -100,75 +105,33 @@ class UploadLayoutElement extends HTMLElement {
   handleAddFiles(event) {
     const { files } = event.detail;
 
-    // Update state
-    this.state.stage = 'selected';
-    this.state.files = files;
-    this.state.totalSize = files.reduce((sum, f) => sum + f.size, 0);
+    console.log("upload-layout: addfiles", {
+      files,
+      totalSize: files.reduce((sum, f) => sum + f.size, 0),
+    });
 
-    // Update UI: upload-area shows file list
-    if (this.uploadArea) {
-      this.uploadArea.switchToList();
-      files.forEach(file => this.uploadArea.addFileToList(file));
-      this.uploadArea.updateTotalSize(this.state.totalSize);
-    }
-
-    // Log for now (will forward to controller later)
-    console.log("upload-layout: addfiles", { files, totalSize: this.state.totalSize });
-
-    // Bubble event to parent <go-send> for controller
-    this.dispatchEvent(new CustomEvent("addfiles", {
-      bubbles: true,
-      composed: true,
-      detail: event.detail,
-    }));
+    queueMicrotask(() => this.refreshArchiveState());
   }
 
   handleRemoveUpload(event) {
-    const { fileId } = event.detail;
+    console.log("upload-layout: removeupload", event.detail);
 
-    // Update state
-    this.state.files = this.state.files.filter((f, i) => i !== fileId);
-    this.state.totalSize = this.state.files.reduce((sum, f) => sum + f.size, 0);
-
-    // If no files left, go back to empty state
-    if (this.state.files.length === 0) {
-      this.state.stage = 'empty';
-      if (this.uploadArea) {
-        this.uploadArea.switchToDefault();
-      }
-    } else {
-      // Update UI
-      if (this.uploadArea) {
-        this.uploadArea.removeFileFromList(fileId);
-        this.uploadArea.updateTotalSize(this.state.totalSize);
-      }
-    }
-
-    // Bubble event to parent
-    this.dispatchEvent(new CustomEvent("removeupload", {
-      bubbles: true,
-      composed: true,
-      detail: event.detail,
-    }));
+    queueMicrotask(() => this.refreshArchiveState());
   }
 
   handleUpload(event) {
     // Start upload process
     this.state.stage = 'uploading';
 
-    // Update UI: upload-area shows progress
-    if (this.uploadArea) {
-      this.uploadArea.switchToUploading();
+    // Update UI: force uploading view immediately
+    if (this.uploadArea && typeof this.uploadArea.ensureView === "function") {
+      this.uploadArea.ensureView('uploading');
     }
 
     console.log("upload-layout: starting upload");
 
-    // Bubble event to parent <go-send> for controller
-    this.dispatchEvent(new CustomEvent("upload", {
-      bubbles: true,
-      composed: true,
-      detail: event.detail,
-    }));
+    // Original event will bubble to the controller
+    queueMicrotask(() => this.refreshArchiveState());
   }
 
   handleCancel(event) {
@@ -176,19 +139,10 @@ class UploadLayoutElement extends HTMLElement {
     this.state.stage = 'selected';
     this.state.progress = 0;
 
-    // Update UI
-    if (this.uploadArea) {
-      this.uploadArea.switchToList();
-    }
-
     console.log("upload-layout: upload cancelled");
 
-    // Bubble event to parent
-    this.dispatchEvent(new CustomEvent("cancel", {
-      bubbles: true,
-      composed: true,
-      detail: event.detail,
-    }));
+    // Original event will bubble to the controller
+    this.refreshArchiveState();
   }
 
   /**
@@ -216,7 +170,9 @@ class UploadLayoutElement extends HTMLElement {
 
     // Update UI: upload-area shows share link
     if (this.uploadArea) {
-      this.uploadArea.switchToComplete();
+      if (typeof this.uploadArea.refresh === "function") {
+        this.uploadArea.refresh();
+      }
     }
 
     // Update UI: upload-right may show upload list
@@ -238,12 +194,45 @@ class UploadLayoutElement extends HTMLElement {
     };
 
     if (this.uploadArea) {
-      this.uploadArea.switchToDefault();
+      if (typeof this.uploadArea.ensureView === "function") {
+        this.uploadArea.ensureView('empty');
+      }
     }
 
     if (this.uploadRight) {
       this.uploadRight.showIntro();
     }
+
+    this.refreshArchiveState();
+  }
+
+  refreshArchiveState() {
+    if (!this.app) {
+      this.app = this.closest("go-send") || this.app;
+    }
+
+    if (!this.app || !this.uploadArea || !this.app.state) {
+      return;
+    }
+
+    if (typeof this.uploadArea.refresh !== "function") {
+      if (!this._waitingForUploadAreaUpgrade) {
+        this._waitingForUploadAreaUpgrade = true;
+        customElements
+          .whenDefined("upload-area")
+          .then(() => {
+            this.uploadArea = this.querySelector("upload-area");
+            this._waitingForUploadAreaUpgrade = false;
+            this.refreshArchiveState();
+          })
+          .catch(() => {
+            this._waitingForUploadAreaUpgrade = false;
+          });
+      }
+      return;
+    }
+
+    this.uploadArea.refresh();
   }
 }
 

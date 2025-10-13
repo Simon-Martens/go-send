@@ -46,21 +46,16 @@
 	- #error-layout: For error pages
 -->
 
-<template id="upload-area-default">
-	<div class="flex flex-col items-center justify-center border-2 border-dashed rounded-default px-6 py-16 h-full w-full">
-		<svg class="w-10 h-10 text-primary dark:text-blue-50">
+<template id="upload-view-empty">
+	<div class="flex flex-col items-center justify-center border-2 border-dashed border-grey-transparent rounded-default px-6 py-16 h-full w-full dark:border-grey-60">
+		<svg class="w-10 h-10 text-primary dark:text-blue-40">
 			<use xlink:href="/addfiles.svg#plus" />
 		</svg>
-		<div class="pt-6 pb-2 text-center text-lg font-bold tracking-wide">
-			<span id="dragAndDropFiles" data-type="lang">
-				Drag and drop files
-			</span>
+		<div class="pt-6 pb-2 text-center text-lg font-bold tracking-wide text-grey-90 dark:text-grey-20">
+			<span id="dragAndDropFiles" data-type="lang">Drag and drop files</span>
 		</div>
-		<!-- TODO: translate with arguments -->
-		<div class="pb-6 text-center text-base">
-			<span id="orClickWithSize" data-type="lang">
-				or click to select files
-			</span>
+		<div class="pb-6 text-center text-base text-grey-70 dark:text-grey-40">
+			<span id="orClickWithSize" data-type="lang">or click to select files</span>
 		</div>
 		<input
 			id="file-upload"
@@ -68,27 +63,108 @@
 			type="file"
 			multiple
 		/>
-		<!-- TODO: translate in title tag -->
-		<label
-			for="file-upload"
-			role="button"
-			class="btn rounded-lg flex items-center mt-4 text-white">
-			<span id="addFilesButton" data-type="lang">
-				Select files
-			</span>
-		</label>
+	<label
+		for="file-upload"
+		role="button"
+		class="btn rounded-lg flex items-center mt-4 px-6 py-2">
+		<span id="addFilesButton" data-type="lang">Select files</span>
+	</label>
+		<div class="mt-6 text-sm text-grey-70 dark:text-grey-40" id="upload-area-default-notice"></div>
+	</div>
 </template>
 
-<template id="upload-area-uploading">
-
+<template id="upload-view-list">
+	<div class="flex flex-col bg-white dark:bg-grey-90 rounded-default shadow-light h-full w-full">
+		<div class="flex-1 overflow-y-auto px-4 py-4" data-role="file-list" aria-live="polite"></div>
+		<div class="border-t border-grey-30 dark:border-grey-70 px-4 py-4 space-y-4">
+			<input
+				id="file-upload"
+				class="opacity-0 w-0 h-0 appearance-none absolute overflow-hidden"
+				type="file"
+				multiple
+			/>
+			<div class="flex items-center justify-between">
+				<label
+					for="file-upload"
+					class="flex items-center text-sm font-medium text-primary cursor-pointer"
+				>
+					<svg class="w-5 h-5 mr-2">
+						<use xlink:href="/addfiles.svg#plus" />
+					</svg>
+					<span data-role="add-more-label">Add more files</span>
+				</label>
+				<div class="text-sm text-grey-70 dark:text-grey-40 text-right">
+					<span data-role="file-count-value"></span>
+					<div>
+						<span>Total size</span>:
+						<span data-role="total-size-value"></span>
+					</div>
+				</div>
+			</div>
+			<div id="upload-area-options-slot"></div>
+			<button type="button" class="btn rounded-lg w-full" data-action="upload">
+				<span id="uploadButton" data-type="lang">Upload</span>
+			</button>
+		</div>
+	</div>
 </template>
 
-<template id="upload-area-complete">
-
+<template id="upload-view-list-item">
+	<li class="flex items-center justify-between rounded-default border border-grey-20 dark:border-grey-70 px-3 py-3 mb-3 last:mb-0 bg-white dark:bg-grey-80">
+		<div class="min-w-0 pr-3">
+			<p class="text-sm font-medium text-grey-90 dark:text-grey-10 break-words" data-role="file-name"></p>
+			<p class="text-xs text-grey-70 dark:text-grey-40 mt-1" data-role="file-meta"></p>
+		</div>
+		<button type="button" class="text-sm font-medium text-primary hover:text-primary-dark" data-action="remove">
+			<span class="sr-only" data-role="remove-label">Remove file</span>
+			<span aria-hidden="true">&times;</span>
+		</button>
+	</li>
 </template>
 
-<template id="upload-area-list">
+<template id="upload-view-list-options">
+	<form class="space-y-4" data-role="options-form">
+		<div>
+			<label for="time-limit" class="block text-sm font-medium text-grey-80 dark:text-grey-20">
+				<span>Expire after</span>
+			</label>
+			<select id="time-limit" class="mt-1 w-full rounded-default border border-grey-30 bg-white px-3 py-2 text-sm dark:bg-grey-80 dark:border-grey-60" data-role="time-limit">
+				<option value="3600">1 hour</option>
+				<option value="86400" selected>1 day</option>
+				<option value="604800">7 days</option>
+			</select>
+		</div>
+		<div>
+			<label for="download-limit" class="block text-sm font-medium text-grey-80 dark:text-grey-20">
+				<span>Downloads allowed</span>
+			</label>
+			<select id="download-limit" class="mt-1 w-full rounded-default border border-grey-30 bg-white px-3 py-2 text-sm dark:bg-grey-80 dark:border-grey-60" data-role="download-limit">
+				<option value="1" selected>1</option>
+				<option value="5">5</option>
+				<option value="20">20</option>
+			</select>
+		</div>
+		<div>
+			<label for="password-input" class="block text-sm font-medium text-grey-80 dark:text-grey-20">
+				<span id="addPassword" data-type="lang">Add a password (optional)</span>
+			</label>
+			<input
+				id="password-input"
+				type="password"
+				autocomplete="off"
+				class="mt-1 w-full rounded-default border border-grey-30 bg-white px-3 py-2 text-sm dark:bg-grey-80 dark:border-grey-60"
+				placeholder="••••••"
+				data-role="password"
+			/>
+		</div>
+	</form>
+</template>
 
+<template id="upload-view-uploading">
+	<div class="flex flex-col items-center justify-center h-full w-full px-6 py-10">
+		<div class="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
+		<p class="mt-6 text-base text-grey-80 dark:text-grey-30" id="uploadingStatus" data-type="lang">Uploading…</p>
+	</div>
 </template>
 
 

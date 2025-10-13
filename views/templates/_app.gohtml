@@ -133,17 +133,25 @@
 			<div class="font-medium mt-1 text-right" data-role="expiry-label-bottom">Ends</div>
 		</div>
 		<div>
-			<label for="password-input" class="block text-sm font-medium text-grey-80 dark:text-grey-20">
+			<button type="button" class="flex items-center text-sm font-medium text-grey-80 dark:text-grey-20" data-role="password-toggle">
+				<span class="mr-2 inline-flex h-6 w-6 items-center justify-center rounded border border-grey-40 text-grey-70 dark:border-grey-60 dark:text-grey-30" data-role="password-toggle-icon"></span>
 				<span id="addPassword" data-type="lang">Add a password (optional)</span>
-			</label>
-			<input
-				id="password-input"
-				type="password"
-				autocomplete="off"
-				class="mt-1 w-full rounded-default border border-grey-30 bg-white px-3 py-2 text-sm dark:bg-grey-80 dark:border-grey-60"
-				placeholder="••••••"
-				data-role="password"
-			/>
+			</button>
+			<div class="relative mt-2" data-role="password-field" hidden>
+				<input
+					id="password-input"
+					type="password"
+					autocomplete="off"
+					class="w-full rounded-default border border-grey-30 bg-white px-3 py-2 text-sm dark:bg-grey-80 dark:border-grey-60"
+					placeholder="••••••"
+					data-role="password"
+					maxlength="4096"
+				/>
+				<button type="button" class="absolute inset-y-0 right-0 flex w-10 items-center justify-center" data-role="password-visibility">
+					<img src="/eye.svg" alt="" class="h-5 w-5" data-role="password-visibility-icon" />
+				</button>
+			</div>
+			<div class="mt-1 text-xs text-grey-60" data-role="password-hint"></div>
 		</div>
 	</div>
 </template>

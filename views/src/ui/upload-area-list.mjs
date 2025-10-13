@@ -14,10 +14,16 @@ class UploadListView extends HTMLElement {
       expiryContainer: null,
       downloadLimit: null,
       timeLimit: null,
-      passwordInput: null,
       orLabel: null,
       expiryLabelTop: null,
       expiryLabelBottom: null,
+      passwordToggle: null,
+      passwordToggleIcon: null,
+      passwordField: null,
+      passwordInput: null,
+      passwordHint: null,
+      passwordVisibilityButton: null,
+      passwordVisibilityIcon: null,
     };
 
     this._afterFrame = null;
@@ -27,6 +33,7 @@ class UploadListView extends HTMLElement {
     this._maxFiles = 0;
     this._translate = null;
     this._password = "";
+    this._passwordEnabled = false;
     this._timeLimit = null;
     this._downloadLimit = null;
 
@@ -35,6 +42,8 @@ class UploadListView extends HTMLElement {
     this._boundTimeChange = this.handleTimeLimitChange.bind(this);
     this._boundDownloadChange = this.handleDownloadLimitChange.bind(this);
     this._boundPasswordInput = this.handlePasswordInput.bind(this);
+    this._boundPasswordToggle = null;
+    this._boundPasswordVisibility = null;
   }
 
   connectedCallback() {
@@ -81,7 +90,13 @@ class UploadListView extends HTMLElement {
       this.elements.orLabel = optionsContainer.querySelector('[data-role="or-label"]');
       this.elements.expiryLabelTop = optionsContainer.querySelector('[data-role="expiry-label-top"]');
       this.elements.expiryLabelBottom = optionsContainer.querySelector('[data-role="expiry-label-bottom"]');
+      this.elements.passwordToggle = optionsContainer.querySelector('[data-role="password-toggle"]');
+      this.elements.passwordToggleIcon = optionsContainer.querySelector('[data-role="password-toggle-icon"]');
+      this.elements.passwordField = optionsContainer.querySelector('[data-role="password-field"]');
       this.elements.passwordInput = optionsContainer.querySelector('[data-role="password"]');
+      this.elements.passwordHint = optionsContainer.querySelector('[data-role="password-hint"]');
+      this.elements.passwordVisibilityButton = optionsContainer.querySelector('[data-role="password-visibility"]');
+      this.elements.passwordVisibilityIcon = optionsContainer.querySelector('[data-role="password-visibility-icon"]');
     }
 
     this._attachBaseListeners();
@@ -92,6 +107,7 @@ class UploadListView extends HTMLElement {
     this._afterFrame = requestAnimationFrame(() => {
       this._afterFrame = null;
       translateElement(this);
+      this.applyPasswordState();
     });
   }
 
@@ -111,9 +127,25 @@ class UploadListView extends HTMLElement {
     this._limits = limits;
     this._defaults = defaults;
     this._translate = translate;
-    this._timeLimit = timeLimit;
-    this._downloadLimit = downloadLimit;
-    this._password = password || "";
+
+    if (typeof timeLimit === "number" && !Number.isNaN(timeLimit)) {
+      this._timeLimit = timeLimit;
+    }
+
+    if (typeof downloadLimit === "number" && !Number.isNaN(downloadLimit)) {
+      this._downloadLimit = downloadLimit;
+    }
+
+    const hasServerPassword = typeof password === "string" && password.length > 0;
+    if (this._files.length === 0) {
+      this._passwordEnabled = false;
+      this._password = "";
+    } else if (hasServerPassword) {
+      this._passwordEnabled = true;
+      this._password = password;
+    } else if (password === null && !this._passwordEnabled) {
+      this._password = "";
+    }
 
     const resolvedTotalSize = totalSize || this._files.reduce((sum, file) => sum + (file.size || 0), 0);
 
@@ -123,6 +155,8 @@ class UploadListView extends HTMLElement {
     this._renderExpiryControls();
     this._updateOptionValues();
     this._updateStaticLabels(resolvedTotalSize);
+    this.applyPasswordState();
+    this.updatePasswordHint(this._password.length);
   }
 
   updateTotalSize(totalSize) {
@@ -193,6 +227,8 @@ class UploadListView extends HTMLElement {
       return;
     }
 
+    this._detachOptionListeners();
+
     const downloadToken = "__DOWNLOAD__";
     const timeToken = "__TIMESPAN__";
     const fallback = `Expires after ${downloadToken} ${this._translateText("or", "or")} ${timeToken} ends`;
@@ -226,9 +262,7 @@ class UploadListView extends HTMLElement {
       this.elements.expiryLabelBottom.textContent = suffixText;
     }
 
-    this._detachOptionListeners();
-
-    this._populateSelect(
+    this._downloadLimit = this._populateSelect(
       downloadSelect,
       (this._defaults?.DOWNLOAD_COUNTS || []).filter((count) => {
         const max = this._limits?.MAX_DOWNLOADS;
@@ -238,7 +272,7 @@ class UploadListView extends HTMLElement {
       (value) => this._translateText("downloadCount", `${value}`, { num: value }),
     );
 
-    this._populateSelect(
+    this._timeLimit = this._populateSelect(
       timeSelect,
       (this._defaults?.EXPIRE_TIMES_SECONDS || []).filter((seconds) => {
         const max = this._limits?.MAX_EXPIRE_SECONDS;
@@ -253,7 +287,7 @@ class UploadListView extends HTMLElement {
 
   _populateSelect(select, values, selected, formatter) {
     if (!select) {
-      return;
+      return selected;
     }
 
     const desired = selected !== null && selected !== undefined ? String(selected) : null;
@@ -271,6 +305,8 @@ class UploadListView extends HTMLElement {
     } else if (select.options.length > 0) {
       select.selectedIndex = 0;
     }
+
+    return select.options.length > 0 ? Number(select.value) : selected;
   }
 
   _updateOptionValues() {
@@ -280,12 +316,14 @@ class UploadListView extends HTMLElement {
         this.elements.downloadLimit.value = value;
       }
     }
+
     if (this.elements.timeLimit && this._timeLimit !== null && this._timeLimit !== undefined) {
       const value = String(this._timeLimit);
       if (Array.from(this.elements.timeLimit.options).some((opt) => opt.value === value)) {
         this.elements.timeLimit.value = value;
       }
     }
+
     if (this.elements.passwordInput) {
       this.elements.passwordInput.value = this._password || "";
     }
@@ -335,6 +373,14 @@ class UploadListView extends HTMLElement {
     if (this.elements.uploadButton) {
       this.elements.uploadButton.addEventListener("click", this._boundUploadClick);
     }
+    if (this.elements.passwordToggle) {
+      this._boundPasswordToggle = this._boundPasswordToggle || this.handlePasswordToggle.bind(this);
+      this.elements.passwordToggle.addEventListener("click", this._boundPasswordToggle);
+    }
+    if (this.elements.passwordVisibilityButton) {
+      this._boundPasswordVisibility = this._boundPasswordVisibility || this.togglePasswordVisibility.bind(this);
+      this.elements.passwordVisibilityButton.addEventListener("click", this._boundPasswordVisibility);
+    }
     if (this.elements.passwordInput) {
       this.elements.passwordInput.addEventListener("input", this._boundPasswordInput);
     }
@@ -364,6 +410,12 @@ class UploadListView extends HTMLElement {
     }
     if (this.elements.uploadButton) {
       this.elements.uploadButton.removeEventListener("click", this._boundUploadClick);
+    }
+    if (this.elements.passwordToggle && this._boundPasswordToggle) {
+      this.elements.passwordToggle.removeEventListener("click", this._boundPasswordToggle);
+    }
+    if (this.elements.passwordVisibilityButton && this._boundPasswordVisibility) {
+      this.elements.passwordVisibilityButton.removeEventListener("click", this._boundPasswordVisibility);
     }
     if (this.elements.passwordInput) {
       this.elements.passwordInput.removeEventListener("input", this._boundPasswordInput);
@@ -414,6 +466,18 @@ class UploadListView extends HTMLElement {
       // ignore missing translation
     }
     return fallback;
+  }
+
+  updatePasswordHint(length) {
+    if (!this.elements.passwordHint) {
+      return;
+    }
+
+    if (length >= 4096) {
+      this.elements.passwordHint.textContent = this._translateText("maxPasswordLength", "Maximum password length", { length: 4096 });
+    } else {
+      this.elements.passwordHint.textContent = "";
+    }
   }
 
   handleFileSelect(event) {
@@ -494,12 +558,80 @@ class UploadListView extends HTMLElement {
 
   handlePasswordInput(event) {
     this._password = event.target.value;
+    this._passwordEnabled = true;
+    this.updatePasswordHint(this._password.length);
     this.dispatchEvent(
       new CustomEvent("updateoptions", {
         bubbles: true,
-        detail: { password: this._password },
+        detail: { password: this._password || null },
       }),
     );
+  }
+
+  handlePasswordToggle(event) {
+    event.preventDefault();
+    if (!this.elements.passwordField || !this.elements.passwordToggleIcon) {
+      return;
+    }
+
+    this._passwordEnabled = !this._passwordEnabled;
+    if (!this._passwordEnabled) {
+      this._password = "";
+      this.updatePasswordHint(0);
+      this.dispatchEvent(
+        new CustomEvent("updateoptions", {
+          bubbles: true,
+          detail: { password: null },
+        }),
+      );
+    }
+
+    this.applyPasswordState();
+
+    if (this._passwordEnabled && this.elements.passwordInput) {
+      this.elements.passwordInput.focus();
+    }
+  }
+
+  togglePasswordVisibility(event) {
+    event.preventDefault();
+    if (!this.elements.passwordInput || !this.elements.passwordVisibilityIcon) {
+      return;
+    }
+
+    const input = this.elements.passwordInput;
+    const isPassword = input.type === "password";
+    input.type = isPassword ? "text" : "password";
+    this.elements.passwordVisibilityIcon.src = isPassword ? "/eye-off.svg" : "/eye.svg";
+    input.focus();
+  }
+
+  applyPasswordState() {
+    if (!this.elements.passwordField || !this.elements.passwordToggleIcon) {
+      return;
+    }
+
+    if (this._passwordEnabled) {
+      this.elements.passwordField.removeAttribute("hidden");
+      this.elements.passwordToggleIcon.innerHTML = '<img src="/lock.svg" alt="" class="h-4 w-4" />';
+      if (this.elements.passwordInput) {
+        this.elements.passwordInput.value = this._password || "";
+        this.elements.passwordInput.type = "password";
+      }
+      if (this.elements.passwordVisibilityIcon) {
+        this.elements.passwordVisibilityIcon.src = "/eye.svg";
+      }
+    } else {
+      this.elements.passwordField.setAttribute("hidden", "hidden");
+      this.elements.passwordToggleIcon.innerHTML = "";
+      if (this.elements.passwordInput) {
+        this.elements.passwordInput.value = "";
+        this.elements.passwordInput.type = "password";
+      }
+      if (this.elements.passwordVisibilityIcon) {
+        this.elements.passwordVisibilityIcon.src = "/eye.svg";
+      }
+    }
   }
 }
 

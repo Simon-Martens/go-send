@@ -159,12 +159,6 @@ export class Controller {
       password: archive.password ? "***" : null,
     });
 
-    if (
-      this.root.currentLayout &&
-      typeof this.root.currentLayout.refreshArchiveState === "function"
-    ) {
-      this.root.currentLayout.refreshArchiveState();
-    }
   }
 
   async handleUpload(event) {

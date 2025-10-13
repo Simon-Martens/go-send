@@ -96,7 +96,6 @@
 				<div class="text-sm text-grey-70 dark:text-grey-40 text-right">
 					<span data-role="file-count-value"></span>
 					<div>
-						<span>Total size</span>:
 						<span data-role="total-size-value"></span>
 					</div>
 				</div>
@@ -123,27 +122,8 @@
 </template>
 
 <template id="upload-view-list-options">
-	<form class="space-y-4" data-role="options-form">
-		<div>
-			<label for="time-limit" class="block text-sm font-medium text-grey-80 dark:text-grey-20">
-				<span>Expire after</span>
-			</label>
-			<select id="time-limit" class="mt-1 w-full rounded-default border border-grey-30 bg-white px-3 py-2 text-sm dark:bg-grey-80 dark:border-grey-60" data-role="time-limit">
-				<option value="3600">1 hour</option>
-				<option value="86400" selected>1 day</option>
-				<option value="604800">7 days</option>
-			</select>
-		</div>
-		<div>
-			<label for="download-limit" class="block text-sm font-medium text-grey-80 dark:text-grey-20">
-				<span>Downloads allowed</span>
-			</label>
-			<select id="download-limit" class="mt-1 w-full rounded-default border border-grey-30 bg-white px-3 py-2 text-sm dark:bg-grey-80 dark:border-grey-60" data-role="download-limit">
-				<option value="1" selected>1</option>
-				<option value="5">5</option>
-				<option value="20">20</option>
-			</select>
-		</div>
+	<div class="space-y-6" data-role="options-form">
+		<div data-role="expiry-container" class="text-sm font-medium text-grey-80 dark:text-grey-30"></div>
 		<div>
 			<label for="password-input" class="block text-sm font-medium text-grey-80 dark:text-grey-20">
 				<span id="addPassword" data-type="lang">Add a password (optional)</span>
@@ -157,7 +137,7 @@
 				data-role="password"
 			/>
 		</div>
-	</form>
+	</div>
 </template>
 
 <template id="upload-view-uploading">

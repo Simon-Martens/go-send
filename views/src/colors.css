@@ -1,0 +1,122 @@
+/* Everything color related goes here */
+@media (prefers-color-scheme: dark) {
+  body {
+    background-image: unset;
+  }
+
+  .btn {
+    @apply bg-primary;
+    @apply text-white;
+  }
+
+  .btn:hover {
+    @apply bg-primary-accent;
+  }
+
+  .btn:focus {
+    @apply bg-primary-accent;
+  }
+
+  .link-primary {
+    @apply text-primary;
+  }
+
+  .link-primary:hover {
+    @apply text-primary-accent;
+  }
+
+  .link-primary:focus {
+    @apply text-primary-accent;
+  }
+
+  .main > section {
+  }
+
+  @media (min-width: 768px) {
+    .main > section {
+      border: 1px solid;
+      @apply border-grey-80;
+    }
+  }
+}
+
+/* ============================================================
+   go-send-bg: Animated SVG Background Component
+   ============================================================ */
+
+go-send-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Ensure main content is above background */
+body {
+  @apply bg-slate-100 dark:bg-black text-grey-90 dark:text-slate-50;
+}
+
+#app,
+footer {
+  @apply bg-slate-50 dark:bg-grey-90;
+}
+
+.go-send-bg-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Base background - white in light mode, black in dark mode */
+.go-send-bg-base {
+  fill: #ffffff;
+}
+
+/* File tiles - black in light mode, white in dark mode */
+.go-send-bg-tile {
+  fill: #000000;
+  stroke: none;
+}
+
+/* Hidden tiles - blend into background */
+.go-send-bg-tile-hidden {
+  fill: #ffffff;
+}
+
+/* Path line - black in light mode, white in dark mode */
+.go-send-bg-path {
+  stroke: #000000;
+}
+
+/* Colored tiles in corridor - keep pastel colors in both modes */
+.go-send-bg-tile-colored {
+  stroke: none;
+  /* Fill color is set inline via JavaScript */
+}
+
+@media (prefers-color-scheme: dark) {
+  .go-send-bg-base {
+    fill: #000000;
+  }
+
+  .go-send-bg-tile {
+    fill: #ffffff;
+  }
+
+  .go-send-bg-tile-hidden {
+    fill: #000000;
+  }
+
+  .go-send-bg-path {
+    stroke: #ffffff;
+  }
+
+  /* Colored tiles keep their pastel colors in dark mode too */
+  .go-send-bg-tile-colored {
+    /* Fill color is set inline via JavaScript */
+  }
+}

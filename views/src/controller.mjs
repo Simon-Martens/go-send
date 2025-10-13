@@ -1,12 +1,286 @@
 import FileReceiver from "./fileReceiver";
 import FileSender from "./fileSender";
-import copyDialog from "./ui/copyDialog";
-import faviconProgressbar from "./ui/faviconProgressbar";
-import okDialog from "./ui/okDialog";
-import shareDialog from "./ui/shareDialog";
+// import copyDialog from "./ui/copyDialog";
+// import faviconProgressbar from "./ui/faviconProgressbar";
+// import okDialog from "./ui/okDialog";
+// import shareDialog from "./ui/shareDialog";
 import { bytes } from "./utils";
 import { copyToClipboard, delay, openLinksInNewTab, percent } from "./utils";
 
+/**
+ * Controller - Handles business logic for the application
+ *
+ * This class listens to events from the <go-send> custom element
+ * and orchestrates file uploads, downloads, and state management.
+ *
+ * Usage:
+ *   const controller = new Controller(goSendElement);
+ *   controller.hookupHandlers();  // in connectedCallback
+ *   controller.destroyHandlers(); // in disconnectedCallback
+ */
+export class Controller {
+  constructor(rootElement) {
+    this.root = rootElement;
+    this.state = rootElement.state;
+
+    // Bind event handlers so they maintain 'this' context
+    this.handleAddFiles = this.handleAddFiles.bind(this);
+    this.handleRemoveUpload = this.handleRemoveUpload.bind(this);
+    this.handleUpload = this.handleUpload.bind(this);
+    this.handleCancel = this.handleCancel.bind(this);
+    this.handleDelete = this.handleDelete.bind(this);
+    this.handleCopy = this.handleCopy.bind(this);
+    this.handleShare = this.handleShare.bind(this);
+
+    // Track intervals for cleanup
+    this.intervals = [];
+  }
+
+  /**
+   * Attach event listeners to the root element
+   * Call this in connectedCallback()
+   */
+  hookupHandlers() {
+    this.root.addEventListener("addfiles", this.handleAddFiles);
+    this.root.addEventListener("removeupload", this.handleRemoveUpload);
+    this.root.addEventListener("upload", this.handleUpload);
+    this.root.addEventListener("cancel", this.handleCancel);
+    this.root.addEventListener("delete", this.handleDelete);
+    this.root.addEventListener("copy", this.handleCopy);
+    this.root.addEventListener("share", this.handleShare);
+
+    // Set up periodic tasks (like in old controller)
+    this.intervals.push(
+      setInterval(() => this.checkFiles(), 2 * 60 * 1000)
+    );
+
+    console.log("[Controller] Event handlers attached");
+  }
+
+  /**
+   * Remove event listeners and clean up intervals
+   * Call this in disconnectedCallback()
+   */
+  destroyHandlers() {
+    this.root.removeEventListener("addfiles", this.handleAddFiles);
+    this.root.removeEventListener("removeupload", this.handleRemoveUpload);
+    this.root.removeEventListener("upload", this.handleUpload);
+    this.root.removeEventListener("cancel", this.handleCancel);
+    this.root.removeEventListener("delete", this.handleDelete);
+    this.root.removeEventListener("copy", this.handleCopy);
+    this.root.removeEventListener("share", this.handleShare);
+
+    // Clear intervals
+    this.intervals.forEach(id => clearInterval(id));
+    this.intervals = [];
+
+    console.log("[Controller] Event handlers destroyed");
+  }
+
+  /**
+   * Event Handlers
+   */
+
+  async handleAddFiles(event) {
+    const { files } = event.detail;
+
+    if (files.length < 1) {
+      return;
+    }
+
+    console.log("[Controller] Adding files:", files);
+
+    const maxSize = this.state.LIMITS.MAX_FILE_SIZE;
+    try {
+      this.state.archive.addFiles(
+        files,
+        maxSize,
+        this.state.LIMITS.MAX_FILES_PER_ARCHIVE
+      );
+
+      // TODO: Render/update UI
+      // this.render();
+    } catch (e) {
+      console.error("[Controller] Error adding files:", e);
+      // TODO: Show error dialog
+      // this.state.modal = okDialog(...)
+    }
+  }
+
+  handleRemoveUpload(event) {
+    const { file } = event.detail;
+
+    console.log("[Controller] Removing upload:", file);
+
+    this.state.archive.remove(file);
+    if (this.state.archive.numFiles === 0) {
+      this.state.archive.clear();
+    }
+
+    // TODO: Render/update UI
+    // this.render();
+  }
+
+  async handleUpload(event) {
+    console.log("[Controller] Starting upload");
+
+    if (this.state.storage.files.length >= this.state.LIMITS.MAX_ARCHIVES_PER_USER) {
+      console.warn("[Controller] Too many archives");
+      // TODO: Show error dialog
+      return;
+    }
+
+    const archive = this.state.archive;
+    const sender = new FileSender();
+
+    sender.addEventListener("progress", () => this.updateProgress());
+    sender.addEventListener("encrypting", () => this.render());
+    sender.addEventListener("complete", () => this.render());
+
+    this.state.transfer = sender;
+    this.state.uploading = true;
+    this.render();
+
+    const links = openLinksInNewTab();
+    await delay(200);
+
+    try {
+      const ownedFile = await sender.upload(archive);
+      this.state.storage.totalUploads += 1;
+      // faviconProgressbar.updateFavicon(0);
+
+      this.state.storage.addFile(ownedFile);
+
+      // TODO: Handle password
+      if (archive.password) {
+        await this.handlePassword({ password: archive.password, file: ownedFile });
+      }
+
+      // TODO: Show share dialog
+      console.log("[Controller] Upload complete:", ownedFile);
+
+      // Update the layout
+      if (this.root.currentLayout && this.root.currentLayout.setUploadComplete) {
+        this.root.currentLayout.setUploadComplete(ownedFile);
+      }
+
+    } catch (err) {
+      if (err.message === "0") {
+        // Cancelled, do nothing
+        console.log("[Controller] Upload cancelled");
+      } else {
+        console.error("[Controller] Upload error:", err);
+        this.root.showErrorLayout(err.message);
+      }
+    } finally {
+      openLinksInNewTab(links, false);
+      archive.clear();
+      this.state.uploading = false;
+      this.state.transfer = null;
+      await this.state.storage.merge();
+      this.render();
+    }
+  }
+
+  handleCancel(event) {
+    console.log("[Controller] Cancelling upload");
+
+    if (this.state.transfer) {
+      this.state.transfer.cancel();
+      // faviconProgressbar.updateFavicon(0);
+    }
+  }
+
+  async handleDelete(event) {
+    const { ownedFile } = event.detail;
+
+    console.log("[Controller] Deleting file:", ownedFile);
+
+    try {
+      this.state.storage.remove(ownedFile.id);
+      await ownedFile.del();
+    } catch (e) {
+      console.error("[Controller] Error deleting file:", e);
+    }
+
+    // TODO: Render/update UI
+    // this.render();
+  }
+
+  handleCopy(event) {
+    const { url } = event.detail;
+
+    console.log("[Controller] Copying to clipboard:", url);
+    copyToClipboard(url);
+  }
+
+  handleShare(event) {
+    const { url, name } = event.detail;
+
+    console.log("[Controller] Sharing:", { url, name });
+
+    // Use native share API if available
+    if (navigator.share) {
+      navigator.share({
+        title: name,
+        url: url
+      }).catch(err => console.log("[Controller] Share cancelled:", err));
+    } else {
+      // Fallback to copy
+      this.handleCopy({ detail: { url } });
+    }
+  }
+
+  /**
+   * Helper Methods
+   */
+
+  async handlePassword({ password, file }) {
+    try {
+      this.state.settingPassword = true;
+      this.render();
+      await file.setPassword(password);
+      this.state.storage.writeFile(file);
+      await delay(1000);
+    } catch (err) {
+      console.error("[Controller] Error setting password:", err);
+      this.state.passwordSetError = err;
+    } finally {
+      this.state.settingPassword = false;
+    }
+    this.render();
+  }
+
+  updateProgress() {
+    if (!this.state.transfer) return;
+
+    const ratio = this.state.transfer.progressRatio;
+
+    // Update layout if it has progress methods
+    if (this.root.currentLayout && this.root.currentLayout.updateProgress) {
+      const bytesUploaded = this.state.transfer.progress[0];
+      const totalBytes = this.state.transfer.progress[1];
+      this.root.currentLayout.updateProgress(ratio, bytesUploaded, totalBytes);
+    }
+
+    // faviconProgressbar.updateFavicon(ratio);
+  }
+
+  async checkFiles() {
+    const changes = await this.state.storage.merge();
+    if (changes.downloadCount) {
+      this.render();
+    }
+  }
+
+  render() {
+    // TODO: Implement rendering logic
+    // For now, just log
+    console.log("[Controller] Render requested");
+  }
+}
+
+// Export old function-based controller for backwards compatibility
 export default function (state, emitter) {
   let lastRender = 0;
   let updateTitle = false;
@@ -102,9 +376,9 @@ export default function (state, emitter) {
     const archive = state.archive;
     const sender = new FileSender();
 
-    sender.on("progress", updateProgress);
-    sender.on("encrypting", render);
-    sender.on("complete", render);
+    sender.addEventListener("progress", updateProgress);
+    sender.addEventListener("encrypting", render);
+    sender.addEventListener("complete", render);
     state.transfer = sender;
     state.uploading = true;
     render();
@@ -186,9 +460,9 @@ export default function (state, emitter) {
   });
 
   emitter.on("download", async () => {
-    state.transfer.on("progress", updateProgress);
-    state.transfer.on("decrypting", render);
-    state.transfer.on("complete", render);
+    state.transfer.addEventListener("progress", updateProgress);
+    state.transfer.addEventListener("decrypting", render);
+    state.transfer.addEventListener("complete", render);
     const links = openLinksInNewTab();
     try {
       const dl = state.transfer.download({

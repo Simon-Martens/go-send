@@ -78,7 +78,7 @@ const mainConfig = {
   splitting: true, // Enable code splitting for 87 locale files
   // Cache busting: add content hash in production, clean names in dev
   entryNames: isDev ? "[name]" : "[name].[hash]",
-  chunkNames: isDev ? "chunks/[name]" : "chunks/[name].[hash]",
+  chunkNames: isDev ? "chunks/[name]-[hash]" : "chunks/[name].[hash]",
   assetNames: isDev ? "assets/[name]" : "assets/[name].[hash]",
   plugins: [
     tailwindPlugin(), // Process CSS with PostCSS + Tailwind

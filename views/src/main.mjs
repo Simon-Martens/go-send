@@ -47,8 +47,9 @@ import { setTranslate, locale } from "./utils.mjs";
   };
 
   // Import and register custom elements
-  await import('./components/go-send-bg.mjs');
-  await import('./ui/go-send.mjs');
-  await import('./ui/upload-area.mjs');
-  await import('./ui/upload-right.mjs');
+  await import("./components/go-send-bg.mjs");
+  await import("./ui/go-send.mjs");
+  await import("./ui/upload-layout.mjs");
+  await import("./ui/upload-area.mjs");
+  await import("./ui/upload-right.mjs");
 })();

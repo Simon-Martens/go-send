@@ -28,11 +28,50 @@ class UploadAreaElement extends HTMLElement {
       copyButton: null,
       shareButton: null,
     };
+
+    this._afterPaintFrame = null;
+    this._boundFileSelect = this.handleFileSelect.bind(this);
   }
 
   connectedCallback() {
     // Show default template (empty upload area)
     this.switchToDefault();
+  }
+
+  disconnectedCallback() {
+    if (this._afterPaintFrame !== null) {
+      cancelAnimationFrame(this._afterPaintFrame);
+      this._afterPaintFrame = null;
+    }
+  }
+
+  _renderTemplate(templateId, onReady) {
+    const template = document.getElementById(templateId);
+    if (!template) {
+      console.error(`Template #${templateId} not found`);
+      return;
+    }
+
+    const content = template.content.cloneNode(true);
+    this.innerHTML = "";
+    this.appendChild(content);
+
+    if (this._afterPaintFrame !== null) {
+      cancelAnimationFrame(this._afterPaintFrame);
+    }
+
+    this._afterPaintFrame = requestAnimationFrame(() => {
+      this._afterPaintFrame = null;
+      if (!this.isConnected) {
+        return;
+      }
+
+      translateElement(this);
+
+      if (typeof onReady === "function") {
+        onReady();
+      }
+    });
   }
 
   /**
@@ -45,33 +84,18 @@ class UploadAreaElement extends HTMLElement {
    * Uses template: #upload-area-default
    */
   switchToDefault() {
-    const template = document.getElementById("upload-area-default");
-    if (!template) {
-      console.error("Template #upload-area-default not found");
-      return;
-    }
+    this._renderTemplate("upload-area-default", () => {
+      this.elements.fileInput = this.querySelector("#file-upload");
 
-    // Clone and insert template
-    const content = template.content.cloneNode(true);
-    this.innerHTML = "";
-    this.appendChild(content);
+      if (this.elements.fileInput) {
+        this.elements.fileInput.addEventListener(
+          "change",
+          this._boundFileSelect,
+        );
+      }
 
-    // Translate content
-    translateElement(this);
-
-    // Cache element references
-    this.elements.fileInput = this.querySelector("#file-upload");
-
-    // Attach event listeners
-    if (this.elements.fileInput) {
-      this.elements.fileInput.addEventListener(
-        "change",
-        this.handleFileSelect.bind(this)
-      );
-    }
-
-    // Update current template tracker
-    this.currentTemplate = "default";
+      this.currentTemplate = "default";
+    });
   }
 
   /**
@@ -95,9 +119,10 @@ class UploadAreaElement extends HTMLElement {
    * Uses template: #upload-area-uploading
    */
   switchToUploading() {
-    const template = document.getElementById("upload-area-uploading");
+    const templateId = "upload-area-uploading";
+    const template = document.getElementById(templateId);
     if (!template) {
-      console.error("Template #upload-area-uploading not found");
+      console.error(`Template #${templateId} not found`);
       return;
     }
 

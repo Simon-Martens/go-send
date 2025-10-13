@@ -1,13 +1,12 @@
-import Nanobus from "nanobus";
 import Keychain from "./keychain";
 import { delay, bytes, streamToArrayBuffer } from "./utils";
 import { downloadFile, metadata, getApiUrl } from "./api";
 import { blobStream } from "./streams";
 import Zip from "./zip";
 
-export default class FileReceiver extends Nanobus {
+export default class FileReceiver extends EventTarget {
   constructor(fileInfo) {
-    super("FileReceiver");
+    super();
     this.keychain = new Keychain(fileInfo.secretKey, fileInfo.nonce);
     if (fileInfo.requiresPassword) {
       this.keychain.setPassword(fileInfo.password, fileInfo.url);
@@ -83,7 +82,7 @@ export default class FileReceiver extends Nanobus {
       this.keychain,
       (p) => {
         this.progress = [p, this.fileInfo.size];
-        this.emit("progress");
+        this.dispatchEvent(new Event("progress"));
       },
     );
     try {
@@ -91,7 +90,7 @@ export default class FileReceiver extends Nanobus {
       this.downloadRequest = null;
       this.msg = "decryptingFile";
       this.state = "decrypting";
-      this.emit("decrypting");
+      this.dispatchEvent(new Event("decrypting"));
       let size = this.fileInfo.size;
       let plainStream = this.keychain.decryptStream(blobStream(ciphertext));
       if (this.fileInfo.type === "send-archive") {
@@ -108,7 +107,7 @@ export default class FileReceiver extends Nanobus {
         });
       }
       this.msg = "downloadFinish";
-      this.emit("complete");
+      this.dispatchEvent(new Event("complete"));
       this.state = "complete";
     } catch (e) {
       this.downloadRequest = null;
@@ -127,7 +126,7 @@ export default class FileReceiver extends Nanobus {
     const start = Date.now();
     const onprogress = (p) => {
       this.progress = [p, this.fileInfo.size];
-      this.emit("progress");
+      this.dispatchEvent(new Event("progress"));
     };
 
     this.downloadRequest = {
@@ -205,7 +204,7 @@ export default class FileReceiver extends Nanobus {
 
       this.downloadRequest = null;
       this.msg = "downloadFinish";
-      this.emit("complete");
+      this.dispatchEvent(new Event("complete"));
       this.state = "complete";
     } catch (e) {
       this.downloadRequest = null;

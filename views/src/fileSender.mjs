@@ -1,13 +1,12 @@
-import Nanobus from "nanobus";
 import OwnedFile from "./ownedFile";
 import Keychain from "./keychain";
 import { arrayToB64, bytes } from "./utils";
 import { uploadWs } from "./api";
 import { encryptedSize } from "./utils";
 
-export default class FileSender extends Nanobus {
+export default class FileSender extends EventTarget {
   constructor() {
-    super("FileSender");
+    super();
     this.keychain = new Keychain();
     this.reset();
   }
@@ -48,7 +47,7 @@ export default class FileSender extends Nanobus {
       throw new Error(0);
     }
     this.msg = "encryptingFile";
-    this.emit("encrypting");
+    this.dispatchEvent(new Event("encrypting"));
     const totalSize = encryptedSize(archive.size);
     const encStream = await this.keychain.encryptStream(archive.stream);
     const metadata = await this.keychain.encryptMetadata(archive);
@@ -62,7 +61,7 @@ export default class FileSender extends Nanobus {
       archive.dlimit,
       (p) => {
         this.progress = [p, totalSize];
-        this.emit("progress");
+        this.dispatchEvent(new Event("progress"));
       },
     );
 
@@ -71,7 +70,7 @@ export default class FileSender extends Nanobus {
     }
 
     this.msg = "fileSizeProgress";
-    this.emit("progress"); // HACK to kick MS Edge
+    this.dispatchEvent(new Event("progress")); // HACK to kick MS Edge
     try {
       const result = await this.uploadRequest.result;
       this.msg = "notifyUploadEncryptDone";

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="{{ .Locale }}">
   {{ template "head.gohtml" . }}
-  <body class="flex min-h-screen flex-col items-center bg-grey-10 font-sans text-grey-90 dark:bg-black dark:text-grey-10">
+  <body class="flex min-h-screen flex-col items-center">
     <main class="flex w-full flex-1 items-center justify-center px-6 py-12">
-      <section class="w-full max-w-3xl space-y-6 rounded-xl border border-default bg-white p-8 shadow-big md:p-10 dark:border-grey-70 dark:bg-grey-90">
+      <section class="w-full max-w-3xl space-y-6 rounded-xl border border-default p-8 shadow-big md:p-10">
         <header class="space-y-2">
           <a href="/" class="inline-flex items-center gap-2 rounded-default py-1.5 pr-1.5 text-xs font-semibold uppercase tracking-widest text-grey-70 transition hover:text-grey-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 dark:border-grey-70 dark:text-grey-30 dark:hover:text-grey-10">
             {{ call .Translate "account.links.back" }} |

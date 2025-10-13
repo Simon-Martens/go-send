@@ -83,12 +83,12 @@ class GoSendBackground extends HTMLElement {
     const viewBoxHeight = 1080;
 
     // Grid cell dimensions
-    const cellWidth = 15;
-    const cellHeight = 18;
+    const cellWidth = 18;
+    const cellHeight = 21;
 
     // Tile dimensions (smaller than cells to create spacing)
-    const tileWidth = 13;
-    const tileHeight = 16;
+    const tileWidth = 11;
+    const tileHeight = 14;
 
     // Calculate offset to center tiles in cells
     const offsetX = (cellWidth - tileWidth) / 2;
@@ -128,7 +128,7 @@ class GoSendBackground extends HTMLElement {
           continue;
         }
 
-        // Determine if this tile should be hidden (create gap)
+        // Determine if this tile should be hidden (clustering applies to ALL tiles)
         const shouldHide = this.shouldHideTile(col, row, clusterCenters);
 
         // Skip creating this tile if it should be hidden
@@ -144,6 +144,7 @@ class GoSendBackground extends HTMLElement {
         element.setAttribute("y", y);
         element.setAttribute("width", tileWidth);
         element.setAttribute("height", tileHeight);
+        element.setAttribute("rx", 1); // Slight rounding on corners
         element.classList.add("go-send-bg-tile");
 
         tilesGroup.appendChild(element);

@@ -17,7 +17,7 @@ This directory contains the **new frontend** for go-send, a self-hostable file s
 - **Styling**: Tailwind CSS 4.x via PostCSS
 - **Templates**: Go HTML templates (`.gohtml`)
 - **JavaScript**: ES Modules (`.mjs`)
-- **No framework**: Vanilla JavaScript with Web Components (planned)
+- **No framework**: Vanilla JavaScript with Web Components (in progress)
 
 ---
 
@@ -61,12 +61,11 @@ views/
 │
 ├── assets/                 # Static assets (icons, images)
 ├── assets_src/             # Source assets (SVG, etc.)
-├── common/                 # Shared utilities
-│   ├── assets.js          # Asset path mapping
-│   └── generate_asset_map.js
 │
 ├── public/                 # Additional static files
 │   └── inter.css          # Inter font CSS
+│
+├── locales/                 # Localization files, get build into dist/
 │
 ├── dist/                   # Build output (gitignored)
 │   ├── main.*.js          # Bundled JavaScript (with hash)
@@ -122,25 +121,24 @@ These modules contain the critical encryption and file transfer logic from the o
 - `keychain.mjs` - HKDF key derivation
 - `fileSender.mjs` - Upload with encryption
 - `fileReceiver.mjs` - Download with decryption
+- `controller.mjs` - Application state
+- `serviceworker.mjs` - Service worker for streaming downloads
 
 **Support Modules:**
 - `archive.mjs` - Manages file collections
 - `storage.mjs` - Browser storage abstraction
 - `locale.mjs` - i18n support
-- `controller.mjs` - Application state (to be adapted)
 - `utils.mjs` - Helper functions
+
+**UI**
+- `src/ui/` - Web components and their logic
 
 ### 3. Build Process (ESBuild)
 
-The build system is simple and fast:
+- DO NOT RUN ANY CODE TO DEBUG OR TEST
+- ONLY THE USER BUILDS AND RUNS THE CODE
+- THE USER REPORTS THE BUGS AND ISSUES DURING RUNNING AND BUILDING
 
-```bash
-# Production build
-npm run build
-
-# Development watch mode
-npm run watch
-```
 
 **What happens during build:**
 1. ESBuild bundles `src/main.mjs` → `dist/main.[hash].js`
@@ -165,58 +163,21 @@ Tailwind utilities are used throughout the project:
 
 ## Development Workflow
 
-### Setup
-
-```bash
-# Install dependencies
-npm install
-
-# Build frontend
-npm run build
-
-# Development mode (watch for changes)
-npm run watch
-```
-
-### Running with Go Server
-
-```bash
-# From project root (not views/)
-go run .
-
-# Server automatically picks up dist/ assets
-# Hot reload requires rebuilding frontend
-```
+- DO NOT RUN ANY CODE TO DEBUG OR TEST
+- ONLY THE USER BUILDS AND RUNS THE CODE
+- THE USER REPORTS THE BUGS AND ISSUES DURING RUNNING AND BUILDING
 
 ### Adding New Features
 
 **Add a new module:**
-1. Create `src/my-module.mjs`
+1. Create `src/my-module.mjs` or `src/ui/my-component.mjs`
 2. Export functions/classes
-3. Import in `src/main.mjs` or other modules
+3. Import in `src/main.mjs` or where neeeded
 
 **Add styles:**
 1. Add Tailwind utilities directly in templates
 2. For custom CSS, add to `src/styles.css`
-
-**Add templates:**
-1. Create `templates/my-template.gohtml`
-2. Reference from other templates or handlers
-3. Use `{{.Nonce}}` for CSP compliance
-
----
-
-## What Changed from Old Frontend
-
-| Old (`../frontend/`) | New (`views/`) |
-|---------------------|----------------|
-| Choo framework | Vanilla JS (Web Components planned) |
-| Webpack | ESBuild |
-| `app/` directory | `src/` directory |
-| `.js` extension | `.mjs` extension |
-| Complex build config | Simple config |
-| Client-side routing | Server-side routing |
-| 1980+ npm dependencies | ~6 dependencies |
+3. For managing dark/ligt mode colors, add to `src/colors.css`
 
 ---
 
@@ -233,15 +194,15 @@ go run .
 
 ### 🚧 In Progress
 
-- UI implementation (no components built yet)
-- View switching logic
-- Upload/download UI
+- UI implementation in `templates/_app.gohtml`
+- Upload/download UI in `templates/_app.gohtml`
+- Web Components implementation in `src/ui/`
+- View switching logic in `src/ui/`
 - File list management
 - Share dialogs
 
 ### ❌ Not Started
 
-- Web Components implementation
 - Drag-and-drop UI (logic exists in `dragManager.mjs.old`)
 - Paste handling UI (logic exists in `pasteManager.mjs.old`)
 - QR code display component
@@ -249,36 +210,31 @@ go run .
 - Progress indicators
 - Error handling UI
 - Accessibility improvements
-- Testing framework
 
 ---
 
 ## Important Notes
 
-### Security
-
-- **Client-side encryption ONLY** - Server never sees decryption keys
-- **CSP nonce** - Use `{{.Nonce}}` in templates for inline scripts/styles
-- **XSS prevention** - Sanitize all user input before rendering
-- **HTTPS required** - Never deploy without HTTPS in production
 
 ### DO
 
 - Keep crypto logic intact (api, ece, keychain, fileSender, fileReceiver)
 - Use ES Modules (`.mjs` extension)
 - Use Tailwind utility classes for styling
-- Reference assets via `dist/manifest.json` mappings
 - Use Go templates for HTML structure
-- Follow the existing code style
+- Use <template> tag for partials, mount them in web componewnt classes
+- Mount templates early, derfer all other logic duriunc connectedCallback and constructor
+- Split UI handling logic from business logic in `src/ui/` and `src/`
+
 
 ### DON'T
 
-- Rewrite or "improve" the encryption modules
-- Add unnecessary dependencies
-- Use Shadow DOM (breaks Tailwind)
-- Create complex build configurations
-- Use `document.write()` or `innerHTML` with untrusted data
-- Add client-side routing libraries
+- DONT Put HTML in web component classes
+- DONT Rewrite or "improve" the encryption modules
+- DONT Add any dependencies w/o user consent
+- DONT Add client side routes w/o user consent
+- DONT Use Shadow DOM introduces complexity
+- DONT Create further build configurations w/o asking
 
 ---
 
@@ -287,9 +243,11 @@ go run .
 ### Must Understand
 
 - `src/main.mjs` - Application initialization
+- `src/controller.mjs` - Controller, controls the app state
 - `src/api.mjs` - Backend API client
 - `src/ece.mjs` - Encryption implementation
-- `templates/index.gohtml` - Main template
+- `src/serviceworker.mjs` - Service worker for streaming downloads
+- `templates/index.gohtml` and `templates/_app.gohtml` - Main template
 - `esbuild.config.mjs` - Build configuration
 
 ### For Upload Flow
@@ -308,18 +266,6 @@ go run .
 4. `fileReceiver.mjs` - Orchestrates download
 5. `ece.mjs` - Decrypts file chunks
 6. Browser downloads decrypted file
-
----
-
-## Next Steps
-
-The immediate priorities are:
-
-1. **Build UI components** - Create upload form, file list, download view
-2. **Implement view switching** - Route-based template rendering
-3. **Connect UI to business logic** - Wire up fileSender/fileReceiver
-4. **Add interactivity** - Drag-and-drop, paste, progress indicators
-5. **Polish UX** - Error handling, loading states, responsive design
 
 ---
 

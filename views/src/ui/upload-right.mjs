@@ -21,11 +21,49 @@ class UploadRightElement extends HTMLElement {
     this.elements = {
       uploadList: null,
     };
+
+    this._afterPaintFrame = null;
   }
 
   connectedCallback() {
     // Show intro by default
     this.showIntro();
+  }
+
+  disconnectedCallback() {
+    if (this._afterPaintFrame !== null) {
+      cancelAnimationFrame(this._afterPaintFrame);
+      this._afterPaintFrame = null;
+    }
+  }
+
+  _renderTemplate(templateId, onReady) {
+    const template = document.getElementById(templateId);
+    if (!template) {
+      console.error(`Template #${templateId} not found`);
+      return;
+    }
+
+    const content = template.content.cloneNode(true);
+    this.innerHTML = "";
+    this.appendChild(content);
+
+    if (this._afterPaintFrame !== null) {
+      cancelAnimationFrame(this._afterPaintFrame);
+    }
+
+    this._afterPaintFrame = requestAnimationFrame(() => {
+      this._afterPaintFrame = null;
+      if (!this.isConnected) {
+        return;
+      }
+
+      translateElement(this);
+
+      if (typeof onReady === "function") {
+        onReady();
+      }
+    });
   }
 
   /**
@@ -37,22 +75,9 @@ class UploadRightElement extends HTMLElement {
    * Uses template: #upload-title
    */
   showIntro() {
-    const template = document.getElementById("upload-title");
-    if (!template) {
-      console.error("Template #upload-title not found");
-      return;
-    }
-
-    // Clone and insert template
-    const content = template.content.cloneNode(true);
-    this.innerHTML = "";
-    this.appendChild(content);
-
-    // Translate content
-    translateElement(this);
-
-    // Update current template tracker
-    this.currentTemplate = "intro";
+    this._renderTemplate("upload-title", () => {
+      this.currentTemplate = "intro";
+    });
   }
 
   /**
@@ -61,25 +86,10 @@ class UploadRightElement extends HTMLElement {
    */
   showUploadList() {
     // TODO: Create #upload-list template in _app.gohtml
-    const template = document.getElementById("upload-list");
-    if (!template) {
-      console.error("Template #upload-list not found (not yet created)");
-      return;
-    }
-
-    // Clone and insert template
-    const content = template.content.cloneNode(true);
-    this.innerHTML = "";
-    this.appendChild(content);
-
-    // Translate content
-    translateElement(this);
-
-    // Cache element references
-    this.elements.uploadList = this.querySelector("#upload-list-container");
-
-    // Update current template tracker
-    this.currentTemplate = "list";
+    this._renderTemplate("upload-list", () => {
+      this.elements.uploadList = this.querySelector("#upload-list-container");
+      this.currentTemplate = "list";
+    });
   }
 
   /**

@@ -123,7 +123,15 @@
 
 <template id="upload-view-list-options">
 	<div class="space-y-6" data-role="options-form">
-		<div data-role="expiry-container" class="text-sm font-medium text-grey-80 dark:text-grey-30"></div>
+		<div data-role="expiry-container" class="text-sm font-medium text-grey-80 dark:text-grey-30">
+			<div class="font-medium mb-1" data-role="expiry-label-top">Expires after</div>
+			<div class="flex items-center gap-3">
+				<select data-role="download-limit" class="w-full rounded-default border border-grey-30 bg-white px-3 py-2 text-sm dark:bg-grey-80 dark:border-grey-60"></select>
+				<span class="text-xs tracking-wide text-grey-60 dark:text-grey-40 font-medium px-2" data-role="or-label">or</span>
+				<select data-role="time-limit" class="w-full rounded-default border border-grey-30 bg-white px-3 py-2 text-sm dark:bg-grey-80 dark:border-grey-60"></select>
+			</div>
+			<div class="font-medium mt-1 text-right" data-role="expiry-label-bottom">Ends</div>
+		</div>
 		<div>
 			<label for="password-input" class="block text-sm font-medium text-grey-80 dark:text-grey-20">
 				<span id="addPassword" data-type="lang">Add a password (optional)</span>

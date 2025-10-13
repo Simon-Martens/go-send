@@ -15,6 +15,7 @@ class UploadAreaElement extends HTMLElement {
     this._currentView = null;
     this._currentViewKey = null;
     this._app = null;
+    this._errorMessage = null;
   }
 
   connectedCallback() {
@@ -60,6 +61,8 @@ class UploadAreaElement extends HTMLElement {
       default:
         break;
     }
+
+    this._applyErrorMessage();
   }
 
   setUploadButtonEnabled(enabled) {
@@ -102,6 +105,8 @@ class UploadAreaElement extends HTMLElement {
     this.appendChild(view);
     this._currentView = view;
     this._currentViewKey = viewKey;
+
+    this._applyErrorMessage();
   }
 
   _configureEmptyView(state) {
@@ -140,6 +145,21 @@ class UploadAreaElement extends HTMLElement {
       downloadLimit: archive?.dlimit ?? null,
       password: archive?.password ?? "",
     });
+  }
+
+  showError(message) {
+    this._errorMessage = message || null;
+    this._applyErrorMessage();
+  }
+
+  clearError() {
+    this.showError(null);
+  }
+
+  _applyErrorMessage() {
+    if (this._currentView && typeof this._currentView.setError === "function") {
+      this._currentView.setError(this._errorMessage);
+    }
   }
 
   _configureUploadingView(state) {

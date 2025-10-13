@@ -98,20 +98,20 @@ export class Controller {
       this.state.archive.addFiles(
         files,
         maxSize,
-        this.state.LIMITS.MAX_FILES_PER_ARCHIVE
+        this.state.LIMITS.MAX_FILES_PER_ARCHIVE,
       );
 
-    } catch (e) {
-      console.error("[Controller] Error adding files:", e);
-      // TODO: Show error dialog
-      // this.state.modal = okDialog(...)
-    } finally {
+      this._showUploadAreaError(null);
+
       if (
         this.root.currentLayout &&
         typeof this.root.currentLayout.refreshArchiveState === "function"
       ) {
         this.root.currentLayout.refreshArchiveState();
       }
+    } catch (e) {
+      console.error("[Controller] Error adding files:", e);
+      this._handleAddFilesError(e);
     }
   }
 
@@ -124,6 +124,8 @@ export class Controller {
     if (this.state.archive.numFiles === 0) {
       this.state.archive.clear();
     }
+
+    this._showUploadAreaError(null);
 
     if (
       this.root.currentLayout &&
@@ -338,6 +340,67 @@ export class Controller {
     // TODO: Implement rendering logic
     // For now, just log
     console.log("[Controller] Render requested");
+  }
+
+  _translate(key, fallback, params) {
+    const translator = this.state.translate || window.translate;
+    if (typeof translator === "function") {
+      try {
+        const value = translator(key, params);
+        if (value) {
+          return value;
+        }
+      } catch (err) {
+        // ignore missing translation key
+      }
+    }
+    return fallback;
+  }
+
+  _handleAddFilesError(error) {
+    let message = "";
+
+    if (error && error.message === "tooManyFiles") {
+      message = this._translate(
+        "tooManyFiles",
+        `Too many files (max ${this.state.LIMITS.MAX_FILES_PER_ARCHIVE})`,
+        {
+          count: this.state.LIMITS.MAX_FILES_PER_ARCHIVE,
+          size: bytes(this.state.LIMITS.MAX_FILE_SIZE),
+        },
+      );
+    } else if (error && error.message === "fileTooBig") {
+      message = this._translate(
+        "fileTooBig",
+        `That file is too big (max ${bytes(this.state.LIMITS.MAX_FILE_SIZE)})`,
+        {
+          size: bytes(this.state.LIMITS.MAX_FILE_SIZE),
+        },
+      );
+    }
+
+    if (message) {
+      this._showUploadAreaError(message);
+    } else {
+      this._showUploadAreaError(null);
+    }
+  }
+
+  _showUploadAreaError(message) {
+    const layout = this.root.currentLayout;
+    if (!layout || !layout.uploadArea) {
+      return;
+    }
+
+    if (message && typeof layout.uploadArea.showError === "function") {
+      layout.uploadArea.showError(message);
+    } else if (!message) {
+      if (typeof layout.uploadArea.clearError === "function") {
+        layout.uploadArea.clearError();
+      } else if (typeof layout.uploadArea.showError === "function") {
+        layout.uploadArea.showError(null);
+      }
+    }
   }
 }
 

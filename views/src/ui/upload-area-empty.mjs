@@ -35,6 +35,7 @@ class UploadEmptyView extends HTMLElement {
     this.appendChild(fragment);
 
     this._fileInput = this.querySelector("#file-upload");
+    this._errorEl = this.querySelector('[data-role="error"]');
     if (this._fileInput) {
       this._fileInput.addEventListener("change", this._boundFileSelect);
     }
@@ -94,6 +95,19 @@ class UploadEmptyView extends HTMLElement {
     );
 
     event.target.value = "";
+  }
+
+  setError(message) {
+    if (!this._errorEl) {
+      return;
+    }
+    if (message) {
+      this._errorEl.textContent = message;
+      this._errorEl.classList.remove("hidden");
+    } else {
+      this._errorEl.textContent = "";
+      this._errorEl.classList.add("hidden");
+    }
   }
 }
 

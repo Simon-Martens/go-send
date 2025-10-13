@@ -36,6 +36,7 @@ class UploadListView extends HTMLElement {
     this._passwordEnabled = false;
     this._timeLimit = null;
     this._downloadLimit = null;
+    this._errorMessage = null;
 
     this._boundFileSelect = this.handleFileSelect.bind(this);
     this._boundUploadClick = this.handleUploadClick.bind(this);
@@ -77,6 +78,7 @@ class UploadListView extends HTMLElement {
     this.elements.totalSize = this.querySelector('[data-role="total-size-value"]');
     this.elements.fileCount = this.querySelector('[data-role="file-count-value"]');
     this.elements.addMoreLabel = this.querySelector('[data-role="add-more-label"]');
+    this.elements.error = this.querySelector('[data-role="error"]');
 
     const optionsContainer = this.querySelector("#upload-area-options-slot");
     if (optionsContainer) {
@@ -157,6 +159,7 @@ class UploadListView extends HTMLElement {
     this._updateStaticLabels(resolvedTotalSize);
     this.applyPasswordState();
     this.updatePasswordHint(this._password.length);
+    this.setError(this._errorMessage);
   }
 
   updateTotalSize(totalSize) {
@@ -566,6 +569,20 @@ class UploadListView extends HTMLElement {
         detail: { password: this._password || null },
       }),
     );
+  }
+
+  setError(message) {
+    this._errorMessage = message;
+    if (!this.elements.error) {
+      return;
+    }
+    if (message) {
+      this.elements.error.textContent = message;
+      this.elements.error.classList.remove("hidden");
+    } else {
+      this.elements.error.textContent = "";
+      this.elements.error.classList.add("hidden");
+    }
   }
 
   handlePasswordToggle(event) {

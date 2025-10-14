@@ -2,17 +2,14 @@
 
 A lightweight, self-hostable file sharing service with client-side encryption. This is a fork of [timvisee/send](https://gitlab.com/timvisee/send), which itself is a fork of Firefox Send.
 
-This fork replaces the original Node.js/Express backend with a Go server, keeping the original frontend in large parts the same as it was (for now). All encryption and decryption still happens in the browser, and no encryption logic on the frontend was changed at all, except for a few conveniance changes.
+**This is the feature-parity branch, that only reimplements the features of the original send. For new features, take a look at the main branch.**
+
+This fork replaces the original Node.js/Express backend with a Go server, switches the frontend build system to ESBuild and cuts almost all of the frontend dependencies, including choo, instead relying on a combination of go templates and browser-native web components. All encryption and decryption still happens in the browser, and no encryption logic on the frontend was changed at all, except for a few conveniance changes.
 
 
-### Why reimplement the backend?
+### Why a reimplementation?
 
-The original `send` has a lot of dependencies (1980 of them!) for a project that doesn't really do all that much. Also, the server still runs on Node 16. Needless to say, maintaining and updating this to the newest version of its dependencies is a nearly impossible task; much less for a hobby developer like me, who wants to use this in production. Luckily, the server runtime is mostly decoupled from the frontend; it used to be some server SSR and hydration; but the `choo` router that formerly Firefox Send used can be run in the browser alone. Which made the task of implementing a basic go server trivial.
-
-
-### So what's the plan?
-
-The plan is to ultimate replace client side rounting (choo) with server-side routing, ~replace rimraf & webpack with vite~ (Done!) and use go templates as far as possible (started!). Through the nature of this project, a lot of browser stuff is and will be still needed.
+The original `send` has a lot of dependencies (1980 of them!) for a project that doesn't really do all that much. Also, the server still ran Node 16. Needless to say, maintaining and updating this to the newest version of its dependencies is a nearly impossible task; much less for a hobby developer like me, who wants to use this in production. Luckily, the server runtime as well as the ui handling is mostly decoupled from the frontend encryption and decryption logic; it used to be some server SSR and hydration; but the `choo` router that formerly Firefox Send used can be run in the browser alone. Which made the task of implementing a basic go server trivial.
 
 
 ### What is changed?
@@ -20,20 +17,16 @@ The plan is to ultimate replace client side rounting (choo) with server-side rou
 - ~Express server~: replaced with Go std lib server
 - ~Redis~: Replaced with **SQLite** for metadata storage
 - ~Firefox Accounts (FxA)~: Authentication removed (did not work in modern FF anyway). Also removed from the frontend entirely.
-- ~Webpack~ removed, introduced **Vite**. We have a lot of fewer build features now
+- ~Webpack~ removed, introduced **ESBuild**. We have a lot of fewer build features now. We build a lot faster now.
 - ~Ployfills~: Removed almost all polyfills and support for IE and older Edge browsers. Target browsers are: Chrome 89+, Firefox 102+, Safari 14.1+, Edge 89+, which is a very modern selection, but they will be old pretty fast. CanIUse reports 95.74% user coverage.
-
 - Templates: Moved header and footers to go templates, which may be overwritten by your custom template files.
-- Upload guard. Added a login to guard the upload page, if `UPLOAD_GUARD` is set to true. The default user/pw is admin/admin. No admin registration and deltion yet.
-- Generate Upload links: Admins can generate upload links that allow guests to upload files, when `ALLOW_ACCESS_LINKS` is set.
 
-### What will be Reimplemented?
+### What remains to be reimplemented?
+
+As of right now we have full feature parity on the frontend, but the backend is missing these two things:
 
 - **S3 storage**: Local filesystem only as of right now
 - Maybe **Sentry**: Better Error tracking than logging would be nice to have
-
-
-Almost all frontend code is still original Choo-based UI. This will be subject to change since our reimplementation of the backend might help us to implement a handful of new frontend features.
 
 The compatibility with `ffsend` is kept as of right now, as long as the `UPLOAD_GUARD` is set to false.
 
@@ -108,24 +101,6 @@ The Go server is configured via environment variables. All settings are optional
 | `CUSTOM_FOOTER_URL` | (empty) | Custom footer link URL |
 
 See all branding options: `config/config.go`
-
-### Upload Guard
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `UPLOAD_GUARD` | `true` | Enable upload guard |
-| `ALLOW_ACCESS_LINKS` | `admin` | Enable guest upload links generation |
-
-
-## Custom Frontend Assets & Templates
-
-Static assets embedded from `frontend/dist/` are always served. To customize or override them without rebuilding the binary, create a matching structure under `userfrontend/dist/`. Files placed there take precedence over the embedded versions, while any missing files continue to fall back to the embedded bundle.
-
-Additional standalone assets (for example `robots.txt` or custom CSS) can be placed in `userfrontend/public/` and are served from the root path as-is.
-
-Set `USER_FRONTEND_DIR` to point to a different overrides directory if needed.
-
-There's also a `userfrontend/templates/` directory, which is used to override the default templates. Look into `frontend/templates/` to see what can be overwitten. No matter what you do, include the `{{ template "_appheader" . }}` and `{{ template "_app" . }}` in you own template files to embed the apps header scripts, fonts and css and the app itself. Take a look at `handlers/templatedata.go`, there's quite some data passed to the templates you can use.
 
 
 ## API Endpoints implemented

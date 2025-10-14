@@ -129,7 +129,8 @@ class UploadCompleteView extends HTMLElement {
       }
     } catch (err) {
       console.error("Error generating QR code:", err);
-      container.innerHTML = '<p class="text-sm text-grey-60">QR code unavailable</p>';
+      container.innerHTML =
+        '<p class="text-sm text-grey-60">QR code unavailable</p>';
     }
   }
 
@@ -150,7 +151,7 @@ class UploadCompleteView extends HTMLElement {
         new CustomEvent("copy", {
           bubbles: true,
           detail: { url },
-        })
+        }),
       );
 
       // Visual feedback
@@ -171,7 +172,7 @@ class UploadCompleteView extends HTMLElement {
       new CustomEvent("complete-acknowledged", {
         bubbles: true,
         detail: { file: this._ownedFile },
-      })
+      }),
     );
   }
 }

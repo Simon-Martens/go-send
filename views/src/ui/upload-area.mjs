@@ -20,16 +20,19 @@ class UploadAreaElement extends HTMLElement {
     this._errorMessage = null;
     this._isComplete = false;
     this._uploadedFile = null;
+    this._boundPaste = this.handlePaste.bind(this);
   }
 
   connectedCallback() {
     if (!this._app) {
       this._app = this.closest("go-send");
     }
+    window.addEventListener("paste", this._boundPaste);
     this.refresh();
   }
 
   disconnectedCallback() {
+    window.removeEventListener("paste", this._boundPaste);
     this._currentView = null;
   }
 
@@ -235,6 +238,81 @@ class UploadAreaElement extends HTMLElement {
       }
     }
     return fallback;
+  }
+
+  async handlePaste(event) {
+    const state = this._getAppState();
+    if (!state) {
+      return;
+    }
+
+    // Don't handle paste if uploading or if we're in complete state
+    if (state.uploading || this._isComplete) {
+      return;
+    }
+
+    // Don't handle paste if target is an input field
+    const targetType = event.target?.type;
+    if (["password", "text", "email", "textarea"].includes(targetType)) {
+      return;
+    }
+
+    // Don't handle paste if target is a textarea element
+    if (event.target?.tagName === "TEXTAREA") {
+      return;
+    }
+
+    const items = Array.from(event.clipboardData?.items || []);
+    const transferFiles = items.filter(item => item.kind === "file");
+    const strings = items.filter(item => item.kind === "string");
+
+    if (transferFiles.length > 0) {
+      // Handle pasted files
+      const promises = transferFiles.map(async (item, i) => {
+        const blob = item.getAsFile();
+        if (!blob) {
+          return null;
+        }
+
+        // Try to get filename from associated string
+        const name = await this._getStringFromItem(strings[i]);
+        const file = new File([blob], name || blob.name || "file", { type: blob.type });
+        return file;
+      });
+
+      const files = (await Promise.all(promises)).filter(f => !!f);
+      if (files.length > 0) {
+        event.preventDefault();
+        this.dispatchEvent(
+          new CustomEvent("addfiles", {
+            bubbles: true,
+            detail: { files },
+          }),
+        );
+      }
+    } else if (strings.length > 0) {
+      // Handle pasted text - create a text file
+      const textContent = await this._getStringFromItem(strings[0]);
+      if (textContent) {
+        event.preventDefault();
+        const file = new File([textContent], "pasted.txt", { type: "text/plain" });
+        this.dispatchEvent(
+          new CustomEvent("addfiles", {
+            bubbles: true,
+            detail: { files: [file] },
+          }),
+        );
+      }
+    }
+  }
+
+  _getStringFromItem(item) {
+    if (!item) {
+      return Promise.resolve("");
+    }
+    return new Promise(resolve => {
+      item.getAsString(resolve);
+    });
   }
 }
 

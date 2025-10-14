@@ -3,29 +3,36 @@ import { Controller } from "../controller.mjs";
 
 /**
  * <go-send> - Root element
- * - Holds global application state
  * - Manages high-level layout switching (upload, download, error, etc.)
  * - Maintains reference to current layout only
- * - Controller handles all business logic and events
+ * - Controller handles all business logic, state initialization, and events
  */
 class GoSendElement extends HTMLElement {
   constructor() {
     super();
-    this.state = null;
     this.currentView = null;
 
     // Current layout reference (only one layout active at a time)
     this.currentLayout = null;
 
-    // Controller handles business logic (instantiated after state is set)
-    this.controller = null;
+    // Controller handles business logic and state initialization
+    // Instantiated immediately, initializes state asynchronously
+    this.controller = new Controller(this);
 
     // Track scheduled initialization and template state
     this._initFrame = null;
     this._templateMounted = false;
   }
 
+  /**
+   * Convenience getter for state (delegates to controller)
+   */
+  get state() {
+    return this.controller ? this.controller.state : null;
+  }
+
   connectedCallback() {
+    // Mount template first (synchronous)
     if (!this._templateMounted) {
       const template = document.getElementById("go-send");
       if (!template) {
@@ -42,32 +49,28 @@ class GoSendElement extends HTMLElement {
       cancelAnimationFrame(this._initFrame);
     }
 
-    this._initFrame = requestAnimationFrame(() => {
+    // Schedule async initialization
+    this._initFrame = requestAnimationFrame(async () => {
       this._initFrame = null;
       if (!this.isConnected) {
         return;
       }
 
-      if (!this.state) {
-        this.state = window.initialState;
-        if (!this.state) {
-          console.error(
-            "window.initialState not found. Ensure main.mjs loaded first.",
-          );
-          return;
-        }
+      // Wait for controller to initialize state
+      await this.controller.ready;
+
+      // Check again after await - component might have disconnected
+      if (!this.isConnected) {
+        return;
       }
 
+      // Now we have state, can render
       translateElement(this);
 
-      if (!this.currentLayout) {
-        this.showUploadLayout();
-      }
+      // Layout will be set by router in main.mjs
+      // Don't show any layout here - let the router decide
 
-      if (!this.controller) {
-        this.controller = new Controller(this);
-        this.controller.hookupHandlers();
-      }
+      this.controller.hookupHandlers();
     });
   }
 
@@ -95,6 +98,11 @@ class GoSendElement extends HTMLElement {
 
     this.currentLayout = uploadLayout;
     this.currentView = "upload";
+
+    // Initialize upload view (check for existing files on load)
+    if (this.controller && typeof this.controller.initializeUploadView === 'function') {
+      this.controller.initializeUploadView();
+    }
   }
 
   showDownloadLayout() {

@@ -41,8 +41,177 @@
 </template>
 
 <!--
+	Download layout: <download-layout> uses this to create a content slot.
+	Download views (file-password, file-overview, etc.) are inserted dynamically.
+-->
+<template id="download-layout">
+	<section class="h-full w-full flex items-center justify-center px-4 py-8">
+		<div id="download-content" class="w-full max-w-2xl"></div>
+	</section>
+</template>
+
+<!-- Download view: Password entry for protected files -->
+<template id="file-password-view">
+	<div class="flex flex-col items-center justify-center bg-white dark:bg-grey-90 rounded-default shadow-light px-8 py-10">
+		<h1 class="text-3xl font-bold mb-4 text-grey-90 dark:text-grey-10">
+			<span id="downloadTitle" data-type="lang">Download</span>
+		</h1>
+		<p class="w-full mb-6 text-center text-grey-80 dark:text-grey-40 leading-normal">
+			<span id="downloadDescription" data-type="lang">This file is password protected. Enter the password to continue.</span>
+		</p>
+
+		<form data-role="password-form" class="flex flex-col w-full gap-4">
+			<div class="flex flex-row gap-2">
+				<div class="relative flex-1">
+					<input
+						data-role="password-input"
+						type="password"
+						autocomplete="off"
+						maxlength="4096"
+						placeholder="Enter password"
+						class="w-full rounded-lg border border-grey-30 dark:border-grey-60 bg-white dark:bg-grey-80 px-4 py-2 text-sm"
+					/>
+					<button
+						type="button"
+						data-role="toggle-visibility"
+						class="absolute inset-y-0 right-0 flex w-10 items-center justify-center"
+					>
+						<img src="/eye.svg" alt="Toggle password visibility" data-role="visibility-icon" class="h-5 w-5" />
+					</button>
+				</div>
+				<button
+					type="submit"
+					data-role="submit"
+					class="btn rounded-lg px-6 py-2 whitespace-nowrap"
+				>
+					<span id="unlockButtonLabel" data-type="lang">Unlock</span>
+				</button>
+			</div>
+
+			<p data-role="error" class="text-red-600 dark:text-red-400 text-sm text-center hidden">
+				<span id="passwordTryAgain" data-type="lang">Incorrect password. Please try again.</span>
+			</p>
+		</form>
+	</div>
+</template>
+
+<!-- Download view: File overview before download -->
+<template id="file-overview-view">
+	<div class="flex flex-col bg-white dark:bg-grey-90 rounded-default shadow-light px-8 py-8">
+		<h1 class="text-2xl font-bold mb-6 text-grey-90 dark:text-grey-10 text-center">
+			<span id="downloadTitle" data-type="lang">Download</span>
+		</h1>
+
+		<!-- File info -->
+		<div class="flex items-start mb-6">
+			<svg class="h-12 w-12 flex-shrink-0 text-primary mr-4">
+				<use xlink:href="/blue_file.svg#icon"/>
+			</svg>
+			<div class="flex-grow min-w-0">
+				<h2 class="text-lg font-medium text-grey-90 dark:text-grey-10 break-words" data-role="file-name">File name</h2>
+				<p class="text-sm text-grey-70 dark:text-grey-40 mt-1" data-role="file-size">0 MB</p>
+			</div>
+		</div>
+
+		<!-- File list (for archives) -->
+		<div data-role="file-list-container" class="mb-6"></div>
+
+		<!-- Expiry info -->
+		<p data-role="expiry-info" class="text-sm text-grey-70 dark:text-grey-40 mb-6 text-center hidden"></p>
+
+		<!-- Download button -->
+		<button
+			type="button"
+			data-action="download"
+			class="btn rounded-lg w-full py-3"
+		>
+			<span id="downloadButtonLabel" data-type="lang">Download</span>
+		</button>
+	</div>
+</template>
+
+<!-- File list for archives (expandable details) -->
+<template id="file-overview-file-list">
+	<details class="w-full mb-4 border border-grey-30 dark:border-grey-70 rounded-lg">
+		<summary class="flex items-center link-primary text-sm cursor-pointer px-4 py-3 hover:bg-grey-10 dark:hover:bg-grey-80">
+			<svg class="fill-current w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+				<path d="M12.95 10.707l.707-.707L8 4.343 6.586 5.757 10.828 10l-4.242 4.243L8 15.657l4.95-4.95z"/>
+			</svg>
+			<span data-role="file-count">Files</span>
+		</summary>
+		<div data-role="file-list" class="px-4 py-2"></div>
+	</details>
+</template>
+
+<!-- Individual file item in archive list -->
+<template id="file-overview-file-item">
+	<div class="flex items-center py-2">
+		<svg class="h-6 w-6 text-primary flex-shrink-0">
+			<use xlink:href="/blue_file.svg#icon"/>
+		</svg>
+		<div class="ml-3 flex-grow min-w-0">
+			<div class="text-sm font-medium text-grey-90 dark:text-grey-10 break-words" data-role="item-name"></div>
+			<div class="text-xs text-grey-70 dark:text-grey-40" data-role="item-size"></div>
+		</div>
+	</div>
+</template>
+
+<!-- Download view: Progress indicator (stub) -->
+<template id="file-downloading-view">
+	<div class="flex flex-col items-center justify-center bg-white dark:bg-grey-90 rounded-default shadow-light px-8 py-12">
+		<div class="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin mb-6"></div>
+		<p class="text-base text-grey-80 dark:text-grey-30" id="downloadingTitle" data-type="lang">Downloading…</p>
+		<p class="text-sm text-grey-70 dark:text-grey-40 mt-2" data-role="progress-text"></p>
+	</div>
+</template>
+
+<!-- Download view: Completion screen (stub) -->
+<template id="file-finished-view">
+	<div class="flex flex-col items-center justify-center bg-white dark:bg-grey-90 rounded-default shadow-light px-8 py-12">
+		<svg class="h-24 w-24 text-primary mb-6">
+			<use xlink:href="/completed.svg#Page-1" />
+		</svg>
+		<h2 class="text-2xl font-bold text-grey-90 dark:text-grey-10 mb-4">
+			<span id="downloadFinish" data-type="lang">Download complete</span>
+		</h2>
+		<p class="text-grey-70 dark:text-grey-40 text-center mb-6">
+			<span id="trySendDescription" data-type="lang">Send your own files</span>
+		</p>
+		<button
+			type="button"
+			data-action="home"
+			class="btn rounded-lg px-6 py-3"
+		>
+			<span id="sendYourFilesLink" data-type="lang">Send your files</span>
+		</button>
+	</div>
+</template>
+
+<!-- Download view: Error/expired screen -->
+<template id="file-error-view">
+	<div class="flex flex-col items-center justify-center bg-white dark:bg-grey-90 rounded-default shadow-light px-8 py-12">
+		<h1 class="text-center text-3xl font-bold text-grey-90 dark:text-grey-10 mb-8">
+			<span id="expiredTitle" data-type="lang">This link has expired or never existed</span>
+		</h1>
+		<svg class="text-primary h-48 w-48 mb-8">
+			<use xlink:href="/notFound.svg#svg124" />
+		</svg>
+		<p class="max-w-md text-center text-grey-80 dark:text-grey-40 leading-normal mb-2" data-role="default-description">
+			<span id="trySendDescription" data-type="lang">Go Send lets you share files with end-to-end encryption and a link that automatically expires. So you can keep what you share private and make sure your stuff doesn't stay online forever.</span>
+		</p>
+		<p class="max-w-md text-center text-grey-80 dark:text-grey-40 leading-normal mb-6 hidden" data-role="custom-description"></p>
+		<button
+			type="button"
+			data-action="home"
+			class="btn rounded-lg px-6 py-3"
+		>
+			<span id="sendYourFilesLink" data-type="lang">Send your files</span>
+		</button>
+	</div>
+</template>
+
+<!--
 	Future layouts (to be implemented):
-	- #download-layout: For file download view
 	- #error-layout: For error pages
 -->
 
@@ -173,7 +342,6 @@
 		<div class="w-full max-w-md space-y-6">
 			<div class="text-center space-y-2">
 				<h2 class="text-xl font-bold text-grey-90 dark:text-grey-10" id="notifyUploadEncryptDone" data-type="lang">Your file is encrypted and ready to send</h2>
-				<p class="text-sm text-grey-70 dark:text-grey-40" id="copyLinkDescription" data-type="lang">Copy the link to share your file:</p>
 			</div>
 
 			<div class="text-center">

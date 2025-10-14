@@ -1,55 +1,58 @@
-/* global DEFAULTS LIMITS WEB_UI PREFS */
 import "./styles.css";
-import getCapabilities from "./capabilities.mjs";
-import storage from "./storage.mjs";
-import { getTranslator } from "./locale.mjs";
-import Archive from "./archive.mjs";
-import { setTranslate, locale } from "./utils.mjs";
+import "./components/go-send-bg.mjs";
+import "./ui/go-send.mjs";
 
 (async function start() {
-  const capabilities = await getCapabilities();
-  if (
-    !capabilities.crypto &&
-    window.location.pathname !== "/unsupported/crypto"
-  ) {
-    return window.location.assign("/unsupported/crypto");
-  }
-  if (capabilities.serviceWorker) {
-    try {
-      await navigator.serviceWorker.register("/serviceWorker.js");
-      await navigator.serviceWorker.ready;
-    } catch (e) {
-      // continue but disable streaming downloads
-      console.log("Service Worker registration failed:", e);
-      capabilities.streamDownload = false;
-    }
+  const app = document.querySelector("go-send");
+  if (!app) {
+    console.warn("[Router] <go-send> element not found in DOM");
+    return;
   }
 
-  const translate = await getTranslator(locale());
-  setTranslate(translate);
+  // INFO: Load dependencies based on pathname
+  const path = window.location.pathname;
+  if (path === "/" || path.startsWith("/upload")) {
+    // INFO: Matches: / or /upload[...]
+    await initUploadRoute(app);
+  } else if (path.match(/^\/download/) || path.match(/^\/[0-9a-fA-F]{10,16}/)) {
+    // INFO: Matches: /download/... or /{fileId}
+    await initDownloadRoute(app);
+  } else {
+    // TODO: Handle 404
+    console.warn(`[Router] Unknown route: ${path}, defaulting to upload`);
+    await initUploadRoute(app);
+  }
 
-  // Make translate globally available for components
-  window.translate = translate;
-
-  // eslint-disable-next-line require-atomic-updates
-  window.initialState = {
-    LIMITS,
-    DEFAULTS,
-    WEB_UI,
-    PREFS,
-    archive: new Archive([], DEFAULTS.EXPIRE_SECONDS, DEFAULTS.DOWNLOADS),
-    capabilities,
-    translate,
-    storage,
-    transfer: null,
-    fileInfo: null,
-    locale: locale(),
-  };
-
-  // Import and register custom elements
-  await import("./components/go-send-bg.mjs");
-  await import("./ui/go-send.mjs");
-  await import("./ui/upload-layout.mjs");
-  await import("./ui/upload-area.mjs");
-  await import("./ui/upload-right.mjs");
+  console.log("[Router] Route initialized");
 })();
+
+async function initUploadRoute(app) {
+  console.log("[Route] Initializing upload page...");
+  await Promise.all([
+    import("./ui/upload-layout.mjs"),
+    import("./ui/upload-area.mjs"),
+    import("./ui/upload-right.mjs"),
+    app.controller.ready,
+  ]);
+
+  app.showUploadLayout();
+  console.log("[Route] Upload page ready");
+}
+
+export async function initDownloadRoute(app) {
+  console.log("[Route] Initializing download page...");
+
+  // Import download-specific components
+  await Promise.all([
+    import("./ui/download-layout.mjs"),
+    import("./ui/file-password.mjs"),
+    import("./ui/file-overview.mjs"),
+    import("./ui/file-downloading.mjs"),
+    import("./ui/file-finished.mjs"),
+    import("./ui/file-error.mjs"),
+    app.controller.ready,
+  ]);
+
+  app.showDownloadLayout();
+  console.log("[Route] Download page ready");
+}

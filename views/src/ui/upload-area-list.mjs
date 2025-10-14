@@ -24,6 +24,7 @@ class UploadListView extends HTMLElement {
       passwordHint: null,
       passwordVisibilityButton: null,
       passwordVisibilityIcon: null,
+      dropZone: null,
     };
 
     this._afterFrame = null;
@@ -37,6 +38,7 @@ class UploadListView extends HTMLElement {
     this._timeLimit = null;
     this._downloadLimit = null;
     this._errorMessage = null;
+    this._dragCounter = 0;
 
     this._boundFileSelect = this.handleFileSelect.bind(this);
     this._boundUploadClick = this.handleUploadClick.bind(this);
@@ -45,6 +47,10 @@ class UploadListView extends HTMLElement {
     this._boundPasswordInput = this.handlePasswordInput.bind(this);
     this._boundPasswordToggle = null;
     this._boundPasswordVisibility = null;
+    this._boundDragEnter = this.handleDragEnter.bind(this);
+    this._boundDragOver = this.handleDragOver.bind(this);
+    this._boundDragLeave = this.handleDragLeave.bind(this);
+    this._boundDrop = this.handleDrop.bind(this);
   }
 
   connectedCallback() {
@@ -53,6 +59,7 @@ class UploadListView extends HTMLElement {
 
   disconnectedCallback() {
     this._detachListeners();
+    this._removeDragListeners();
     if (this._afterFrame !== null) {
       cancelAnimationFrame(this._afterFrame);
       this._afterFrame = null;
@@ -79,6 +86,7 @@ class UploadListView extends HTMLElement {
     this.elements.fileCount = this.querySelector('[data-role="file-count-value"]');
     this.elements.addMoreLabel = this.querySelector('[data-role="add-more-label"]');
     this.elements.error = this.querySelector('[data-role="error"]');
+    this.elements.dropZone = this.querySelector(".flex.flex-col");
 
     const optionsContainer = this.querySelector("#upload-area-options-slot");
     if (optionsContainer) {
@@ -102,6 +110,7 @@ class UploadListView extends HTMLElement {
     }
 
     this._attachBaseListeners();
+    this._setupDragListeners();
 
     if (this._afterFrame !== null) {
       cancelAnimationFrame(this._afterFrame);
@@ -649,6 +658,87 @@ class UploadListView extends HTMLElement {
         this.elements.passwordVisibilityIcon.src = "/eye.svg";
       }
     }
+  }
+
+  _setupDragListeners() {
+    if (!this.elements.dropZone) {
+      return;
+    }
+    this.elements.dropZone.addEventListener("dragenter", this._boundDragEnter);
+    this.elements.dropZone.addEventListener("dragover", this._boundDragOver);
+    this.elements.dropZone.addEventListener("dragleave", this._boundDragLeave);
+    this.elements.dropZone.addEventListener("drop", this._boundDrop);
+  }
+
+  _removeDragListeners() {
+    if (!this.elements.dropZone) {
+      return;
+    }
+    this.elements.dropZone.removeEventListener("dragenter", this._boundDragEnter);
+    this.elements.dropZone.removeEventListener("dragover", this._boundDragOver);
+    this.elements.dropZone.removeEventListener("dragleave", this._boundDragLeave);
+    this.elements.dropZone.removeEventListener("drop", this._boundDrop);
+    this.elements.dropZone = null;
+  }
+
+  handleDragEnter(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    this._dragCounter++;
+
+    // Only show visual feedback when dragging files
+    if (event.dataTransfer && event.dataTransfer.types.includes("Files")) {
+      this._showDragFeedback();
+    }
+  }
+
+  handleDragOver(event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  handleDragLeave(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    this._dragCounter--;
+
+    if (this._dragCounter === 0) {
+      this._hideDragFeedback();
+    }
+  }
+
+  handleDrop(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    this._dragCounter = 0;
+    this._hideDragFeedback();
+
+    const files = Array.from(event.dataTransfer?.files || []);
+    if (files.length > 0) {
+      this.dispatchEvent(
+        new CustomEvent("addfiles", {
+          bubbles: true,
+          detail: { files },
+        }),
+      );
+    }
+  }
+
+  _showDragFeedback() {
+    if (!this.elements.dropZone) {
+      return;
+    }
+    this.elements.dropZone.classList.add("ring-2", "ring-primary", "ring-inset", "bg-blue-10", "dark:bg-blue-90");
+  }
+
+  _hideDragFeedback() {
+    if (!this.elements.dropZone) {
+      return;
+    }
+    this.elements.dropZone.classList.remove("ring-2", "ring-primary", "ring-inset", "bg-blue-10", "dark:bg-blue-90");
   }
 }
 

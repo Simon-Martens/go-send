@@ -1,4 +1,4 @@
-import { bytes } from "../utils.mjs";
+import { bytes, timeLeft } from "../utils.mjs";
 import "./upload-area-empty.mjs";
 import "./upload-area-list.mjs";
 import "./upload-area-uploading.mjs";
@@ -86,11 +86,8 @@ class UploadAreaElement extends HTMLElement {
   }
 
   updateProgress(ratio, bytesUploaded, totalBytes) {
-    if (this._currentViewKey === "uploading" && this._currentView && typeof this._currentView.setProgress === "function") {
-      const uploadedLabel = bytes(bytesUploaded || 0);
-      const totalLabel = bytes(totalBytes || 0);
-      const label = `${uploadedLabel} / ${totalLabel}`;
-      this._currentView.setProgress({ percent: ratio, label });
+    if (this._currentViewKey === "uploading" && this._currentView && typeof this._currentView.updateProgress === "function") {
+      this._currentView.updateProgress(ratio, bytesUploaded, totalBytes);
     } else if (this._currentViewKey === "list" && this._currentView && typeof this._currentView.updateProgress === "function") {
       this._currentView.updateProgress(ratio, bytesUploaded, totalBytes);
     }
@@ -197,13 +194,40 @@ class UploadAreaElement extends HTMLElement {
       return;
     }
 
+    const archive = state.archive;
+
+    // Set file name and size
+    if (archive && typeof view.setFileInfo === "function") {
+      view.setFileInfo(archive.name || "File", archive.size || 0);
+    }
+
+    // Set expiry info
+    if (archive && typeof view.setExpiryInfo === "function") {
+      const expiresAt = Date.now() + 500 + (archive.timeLimit || 0) * 1000;
+      const downloadsLeft = archive.dlimit || 1;
+      const timeLeftMs = expiresAt - Date.now();
+      const timeLeftData = timeLeft(timeLeftMs);
+
+      // Get translator
+      const translate = window.translate || ((key) => key);
+
+      // Build expiry text
+      const downloadCountText = translate("downloadCount", { num: downloadsLeft });
+      const timeText = translate(timeLeftData.id, timeLeftData);
+      const expiryText = translate("archiveExpiryInfo", {
+        downloadCount: downloadCountText,
+        timespan: timeText,
+      });
+
+      view.setExpiryInfo(expiryText);
+    }
+
+    // Update progress if transfer is active
     const transfer = state.transfer;
-    if (transfer && typeof view.setProgress === "function") {
+    if (transfer && typeof view.updateProgress === "function") {
       const ratio = transfer.progressRatio || 0;
       const [uploadedBytes = 0, totalBytes = 0] = transfer.progress || [];
-      const uploadedLabel = bytes(uploadedBytes);
-      const totalLabel = bytes(totalBytes);
-      view.setProgress({ percent: ratio, label: `${uploadedLabel} / ${totalLabel}` });
+      view.updateProgress(ratio, uploadedBytes, totalBytes);
     }
   }
 

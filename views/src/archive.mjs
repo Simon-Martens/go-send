@@ -21,10 +21,24 @@ export default class Archive {
     this.timeLimit = defaultTimeLimit;
     this.dlimit = defaultDownloadLimit;
     this.password = null;
+    this.customArchiveName = null;
   }
 
   get name() {
-    return this.files.length > 1 ? 'Send-Archive.zip' : this.files[0].name;
+    if (this.files.length > 1) {
+      // Use custom name if set, otherwise default to 'Send-Archive'
+      const baseName = this.customArchiveName || 'Send-Archive';
+      // Ensure .zip extension
+      return baseName.endsWith('.zip') ? baseName : `${baseName}.zip`;
+    }
+    return this.files[0].name;
+  }
+
+  setArchiveName(name) {
+    // Only allow setting custom name for multi-file archives
+    if (this.files.length > 1) {
+      this.customArchiveName = name;
+    }
   }
 
   get type() {
@@ -80,5 +94,6 @@ export default class Archive {
     this.dlimit = this.defaultDownloadLimit;
     this.timeLimit = this.defaultTimeLimit;
     this.password = null;
+    this.customArchiveName = null;
   }
 }

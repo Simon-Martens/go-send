@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-This directory contains the **new frontend** for go-send, a self-hostable file sharing service with client-side encryption. This is a complete rewrite of the legacy Choo-based frontend (`../frontend/`) using modern, minimal technologies.
+This directory contains the **new frontend** for go-send, a self-hostable file sharing service with client-side encryption. This is a complete rewrite of the legacy Choo-based frontend (`../frontend_deprecated/`) using modern, minimal technologies.
 
 ### Core Philosophy
 
@@ -271,7 +271,7 @@ Tailwind utilities are used throughout the project:
 
 ## Resources
 
-- **Old Frontend**: `../frontend/` (reference for logic only, not architecture)
+- **Old Frontend**: `../frontend_deprecated/` (reference for logic only, not architecture)
 - **Backend**: `../` (Go server that serves this frontend)
 - **Templates**: `templates/README.md`
 - **Tailwind CSS**: https://tailwindcss.com/docs

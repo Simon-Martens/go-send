@@ -147,6 +147,12 @@ class UploadRightElement extends HTMLElement {
       sizeEl.textContent = bytes(ownedFile.size);
     }
 
+    // Set upload date
+    const dateEl = item.querySelector('[data-role="upload-date"]');
+    if (dateEl) {
+      dateEl.textContent = this._formatDate(ownedFile.createdAt);
+    }
+
     // Set expiry info
     const expiryEl = item.querySelector('[data-role="expiry-info"]');
     if (expiryEl) {
@@ -343,14 +349,62 @@ class UploadRightElement extends HTMLElement {
     return "< 1 minute";
   }
 
+  _formatDate(timestamp) {
+    if (!timestamp) {
+      return "";
+    }
+
+    const date = new Date(timestamp);
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const uploadDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+    // Get user's locale from document or default to browser locale
+    const locale = document.documentElement.lang || navigator.language || "en";
+
+    // If uploaded today, show time only
+    if (uploadDate.getTime() === today.getTime()) {
+      return new Intl.DateTimeFormat(locale, {
+        hour: "2-digit",
+        minute: "2-digit",
+      }).format(date);
+    }
+
+    // If uploaded this year, show month and day
+    if (date.getFullYear() === now.getFullYear()) {
+      return new Intl.DateTimeFormat(locale, {
+        month: "short",
+        day: "numeric",
+      }).format(date);
+    }
+
+    // Otherwise, show full date with year
+    return new Intl.DateTimeFormat(locale, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    }).format(date);
+  }
+
   _translateText(key, fallback, args = {}) {
+    // Try instance translate function first
     if (this.translate) {
       try {
         return this.translate(key, args);
       } catch (e) {
+        // Fall through to window.translate
+      }
+    }
+
+    // Fall back to global translate function
+    if (window.translate) {
+      try {
+        return window.translate(key, args);
+      } catch (e) {
         // Fall through to fallback
       }
     }
+
     return fallback;
   }
 

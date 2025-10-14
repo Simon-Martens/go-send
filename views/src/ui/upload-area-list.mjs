@@ -25,6 +25,8 @@ class UploadListView extends HTMLElement {
       passwordVisibilityButton: null,
       passwordVisibilityIcon: null,
       dropZone: null,
+      archiveNameContainer: null,
+      archiveNameInput: null,
     };
 
     this._afterFrame = null;
@@ -51,6 +53,7 @@ class UploadListView extends HTMLElement {
     this._boundDragOver = this.handleDragOver.bind(this);
     this._boundDragLeave = this.handleDragLeave.bind(this);
     this._boundDrop = this.handleDrop.bind(this);
+    this._boundArchiveNameInput = this.handleArchiveNameInput.bind(this);
   }
 
   connectedCallback() {
@@ -107,6 +110,8 @@ class UploadListView extends HTMLElement {
       this.elements.passwordHint = optionsContainer.querySelector('[data-role="password-hint"]');
       this.elements.passwordVisibilityButton = optionsContainer.querySelector('[data-role="password-visibility"]');
       this.elements.passwordVisibilityIcon = optionsContainer.querySelector('[data-role="password-visibility-icon"]');
+      this.elements.archiveNameContainer = optionsContainer.querySelector('[data-role="archive-name-container"]');
+      this.elements.archiveNameInput = optionsContainer.querySelector('[data-role="archive-name"]');
     }
 
     this._attachBaseListeners();
@@ -166,6 +171,7 @@ class UploadListView extends HTMLElement {
     this._renderExpiryControls();
     this._updateOptionValues();
     this._updateStaticLabels(resolvedTotalSize);
+    this._updateArchiveNameVisibility();
     this.applyPasswordState();
     this.updatePasswordHint(this._password.length);
     this.setError(this._errorMessage);
@@ -378,6 +384,30 @@ class UploadListView extends HTMLElement {
     this._updateTotalSize(totalSize);
   }
 
+  _updateArchiveNameVisibility() {
+    if (!this.elements.archiveNameContainer) {
+      return;
+    }
+
+    // Show archive name input only when there are multiple files
+    if (this._files.length > 1) {
+      const wasHidden = this.elements.archiveNameContainer.classList.contains("hidden");
+      this.elements.archiveNameContainer.classList.remove("hidden");
+
+      // Translate elements if they're being shown for the first time
+      if (wasHidden) {
+        translateElement(this.elements.archiveNameContainer);
+      }
+
+      // Set default value if input is empty
+      if (this.elements.archiveNameInput && !this.elements.archiveNameInput.value) {
+        this.elements.archiveNameInput.value = "Send-Archive";
+      }
+    } else {
+      this.elements.archiveNameContainer.classList.add("hidden");
+    }
+  }
+
   _attachBaseListeners() {
     if (this.elements.fileInput) {
       this.elements.fileInput.addEventListener("change", this._boundFileSelect);
@@ -395,6 +425,9 @@ class UploadListView extends HTMLElement {
     }
     if (this.elements.passwordInput) {
       this.elements.passwordInput.addEventListener("input", this._boundPasswordInput);
+    }
+    if (this.elements.archiveNameInput) {
+      this.elements.archiveNameInput.addEventListener("input", this._boundArchiveNameInput);
     }
   }
 
@@ -431,6 +464,9 @@ class UploadListView extends HTMLElement {
     }
     if (this.elements.passwordInput) {
       this.elements.passwordInput.removeEventListener("input", this._boundPasswordInput);
+    }
+    if (this.elements.archiveNameInput) {
+      this.elements.archiveNameInput.removeEventListener("input", this._boundArchiveNameInput);
     }
     this._detachOptionListeners();
   }
@@ -580,6 +616,104 @@ class UploadListView extends HTMLElement {
     );
   }
 
+  handleArchiveNameInput(event) {
+    const archiveName = event.target.value;
+
+    // Validate the filename
+    const validationError = this._validateArchiveName(archiveName);
+
+    if (validationError) {
+      this._showArchiveNameError(validationError);
+      // Don't dispatch the update if invalid
+      return;
+    }
+
+    // Clear any previous error
+    this._showArchiveNameError(null);
+
+    // Dispatch the update with trimmed name
+    const trimmedName = archiveName.trim();
+    this.dispatchEvent(
+      new CustomEvent("updateoptions", {
+        bubbles: true,
+        detail: { archiveName: trimmedName || null },
+      }),
+    );
+  }
+
+  _validateArchiveName(name) {
+    if (!name || !name.trim()) {
+      return null; // Empty is OK, will use default
+    }
+
+    const trimmed = name.trim();
+
+    // Forbidden characters across Windows, macOS, and Linux
+    // Windows: < > : " / \ | ? *
+    // macOS: : /
+    // Linux: /
+    const forbiddenCharsRegex = /[<>:"/\\|?*]/;
+
+    if (forbiddenCharsRegex.test(trimmed)) {
+      return "archiveNameInvalidChars";
+    }
+
+    // Can't end with dot or space (Windows restriction)
+    if (/[.\s]$/.test(trimmed)) {
+      return "archiveNameInvalidEnd";
+    }
+
+    // Windows reserved names (case-insensitive)
+    const reservedNames = /^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$/i;
+    const nameWithoutExt = trimmed.replace(/\.zip$/i, "");
+
+    if (reservedNames.test(nameWithoutExt)) {
+      return "archiveNameReserved";
+    }
+
+    return null; // Valid
+  }
+
+  _showArchiveNameError(errorKey) {
+    if (!this.elements.archiveNameInput) {
+      return;
+    }
+
+    const errorEl = this.elements.archiveNameContainer?.querySelector('[data-role="archive-name-error"]');
+    if (!errorEl) {
+      return;
+    }
+
+    if (errorKey) {
+      // Get translated error message
+      // Use window.translate directly to ensure we get the latest translations
+      let errorMessage = "Invalid filename";
+      try {
+        const translate = window.translate || this._translate;
+        if (typeof translate === "function") {
+          const translated = translate(errorKey);
+          if (translated && translated !== errorKey) {
+            errorMessage = translated;
+          }
+        }
+      } catch (err) {
+        console.warn(`Translation failed for key: ${errorKey}`, err);
+      }
+
+      errorEl.textContent = errorMessage;
+      errorEl.classList.remove("hidden");
+
+      // Add error styling to input
+      this.elements.archiveNameInput.classList.add("border-red-500", "dark:border-red-500");
+    } else {
+      errorEl.textContent = "";
+      errorEl.classList.add("hidden");
+
+      // Remove error styling from input
+      this.elements.archiveNameInput.classList.remove("border-red-500", "dark:border-red-500");
+    }
+  }
+
   setError(message) {
     this._errorMessage = message;
     if (!this.elements.error) {
@@ -637,9 +771,17 @@ class UploadListView extends HTMLElement {
       return;
     }
 
+    // Get the lock icon from within the toggle icon container
+    const lockIcon = this.elements.passwordToggleIcon.querySelector('[data-role="lock-icon"]');
+
     if (this._passwordEnabled) {
       this.elements.passwordField.removeAttribute("hidden");
-      this.elements.passwordToggleIcon.innerHTML = '<img src="/lock.svg" alt="" class="h-4 w-4" />';
+
+      // Show lock icon
+      if (lockIcon) {
+        lockIcon.classList.remove("hidden");
+      }
+
       if (this.elements.passwordInput) {
         this.elements.passwordInput.value = this._password || "";
         this.elements.passwordInput.type = "password";
@@ -649,7 +791,12 @@ class UploadListView extends HTMLElement {
       }
     } else {
       this.elements.passwordField.setAttribute("hidden", "hidden");
-      this.elements.passwordToggleIcon.innerHTML = "";
+
+      // Hide lock icon
+      if (lockIcon) {
+        lockIcon.classList.add("hidden");
+      }
+
       if (this.elements.passwordInput) {
         this.elements.passwordInput.value = "";
         this.elements.passwordInput.type = "password";

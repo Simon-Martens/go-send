@@ -232,9 +232,14 @@ class DownloadLayoutElement extends HTMLElement {
    * Show file overview view (after successful metadata fetch)
    */
   showOverviewView(fileInfo) {
+    // Update our fileInfo with metadata from controller
+    if (fileInfo) {
+      this.fileInfo = { ...this.fileInfo, ...fileInfo };
+    }
+
     this._switchView("overview", "file-overview-view", (viewElement) => {
       if (typeof viewElement.setFileInfo === "function") {
-        viewElement.setFileInfo(fileInfo);
+        viewElement.setFileInfo(this.fileInfo);
       }
     });
   }
@@ -243,7 +248,12 @@ class DownloadLayoutElement extends HTMLElement {
    * Show downloading progress view
    */
   showDownloadingView() {
-    this._switchView("downloading", "file-downloading-view");
+    this._switchView("downloading", "file-downloading-view", (viewElement) => {
+      // Set file info if available
+      if (this.fileInfo && typeof viewElement.setFileInfo === "function") {
+        viewElement.setFileInfo(this.fileInfo.name || "File", this.fileInfo.size || 0);
+      }
+    });
   }
 
   /**
@@ -272,8 +282,8 @@ class DownloadLayoutElement extends HTMLElement {
    */
   updateProgress(ratio, bytesDownloaded, totalBytes) {
     if (this.currentView === "downloading" && this.currentViewElement) {
-      if (typeof this.currentViewElement.setProgress === "function") {
-        this.currentViewElement.setProgress(ratio, bytesDownloaded, totalBytes);
+      if (typeof this.currentViewElement.updateProgress === "function") {
+        this.currentViewElement.updateProgress(ratio, bytesDownloaded, totalBytes);
       }
     }
   }

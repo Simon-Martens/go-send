@@ -1,17 +1,22 @@
 import { translateElement } from "../utils.mjs";
+import { bytes } from "../utils.mjs";
 
 class UploadUploadingView extends HTMLElement {
   constructor() {
     super();
     this._afterFrame = null;
-    this._statusEl = null;
+    this._progressBar = null;
+    this._progressPercent = null;
+    this._boundHandleCancel = this.handleCancel.bind(this);
   }
 
   connectedCallback() {
     this.render();
+    this.addEventListener("click", this._boundHandleCancel);
   }
 
   disconnectedCallback() {
+    this.removeEventListener("click", this._boundHandleCancel);
     if (this._afterFrame !== null) {
       cancelAnimationFrame(this._afterFrame);
       this._afterFrame = null;
@@ -29,7 +34,9 @@ class UploadUploadingView extends HTMLElement {
     this.innerHTML = "";
     this.appendChild(fragment);
 
-    this._statusEl = this.querySelector("#uploadingStatus");
+    // Cache references to progress elements
+    this._progressBar = this.querySelector('[data-role="progress-bar"]');
+    this._progressPercent = this.querySelector('[data-role="progress-percent"]');
 
     if (this._afterFrame !== null) {
       cancelAnimationFrame(this._afterFrame);
@@ -40,20 +47,62 @@ class UploadUploadingView extends HTMLElement {
     });
   }
 
-  setStatus(text) {
-    if (this._statusEl && typeof text === "string") {
-      this._statusEl.textContent = text;
+  handleCancel(event) {
+    const target = event.target.closest('[data-action="cancel"]');
+    if (!target) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    // Dispatch cancel event that bubbles up
+    this.dispatchEvent(new CustomEvent("cancel", {
+      bubbles: true,
+      composed: true,
+    }));
+  }
+
+  /**
+   * Update upload progress
+   * @param {number} ratio - Progress ratio from 0.0 to 1.0
+   * @param {number} bytesUploaded - Bytes uploaded so far
+   * @param {number} totalBytes - Total bytes to upload
+   */
+  updateProgress(ratio, bytesUploaded, totalBytes) {
+    if (this._progressBar) {
+      this._progressBar.value = ratio;
+    }
+
+    if (this._progressPercent) {
+      const percent = Math.round(ratio * 100);
+      this._progressPercent.textContent = `${percent}%`;
     }
   }
 
-  setProgress({ percent, label } = {}) {
-    if (typeof label === "string") {
-      this.setStatus(label);
-      return;
+  /**
+   * Set file information
+   * @param {string} name - File name
+   * @param {number} size - File size in bytes
+   */
+  setFileInfo(name, size) {
+    const nameEl = this.querySelector('[data-role="file-name"]');
+    const sizeEl = this.querySelector('[data-role="file-size"]');
+
+    if (nameEl) {
+      nameEl.textContent = name;
     }
-    if (typeof percent === "number") {
-      const rounded = Math.round(percent * 100);
-      this.setStatus(`${rounded}%`);
+    if (sizeEl) {
+      sizeEl.textContent = bytes(size);
+    }
+  }
+
+  /**
+   * Set expiry information
+   * @param {string} expiryText - Formatted expiry text
+   */
+  setExpiryInfo(expiryText) {
+    const expiryEl = this.querySelector('[data-role="expiry-info"]');
+    if (expiryEl) {
+      expiryEl.textContent = expiryText;
     }
   }
 }

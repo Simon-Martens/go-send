@@ -1,7 +1,6 @@
 import FileReceiver from "./fileReceiver";
 import FileSender from "./fileSender";
 // import copyDialog from "./ui/copyDialog";
-// import faviconProgressbar from "./ui/faviconProgressbar";
 // import okDialog from "./ui/okDialog";
 // import shareDialog from "./ui/shareDialog";
 import { bytes } from "./utils";
@@ -10,6 +9,7 @@ import getCapabilities from "./capabilities.mjs";
 import storage from "./storage.mjs";
 import { getTranslator } from "./locale.mjs";
 import Archive from "./archive.mjs";
+import { setupProgressIndicators } from "./faviconProgress.mjs";
 
 /**
  * Controller - Handles business logic for the application
@@ -48,6 +48,9 @@ export class Controller {
 
     // Track last render time for countdown timer optimization
     this.lastRender = 0;
+
+    // Setup favicon/title progress indicators
+    this.progressIndicators = setupProgressIndicators();
 
     // Start async initialization immediately
     this.ready = this.initialize();
@@ -293,7 +296,7 @@ export class Controller {
     try {
       const ownedFile = await sender.upload(archive);
       this.state.storage.totalUploads += 1;
-      // faviconProgressbar.updateFavicon(0);
+      this.progressIndicators.reset();
 
       this.state.storage.addFile(ownedFile);
 
@@ -340,7 +343,7 @@ export class Controller {
 
     if (this.state.transfer) {
       this.state.transfer.cancel();
-      // faviconProgressbar.updateFavicon(0);
+      this.progressIndicators.reset();
     }
 
     if (
@@ -428,7 +431,8 @@ export class Controller {
       this.root.currentLayout.updateProgress(ratio, bytesUploaded, totalBytes);
     }
 
-    // faviconProgressbar.updateFavicon(ratio);
+    // Update favicon and title (if window not focused)
+    this.progressIndicators.update(ratio);
   }
 
   /**
@@ -652,6 +656,7 @@ export class Controller {
       if (err.message === "0") {
         // Download cancelled by user
         receiver.reset();
+        this.progressIndicators.reset();
         const layout = this.root.currentLayout;
         if (layout && typeof layout.showOverviewView === "function") {
           layout.showOverviewView(this.state.fileInfo);
@@ -690,6 +695,9 @@ export class Controller {
     if (layout && typeof layout.updateProgress === "function") {
       layout.updateProgress(ratio, bytesDownloaded, totalBytes);
     }
+
+    // Update favicon and title (if window not focused)
+    this.progressIndicators.update(ratio);
   }
 
   /**
@@ -697,6 +705,9 @@ export class Controller {
    */
   handleDownloadComplete() {
     console.log("[Controller] Download completed successfully");
+
+    // Reset progress indicators
+    this.progressIndicators.reset();
 
     // Show finished view
     const layout = this.root.currentLayout;

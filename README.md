@@ -9,7 +9,7 @@ This fork replaces the original Node.js/Express backend with a Go server, switch
 
 ### Why a reimplementation?
 
-The original `send` has a lot of dependencies (1980 of them!) for a project that doesn't really do all that much. Also, the server still ran Node 16. Needless to say, maintaining and updating this to the newest version of its dependencies is a nearly impossible task; much less for a hobby developer like me, who wants to use this in production. Luckily, the server runtime as well as the ui handling is mostly decoupled from the frontend encryption and decryption logic; it used to be some server SSR and hydration; but the `choo` router that formerly Firefox Send used can be run in the browser alone. Which made the task of implementing a basic go server trivial.
+The original `send` has a lot of dependencies (1980 of them!) for a project that doesn't really do all that much. Also, the server still ran Node 16. Needless to say, maintaining and updating this to the newest version of its dependencies is a nearly impossible task; much less for a hobby developer like me, who wants to use this in production. Luckily, the server runtime as well as the ui handling is mostly decoupled from the frontend encryption and decryption logic; it used to be some server SSR and hydration; but the UI and routing could be easily transported to Web Components + HTML templates. The task of implementing a basic go server was trivial.
 
 
 ### What is changed?

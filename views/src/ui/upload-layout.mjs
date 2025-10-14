@@ -176,9 +176,8 @@ class UploadLayoutElement extends HTMLElement {
   updateProgress(ratio, bytesUploaded, totalBytes) {
     this.state.progress = ratio;
 
-    if (this.uploadArea) {
-      this.uploadArea.updateProgress(ratio);
-      this.uploadArea.updateProgressText(`${bytesUploaded} / ${totalBytes}`);
+    if (this.uploadArea && typeof this.uploadArea.updateProgress === "function") {
+      this.uploadArea.updateProgress(ratio, bytesUploaded, totalBytes);
     }
   }
 

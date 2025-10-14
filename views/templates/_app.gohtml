@@ -46,7 +46,7 @@
 -->
 <template id="download-layout">
 	<section class="h-full w-full flex items-center justify-center px-4 py-8">
-		<div id="download-content" class="w-full max-w-2xl"></div>
+		<div id="download-content"></div>
 	</section>
 </template>
 
@@ -156,12 +156,25 @@
 	</div>
 </template>
 
-<!-- Download view: Progress indicator (stub) -->
+<!-- Download view: Progress indicator -->
 <template id="file-downloading-view">
-	<div class="flex flex-col items-center justify-center bg-white dark:bg-grey-90 rounded-default shadow-light px-8 py-12">
-		<div class="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin mb-6"></div>
-		<p class="text-base text-grey-80 dark:text-grey-30" id="downloadingTitle" data-type="lang">Downloading…</p>
-		<p class="text-sm text-grey-70 dark:text-grey-40 mt-2" data-role="progress-text"></p>
+	<div class="flex flex-col bg-white dark:bg-grey-90 rounded-default shadow-light p-6 w-[90vw] max-w-md md:w-[48rem]">
+		<!-- Archive info -->
+		<div class="w-full flex items-center mb-4">
+			<svg class="h-10 w-10 flex-shrink-0 text-primary mr-4">
+				<use xlink:href="/blue_file.svg#icon"/>
+			</svg>
+			<div class="flex-grow min-w-0">
+				<h3 class="text-base font-medium text-grey-90 dark:text-grey-10 break-words" data-role="file-name"></h3>
+				<div class="text-sm text-grey-70 dark:text-grey-40 pt-1" data-role="file-size"></div>
+			</div>
+		</div>
+
+		<!-- Progress percentage -->
+		<div class="link-primary text-sm font-medium mt-2" data-role="progress-percent">0%</div>
+
+		<!-- Progress bar -->
+		<progress class="my-3" value="0" max="1" data-role="progress-bar">0%</progress>
 	</div>
 </template>
 
@@ -308,7 +321,9 @@
 		</div>
 		<div>
 			<button type="button" class="flex items-center text-sm font-medium text-grey-80 dark:text-grey-20" data-role="password-toggle">
-				<span class="mr-2 inline-flex h-6 w-6 items-center justify-center rounded border border-grey-40 text-grey-70 dark:border-grey-60 dark:text-grey-30" data-role="password-toggle-icon"></span>
+				<span class="mr-2 inline-flex h-6 w-6 items-center justify-center rounded border border-grey-40 text-grey-70 dark:border-grey-60 dark:text-grey-30" data-role="password-toggle-icon">
+					<img src="/lock.svg" alt="" class="h-4 w-4 hidden" data-role="lock-icon" />
+				</span>
 				<span id="addPassword" data-type="lang">Add a password (optional)</span>
 			</button>
 			<div class="relative mt-2" data-role="password-field" hidden>
@@ -331,9 +346,35 @@
 </template>
 
 <template id="upload-view-uploading">
-	<div class="flex flex-col items-center justify-center h-full w-full px-6 py-10">
-		<div class="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
-		<p class="mt-6 text-base text-grey-80 dark:text-grey-30" id="uploadingStatus" data-type="lang">Uploading…</p>
+	<div class="flex flex-col items-start rounded-default shadow-light bg-white dark:bg-grey-90 p-4 w-full">
+		<!-- Archive info -->
+		<div class="w-full flex items-center mb-3">
+			<svg class="h-8 w-8 flex-shrink-0 text-primary mr-3">
+				<use xlink:href="/blue_file.svg#icon"/>
+			</svg>
+			<div class="flex-grow min-w-0">
+				<h3 class="text-base font-medium text-grey-90 dark:text-grey-10 break-words" data-role="file-name"></h3>
+				<div class="text-sm text-grey-70 dark:text-grey-40 pt-1" data-role="file-size"></div>
+			</div>
+		</div>
+
+		<!-- Expiry info -->
+		<div class="text-xs text-grey-70 dark:text-grey-40 w-full mt-2 mb-2" data-role="expiry-info"></div>
+
+		<!-- Progress percentage -->
+		<div class="link-primary text-sm font-medium mt-2" data-role="progress-percent">0%</div>
+
+		<!-- Progress bar -->
+		<progress class="my-3" value="0" max="1" data-role="progress-bar">0%</progress>
+
+		<!-- Cancel button -->
+		<button
+			type="button"
+			class="link-primary self-end font-medium mt-2"
+			data-action="cancel"
+		>
+			<span id="deletePopupCancel" data-type="lang">Cancel</span>
+		</button>
 	</div>
 </template>
 
@@ -427,8 +468,10 @@
 			</button>
 		</div>
 
-		<!-- Expiry Info -->
-		<div class="text-sm opacity-75 w-full mb-2" data-role="expiry-info"></div>
+		<!-- Date and Expiry Info -->
+		<div class="text-sm opacity-75 w-full mb-2">
+			<span data-role="upload-date"></span><span data-role="date-separator" class="mx-1">·</span><span data-role="expiry-info"></span>
+		</div>
 
 		<!-- File Details (for multi-file uploads) -->
 		<div data-role="file-details"></div>

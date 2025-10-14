@@ -637,9 +637,17 @@ class UploadListView extends HTMLElement {
       return;
     }
 
+    // Get the lock icon from within the toggle icon container
+    const lockIcon = this.elements.passwordToggleIcon.querySelector('[data-role="lock-icon"]');
+
     if (this._passwordEnabled) {
       this.elements.passwordField.removeAttribute("hidden");
-      this.elements.passwordToggleIcon.innerHTML = '<img src="/lock.svg" alt="" class="h-4 w-4" />';
+
+      // Show lock icon
+      if (lockIcon) {
+        lockIcon.classList.remove("hidden");
+      }
+
       if (this.elements.passwordInput) {
         this.elements.passwordInput.value = this._password || "";
         this.elements.passwordInput.type = "password";
@@ -649,7 +657,12 @@ class UploadListView extends HTMLElement {
       }
     } else {
       this.elements.passwordField.setAttribute("hidden", "hidden");
-      this.elements.passwordToggleIcon.innerHTML = "";
+
+      // Hide lock icon
+      if (lockIcon) {
+        lockIcon.classList.add("hidden");
+      }
+
       if (this.elements.passwordInput) {
         this.elements.passwordInput.value = "";
         this.elements.passwordInput.type = "password";

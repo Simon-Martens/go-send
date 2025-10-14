@@ -327,6 +327,7 @@ progress::-moz-progress-bar {
 }
 
 select {
+  appearance: none;
   background-image: url("../assets/select-arrow.svg");
   background-position: calc(100% - 0.75rem);
   background-repeat: no-repeat;

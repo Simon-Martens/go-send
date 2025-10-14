@@ -319,6 +319,25 @@
 			</div>
 			<div class="font-medium mt-1 text-right" data-role="expiry-label-bottom">Ends</div>
 		</div>
+		<div data-role="archive-name-container" class="hidden">
+			<label for="archive-name-input" class="block text-sm font-medium text-grey-80 dark:text-grey-20 mb-2">
+				<span id="archiveNameLabel" data-type="lang">Archive name</span>
+			</label>
+			<div class="relative">
+				<input
+					id="archive-name-input"
+					type="text"
+					data-role="archive-name"
+					class="w-full rounded-default border border-grey-30 bg-white px-3 py-2 text-sm dark:bg-grey-80 dark:border-grey-60"
+					placeholder="Send-Archive"
+					maxlength="255"
+				/>
+				<span class="absolute inset-y-0 right-0 flex items-center pr-3 text-sm text-grey-60 dark:text-grey-40 pointer-events-none">
+					.zip
+				</span>
+			</div>
+			<div class="mt-1 text-xs text-grey-60 dark:text-grey-40" id="archiveNameHint" data-type="lang">The name recipients will see when downloading</div>
+		</div>
 		<div>
 			<button type="button" class="flex items-center text-sm font-medium text-grey-80 dark:text-grey-20" data-role="password-toggle">
 				<span class="mr-2 inline-flex h-6 w-6 items-center justify-center rounded border border-grey-40 text-grey-70 dark:border-grey-60 dark:text-grey-30" data-role="password-toggle-icon">

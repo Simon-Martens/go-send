@@ -236,7 +236,7 @@ export class Controller {
   }
 
   handleUpdateOptions(event) {
-    const { timeLimit, downloadLimit, password } = event.detail;
+    const { timeLimit, downloadLimit, password, archiveName } = event.detail;
     const archive = this.state.archive;
 
     if (!archive) {
@@ -253,6 +253,10 @@ export class Controller {
 
     if (password !== undefined) {
       archive.password = password ? password : null;
+    }
+
+    if (archiveName !== undefined) {
+      archive.customArchiveName = archiveName ? archiveName : null;
     }
 
     console.log("[Controller] Updated archive options", {

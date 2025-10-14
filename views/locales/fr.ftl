@@ -118,6 +118,8 @@ dragAndDropFiles = Glissez-déposez des fichiers
 orClickWithSize = ou cliquez pour envoyer jusqu’à { $size }
 addPassword = Protéger par mot de passe
 emailPlaceholder = Votre adresse électronique
+archiveNameLabel = Nom de l'archive
+archiveNameHint = Le nom que les destinataires verront lors du téléchargement
 # $size is the size of the file, displayed using the fileSize message as format (e.g. "2.5MB")
 signInSizeBump = Connectez-vous pour envoyer jusqu’à { $size }
 signInOnlyButton = Connexion

@@ -25,6 +25,8 @@ class UploadListView extends HTMLElement {
       passwordVisibilityButton: null,
       passwordVisibilityIcon: null,
       dropZone: null,
+      archiveNameContainer: null,
+      archiveNameInput: null,
     };
 
     this._afterFrame = null;
@@ -51,6 +53,7 @@ class UploadListView extends HTMLElement {
     this._boundDragOver = this.handleDragOver.bind(this);
     this._boundDragLeave = this.handleDragLeave.bind(this);
     this._boundDrop = this.handleDrop.bind(this);
+    this._boundArchiveNameInput = this.handleArchiveNameInput.bind(this);
   }
 
   connectedCallback() {
@@ -107,6 +110,8 @@ class UploadListView extends HTMLElement {
       this.elements.passwordHint = optionsContainer.querySelector('[data-role="password-hint"]');
       this.elements.passwordVisibilityButton = optionsContainer.querySelector('[data-role="password-visibility"]');
       this.elements.passwordVisibilityIcon = optionsContainer.querySelector('[data-role="password-visibility-icon"]');
+      this.elements.archiveNameContainer = optionsContainer.querySelector('[data-role="archive-name-container"]');
+      this.elements.archiveNameInput = optionsContainer.querySelector('[data-role="archive-name"]');
     }
 
     this._attachBaseListeners();
@@ -166,6 +171,7 @@ class UploadListView extends HTMLElement {
     this._renderExpiryControls();
     this._updateOptionValues();
     this._updateStaticLabels(resolvedTotalSize);
+    this._updateArchiveNameVisibility();
     this.applyPasswordState();
     this.updatePasswordHint(this._password.length);
     this.setError(this._errorMessage);
@@ -378,6 +384,30 @@ class UploadListView extends HTMLElement {
     this._updateTotalSize(totalSize);
   }
 
+  _updateArchiveNameVisibility() {
+    if (!this.elements.archiveNameContainer) {
+      return;
+    }
+
+    // Show archive name input only when there are multiple files
+    if (this._files.length > 1) {
+      const wasHidden = this.elements.archiveNameContainer.classList.contains("hidden");
+      this.elements.archiveNameContainer.classList.remove("hidden");
+
+      // Translate elements if they're being shown for the first time
+      if (wasHidden) {
+        translateElement(this.elements.archiveNameContainer);
+      }
+
+      // Set default value if input is empty
+      if (this.elements.archiveNameInput && !this.elements.archiveNameInput.value) {
+        this.elements.archiveNameInput.value = "Send-Archive";
+      }
+    } else {
+      this.elements.archiveNameContainer.classList.add("hidden");
+    }
+  }
+
   _attachBaseListeners() {
     if (this.elements.fileInput) {
       this.elements.fileInput.addEventListener("change", this._boundFileSelect);
@@ -395,6 +425,9 @@ class UploadListView extends HTMLElement {
     }
     if (this.elements.passwordInput) {
       this.elements.passwordInput.addEventListener("input", this._boundPasswordInput);
+    }
+    if (this.elements.archiveNameInput) {
+      this.elements.archiveNameInput.addEventListener("input", this._boundArchiveNameInput);
     }
   }
 
@@ -431,6 +464,9 @@ class UploadListView extends HTMLElement {
     }
     if (this.elements.passwordInput) {
       this.elements.passwordInput.removeEventListener("input", this._boundPasswordInput);
+    }
+    if (this.elements.archiveNameInput) {
+      this.elements.archiveNameInput.removeEventListener("input", this._boundArchiveNameInput);
     }
     this._detachOptionListeners();
   }
@@ -576,6 +612,16 @@ class UploadListView extends HTMLElement {
       new CustomEvent("updateoptions", {
         bubbles: true,
         detail: { password: this._password || null },
+      }),
+    );
+  }
+
+  handleArchiveNameInput(event) {
+    const archiveName = event.target.value.trim();
+    this.dispatchEvent(
+      new CustomEvent("updateoptions", {
+        bubbles: true,
+        detail: { archiveName: archiveName || null },
       }),
     );
   }

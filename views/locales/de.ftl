@@ -118,6 +118,8 @@ dragAndDropFiles = Dateien per Drag & Drop einfügen
 orClickWithSize = oder klicken, um bis zu { $size } zu senden
 addPassword = Mit Passwort schützen
 emailPlaceholder = E-Mail-Adresse eingeben
+archiveNameLabel = Archivname
+archiveNameHint = Der Name, den Empfänger beim Herunterladen sehen
 # $size is the size of the file, displayed using the fileSize message as format (e.g. "2.5MB")
 signInSizeBump = melden Sie sich an, um Dateien bis { $size } zu senden
 signInOnlyButton = Anmelden

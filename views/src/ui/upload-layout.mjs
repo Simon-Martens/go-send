@@ -20,6 +20,7 @@ class UploadLayoutElement extends HTMLElement {
     this.uploadRight = null;
     this.app = null;
     this._waitingForUploadAreaUpgrade = false;
+    this._waitingForUploadRightUpgrade = false;
 
     // Upload state
     this.state = {
@@ -38,6 +39,7 @@ class UploadLayoutElement extends HTMLElement {
       removeupload: this.handleRemoveUpload.bind(this),
       upload: this.handleUpload.bind(this),
       cancel: this.handleCancel.bind(this),
+      completeAcknowledged: this.handleCompleteAcknowledged.bind(this),
     };
   }
 
@@ -75,10 +77,12 @@ class UploadLayoutElement extends HTMLElement {
         this.addEventListener("removeupload", this._boundHandlers.removeupload);
         this.addEventListener("upload", this._boundHandlers.upload);
         this.addEventListener("cancel", this._boundHandlers.cancel);
+        this.addEventListener("complete-acknowledged", this._boundHandlers.completeAcknowledged);
         this._handlersBound = true;
       }
 
       this.refreshArchiveState();
+      this.refreshUploadList();
     });
   }
 
@@ -93,6 +97,7 @@ class UploadLayoutElement extends HTMLElement {
       this.removeEventListener("removeupload", this._boundHandlers.removeupload);
       this.removeEventListener("upload", this._boundHandlers.upload);
       this.removeEventListener("cancel", this._boundHandlers.cancel);
+      this.removeEventListener("complete-acknowledged", this._boundHandlers.completeAcknowledged);
       this._handlersBound = false;
     }
   }
@@ -145,6 +150,22 @@ class UploadLayoutElement extends HTMLElement {
     this.refreshArchiveState();
   }
 
+  handleCompleteAcknowledged(event) {
+    console.log("upload-layout: complete acknowledged");
+
+    // Reset to initial state
+    this.state.stage = 'empty';
+    this.state.uploadedFile = null;
+
+    // Clear the complete state from upload-area
+    if (this.uploadArea && typeof this.uploadArea.clearComplete === "function") {
+      this.uploadArea.clearComplete();
+    }
+
+    // Keep showing upload list if files exist
+    this.refreshUploadList();
+  }
+
   /**
    * Public Methods (called by parent <go-send> or controller)
    */
@@ -168,15 +189,18 @@ class UploadLayoutElement extends HTMLElement {
     this.state.stage = 'complete';
     this.state.uploadedFile = ownedFile;
 
-    // Update UI: upload-area shows share link
+    // Update UI: upload-area shows complete view with QR code and link
     if (this.uploadArea) {
-      if (typeof this.uploadArea.refresh === "function") {
-        this.uploadArea.refresh();
+      if (typeof this.uploadArea.ensureView === "function") {
+        this.uploadArea.ensureView('complete');
+      }
+      if (typeof this.uploadArea.setUploadedFile === "function") {
+        this.uploadArea.setUploadedFile(ownedFile);
       }
     }
 
-    // Update UI: upload-right may show upload list
-    // (For now, keep showing intro or implement list later)
+    // Update UI: upload-right shows list with new file
+    this.refreshUploadList();
 
     console.log("upload-layout: upload complete", ownedFile);
   }
@@ -233,6 +257,51 @@ class UploadLayoutElement extends HTMLElement {
     }
 
     this.uploadArea.refresh();
+  }
+
+  refreshUploadList() {
+    if (!this.app) {
+      this.app = this.closest("go-send") || this.app;
+    }
+
+    if (!this.app || !this.uploadRight || !this.app.state) {
+      return;
+    }
+
+    // Check if upload-right is fully upgraded
+    if (typeof this.uploadRight.showUploadList !== "function") {
+      if (!this._waitingForUploadRightUpgrade) {
+        this._waitingForUploadRightUpgrade = true;
+        customElements
+          .whenDefined("upload-right")
+          .then(() => {
+            this.uploadRight = this.querySelector("upload-right");
+            this._waitingForUploadRightUpgrade = false;
+            this.refreshUploadList();
+          })
+          .catch(() => {
+            this._waitingForUploadRightUpgrade = false;
+          });
+      }
+      return;
+    }
+
+    // Get files from storage
+    const files = this.app.state.storage ? this.app.state.storage.files : [];
+    const activeFiles = files.filter(f => !f.expired);
+
+    // Show list if we have files, otherwise show intro
+    if (activeFiles.length > 0) {
+      if (this.uploadRight.currentTemplate !== "list") {
+        this.uploadRight.showUploadList(activeFiles);
+      } else {
+        this.uploadRight.refreshList(activeFiles);
+      }
+    } else {
+      if (this.uploadRight.currentTemplate !== "intro") {
+        this.uploadRight.showIntro();
+      }
+    }
   }
 }
 

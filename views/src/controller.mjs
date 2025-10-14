@@ -262,12 +262,17 @@ export class Controller {
     try {
       this.state.storage.remove(ownedFile.id);
       await ownedFile.del();
+
+      // Update UI: refresh upload list
+      if (
+        this.root.currentLayout &&
+        typeof this.root.currentLayout.refreshUploadList === "function"
+      ) {
+        this.root.currentLayout.refreshUploadList();
+      }
     } catch (e) {
       console.error("[Controller] Error deleting file:", e);
     }
-
-    // TODO: Render/update UI
-    // this.render();
   }
 
   handleCopy(event) {

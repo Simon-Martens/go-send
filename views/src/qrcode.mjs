@@ -2343,3 +2343,6 @@ var qrcode = (function() {
 })(function() {
   return qrcode;
 });
+
+// ES module export for .mjs compatibility
+export default qrcode;

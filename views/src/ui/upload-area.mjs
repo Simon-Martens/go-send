@@ -2,11 +2,13 @@ import { bytes } from "../utils.mjs";
 import "./upload-area-empty.mjs";
 import "./upload-area-list.mjs";
 import "./upload-area-uploading.mjs";
+import "./upload-area-complete.mjs";
 
 const VIEW_TAGS = {
   empty: "upload-empty-view",
   list: "upload-list-view",
   uploading: "upload-uploading-view",
+  complete: "upload-complete-view",
 };
 
 class UploadAreaElement extends HTMLElement {
@@ -16,6 +18,8 @@ class UploadAreaElement extends HTMLElement {
     this._currentViewKey = null;
     this._app = null;
     this._errorMessage = null;
+    this._isComplete = false;
+    this._uploadedFile = null;
   }
 
   connectedCallback() {
@@ -32,6 +36,13 @@ class UploadAreaElement extends HTMLElement {
   refresh() {
     const state = this._getAppState();
     if (!state) {
+      return;
+    }
+
+    // If we're in complete state, stay there until explicitly cleared
+    if (this._isComplete) {
+      this._ensureView("complete");
+      this._configureCompleteView();
       return;
     }
 
@@ -92,6 +103,21 @@ class UploadAreaElement extends HTMLElement {
 
   ensureView(viewKey) {
     this._ensureView(viewKey);
+  }
+
+  setUploadedFile(ownedFile) {
+    this._isComplete = true;
+    this._uploadedFile = ownedFile;
+
+    if (this._currentViewKey === "complete" && this._currentView && typeof this._currentView.setUploadedFile === "function") {
+      this._currentView.setUploadedFile(ownedFile);
+    }
+  }
+
+  clearComplete() {
+    this._isComplete = false;
+    this._uploadedFile = null;
+    this.refresh();
   }
 
   _ensureView(viewKey) {
@@ -175,6 +201,17 @@ class UploadAreaElement extends HTMLElement {
       const uploadedLabel = bytes(uploadedBytes);
       const totalLabel = bytes(totalBytes);
       view.setProgress({ percent: ratio, label: `${uploadedLabel} / ${totalLabel}` });
+    }
+  }
+
+  _configureCompleteView() {
+    const view = this._currentView;
+    if (!view || !this._uploadedFile) {
+      return;
+    }
+
+    if (typeof view.setUploadedFile === "function") {
+      view.setUploadedFile(this._uploadedFile);
     }
   }
 

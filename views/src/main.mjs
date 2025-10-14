@@ -1,5 +1,4 @@
 import "./styles.css";
-import "./components/go-send-bg.mjs";
 import "./ui/go-send.mjs";
 
 (async function start() {

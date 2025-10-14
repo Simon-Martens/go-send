@@ -617,13 +617,101 @@ class UploadListView extends HTMLElement {
   }
 
   handleArchiveNameInput(event) {
-    const archiveName = event.target.value.trim();
+    const archiveName = event.target.value;
+
+    // Validate the filename
+    const validationError = this._validateArchiveName(archiveName);
+
+    if (validationError) {
+      this._showArchiveNameError(validationError);
+      // Don't dispatch the update if invalid
+      return;
+    }
+
+    // Clear any previous error
+    this._showArchiveNameError(null);
+
+    // Dispatch the update with trimmed name
+    const trimmedName = archiveName.trim();
     this.dispatchEvent(
       new CustomEvent("updateoptions", {
         bubbles: true,
-        detail: { archiveName: archiveName || null },
+        detail: { archiveName: trimmedName || null },
       }),
     );
+  }
+
+  _validateArchiveName(name) {
+    if (!name || !name.trim()) {
+      return null; // Empty is OK, will use default
+    }
+
+    const trimmed = name.trim();
+
+    // Forbidden characters across Windows, macOS, and Linux
+    // Windows: < > : " / \ | ? *
+    // macOS: : /
+    // Linux: /
+    const forbiddenCharsRegex = /[<>:"/\\|?*]/;
+
+    if (forbiddenCharsRegex.test(trimmed)) {
+      return "archiveNameInvalidChars";
+    }
+
+    // Can't end with dot or space (Windows restriction)
+    if (/[.\s]$/.test(trimmed)) {
+      return "archiveNameInvalidEnd";
+    }
+
+    // Windows reserved names (case-insensitive)
+    const reservedNames = /^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$/i;
+    const nameWithoutExt = trimmed.replace(/\.zip$/i, "");
+
+    if (reservedNames.test(nameWithoutExt)) {
+      return "archiveNameReserved";
+    }
+
+    return null; // Valid
+  }
+
+  _showArchiveNameError(errorKey) {
+    if (!this.elements.archiveNameInput) {
+      return;
+    }
+
+    const errorEl = this.elements.archiveNameContainer?.querySelector('[data-role="archive-name-error"]');
+    if (!errorEl) {
+      return;
+    }
+
+    if (errorKey) {
+      // Get translated error message
+      // Use window.translate directly to ensure we get the latest translations
+      let errorMessage = "Invalid filename";
+      try {
+        const translate = window.translate || this._translate;
+        if (typeof translate === "function") {
+          const translated = translate(errorKey);
+          if (translated && translated !== errorKey) {
+            errorMessage = translated;
+          }
+        }
+      } catch (err) {
+        console.warn(`Translation failed for key: ${errorKey}`, err);
+      }
+
+      errorEl.textContent = errorMessage;
+      errorEl.classList.remove("hidden");
+
+      // Add error styling to input
+      this.elements.archiveNameInput.classList.add("border-red-500", "dark:border-red-500");
+    } else {
+      errorEl.textContent = "";
+      errorEl.classList.add("hidden");
+
+      // Remove error styling from input
+      this.elements.archiveNameInput.classList.remove("border-red-500", "dark:border-red-500");
+    }
   }
 
   setError(message) {

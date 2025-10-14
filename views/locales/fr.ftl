@@ -120,6 +120,9 @@ addPassword = Protéger par mot de passe
 emailPlaceholder = Votre adresse électronique
 archiveNameLabel = Nom de l'archive
 archiveNameHint = Le nom que les destinataires verront lors du téléchargement
+archiveNameInvalidChars = Le nom de fichier ne peut pas contenir : < > : " / \\ | ? *
+archiveNameInvalidEnd = Le nom de fichier ne peut pas se terminer par un point ou un espace
+archiveNameReserved = Ce nom de fichier est réservé par le système
 # $size is the size of the file, displayed using the fileSize message as format (e.g. "2.5MB")
 signInSizeBump = Connectez-vous pour envoyer jusqu’à { $size }
 signInOnlyButton = Connexion

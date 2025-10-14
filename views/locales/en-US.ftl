@@ -118,6 +118,9 @@ addPassword = Protect with password
 emailPlaceholder = Enter your email
 archiveNameLabel = Archive name
 archiveNameHint = The name recipients will see when downloading
+archiveNameInvalidChars = Filename cannot contain: < > : " / \\ | ? *
+archiveNameInvalidEnd = Filename cannot end with a dot or space
+archiveNameReserved = This filename is reserved by the system
 # $size is the size of the file, displayed using the fileSize message as format (e.g. "2.5MB")
 signInSizeBump = Sign in to send up to { $size }
 signInOnlyButton = Sign in

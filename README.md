@@ -1,8 +1,10 @@
 # Go-Send
 
-A lightweight, self-hostable file sharing service with client-side encryption, with the capacity to use this as a file sending and recieving solution in an oprganization. Originally a fork of [timvisee/send](https://gitlab.com/timvisee/send), which itself was a fork of Firefox Send. All decryption and encryption still happens in the browser with no secrets stored on the server, but a user management feature allows the user to derive a private key from his password, under which he can decrypt, what others have encrypted.
+A lightweight, self-hostable file sharing service with client-side encryption, with the capacity to use this as a file sending/recieving solution in an organization. All decryption and encryption happens in the browser with no secrets stored on the server. A user management feature allows guarding against unauthorized uploads; users can derive public key from their password, allowing guests to encrypt files specifically for them.
 
-**This is the feature branch, that adds a bunch of functionality around the original send. For feature parity with the original, look at the firefox-send-parity branch.**
+Originally a fork of [timvisee/send](https://gitlab.com/timvisee/send), which itself was a fork of Firefox Send.
+
+**This is the main development branch, that adds a bunch of functionality around the original send. For feature parity with the original, look at the firefox-send-parity branch.**
 
 
 ### What is changed from the original?
@@ -10,7 +12,7 @@ A lightweight, self-hostable file sharing service with client-side encryption, w
 - ~Express server~: replaced with Go std lib server
 - ~Redis~: Replaced with **SQLite** for metadata storage
 - ~Firefox Accounts (FxA)~: Authentication removed (did not work in modern FF anyway). Also removed from the frontend entirely.
-- ~Webpack~ removed, introduced **Vite**. We have a lot of fewer build features now
+- ~Webpack~ removed, introduced **ESBuild**. We build in mere milliseconds now.
 - ~Ployfills~: Removed almost all polyfills and support for IE and older Edge browsers. Target browsers are: Chrome 89+, Firefox 102+, Safari 14.1+, Edge 89+, which is a very modern selection, but they will be old pretty fast. CanIUse reports 95.74% user coverage.
 - Templates: Moved header and footers to go templates, which may be overwritten by your custom template files.
 - Upload guard. Added a login to guard the upload page, if `UPLOAD_GUARD` is set to true. The default user/pw is admin/admin. No admin registration and deltion yet.

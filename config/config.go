@@ -14,7 +14,6 @@ type Config struct {
 	FileDir         string
 	UserFrontendDir string
 	Environment     string // "development" or "production"
-	UploadGuard     bool
 	AllowAccessLinks bool
 
 	MaxFileSize          int64
@@ -57,7 +56,6 @@ func Load() *Config {
 		FileDir:         getEnv("FILE_DIR", DEFAULT_FILE_DIR),
 		UserFrontendDir: getEnv("USER_FRONTEND_DIR", DEFAULT_USER_FRONTEND_DIR),
 		Environment:     getEnv("SEND_ENV", DEFAULT_ENVIRONMENT),
-		UploadGuard:     getEnvBool("UPLOAD_GUARD", DEFAULT_UPLOAD_GUARD),
 		AllowAccessLinks: getEnvBool("ALLOW_ACCESS_LINKS", DEFAULT_ALLOW_ACCESS_LINKS),
 
 		// Upload/Download Limits

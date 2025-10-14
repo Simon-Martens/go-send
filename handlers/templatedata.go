@@ -10,21 +10,15 @@ import (
 )
 
 type TemplateData struct {
-	Locale             string
-	NonceAttr          template.HTMLAttr
-	Theme              ThemeConfig
-	Assets             AssetBundle
-	Footer             FooterLinks
-	Features           FeatureFlags
-	State              TemplateState
-	Auth               AuthInfo
-	Flash              *FlashMessage
-	Admins             []LoginAdmin
-	LoginForm          LoginFormState
-	Translate          func(string, ...interface{}) string
-	ChangePasswordForm ChangePasswordFormState
-	AccountLinks       AccountLinksView
-	IsDownloadPage     bool
+	Locale         string
+	NonceAttr      template.HTMLAttr
+	Theme          ThemeConfig
+	Assets         AssetBundle
+	Footer         FooterLinks
+	Features       FeatureFlags
+	State          TemplateState
+	Translate      func(string, ...interface{}) string
+	IsDownloadPage bool
 }
 
 type ThemeConfig struct {
@@ -99,50 +93,6 @@ type DefaultsPayload struct {
 	DownloadCounts     []int `json:"DOWNLOAD_COUNTS"`
 	ExpireTimesSeconds []int `json:"EXPIRE_TIMES_SECONDS"`
 	ExpireSeconds      int   `json:"EXPIRE_SECONDS"`
-}
-
-type AuthInfo struct {
-	Authenticated bool
-	UserType      string
-	DisplayName   string
-	ExpiresAt     int64
-	ExpiresAtISO  string
-}
-
-type FlashMessage struct {
-	Message string
-	Kind    string
-}
-
-type LoginAdmin struct {
-	ID       int64
-	Username string
-}
-
-type LoginFormState struct {
-	Username string
-}
-
-type ChangePasswordFormState struct {
-	Username string
-}
-
-type AccountLinksView struct {
-	Form  AccountLinkFormState
-	Links []AccountLinkView
-}
-
-type AccountLinkFormState struct {
-	GeneratedLink string
-}
-
-type AccountLinkView struct {
-	ID             int64
-	Label          string
-	Created        string
-	ExpiresDisplay string
-	ExpiresInHours string
-	TokenPreview   string
 }
 
 func getTemplateData(manifest map[string]string, downloadMetadata string, cfg *config.Config, detectedLocale string, nonce string, translate func(string, map[string]interface{}) string) TemplateData {
@@ -220,8 +170,6 @@ func getTemplateData(manifest map[string]string, downloadMetadata string, cfg *c
 			}
 			return translate(id, data)
 		},
-		ChangePasswordForm: ChangePasswordFormState{},
-		AccountLinks:       AccountLinksView{},
 	}
 }
 

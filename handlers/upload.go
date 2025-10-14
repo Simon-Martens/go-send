@@ -4,7 +4,6 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
-	"errors"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -43,16 +42,6 @@ type UploadResponse struct {
 
 func NewUploadHandler(app *core.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if app.Config.UploadGuard {
-			if _, err := auth.GetSessionFromRequest(app.DB, r); err != nil {
-				if errors.Is(err, storage.ErrSessionExpired) {
-					auth.ClearSessionCookie(w, r.TLS != nil)
-				}
-				http.Error(w, "Unauthorized", http.StatusUnauthorized)
-				return
-			}
-		}
-
 		// Upgrade HTTP to WebSocket with proper response headers
 		responseHeader := http.Header{}
 		responseHeader.Set("Sec-WebSocket-Protocol", r.Header.Get("Sec-WebSocket-Protocol"))

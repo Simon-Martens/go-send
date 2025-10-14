@@ -16,7 +16,6 @@ const (
 	DEFAULT_DETECT_BASE_URL    = true
 	DEFAULT_FILE_DIR           = "./data/uploads"
 	DEFAULT_USER_FRONTEND_DIR  = "./userfrontend"
-	DEFAULT_UPLOAD_GUARD       = true
 	DEFAULT_ALLOW_ACCESS_LINKS = true
 
 	DEFAULT_MAX_FILE_SIZE          int64 = 2684354560 // 2.5GB

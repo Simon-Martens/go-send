@@ -1,0 +1,65 @@
+# License Notice for views/src/
+
+This directory contains files under two different licenses:
+
+## Mozilla Public License 2.0 (MPL 2.0)
+
+The following files are derived from the original Firefox Send project
+(by Mozilla Corporation) and the community fork by timvisee, and are
+licensed under the Mozilla Public License Version 2.0:
+
+- api.mjs
+- archive.mjs
+- ece.mjs
+- fileReceiver.mjs
+- fileSender.mjs
+- keychain.mjs
+- ownedFile.mjs
+- streams.mjs
+- zip.mjs
+- serviceworker.mjs
+
+These files contain the core cryptographic and file transfer logic from
+the original Firefox Send implementation and have been preserved with
+minimal modifications (primarily converting from CommonJS to ES Modules).
+
+The full text of the Mozilla Public License 2.0 can be found at:
+https://www.mozilla.org/en-US/MPL/2.0/
+
+## GNU General Public License v3.0 (GPL-3.0)
+
+All other files in this directory and subdirectories are licensed under
+the GNU General Public License version 3.0.
+
+This includes but is not limited to:
+- All UI components in ui/
+- Application initialization and routing (main.mjs)
+- Controller and state management (controller.mjs)
+- Utility functions not derived from Firefox Send
+- All new features and implementations
+
+The full text of the GNU General Public License v3.0 can be found at:
+https://www.gnu.org/licenses/gpl-3.0.html
+
+---
+
+## Copyright Notices
+
+### MPL 2.0 Licensed Files
+Copyright (c) 2018 Mozilla Corporation
+Copyright (c) 2020-2024 timvisee and contributors
+
+### GPL-3.0 Licensed Files
+Copyright (c) 2024 go-send contributors
+
+---
+
+## Attribution
+
+This project is a fork and reimplementation of Firefox Send:
+- Original project: Mozilla Firefox Send
+- Community fork: https://gitlab.com/timvisee/send
+- This fork: https://github.com/Simon-Martens/go-send
+
+Special thanks to Mozilla Corporation for creating Firefox Send and to
+timvisee for maintaining the community fork.

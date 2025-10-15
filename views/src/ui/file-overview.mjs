@@ -116,6 +116,15 @@ class FileOverviewElement extends HTMLElement {
       sizeEl.textContent = bytes(this.fileInfo.size);
     }
 
+    // Set icon based on file type
+    const iconEl = this.querySelector('[data-role="file-icon"]');
+    if (iconEl && this.fileInfo.name) {
+      const fileName = this.fileInfo.name.toLowerCase();
+      if (fileName.endsWith(".zip")) {
+        iconEl.className = "ri-folder-6-line h-12 w-12 flex-shrink-0 text-primary mr-4 text-5xl leading-[3rem]";
+      }
+    }
+
     // Render expiry info if available
     this.renderExpiryInfo();
 
@@ -230,6 +239,15 @@ class FileOverviewElement extends HTMLElement {
     const sizeEl = itemEl.querySelector('[data-role="item-size"]');
     if (sizeEl) {
       sizeEl.textContent = bytes(file.size);
+    }
+
+    // Set icon based on file type
+    const iconEl = itemEl.querySelector('[data-role="file-icon"]');
+    if (iconEl && file.name) {
+      const fileName = file.name.toLowerCase();
+      if (fileName.endsWith(".zip")) {
+        iconEl.className = "ri-folder-6-line h-6 w-6 text-primary flex-shrink-0 text-2xl leading-6";
+      }
     }
 
     return itemEl;

@@ -3,12 +3,14 @@ import "./upload-area-empty.mjs";
 import "./upload-area-list.mjs";
 import "./upload-area-uploading.mjs";
 import "./upload-area-complete.mjs";
+import "./upload-area-error.mjs";
 
 const VIEW_TAGS = {
   empty: "upload-empty-view",
   list: "upload-list-view",
   uploading: "upload-uploading-view",
   complete: "upload-complete-view",
+  error: "upload-error-view",
 };
 
 class UploadAreaElement extends HTMLElement {
@@ -19,6 +21,7 @@ class UploadAreaElement extends HTMLElement {
     this._app = null;
     this._errorMessage = null;
     this._isComplete = false;
+    this._isError = false;
     this._uploadedFile = null;
     this._boundPaste = this.handlePaste.bind(this);
   }
@@ -39,6 +42,13 @@ class UploadAreaElement extends HTMLElement {
   refresh() {
     const state = this._getAppState();
     if (!state) {
+      return;
+    }
+
+    // If we're in error state, stay there until explicitly cleared
+    if (this._isError) {
+      this._ensureView("error");
+      this._configureErrorView();
       return;
     }
 
@@ -120,6 +130,35 @@ class UploadAreaElement extends HTMLElement {
     this.refresh();
   }
 
+  showErrorView(message) {
+    console.log("[UploadArea] showErrorView() called with message:", message);
+    this._errorMessage = message;
+    this._isComplete = false;
+    this._isError = true;
+    this._ensureView("error");
+    this._configureErrorView();
+    console.log("[UploadArea] Error view displayed");
+  }
+
+  clearError() {
+    console.log("[UploadArea] clearError() called");
+    this._isError = false;
+    this._errorMessage = null;
+    console.log("[UploadArea] Error state cleared, calling refresh()");
+    this.refresh();
+  }
+
+  _configureErrorView() {
+    const view = this._currentView;
+    if (!view || typeof view.setErrorMessage !== "function") {
+      return;
+    }
+
+    if (this._errorMessage) {
+      view.setErrorMessage(this._errorMessage);
+    }
+  }
+
   _ensureView(viewKey) {
     if (this._currentViewKey === viewKey && this._currentView && this._currentView.parentElement === this) {
       return;
@@ -176,10 +215,6 @@ class UploadAreaElement extends HTMLElement {
   showError(message) {
     this._errorMessage = message || null;
     this._applyErrorMessage();
-  }
-
-  clearError() {
-    this.showError(null);
   }
 
   _applyErrorMessage() {

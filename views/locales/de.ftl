@@ -88,7 +88,7 @@ totalSize = Gesamtgröße: { $size }
 copyLinkDescription = Diesen Link kopieren, um Ihre Datei zu teilen:
 copyLinkButton = Link kopieren
 downloadTitle = Dateien herunterladen
-downloadDescription =  Diese Datei ist Ende-zu-Ende verschlüsselt. Laden Sie die Datei herunter, um sie zu öffnen.
+downloadDescription =  Diese Datei ist Ende-zu-Ende verschlüsselt.
 trySendDescription = Probieren Sie { -send-brand } aus, um einfach und sicher Dateien zu versenden.
 # count will always be > 10
 tooManyFiles =
@@ -120,7 +120,7 @@ addPassword = Mit Passwort schützen
 emailPlaceholder = E-Mail-Adresse eingeben
 archiveNameLabel = Archivname
 archiveNameHint = Der Name, den Empfänger beim Herunterladen sehen
-archiveNameInvalidChars = Dateiname darf nicht enthalten: < > : " / \\ | ? *
+archiveNameInvalidChars = Dateiname darf nicht enthalten: < > : " / \ | ? *
 archiveNameInvalidEnd = Dateiname darf nicht mit einem Punkt oder Leerzeichen enden
 archiveNameReserved = Dieser Dateiname ist vom System reserviert
 # $size is the size of the file, displayed using the fileSize message as format (e.g. "2.5MB")

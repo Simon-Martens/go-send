@@ -1,0 +1,82 @@
+GNU GENERAL PUBLIC LICENSE
+Version 3, 29 June 2007
+
+Copyright (C) 2024 go-send contributors
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+---
+
+LICENSING NOTICE FOR GO-SEND
+============================
+
+This project uses a dual-licensing approach:
+
+1. GO BACKEND (GPL-3.0)
+   All Go source code in this repository (excluding views/) is licensed
+   under the GNU General Public License version 3.0.
+
+2. FRONTEND (MIXED LICENSING)
+   The frontend in views/ contains files under two licenses:
+
+   a) MPL-2.0 Licensed Files (from original Firefox Send):
+      - views/src/api.mjs
+      - views/src/archive.mjs
+      - views/src/ece.mjs
+      - views/src/fileReceiver.mjs
+      - views/src/fileSender.mjs
+      - views/src/keychain.mjs
+      - views/src/ownedFile.mjs
+      - views/src/streams.mjs
+      - views/src/zip.mjs
+
+      These files are derived from Mozilla's Firefox Send and are
+      licensed under the Mozilla Public License 2.0.
+      See LICENSE.MPL-2.0 for the full license text.
+
+   b) GPL-3.0 Licensed Files (new implementation):
+      All other files in views/, including:
+      - All UI components (views/src/ui/*)
+      - Controller and routing (views/src/controller.mjs, views/src/main.mjs)
+      - Templates (views/templates/*)
+      - Build configuration
+
+For detailed licensing information, see:
+- LICENSE.MPL-2.0 (Mozilla Public License 2.0 full text)
+- views/src/LICENSE (detailed file-by-file breakdown)
+
+---
+
+ATTRIBUTION AND ACKNOWLEDGMENTS
+================================
+
+This project is a fork and reimplementation of Firefox Send:
+
+Original project: Mozilla Firefox Send
+- Copyright (c) 2018 Mozilla Corporation
+- Licensed under MPL-2.0
+
+Community fork: https://gitlab.com/timvisee/send
+- Copyright (c) 2020-2024 timvisee and contributors
+- Licensed under MPL-2.0
+
+This fork: go-send
+- Copyright (c) 2024 go-send contributors
+- Backend: GPL-3.0
+- Frontend: Mixed (MPL-2.0 for crypto core, GPL-3.0 for UI)
+
+---
+
+For the complete GNU General Public License v3.0 text, visit:
+https://www.gnu.org/licenses/gpl-3.0.html

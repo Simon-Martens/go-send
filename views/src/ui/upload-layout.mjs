@@ -40,6 +40,8 @@ class UploadLayoutElement extends HTMLElement {
       upload: this.handleUpload.bind(this),
       cancel: this.handleCancel.bind(this),
       completeAcknowledged: this.handleCompleteAcknowledged.bind(this),
+      retry: this.handleRetry.bind(this),
+      errorDismiss: this.handleErrorDismiss.bind(this),
     };
   }
 
@@ -78,6 +80,8 @@ class UploadLayoutElement extends HTMLElement {
         this.addEventListener("upload", this._boundHandlers.upload);
         this.addEventListener("cancel", this._boundHandlers.cancel);
         this.addEventListener("complete-acknowledged", this._boundHandlers.completeAcknowledged);
+        this.addEventListener("retry", this._boundHandlers.retry);
+        this.addEventListener("error-dismiss", this._boundHandlers.errorDismiss);
         this._handlersBound = true;
       }
 
@@ -98,6 +102,8 @@ class UploadLayoutElement extends HTMLElement {
       this.removeEventListener("upload", this._boundHandlers.upload);
       this.removeEventListener("cancel", this._boundHandlers.cancel);
       this.removeEventListener("complete-acknowledged", this._boundHandlers.completeAcknowledged);
+      this.removeEventListener("retry", this._boundHandlers.retry);
+      this.removeEventListener("error-dismiss", this._boundHandlers.errorDismiss);
       this._handlersBound = false;
     }
   }
@@ -147,6 +153,40 @@ class UploadLayoutElement extends HTMLElement {
     console.log("upload-layout: upload cancelled");
 
     // Original event will bubble to the controller
+    this.refreshArchiveState();
+  }
+
+  handleRetry(event) {
+    console.log("[UploadLayout] Retry event received from error view");
+
+    // Clear error and go back to list view
+    if (this.uploadArea && typeof this.uploadArea.clearError === "function") {
+      console.log("[UploadLayout] Calling uploadArea.clearError()");
+      this.uploadArea.clearError();
+    } else {
+      console.warn("[UploadLayout] uploadArea.clearError not available", this.uploadArea);
+    }
+
+    this.refreshArchiveState();
+  }
+
+  handleErrorDismiss(event) {
+    console.log("[UploadLayout] Error-dismiss event received from error view");
+
+    // Clear error and clear the archive (go to empty state)
+    if (this.uploadArea && typeof this.uploadArea.clearError === "function") {
+      console.log("[UploadLayout] Calling uploadArea.clearError()");
+      this.uploadArea.clearError();
+    } else {
+      console.warn("[UploadLayout] uploadArea.clearError not available", this.uploadArea);
+    }
+
+    // Clear the archive to reset to empty state
+    if (this.app && this.app.state && this.app.state.archive) {
+      console.log("[UploadLayout] Clearing archive");
+      this.app.state.archive.clear();
+    }
+
     this.refreshArchiveState();
   }
 

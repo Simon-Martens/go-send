@@ -54,14 +54,7 @@ class FileFinishedElement extends HTMLElement {
   }
 
   setupHandlers() {
-    // Wire up "Send your own files" button
-    const homeBtn = this.querySelector('[data-action="home"]');
-    if (homeBtn) {
-      homeBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        window.location.assign("/");
-      });
-    }
+    // No interactive elements in this view
   }
 }
 

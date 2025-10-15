@@ -312,7 +312,15 @@ export class Controller {
       // TODO: Show share dialog
       console.log("[Controller] Upload complete:", ownedFile);
 
-      // Update the layout
+      // Reset upload state after successful upload
+      this.state.uploading = false;
+      this.state.transfer = null;
+
+      // Clear the archive for next upload
+      archive.clear();
+      await this.state.storage.merge();
+
+      // Update the layout to show complete view
       if (this.root.currentLayout && this.root.currentLayout.setUploadComplete) {
         this.root.currentLayout.setUploadComplete(ownedFile);
       }
@@ -321,23 +329,31 @@ export class Controller {
       if (err.message === "0") {
         // Cancelled, do nothing
         console.log("[Controller] Upload cancelled");
+
+        // Reset state for cancel
+        openLinksInNewTab(links, false);
+        archive.clear();
+        this.state.uploading = false;
+        this.state.transfer = null;
+        await this.state.storage.merge();
+        this.render();
+
+        if (
+          this.root.currentLayout &&
+          typeof this.root.currentLayout.refreshArchiveState === "function"
+        ) {
+          this.root.currentLayout.refreshArchiveState();
+        }
       } else {
         console.error("[Controller] Upload error:", err);
-        this.root.showErrorLayout(err.message);
-      }
-    } finally {
-      openLinksInNewTab(links, false);
-      archive.clear();
-      this.state.uploading = false;
-      this.state.transfer = null;
-      await this.state.storage.merge();
-      this.render();
 
-      if (
-        this.root.currentLayout &&
-        typeof this.root.currentLayout.refreshArchiveState === "function"
-      ) {
-        this.root.currentLayout.refreshArchiveState();
+        // Reset upload state but keep archive for retry
+        this.state.uploading = false;
+        this.state.transfer = null;
+        this.render();
+
+        // Show error after state is reset
+        this._showUploadError(err.message || "An error occurred during upload");
       }
     }
   }
@@ -543,6 +559,17 @@ export class Controller {
       } else if (typeof layout.uploadArea.showError === "function") {
         layout.uploadArea.showError(null);
       }
+    }
+  }
+
+  _showUploadError(message) {
+    const layout = this.root.currentLayout;
+    if (!layout || !layout.uploadArea) {
+      return;
+    }
+
+    if (typeof layout.uploadArea.showErrorView === "function") {
+      layout.uploadArea.showErrorView(message);
     }
   }
 

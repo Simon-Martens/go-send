@@ -71,7 +71,10 @@ progress::-webkit-progress-value {
   );
   background-color: var(--color-primary);
   border-radius: 0.125rem;
-  background-size: 21px 20px, 100% 100%, 100% 100%;
+  background-size:
+    21px 20px,
+    100% 100%,
+    100% 100%;
   animation: progress-bar-stripes 0.5s linear infinite;
 }
 
@@ -89,7 +92,10 @@ progress::-moz-progress-bar {
   );
   background-color: var(--color-primary);
   border-radius: 0.125rem;
-  background-size: 21px 20px, 100% 100%, 100% 100%;
+  background-size:
+    21px 20px,
+    100% 100%,
+    100% 100%;
   animation: progress-bar-stripes 0.5s linear infinite;
 }
 
@@ -130,8 +136,8 @@ body {
 .btn {
   @apply bg-primary;
   @apply cursor-pointer;
-  @apply py-4;
-  @apply px-6;
+  @apply py-2;
+  @apply px-3;
   @apply font-semibold;
 }
 

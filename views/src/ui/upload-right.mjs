@@ -159,6 +159,15 @@ class UploadRightElement extends HTMLElement {
       expiryEl.innerHTML = this._createExpiryHTML(ownedFile);
     }
 
+    // Set icon based on file type
+    const iconEl = item.querySelector('[data-role="file-icon"]');
+    if (iconEl && ownedFile.name) {
+      const fileName = ownedFile.name.toLowerCase();
+      if (fileName.endsWith(".zip")) {
+        iconEl.className = "ri-folder-6-line h-8 w-8 flex-shrink-0 text-primary text-3xl leading-8";
+      }
+    }
+
     // Set file details (for multi-file uploads)
     const detailsEl = item.querySelector('[data-role="file-details"]');
     if (
@@ -327,6 +336,15 @@ class UploadRightElement extends HTMLElement {
         sizeEl.textContent = bytes(f.size);
       }
 
+      // Set icon based on file type
+      const iconEl = itemFragment.querySelector('[data-role="file-icon"]');
+      if (iconEl && f.name) {
+        const fileName = f.name.toLowerCase();
+        if (fileName.endsWith(".zip")) {
+          iconEl.className = "ri-folder-6-line h-6 w-6 text-primary flex-shrink-0 text-2xl leading-6";
+        }
+      }
+
       fileListEl.appendChild(itemFragment);
     });
 
@@ -427,9 +445,19 @@ class UploadRightElement extends HTMLElement {
         }),
       );
 
-      // Visual feedback
+      // Visual feedback - change icon to check
       const copyBtn = event.currentTarget;
+      const iconEl = copyBtn.querySelector('[data-role="copy-icon"]');
       const textSpan = copyBtn.querySelector('[id="copyLinkButton"]');
+
+      if (iconEl) {
+        const originalClass = iconEl.className;
+        iconEl.className = "ri-check-line h-4 w-4 mr-2 text-base leading-4";
+        setTimeout(() => {
+          iconEl.className = originalClass;
+        }, 1000);
+      }
+
       if (textSpan) {
         const originalText = textSpan.textContent;
         textSpan.textContent = this._translateText("copiedUrl", "Copied!");

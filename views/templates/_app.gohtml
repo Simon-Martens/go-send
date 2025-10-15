@@ -69,7 +69,7 @@
 						autocomplete="off"
 						maxlength="4096"
 						placeholder="Enter password"
-						class="w-full h-full rounded-lg border border-grey-30 dark:border-grey-60 bg-white dark:bg-grey-80 px-4 py-2 text-sm"
+						class="w-full h-full rounded-default border border-grey-30 dark:border-grey-60 bg-white dark:bg-grey-80 px-3 py-2 text-sm"
 					/>
 					<button
 						type="button"
@@ -82,9 +82,9 @@
 				<button
 					type="submit"
 					data-role="submit"
-					class="btn rounded-lg px-6 py-2 whitespace-nowrap h-auto"
+					class="rounded-default bg-primary text-white px-3 py-2 text-sm font-medium hover:opacity-90 focus:outline focus:outline-2 focus:outline-primary flex items-center justify-center"
 				>
-					<span id="unlockButtonLabel" data-type="lang">Unlock</span>
+					<i class="ri-lock-unlock-fill text-lg leading-4"></i>
 				</button>
 			</div>
 
@@ -104,9 +104,7 @@
 
 		<!-- File info -->
 		<div class="flex items-start mb-6">
-			<svg class="h-12 w-12 flex-shrink-0 text-primary mr-4">
-				<use xlink:href="/blue_file.svg#icon"/>
-			</svg>
+			<i class="ri-file-line h-12 w-12 flex-shrink-0 text-primary mr-4 text-5xl leading-[3rem]" data-role="file-icon"></i>
 			<div class="flex-grow min-w-0">
 				<h2 class="text-lg font-medium text-grey-90 dark:text-grey-10 break-words" data-role="file-name">File name</h2>
 				<p class="text-sm text-grey-70 dark:text-grey-40 mt-1" data-role="file-size">0 MB</p>
@@ -123,7 +121,7 @@
 		<button
 			type="button"
 			data-action="download"
-			class="btn rounded-lg w-full py-3"
+			class="btn"
 		>
 			<span id="downloadButtonLabel" data-type="lang">Download</span>
 		</button>
@@ -146,9 +144,7 @@
 <!-- Individual file item in archive list -->
 <template id="file-overview-file-item">
 	<div class="flex items-center py-2">
-		<svg class="h-6 w-6 text-primary flex-shrink-0">
-			<use xlink:href="/blue_file.svg#icon"/>
-		</svg>
+		<i class="ri-file-line h-6 w-6 text-primary flex-shrink-0 text-2xl leading-6" data-role="file-icon"></i>
 		<div class="ml-3 flex-grow min-w-0">
 			<div class="text-sm font-medium text-grey-90 dark:text-grey-10 break-words" data-role="item-name"></div>
 			<div class="text-xs text-grey-70 dark:text-grey-40" data-role="item-size"></div>
@@ -161,9 +157,7 @@
 	<div class="flex flex-col bg-white dark:bg-grey-90 rounded-default shadow-light p-6 w-[90vw] max-w-md md:w-[48rem]">
 		<!-- Archive info -->
 		<div class="w-full flex items-center mb-4">
-			<svg class="h-10 w-10 flex-shrink-0 text-primary mr-4">
-				<use xlink:href="/blue_file.svg#icon"/>
-			</svg>
+			<i class="ri-file-line h-10 w-10 flex-shrink-0 text-primary mr-4 text-4xl leading-10" data-role="file-icon"></i>
 			<div class="flex-grow min-w-0">
 				<h3 class="text-base font-medium text-grey-90 dark:text-grey-10 break-words" data-role="file-name"></h3>
 				<div class="text-sm text-grey-70 dark:text-grey-40 pt-1" data-role="file-size"></div>
@@ -181,22 +175,13 @@
 <!-- Download view: Completion screen (stub) -->
 <template id="file-finished-view">
 	<div class="flex flex-col items-center justify-center bg-white dark:bg-grey-90 rounded-default shadow-light px-8 py-12">
-		<svg class="h-24 w-24 text-primary mb-6">
-			<use xlink:href="/completed.svg#Page-1" />
-		</svg>
+		<i class="ri-checkbox-circle-fill text-green-600 dark:text-green-400 text-8xl leading-none mb-6"></i>
 		<h2 class="text-2xl font-bold text-grey-90 dark:text-grey-10 mb-4">
 			<span id="downloadFinish" data-type="lang">Download complete</span>
 		</h2>
-		<p class="text-grey-70 dark:text-grey-40 text-center mb-6">
+		<p class="text-grey-70 dark:text-grey-40 text-center">
 			<span id="trySendDescription" data-type="lang">Send your own files</span>
 		</p>
-		<button
-			type="button"
-			data-action="home"
-			class="btn rounded-lg px-6 py-3"
-		>
-			<span id="sendYourFilesLink" data-type="lang">Send your files</span>
-		</button>
 	</div>
 </template>
 
@@ -216,7 +201,7 @@
 		<button
 			type="button"
 			data-action="home"
-			class="btn rounded-lg px-6 py-3"
+			class="btn"
 		>
 			<span id="sendYourFilesLink" data-type="lang">Send your files</span>
 		</button>
@@ -230,9 +215,7 @@
 
 <template id="upload-view-empty">
 	<div class="flex flex-col items-center justify-center border-2 border-dashed border-grey-transparent rounded-default px-6 py-16 h-full w-full dark:border-grey-60">
-		<svg class="w-10 h-10 text-primary dark:text-blue-40">
-			<use xlink:href="/addfiles.svg#plus" />
-		</svg>
+		<i class="ri-add-circle-fill w-10 h-10 text-primary dark:text-blue-40 text-5xl leading-10"></i>
 		<div class="pt-6 pb-2 text-center text-lg font-bold tracking-wide text-grey-90 dark:text-grey-20">
 			<span id="dragAndDropFiles" data-type="lang">Drag and drop files</span>
 		</div>
@@ -248,7 +231,7 @@
 	<label
 		for="file-upload"
 		role="button"
-		class="btn rounded-lg flex items-center mt-4 px-6 py-2">
+		class="btn mt-4">
 		<span id="addFilesButton" data-type="lang">Select files</span>
 	</label>
 		<div class="mt-6 text-sm text-grey-70 dark:text-grey-40" id="upload-area-default-notice"></div>
@@ -271,9 +254,7 @@
 					for="file-upload"
 					class="flex items-center text-sm font-medium text-primary cursor-pointer"
 				>
-					<svg class="w-5 h-5 mr-2">
-						<use xlink:href="/addfiles.svg#plus" />
-					</svg>
+					<i class="ri-add-circle-fill w-5 h-5 mr-2 text-xl leading-5"></i>
 					<span data-role="add-more-label">Add more files</span>
 				</label>
 				<div class="text-sm text-grey-70 dark:text-grey-40 text-right">
@@ -285,7 +266,7 @@
 			</div>
 			<div id="upload-area-options-slot"></div>
 			<div class="text-sm text-red-600 dark:text-red-400 hidden" data-role="error"></div>
-			<button type="button" class="btn rounded-lg w-full" data-action="upload">
+			<button type="button" class="btn w-full" data-action="upload">
 				<span id="uploadButton" data-type="lang">Upload</span>
 			</button>
 		</div>
@@ -294,15 +275,13 @@
 
 <template id="upload-view-list-item">
 	<li class="flex items-start rounded-default border border-grey-20 dark:border-grey-70 px-3 py-3 mb-3 last:mb-0 bg-white dark:bg-grey-80">
-		<svg class="h-8 w-8 flex-shrink-0 text-primary mr-3">
-			<use xlink:href="/blue_file.svg#icon"/>
-		</svg>
+		<i class="ri-file-ai-line h-8 w-8 flex-shrink-0 text-primary mr-3 text-3xl leading-8" data-role="file-icon"></i>
 		<div class="flex-grow min-w-0 pr-3">
 			<p class="text-sm font-medium text-grey-90 dark:text-grey-10 break-words" data-role="file-name"></p>
 			<p class="text-xs text-grey-70 dark:text-grey-40 mt-1" data-role="file-meta"></p>
 		</div>
-		<button type="button" class="flex-shrink-0 p-1 hover:opacity-75 focus:outline" data-action="remove" title="Remove file">
-			<img src="/close-16.svg" alt="Remove" class="w-4 h-4"/>
+		<button type="button" class="flex-shrink-0 p-1 hover:opacity-75 focus:outline cursor-pointer" data-action="remove" title="Remove file">
+			<i class="ri-close-line text-lg leading-4"></i>
 			<span class="sr-only" data-role="remove-label">Remove file</span>
 		</button>
 	</li>
@@ -317,7 +296,7 @@
 				<span class="text-xs tracking-wide text-grey-60 dark:text-grey-40 font-medium px-2" data-role="or-label">or</span>
 				<select data-role="time-limit" class="w-full rounded-default border border-grey-30 bg-white px-3 py-2 text-sm dark:bg-grey-80 dark:border-grey-60"></select>
 			</div>
-			<div class="font-medium mt-1 text-right" data-role="expiry-label-bottom">Ends</div>
+			<div class="font-medium mt-1 text-right" data-role="expiry-label-bottom"></div>
 		</div>
 		<div data-role="archive-name-container" class="hidden">
 			<label for="archive-name-input" class="block text-sm font-medium text-grey-80 dark:text-grey-20 mb-2">
@@ -369,9 +348,7 @@
 	<div class="flex flex-col items-start rounded-default shadow-light bg-white dark:bg-grey-90 p-4 w-full">
 		<!-- Archive info -->
 		<div class="w-full flex items-center mb-3">
-			<svg class="h-8 w-8 flex-shrink-0 text-primary mr-3">
-				<use xlink:href="/blue_file.svg#icon"/>
-			</svg>
+			<i class="ri-file-line h-8 w-8 flex-shrink-0 text-primary mr-3 text-3xl leading-8" data-role="file-icon"></i>
 			<div class="flex-grow min-w-0">
 				<h3 class="text-base font-medium text-grey-90 dark:text-grey-10 break-words" data-role="file-name"></h3>
 				<div class="text-sm text-grey-70 dark:text-grey-40 pt-1" data-role="file-size"></div>
@@ -402,7 +379,10 @@
 	<div class="flex flex-col items-center justify-center bg-white dark:bg-grey-90 rounded-default shadow-light h-full w-full px-6 py-8">
 		<div class="w-full max-w-md space-y-6">
 			<div class="text-center space-y-2">
-				<h2 class="text-xl font-bold text-grey-90 dark:text-grey-10" id="notifyUploadEncryptDone" data-type="lang">Your file is encrypted and ready to send</h2>
+				<h2 class="text-xl font-bold text-grey-90 dark:text-grey-10 flex items-center justify-center gap-2">
+					<i class="ri-checkbox-circle-fill text-green-600 dark:text-green-400 text-2xl leading-6"></i>
+					<span id="notifyUploadEncryptDone" data-type="lang">Your file is encrypted and ready to send</span>
+				</h2>
 			</div>
 
 			<div class="text-center">
@@ -423,16 +403,16 @@
 					/>
 					<button
 						type="button"
-						class="btn rounded-lg px-4 py-2 whitespace-nowrap"
+						class="rounded-default border border-grey-30 bg-white dark:bg-grey-80 dark:border-grey-60 px-3 py-2 flex items-center justify-center hover:bg-grey-10 dark:hover:bg-grey-70 focus:outline focus:outline-2 focus:outline-primary"
 						data-action="copy"
 					>
-						<span id="copyLinkButton" data-type="lang">Copy link</span>
+						<i class="ri-file-copy-line text-lg leading-4" data-role="copy-icon"></i>
 					</button>
 				</div>
 
 				<button
 					type="button"
-					class="btn rounded-lg w-full py-2"
+					class="btn w-full"
 					data-action="ok"
 				>
 					<span id="okButton" data-type="lang">OK</span>
@@ -470,21 +450,19 @@
 	<li class="rounded-default shadow-light bg-white p-4 dark:bg-grey-90 dark:border dark:border-grey-70" data-upload-id="">
 		<!-- Header: Icon, Name, Size, Delete -->
 		<div class="flex items-start w-full mb-2">
-			<svg class="h-8 w-8 flex-shrink-0 text-primary">
-				<use xlink:href="/blue_file.svg#icon"/>
-			</svg>
+			<i class="ri-file-line h-8 w-8 flex-shrink-0 text-primary text-3xl leading-8" data-role="file-icon"></i>
 			<div class="ml-4 flex-grow min-w-0">
 				<h3 class="text-base font-medium break-words" data-role="file-name"></h3>
 				<div class="text-sm opacity-75 pt-1" data-role="file-size"></div>
 			</div>
 			<button
 				type="button"
-				class="flex-shrink-0 ml-2 p-1 hover:opacity-75 focus:outline"
+				class="flex-shrink-0 ml-2 p-1 hover:opacity-75 focus:outline cursor-pointer"
 				data-action="delete"
 				data-type="lang"
 				title="Delete"
 			>
-				<img src="/close-16.svg" alt="Delete" class="w-4 h-4"/>
+				<i class="ri-delete-bin-line text-lg leading-4"></i>
 			</button>
 		</div>
 
@@ -509,9 +487,7 @@
 				title="Download"
 				tabindex="0"
 			>
-				<svg class="h-4 w-3 mr-2">
-					<use xlink:href="/dl.svg#icon"/>
-				</svg>
+				<i class="ri-download-2-line h-4 w-4 mr-2 text-base leading-4"></i>
 				<span id="downloadButtonLabel" data-type="lang">Download</span>
 			</a>
 			<button
@@ -519,9 +495,7 @@
 				class="link-primary text-sm flex items-center focus:outline"
 				data-action="copy"
 			>
-				<svg class="h-4 w-4 mr-2">
-					<use xlink:href="/copy-16.svg#icon"/>
-				</svg>
+				<i class="ri-file-copy-line h-4 w-4 mr-2 text-base leading-4" data-role="copy-icon"></i>
 				<span id="copyLinkButton" data-type="lang">Copy link</span>
 			</button>
 		</div>
@@ -542,9 +516,7 @@
 
 <template id="upload-file-details-item">
 	<div class="flex items-center p-2">
-		<svg class="h-6 w-6 text-primary flex-shrink-0">
-			<use xlink:href="/blue_file.svg#icon"/>
-		</svg>
+		<i class="ri-file-line h-6 w-6 text-primary flex-shrink-0 text-2xl leading-6" data-role="file-icon"></i>
 		<div class="ml-3 flex-grow min-w-0">
 			<div class="text-sm font-medium break-words" data-role="item-name"></div>
 			<div class="text-xs opacity-75" data-role="item-size"></div>

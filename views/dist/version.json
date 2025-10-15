@@ -1,5 +1,5 @@
 {
-  "commit": "508d8e0d",
+  "commit": "6d9c376d",
   "name": "go-send-views",
   "description": "Views and frontend package for Go Send",
   "license": "MPL-2.0",
@@ -9,5 +9,5 @@
     "url": "git+https://github.com/Simon-Martens/go-send.git"
   },
   "version": "v1.0.0",
-  "buildTime": "2025-10-14T20:24:41.632Z"
+  "buildTime": "2025-10-15T14:37:47.401Z"
 }

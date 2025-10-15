@@ -54,6 +54,7 @@ class UploadListView extends HTMLElement {
     this._boundDragLeave = this.handleDragLeave.bind(this);
     this._boundDrop = this.handleDrop.bind(this);
     this._boundArchiveNameInput = this.handleArchiveNameInput.bind(this);
+    this._archiveNameValid = true;
   }
 
   connectedCallback() {
@@ -175,6 +176,7 @@ class UploadListView extends HTMLElement {
     this.applyPasswordState();
     this.updatePasswordHint(this._password.length);
     this.setError(this._errorMessage);
+    this._updateUploadButtonState();
   }
 
   updateTotalSize(totalSize) {
@@ -211,6 +213,7 @@ class UploadListView extends HTMLElement {
       const metaEl = fragment.querySelector('[data-role="file-meta"]');
       const removeButton = fragment.querySelector('[data-action="remove"]');
       const srLabel = fragment.querySelector('[data-role="remove-label"]');
+      const iconEl = fragment.querySelector('[data-role="file-icon"]');
 
       if (nameEl) {
         nameEl.textContent = file.name || "Untitled";
@@ -220,6 +223,14 @@ class UploadListView extends HTMLElement {
         const path = file.webkitRelativePath || "";
         const sizeLabel = bytes(file.size || 0);
         metaEl.textContent = path ? `${sizeLabel} • ${path}` : sizeLabel;
+      }
+
+      // Set icon based on file type
+      if (iconEl && file.name) {
+        const fileName = file.name.toLowerCase();
+        if (fileName.endsWith(".zip")) {
+          iconEl.className = "ri-folder-6-line h-8 w-8 flex-shrink-0 text-primary mr-3 text-3xl leading-8";
+        }
       }
 
       if (srLabel) {
@@ -405,6 +416,9 @@ class UploadListView extends HTMLElement {
       }
     } else {
       this.elements.archiveNameContainer.classList.add("hidden");
+      // Reset validation state when hiding (not needed for single file)
+      this._archiveNameValid = true;
+      this._showArchiveNameError(null);
     }
   }
 
@@ -546,6 +560,20 @@ class UploadListView extends HTMLElement {
 
   handleUploadClick(event) {
     event.preventDefault();
+
+    // Validate archive name if multiple files
+    if (this._files.length > 1 && this.elements.archiveNameInput) {
+      const archiveName = this.elements.archiveNameInput.value;
+      const validationError = this._validateArchiveName(archiveName);
+
+      if (validationError) {
+        this._archiveNameValid = false;
+        this._showArchiveNameError(validationError);
+        this._updateUploadButtonState();
+        return;
+      }
+    }
+
     this.dispatchEvent(
       new CustomEvent("upload", {
         bubbles: true,
@@ -567,6 +595,8 @@ class UploadListView extends HTMLElement {
     const total = this._files.reduce((sum, f) => sum + (f.size || 0), 0);
     this._updateFileCount();
     this._updateTotalSize(total);
+    this._updateArchiveNameVisibility();
+    this._updateUploadButtonState();
 
     this.dispatchEvent(
       new CustomEvent("removeupload", {
@@ -623,13 +653,17 @@ class UploadListView extends HTMLElement {
     const validationError = this._validateArchiveName(archiveName);
 
     if (validationError) {
+      this._archiveNameValid = false;
       this._showArchiveNameError(validationError);
+      this._updateUploadButtonState();
       // Don't dispatch the update if invalid
       return;
     }
 
     // Clear any previous error
+    this._archiveNameValid = true;
     this._showArchiveNameError(null);
+    this._updateUploadButtonState();
 
     // Dispatch the update with trimmed name
     const trimmedName = archiveName.trim();
@@ -712,6 +746,16 @@ class UploadListView extends HTMLElement {
       // Remove error styling from input
       this.elements.archiveNameInput.classList.remove("border-red-500", "dark:border-red-500");
     }
+  }
+
+  _updateUploadButtonState() {
+    if (!this.elements.uploadButton) {
+      return;
+    }
+
+    // Disable upload button if archive name is invalid and we have multiple files
+    const shouldDisable = this._files.length > 1 && !this._archiveNameValid;
+    this.elements.uploadButton.disabled = shouldDisable;
   }
 
   setError(message) {

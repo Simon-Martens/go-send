@@ -8,6 +8,7 @@ class UploadCompleteView extends HTMLElement {
     this._ownedFile = null;
     this._boundCopy = this.handleCopy.bind(this);
     this._boundOk = this.handleOk.bind(this);
+    this._boundLinkClick = this.handleLinkClick.bind(this);
   }
 
   connectedCallback() {
@@ -53,6 +54,7 @@ class UploadCompleteView extends HTMLElement {
   bindEventHandlers() {
     const copyBtn = this.querySelector('[data-action="copy"]');
     const okBtn = this.querySelector('[data-action="ok"]');
+    const linkInput = this.querySelector('[data-role="download-link"]');
 
     if (copyBtn) {
       copyBtn.addEventListener("click", this._boundCopy);
@@ -60,17 +62,24 @@ class UploadCompleteView extends HTMLElement {
     if (okBtn) {
       okBtn.addEventListener("click", this._boundOk);
     }
+    if (linkInput) {
+      linkInput.addEventListener("click", this._boundLinkClick);
+    }
   }
 
   unbindEventHandlers() {
     const copyBtn = this.querySelector('[data-action="copy"]');
     const okBtn = this.querySelector('[data-action="ok"]');
+    const linkInput = this.querySelector('[data-role="download-link"]');
 
     if (copyBtn) {
       copyBtn.removeEventListener("click", this._boundCopy);
     }
     if (okBtn) {
       okBtn.removeEventListener("click", this._boundOk);
+    }
+    if (linkInput) {
+      linkInput.removeEventListener("click", this._boundLinkClick);
     }
   }
 
@@ -92,6 +101,12 @@ class UploadCompleteView extends HTMLElement {
     const linkInput = this.querySelector('[data-role="download-link"]');
     if (linkInput && ownedFile.url) {
       linkInput.value = ownedFile.url;
+
+      // Auto-select the text after a brief delay to ensure rendering is complete
+      requestAnimationFrame(() => {
+        linkInput.select();
+        linkInput.focus();
+      });
     }
 
     // Generate QR code
@@ -154,13 +169,17 @@ class UploadCompleteView extends HTMLElement {
         }),
       );
 
-      // Visual feedback
+      // Visual feedback - change icon to check
       const copyBtn = event.currentTarget;
-      const originalText = copyBtn.textContent;
-      copyBtn.textContent = "Copied!";
-      setTimeout(() => {
-        copyBtn.textContent = originalText;
-      }, 2000);
+      const iconEl = copyBtn.querySelector('[data-role="copy-icon"]');
+
+      if (iconEl) {
+        const originalClass = iconEl.className;
+        iconEl.className = "ri-check-line text-lg leading-4";
+        setTimeout(() => {
+          iconEl.className = originalClass;
+        }, 2000);
+      }
     }
   }
 
@@ -174,6 +193,11 @@ class UploadCompleteView extends HTMLElement {
         detail: { file: this._ownedFile },
       }),
     );
+  }
+
+  handleLinkClick(event) {
+    // Select all text when clicking the input field
+    event.currentTarget.select();
   }
 }
 

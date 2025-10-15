@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../locales/pai.ftl"],
+  "sourcesContent": ["export default \"\\n## Send version 2 strings\\n\\n\""],
+  "mappings": ";AAAA,IAAO,cAAQ;",
+  "names": []
+}

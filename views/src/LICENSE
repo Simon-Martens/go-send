@@ -17,6 +17,7 @@ licensed under the Mozilla Public License Version 2.0:
 - ownedFile.mjs
 - streams.mjs
 - zip.mjs
+- serviceworker.mjs
 
 These files contain the core cryptographic and file transfer logic from
 the original Firefox Send implementation and have been preserved with
@@ -58,7 +59,7 @@ Copyright (c) 2024 go-send contributors
 This project is a fork and reimplementation of Firefox Send:
 - Original project: Mozilla Firefox Send
 - Community fork: https://gitlab.com/timvisee/send
-- This fork: https://github.com/[your-repo]/go-send
+- This fork: https://github.com/Simon-Martens/go-send
 
 Special thanks to Mozilla Corporation for creating Firefox Send and to
 timvisee for maintaining the community fork.

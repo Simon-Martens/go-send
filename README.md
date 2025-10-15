@@ -170,7 +170,7 @@ Files are client-side encrypted and decrypted, please use TLS behind a reverse p
 
 **Client-side attacks**
 
-Partly out of scope, partly this probably most needs an audit, since we have 3 moderate and 7 low vulnerablities still reported by `npm`
+Partly out of scope, partly this probably most needs an audit
 
 
 ### Authentication Flow
@@ -184,9 +184,29 @@ Partly out of scope, partly this probably most needs an audit, since we have 3 m
 
 ## License
 
-All code under frontend/ is licensed under the [Mozilla Public License Version 2.0](LICENSE), while the backend is licensed under the [GNU General Public License v3.0](LICENSE.backend).
+This project uses a **dual-licensing** approach:
 
-Original project by Mozilla, forked by timvisee.
+### Backend (Go code)
+All Go source code is licensed under the **GNU General Public License v3.0** (GPL-3.0).
+See [LICENSE](LICENSE) for details.
+
+### Frontend (views/)
+The frontend contains files under two licenses:
+
+- **MPL-2.0**: Core cryptographic and file transfer modules (derived from original Firefox Send)
+  - `api.mjs`, `ece.mjs`, `keychain.mjs`, `fileSender.mjs`, `fileReceiver.mjs`, `archive.mjs`, `ownedFile.mjs`, `streams.mjs`, `zip.mjs`
+  - See [LICENSE.MPL-2.0](LICENSE.MPL-2.0) for full license text
+
+- **GPL-3.0**: New UI implementation, components, templates, and build system
+  - All files in `views/src/ui/`, templates, controller, routing, etc.
+  - See [LICENSE](LICENSE) for details
+
+For detailed file-by-file licensing information, see [views/src/LICENSE](views/src/LICENSE).
+
+### Attribution
+- **Original project**: Mozilla Firefox Send (Copyright © 2018 Mozilla Corporation)
+- **Community fork**: [timvisee/send](https://gitlab.com/timvisee/send) (Copyright © 2020-2024 timvisee and contributors)
+- **This fork**: go-send (Copyright © 2024 go-send contributors)
 
 
 ## Acknowledgments

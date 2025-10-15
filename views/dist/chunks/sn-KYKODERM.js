@@ -1,0 +1,6 @@
+// locales/sn.ftl
+var sn_default = 'title = Go Send\nimportingFile = Kutora faira\nencryptingFile = Kuinikiriputa\nenableJavascript = Ndinokumbira mubvumidze JavaScript moedza zvekare\n# A short representation of a countdown timer containing the number of hours and minutes remaining as digits, example "13h 47m"\nexpiresHoursMinutes = { $hours }maawa { $minutes }mineti\n# A short representation of a countdown timer containing the number of minutes remaining as digits, example "56m"\nexpiresMinutes = { $minutes }mineti\n# A short status message shown when the user enters a long password\nmaxPasswordLength = Pasiwedhi haipfuuri mavara:{ $length }\n# A short status message shown when there was an error setting the password\npasswordSetError = Pasiwedhi haina kuita\n\n## Send version 2 strings\n\n';
+export {
+  sn_default as default
+};
+//# sourceMappingURL=sn-KYKODERM.js.map

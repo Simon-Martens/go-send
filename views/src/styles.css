@@ -133,6 +133,13 @@ body {
   overflow-x: hidden;
 }
 
+@media (prefers-color-scheme: light) {
+  .btn {
+    @apply bg-[color-mix(in_srgb,var(--color-primary)_90%,black)];
+    @apply text-white;
+  }
+}
+
 .btn {
   @apply bg-primary;
   @apply cursor-pointer;

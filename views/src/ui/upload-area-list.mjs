@@ -86,33 +86,71 @@ class UploadListView extends HTMLElement {
     this.elements.fileInput = this.querySelector("#file-upload");
     this.elements.fileList = this.querySelector('[data-role="file-list"]');
     this.elements.uploadButton = this.querySelector('[data-action="upload"]');
-    this.elements.totalSize = this.querySelector('[data-role="total-size-value"]');
-    this.elements.fileCount = this.querySelector('[data-role="file-count-value"]');
-    this.elements.addMoreLabel = this.querySelector('[data-role="add-more-label"]');
+    this.elements.totalSize = this.querySelector(
+      '[data-role="total-size-value"]',
+    );
+    this.elements.fileCount = this.querySelector(
+      '[data-role="file-count-value"]',
+    );
+    this.elements.addMoreLabel = this.querySelector(
+      '[data-role="add-more-label"]',
+    );
     this.elements.error = this.querySelector('[data-role="error"]');
     this.elements.dropZone = this.querySelector(".flex.flex-col");
 
     const optionsContainer = this.querySelector("#upload-area-options-slot");
     if (optionsContainer) {
-      const optionsTemplate = document.getElementById("upload-view-list-options");
+      const optionsTemplate = document.getElementById(
+        "upload-view-list-options",
+      );
       if (optionsTemplate && optionsContainer.childElementCount === 0) {
         optionsContainer.appendChild(optionsTemplate.content.cloneNode(true));
       }
-      this.elements.expiryContainer = optionsContainer.querySelector('[data-role="expiry-container"]');
-      this.elements.downloadLimit = optionsContainer.querySelector('select[data-role="download-limit"]');
-      this.elements.timeLimit = optionsContainer.querySelector('select[data-role="time-limit"]');
-      this.elements.orLabel = optionsContainer.querySelector('[data-role="or-label"]');
-      this.elements.expiryLabelTop = optionsContainer.querySelector('[data-role="expiry-label-top"]');
-      this.elements.expiryLabelBottom = optionsContainer.querySelector('[data-role="expiry-label-bottom"]');
-      this.elements.passwordToggle = optionsContainer.querySelector('[data-role="password-toggle"]');
-      this.elements.passwordToggleIcon = optionsContainer.querySelector('[data-role="password-toggle-icon"]');
-      this.elements.passwordField = optionsContainer.querySelector('[data-role="password-field"]');
-      this.elements.passwordInput = optionsContainer.querySelector('[data-role="password"]');
-      this.elements.passwordHint = optionsContainer.querySelector('[data-role="password-hint"]');
-      this.elements.passwordVisibilityButton = optionsContainer.querySelector('[data-role="password-visibility"]');
-      this.elements.passwordVisibilityIcon = optionsContainer.querySelector('[data-role="password-visibility-icon"]');
-      this.elements.archiveNameContainer = optionsContainer.querySelector('[data-role="archive-name-container"]');
-      this.elements.archiveNameInput = optionsContainer.querySelector('[data-role="archive-name"]');
+      this.elements.expiryContainer = optionsContainer.querySelector(
+        '[data-role="expiry-container"]',
+      );
+      this.elements.downloadLimit = optionsContainer.querySelector(
+        'select[data-role="download-limit"]',
+      );
+      this.elements.timeLimit = optionsContainer.querySelector(
+        'select[data-role="time-limit"]',
+      );
+      this.elements.orLabel = optionsContainer.querySelector(
+        '[data-role="or-label"]',
+      );
+      this.elements.expiryLabelTop = optionsContainer.querySelector(
+        '[data-role="expiry-label-top"]',
+      );
+      this.elements.expiryLabelBottom = optionsContainer.querySelector(
+        '[data-role="expiry-label-bottom"]',
+      );
+      this.elements.passwordToggle = optionsContainer.querySelector(
+        '[data-role="password-toggle"]',
+      );
+      this.elements.passwordToggleIcon = optionsContainer.querySelector(
+        '[data-role="password-toggle-icon"]',
+      );
+      this.elements.passwordField = optionsContainer.querySelector(
+        '[data-role="password-field"]',
+      );
+      this.elements.passwordInput = optionsContainer.querySelector(
+        '[data-role="password"]',
+      );
+      this.elements.passwordHint = optionsContainer.querySelector(
+        '[data-role="password-hint"]',
+      );
+      this.elements.passwordVisibilityButton = optionsContainer.querySelector(
+        '[data-role="password-visibility"]',
+      );
+      this.elements.passwordVisibilityIcon = optionsContainer.querySelector(
+        '[data-role="password-visibility-icon"]',
+      );
+      this.elements.archiveNameContainer = optionsContainer.querySelector(
+        '[data-role="archive-name-container"]',
+      );
+      this.elements.archiveNameInput = optionsContainer.querySelector(
+        '[data-role="archive-name"]',
+      );
     }
 
     this._attachBaseListeners();
@@ -153,7 +191,8 @@ class UploadListView extends HTMLElement {
       this._downloadLimit = downloadLimit;
     }
 
-    const hasServerPassword = typeof password === "string" && password.length > 0;
+    const hasServerPassword =
+      typeof password === "string" && password.length > 0;
     if (this._files.length === 0) {
       this._passwordEnabled = false;
       this._password = "";
@@ -164,7 +203,8 @@ class UploadListView extends HTMLElement {
       this._password = "";
     }
 
-    const resolvedTotalSize = totalSize || this._files.reduce((sum, file) => sum + (file.size || 0), 0);
+    const resolvedTotalSize =
+      totalSize || this._files.reduce((sum, file) => sum + (file.size || 0), 0);
 
     this._renderFileList();
     this._updateFileCount();
@@ -229,17 +269,23 @@ class UploadListView extends HTMLElement {
       if (iconEl && file.name) {
         const fileName = file.name.toLowerCase();
         if (fileName.endsWith(".zip")) {
-          iconEl.className = "ri-folder-6-line h-8 w-8 flex-shrink-0 text-primary mr-3 text-3xl leading-8";
+          iconEl.className =
+            "ri-folder-6-line h-8 w-8 flex-shrink-0 text-primary mr-3 text-3xl leading-8";
         }
       }
 
       if (srLabel) {
-        srLabel.textContent = this._translateText("deleteButtonHover", "Remove file");
+        srLabel.textContent = this._translateText(
+          "deleteButtonHover",
+          "Remove file",
+        );
       }
 
       if (removeButton) {
         removeButton.dataset.index = String(index);
-        removeButton.addEventListener("click", (event) => this.handleRemoveClick(event));
+        removeButton.addEventListener("click", (event) =>
+          this.handleRemoveClick(event),
+        );
       }
 
       if (item) {
@@ -262,14 +308,10 @@ class UploadListView extends HTMLElement {
     const timeToken = "__TIMESPAN__";
     const fallback = `Expires after ${downloadToken} ${this._translateText("or", "or")} ${timeToken} ends`;
 
-    const translated = this._translateText(
-      "archiveExpiryInfo",
-      fallback,
-      {
-        downloadCount: downloadToken,
-        timespan: timeToken,
-      },
-    );
+    const translated = this._translateText("archiveExpiryInfo", fallback, {
+      downloadCount: downloadToken,
+      timespan: timeToken,
+    });
 
     const downloadSplit = translated.split(downloadToken);
     const beforeDownload = downloadSplit[0] || "";
@@ -279,7 +321,9 @@ class UploadListView extends HTMLElement {
     const afterTime = timeSplit[1] || "";
 
     if (this.elements.expiryLabelTop) {
-      const labelText = beforeDownload.trim() || this._translateText("expiresAfterLabel", "Expires after");
+      const labelText =
+        beforeDownload.trim() ||
+        this._translateText("expiresAfterLabel", "Expires after");
       this.elements.expiryLabelTop.textContent = labelText;
     }
     if (this.elements.orLabel) {
@@ -287,7 +331,8 @@ class UploadListView extends HTMLElement {
       this.elements.orLabel.textContent = orText;
     }
     if (this.elements.expiryLabelBottom) {
-      const suffixText = afterTime.trim() || this._translateText("expiresAfterSuffix", "Ends");
+      const suffixText =
+        afterTime.trim() || this._translateText("expiresAfterSuffix", "");
       this.elements.expiryLabelBottom.textContent = suffixText;
     }
 
@@ -298,7 +343,8 @@ class UploadListView extends HTMLElement {
         return max ? count <= max : true;
       }),
       this._downloadLimit,
-      (value) => this._translateText("downloadCount", `${value}`, { num: value }),
+      (value) =>
+        this._translateText("downloadCount", `${value}`, { num: value }),
     );
 
     this._timeLimit = this._populateSelect(
@@ -319,7 +365,8 @@ class UploadListView extends HTMLElement {
       return selected;
     }
 
-    const desired = selected !== null && selected !== undefined ? String(selected) : null;
+    const desired =
+      selected !== null && selected !== undefined ? String(selected) : null;
     select.innerHTML = "";
 
     values.forEach((value) => {
@@ -329,7 +376,10 @@ class UploadListView extends HTMLElement {
       select.appendChild(option);
     });
 
-    if (desired && Array.from(select.options).some((opt) => opt.value === desired)) {
+    if (
+      desired &&
+      Array.from(select.options).some((opt) => opt.value === desired)
+    ) {
       select.value = desired;
     } else if (select.options.length > 0) {
       select.selectedIndex = 0;
@@ -339,16 +389,32 @@ class UploadListView extends HTMLElement {
   }
 
   _updateOptionValues() {
-    if (this.elements.downloadLimit && this._downloadLimit !== null && this._downloadLimit !== undefined) {
+    if (
+      this.elements.downloadLimit &&
+      this._downloadLimit !== null &&
+      this._downloadLimit !== undefined
+    ) {
       const value = String(this._downloadLimit);
-      if (Array.from(this.elements.downloadLimit.options).some((opt) => opt.value === value)) {
+      if (
+        Array.from(this.elements.downloadLimit.options).some(
+          (opt) => opt.value === value,
+        )
+      ) {
         this.elements.downloadLimit.value = value;
       }
     }
 
-    if (this.elements.timeLimit && this._timeLimit !== null && this._timeLimit !== undefined) {
+    if (
+      this.elements.timeLimit &&
+      this._timeLimit !== null &&
+      this._timeLimit !== undefined
+    ) {
       const value = String(this._timeLimit);
-      if (Array.from(this.elements.timeLimit.options).some((opt) => opt.value === value)) {
+      if (
+        Array.from(this.elements.timeLimit.options).some(
+          (opt) => opt.value === value,
+        )
+      ) {
         this.elements.timeLimit.value = value;
       }
     }
@@ -363,9 +429,15 @@ class UploadListView extends HTMLElement {
       return;
     }
     const count = this._files.length;
-    const label = this._translateText("fileCount", count === 1 ? "1 file" : `${count} files`, { num: count });
+    const label = this._translateText(
+      "fileCount",
+      count === 1 ? "1 file" : `${count} files`,
+      { num: count },
+    );
     const max = this._maxFiles
-      ? this._translateText("maxFilesPerArchive", `Max ${this._maxFiles}`, { num: this._maxFiles })
+      ? this._translateText("maxFilesPerArchive", `Max ${this._maxFiles}`, {
+          num: this._maxFiles,
+        })
       : "";
     this.elements.fileCount.textContent = max ? `${label} • ${max}` : label;
   }
@@ -375,17 +447,23 @@ class UploadListView extends HTMLElement {
       return;
     }
     const sizeLabel = bytes(totalSize || 0);
-    const translated = this._translateText("totalSize", `${sizeLabel}`, { size: sizeLabel });
+    const translated = this._translateText("totalSize", `${sizeLabel}`, {
+      size: sizeLabel,
+    });
     this.elements.totalSize.textContent = translated;
   }
 
   _updateStaticLabels(totalSize) {
     if (this.elements.addMoreLabel) {
-      this.elements.addMoreLabel.textContent = this._translateText("addFilesButton", "Add more files");
+      this.elements.addMoreLabel.textContent = this._translateText(
+        "addFilesButton",
+        "Add more files",
+      );
     }
     if (this.elements.uploadButton) {
       const uploadLabel = this._translateText("uploadButton", "Upload");
-      const uploadSpan = this.elements.uploadButton.querySelector("#uploadButton");
+      const uploadSpan =
+        this.elements.uploadButton.querySelector("#uploadButton");
       if (uploadSpan) {
         uploadSpan.textContent = uploadLabel;
       } else {
@@ -402,7 +480,8 @@ class UploadListView extends HTMLElement {
 
     // Show archive name input only when there are multiple files
     if (this._files.length > 1) {
-      const wasHidden = this.elements.archiveNameContainer.classList.contains("hidden");
+      const wasHidden =
+        this.elements.archiveNameContainer.classList.contains("hidden");
       this.elements.archiveNameContainer.classList.remove("hidden");
 
       // Translate elements if they're being shown for the first time
@@ -411,7 +490,10 @@ class UploadListView extends HTMLElement {
       }
 
       // Set default value if input is empty
-      if (this.elements.archiveNameInput && !this.elements.archiveNameInput.value) {
+      if (
+        this.elements.archiveNameInput &&
+        !this.elements.archiveNameInput.value
+      ) {
         this.elements.archiveNameInput.value = "Send-Archive";
       }
     } else {
@@ -427,27 +509,48 @@ class UploadListView extends HTMLElement {
       this.elements.fileInput.addEventListener("change", this._boundFileSelect);
     }
     if (this.elements.uploadButton) {
-      this.elements.uploadButton.addEventListener("click", this._boundUploadClick);
+      this.elements.uploadButton.addEventListener(
+        "click",
+        this._boundUploadClick,
+      );
     }
     if (this.elements.passwordToggle) {
-      this._boundPasswordToggle = this._boundPasswordToggle || this.handlePasswordToggle.bind(this);
-      this.elements.passwordToggle.addEventListener("click", this._boundPasswordToggle);
+      this._boundPasswordToggle =
+        this._boundPasswordToggle || this.handlePasswordToggle.bind(this);
+      this.elements.passwordToggle.addEventListener(
+        "click",
+        this._boundPasswordToggle,
+      );
     }
     if (this.elements.passwordVisibilityButton) {
-      this._boundPasswordVisibility = this._boundPasswordVisibility || this.togglePasswordVisibility.bind(this);
-      this.elements.passwordVisibilityButton.addEventListener("click", this._boundPasswordVisibility);
+      this._boundPasswordVisibility =
+        this._boundPasswordVisibility ||
+        this.togglePasswordVisibility.bind(this);
+      this.elements.passwordVisibilityButton.addEventListener(
+        "click",
+        this._boundPasswordVisibility,
+      );
     }
     if (this.elements.passwordInput) {
-      this.elements.passwordInput.addEventListener("input", this._boundPasswordInput);
+      this.elements.passwordInput.addEventListener(
+        "input",
+        this._boundPasswordInput,
+      );
     }
     if (this.elements.archiveNameInput) {
-      this.elements.archiveNameInput.addEventListener("input", this._boundArchiveNameInput);
+      this.elements.archiveNameInput.addEventListener(
+        "input",
+        this._boundArchiveNameInput,
+      );
     }
   }
 
   _attachOptionListeners() {
     if (this.elements.downloadLimit) {
-      this.elements.downloadLimit.addEventListener("change", this._boundDownloadChange);
+      this.elements.downloadLimit.addEventListener(
+        "change",
+        this._boundDownloadChange,
+      );
     }
     if (this.elements.timeLimit) {
       this.elements.timeLimit.addEventListener("change", this._boundTimeChange);
@@ -456,31 +559,58 @@ class UploadListView extends HTMLElement {
 
   _detachOptionListeners() {
     if (this.elements.downloadLimit) {
-      this.elements.downloadLimit.removeEventListener("change", this._boundDownloadChange);
+      this.elements.downloadLimit.removeEventListener(
+        "change",
+        this._boundDownloadChange,
+      );
     }
     if (this.elements.timeLimit) {
-      this.elements.timeLimit.removeEventListener("change", this._boundTimeChange);
+      this.elements.timeLimit.removeEventListener(
+        "change",
+        this._boundTimeChange,
+      );
     }
   }
 
   _detachListeners() {
     if (this.elements.fileInput) {
-      this.elements.fileInput.removeEventListener("change", this._boundFileSelect);
+      this.elements.fileInput.removeEventListener(
+        "change",
+        this._boundFileSelect,
+      );
     }
     if (this.elements.uploadButton) {
-      this.elements.uploadButton.removeEventListener("click", this._boundUploadClick);
+      this.elements.uploadButton.removeEventListener(
+        "click",
+        this._boundUploadClick,
+      );
     }
     if (this.elements.passwordToggle && this._boundPasswordToggle) {
-      this.elements.passwordToggle.removeEventListener("click", this._boundPasswordToggle);
+      this.elements.passwordToggle.removeEventListener(
+        "click",
+        this._boundPasswordToggle,
+      );
     }
-    if (this.elements.passwordVisibilityButton && this._boundPasswordVisibility) {
-      this.elements.passwordVisibilityButton.removeEventListener("click", this._boundPasswordVisibility);
+    if (
+      this.elements.passwordVisibilityButton &&
+      this._boundPasswordVisibility
+    ) {
+      this.elements.passwordVisibilityButton.removeEventListener(
+        "click",
+        this._boundPasswordVisibility,
+      );
     }
     if (this.elements.passwordInput) {
-      this.elements.passwordInput.removeEventListener("input", this._boundPasswordInput);
+      this.elements.passwordInput.removeEventListener(
+        "input",
+        this._boundPasswordInput,
+      );
     }
     if (this.elements.archiveNameInput) {
-      this.elements.archiveNameInput.removeEventListener("input", this._boundArchiveNameInput);
+      this.elements.archiveNameInput.removeEventListener(
+        "input",
+        this._boundArchiveNameInput,
+      );
     }
     this._detachOptionListeners();
   }
@@ -536,7 +666,11 @@ class UploadListView extends HTMLElement {
     }
 
     if (length >= 4096) {
-      this.elements.passwordHint.textContent = this._translateText("maxPasswordLength", "Maximum password length", { length: 4096 });
+      this.elements.passwordHint.textContent = this._translateText(
+        "maxPasswordLength",
+        "Maximum password length",
+        { length: 4096 },
+      );
     } else {
       this.elements.passwordHint.textContent = "";
     }
@@ -713,7 +847,9 @@ class UploadListView extends HTMLElement {
       return;
     }
 
-    const errorEl = this.elements.archiveNameContainer?.querySelector('[data-role="archive-name-error"]');
+    const errorEl = this.elements.archiveNameContainer?.querySelector(
+      '[data-role="archive-name-error"]',
+    );
     if (!errorEl) {
       return;
     }
@@ -738,13 +874,19 @@ class UploadListView extends HTMLElement {
       errorEl.classList.remove("hidden");
 
       // Add error styling to input
-      this.elements.archiveNameInput.classList.add("border-red-500", "dark:border-red-500");
+      this.elements.archiveNameInput.classList.add(
+        "border-red-500",
+        "dark:border-red-500",
+      );
     } else {
       errorEl.textContent = "";
       errorEl.classList.add("hidden");
 
       // Remove error styling from input
-      this.elements.archiveNameInput.classList.remove("border-red-500", "dark:border-red-500");
+      this.elements.archiveNameInput.classList.remove(
+        "border-red-500",
+        "dark:border-red-500",
+      );
     }
   }
 
@@ -806,7 +948,9 @@ class UploadListView extends HTMLElement {
     const input = this.elements.passwordInput;
     const isPassword = input.type === "password";
     input.type = isPassword ? "text" : "password";
-    this.elements.passwordVisibilityIcon.src = isPassword ? "/eye-off.svg" : "/eye.svg";
+    this.elements.passwordVisibilityIcon.src = isPassword
+      ? "/eye-off.svg"
+      : "/eye.svg";
     input.focus();
   }
 
@@ -816,7 +960,9 @@ class UploadListView extends HTMLElement {
     }
 
     // Get the lock icon from within the toggle icon container
-    const lockIcon = this.elements.passwordToggleIcon.querySelector('[data-role="lock-icon"]');
+    const lockIcon = this.elements.passwordToggleIcon.querySelector(
+      '[data-role="lock-icon"]',
+    );
 
     if (this._passwordEnabled) {
       this.elements.passwordField.removeAttribute("hidden");
@@ -865,9 +1011,15 @@ class UploadListView extends HTMLElement {
     if (!this.elements.dropZone) {
       return;
     }
-    this.elements.dropZone.removeEventListener("dragenter", this._boundDragEnter);
+    this.elements.dropZone.removeEventListener(
+      "dragenter",
+      this._boundDragEnter,
+    );
     this.elements.dropZone.removeEventListener("dragover", this._boundDragOver);
-    this.elements.dropZone.removeEventListener("dragleave", this._boundDragLeave);
+    this.elements.dropZone.removeEventListener(
+      "dragleave",
+      this._boundDragLeave,
+    );
     this.elements.dropZone.removeEventListener("drop", this._boundDrop);
     this.elements.dropZone = null;
   }
@@ -922,14 +1074,26 @@ class UploadListView extends HTMLElement {
     if (!this.elements.dropZone) {
       return;
     }
-    this.elements.dropZone.classList.add("ring-2", "ring-primary", "ring-inset", "bg-blue-10", "dark:bg-blue-90");
+    this.elements.dropZone.classList.add(
+      "ring-2",
+      "ring-primary",
+      "ring-inset",
+      "bg-blue-10",
+      "dark:bg-blue-90",
+    );
   }
 
   _hideDragFeedback() {
     if (!this.elements.dropZone) {
       return;
     }
-    this.elements.dropZone.classList.remove("ring-2", "ring-primary", "ring-inset", "bg-blue-10", "dark:bg-blue-90");
+    this.elements.dropZone.classList.remove(
+      "ring-2",
+      "ring-primary",
+      "ring-inset",
+      "bg-blue-10",
+      "dark:bg-blue-90",
+    );
   }
 }
 

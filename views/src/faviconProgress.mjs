@@ -19,7 +19,7 @@ function drawCircle(canvas, context, color, lineWidth, outerWidth, percent) {
   context.beginPath();
   context.arc(0, 0, radius, 0, Math.PI * 2 * percent, false);
   context.strokeStyle = color;
-  context.lineCap = 'square';
+  context.lineCap = "square";
   context.lineWidth = lineWidth;
   context.stroke();
 }
@@ -28,11 +28,11 @@ function drawCircle(canvas, context, color, lineWidth, outerWidth, percent) {
  * Generate a data URL for a favicon with progress indicator
  */
 function drawProgressFavicon(progressRatio, primaryColor) {
-  const canvas = document.createElement('canvas');
-  const context = canvas.getContext('2d');
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
 
   // Draw background circle (light gray)
-  drawCircle(canvas, context, '#efefef', LOADER_WIDTH, SIZE, 1);
+  drawCircle(canvas, context, "#efefef", LOADER_WIDTH, SIZE, 1);
 
   // Draw progress circle (primary color)
   drawCircle(canvas, context, primaryColor, LOADER_WIDTH, SIZE, progressRatio);
@@ -50,10 +50,10 @@ export function updateFavicon(progressRatio) {
 
   // Create the icon link if it doesn't exist
   if (!link) {
-    link = document.createElement('link');
-    link.rel = 'icon';
-    link.type = 'image/png';
-    link.sizes = '32x32';
+    link = document.createElement("link");
+    link.rel = "icon";
+    link.type = "image/png";
+    link.sizes = "32x32";
     document.head.appendChild(link);
   }
 
@@ -61,16 +61,16 @@ export function updateFavicon(progressRatio) {
 
   // Reset to default favicon at 0% or 100%
   if (progress === 0 || progress === 100) {
-    link.type = 'image/png';
+    link.type = "image/png";
 
     // Use custom favicon if configured, otherwise use default
     const customFavicon = window.WEB_UI?.CUSTOM_ASSETS?.favicon_32px;
-    link.href = customFavicon || '/favicon-32x32.png';
+    link.href = customFavicon || "/favicon.ico";
     return;
   }
 
   // Draw progress indicator
-  const primaryColor = window.WEB_UI?.COLORS?.PRIMARY || '#0A84FF';
+  const primaryColor = window.WEB_UI?.COLORS?.PRIMARY || "#0A84FF";
   link.href = drawProgressFavicon(progressRatio, primaryColor);
 }
 
@@ -89,7 +89,7 @@ export function updateTitle(progressRatio) {
  * Reset page title to default
  */
 export function resetTitle() {
-  document.title = 'Send';
+  document.title = "Send";
 }
 
 /**
@@ -100,12 +100,12 @@ export function setupProgressIndicators() {
   let updateTitleOnProgress = false;
 
   // When window loses focus, show progress in title
-  window.addEventListener('blur', () => {
+  window.addEventListener("blur", () => {
     updateTitleOnProgress = true;
   });
 
   // When window gains focus, reset to default
-  window.addEventListener('focus', () => {
+  window.addEventListener("focus", () => {
     updateTitleOnProgress = false;
     resetTitle();
     updateFavicon(0);
@@ -122,6 +122,6 @@ export function setupProgressIndicators() {
     reset: () => {
       resetTitle();
       updateFavicon(0);
-    }
+    },
   };
 }

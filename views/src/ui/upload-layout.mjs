@@ -173,12 +173,18 @@ class UploadLayoutElement extends HTMLElement {
   handleErrorDismiss(event) {
     console.log("[UploadLayout] Error-dismiss event received from error view");
 
-    // Clear error and go back to appropriate view
+    // Clear error and clear the archive (go to empty state)
     if (this.uploadArea && typeof this.uploadArea.clearError === "function") {
       console.log("[UploadLayout] Calling uploadArea.clearError()");
       this.uploadArea.clearError();
     } else {
       console.warn("[UploadLayout] uploadArea.clearError not available", this.uploadArea);
+    }
+
+    // Clear the archive to reset to empty state
+    if (this.app && this.app.state && this.app.state.archive) {
+      console.log("[UploadLayout] Clearing archive");
+      this.app.state.archive.clear();
     }
 
     this.refreshArchiveState();

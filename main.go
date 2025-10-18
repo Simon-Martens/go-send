@@ -42,6 +42,12 @@ func main() {
 		os.Exit(1)
 	}
 
+	logDB, err := storage.NewLogDB(config.LOG_DB_PATH)
+	if err != nil {
+		logger.Error("Failed to initialize log database. Exiting", "error", err)
+		os.Exit(1)
+	}
+
 	tmpl, err := core.LoadTemplates(templatesFS, cfg.UserFrontendDir, logger)
 	if err != nil {
 		logger.Error("Failed to load templates. Exiting", "error", err)
@@ -55,7 +61,7 @@ func main() {
 		logger.Error("Failed to load translations. Exiting", "error", err)
 		os.Exit(1)
 	}
-	app := core.NewApp(db, cfg, tmpl, manifest, translator, logger)
+	app := core.NewApp(db, logDB, cfg, tmpl, manifest, translator, logger)
 	if err := migrations.RunPending(app); err != nil {
 		logger.Error("Failed to run migrations. Exiting", "error", err)
 		os.Exit(1)

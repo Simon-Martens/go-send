@@ -6,24 +6,18 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-// DB represents the database connection and configuration
-type DB struct {
-	db      *sql.DB
-	fileDir string
+// LogDB represents the logging database connection
+type LogDB struct {
+	db *sql.DB
 }
 
 // DB returns the underlying sql.DB for migrations and other low-level operations
-func (d *DB) DB() *sql.DB {
-	return d.db
+func (l *LogDB) DB() *sql.DB {
+	return l.db
 }
 
-// FileDir returns the configured file directory
-func (d *DB) FileDir() string {
-	return d.fileDir
-}
-
-// NewDB creates a new database connection with optimized SQLite settings
-func NewDB(dbPath, fileDir string) (*DB, error) {
+// NewLogDB creates a new logging database connection with optimized SQLite settings
+func NewLogDB(dbPath string) (*LogDB, error) {
 	pragmas := "?_pragma=busy_timeout(10000)&_pragma=journal_mode(WAL)&_pragma=journal_size_limit(200000000)&_pragma=synchronous(NORMAL)&_pragma=foreign_keys(ON)&_pragma=temp_store(MEMORY)&_pragma=cache_size(-16000)"
 	dsn := dbPath + pragmas
 
@@ -32,16 +26,16 @@ func NewDB(dbPath, fileDir string) (*DB, error) {
 		return nil, err
 	}
 
-	// Schema creation is now handled by migrations
-	return &DB{db: db, fileDir: fileDir}, nil
+	// Schema creation is handled by migrations
+	return &LogDB{db: db}, nil
 }
 
 // Ping checks if the database connection is alive
-func (d *DB) Ping() error {
-	return d.db.Ping()
+func (l *LogDB) Ping() error {
+	return l.db.Ping()
 }
 
 // Close closes the database connection
-func (d *DB) Close() error {
-	return d.db.Close()
+func (l *LogDB) Close() error {
+	return l.db.Close()
 }

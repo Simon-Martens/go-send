@@ -15,6 +15,7 @@ import (
 // App holds all global application state and dependencies
 type App struct {
 	DB         *storage.DB
+	LogDB      *storage.LogDB
 	Config     *config.Config
 	Template   *template.Template
 	Manifest   Manifest
@@ -27,9 +28,10 @@ type App struct {
 }
 
 // NewApp creates and initializes a new App instance
-func NewApp(db *storage.DB, cfg *config.Config, tmpl *template.Template, manifest Manifest, translator *i18n.Translator, logger *slog.Logger) *App {
+func NewApp(db *storage.DB, logDB *storage.LogDB, cfg *config.Config, tmpl *template.Template, manifest Manifest, translator *i18n.Translator, logger *slog.Logger) *App {
 	return &App{
 		DB:             db,
+		LogDB:          logDB,
 		Config:         cfg,
 		Template:       tmpl,
 		Manifest:       manifest,

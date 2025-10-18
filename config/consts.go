@@ -3,7 +3,8 @@ package config
 import "time"
 
 const (
-	DB_PATH = "./data/send.db"
+	DB_PATH     = "./data/send.db"
+	LOG_DB_PATH = "./data/logs.db"
 )
 
 const (

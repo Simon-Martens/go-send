@@ -11,7 +11,7 @@ import {
   setTranslate,
   streamToArrayBuffer,
   translateElement
-} from "./chunks/chunk-XWMZRMIJ.js";
+} from "./chunks/chunk-6LPP53TP.js";
 
 // src/utils-worker.mjs
 function arrayToB642(array) {
@@ -2959,12 +2959,12 @@ var localeLoaders = {
   cs: () => import("./chunks/cs-54CJA22V.js"),
   cy: () => import("./chunks/cy-VX5XDONN.js"),
   da: () => import("./chunks/da-VHNBJJ3M.js"),
-  de: () => import("./chunks/de-RBH2W5LT.js"),
+  de: () => import("./chunks/de-N5P73NZE.js"),
   dsb: () => import("./chunks/dsb-JOKW2FHE.js"),
   el: () => import("./chunks/el-RXODO4XP.js"),
   "en-CA": () => import("./chunks/en-CA-T33TFBNY.js"),
   "en-GB": () => import("./chunks/en-GB-WAJ6DE3Q.js"),
-  "en-US": () => import("./chunks/en-US-MTAB466D.js"),
+  "en-US": () => import("./chunks/en-US-OMK7UQCO.js"),
   "es-AR": () => import("./chunks/es-AR-TY463SRG.js"),
   "es-CL": () => import("./chunks/es-CL-SUYCI6CS.js"),
   "es-ES": () => import("./chunks/es-ES-ZE6GLUEZ.js"),
@@ -2973,7 +2973,7 @@ var localeLoaders = {
   eu: () => import("./chunks/eu-TRZCMMWC.js"),
   fa: () => import("./chunks/fa-RPVIZIOP.js"),
   fi: () => import("./chunks/fi-BZAQPAGY.js"),
-  fr: () => import("./chunks/fr-SN6US4SQ.js"),
+  fr: () => import("./chunks/fr-OOMP6TZG.js"),
   "fy-NL": () => import("./chunks/fy-NL-JIQ7ZHH2.js"),
   gn: () => import("./chunks/gn-3CTLAO2Q.js"),
   gor: () => import("./chunks/gor-V6M3J3GT.js"),
@@ -3033,7 +3033,7 @@ var localeLoaders = {
 };
 async function getTranslator(locale2) {
   const bundles = [];
-  const { default: en } = await import("./chunks/en-US-MTAB466D.js");
+  const { default: en } = await import("./chunks/en-US-OMK7UQCO.js");
   if (locale2 !== "en-US" && localeLoaders[locale2]) {
     const { default: ftl } = await localeLoaders[locale2]();
     bundles.push(makeBundle(locale2, ftl));
@@ -3809,6 +3809,30 @@ var GoSendElement = class extends HTMLElement {
     this.currentLayout = downloadLayout;
     this.currentView = "download";
   }
+  showRegisterLayout() {
+    const slot = this.querySelector("#app-content");
+    if (!slot) {
+      console.error("Slot #app-content not found in go-send template");
+      return;
+    }
+    slot.innerHTML = "";
+    const registerLayout = document.createElement("register-layout");
+    slot.appendChild(registerLayout);
+    this.currentLayout = registerLayout;
+    this.currentView = "register";
+  }
+  showLoginLayout() {
+    const slot = this.querySelector("#app-content");
+    if (!slot) {
+      console.error("Slot #app-content not found in go-send template");
+      return;
+    }
+    slot.innerHTML = "";
+    const loginLayout = document.createElement("login-layout");
+    slot.appendChild(loginLayout);
+    this.currentLayout = loginLayout;
+    this.currentView = "login";
+  }
   showErrorLayout(errorMessage) {
     const slot = this.querySelector("#app-content");
     if (!slot) {
@@ -3839,6 +3863,10 @@ customElements.define("go-send", GoSendElement);
     await initUploadRoute(app);
   } else if (path.match(/^\/download/) || path.match(/^\/[0-9a-fA-F]{10,16}/)) {
     await initDownloadRoute(app);
+  } else if (path.startsWith("/register")) {
+    await initRegisterRoute(app);
+  } else if (path.startsWith("/login")) {
+    await initLoginRoute(app);
   } else {
     console.warn(`[Router] Unknown route: ${path}, defaulting to upload`);
     await initUploadRoute(app);
@@ -3848,9 +3876,9 @@ customElements.define("go-send", GoSendElement);
 async function initUploadRoute(app) {
   console.log("[Route] Initializing upload page...");
   await Promise.all([
-    import("./chunks/upload-layout-CKM2RW3D.js"),
-    import("./chunks/upload-area-WTIYELCB.js"),
-    import("./chunks/upload-right-7NP76HKJ.js"),
+    import("./chunks/upload-layout-Z5NIYSGR.js"),
+    import("./chunks/upload-area-OK6IV2EY.js"),
+    import("./chunks/upload-right-XCWYYM2F.js"),
     app.controller.ready
   ]);
   app.showUploadLayout();
@@ -3859,16 +3887,34 @@ async function initUploadRoute(app) {
 async function initDownloadRoute(app) {
   console.log("[Route] Initializing download page...");
   await Promise.all([
-    import("./chunks/download-layout-QZOJNRWN.js"),
-    import("./chunks/file-password-OYMTFRUW.js"),
-    import("./chunks/file-overview-DLAKGHCW.js"),
-    import("./chunks/file-downloading-5ZBFTOCG.js"),
-    import("./chunks/file-finished-ZAU5KCYH.js"),
-    import("./chunks/file-error-RYTRMRVD.js"),
+    import("./chunks/download-layout-MCN6XX27.js"),
+    import("./chunks/file-password-XWDDESIX.js"),
+    import("./chunks/file-overview-3ADYNNRV.js"),
+    import("./chunks/file-downloading-RYRSCJLN.js"),
+    import("./chunks/file-finished-HRHNQJSG.js"),
+    import("./chunks/file-error-7UWEK6PG.js"),
     app.controller.ready
   ]);
   app.showDownloadLayout();
   console.log("[Route] Download page ready");
+}
+async function initRegisterRoute(app) {
+  console.log("[Route] Initializing register page...");
+  await Promise.all([
+    import("./chunks/register-layout-VPIFKXK4.js"),
+    app.controller.ready
+  ]);
+  app.showRegisterLayout();
+  console.log("[Route] Register page ready");
+}
+async function initLoginRoute(app) {
+  console.log("[Route] Initializing login page...");
+  await Promise.all([
+    import("./chunks/login-layout-OGQOPXRD.js"),
+    app.controller.ready
+  ]);
+  app.showLoginLayout();
+  console.log("[Route] Login page ready");
 }
 export {
   initDownloadRoute

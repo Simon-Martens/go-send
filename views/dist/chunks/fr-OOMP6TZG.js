@@ -153,8 +153,47 @@ shareLinkButton = Partager le lien
 shareMessage = T\xE9l\xE9charger \xAB\xA0{ $name }\xA0\xBB avec { -send-brand }\xA0: un moyen simple et s\xFBr de partager des fichiers
 trailheadPromo = Il existe un moyen de prot\xE9ger votre vie priv\xE9e. Rejoignez Firefox.
 learnMore = En savoir plus.
+
+sponsoredByThunderbird = Sponsoris\xE9 par Thunderbird
+
+## Registration strings
+
+registerAdminTitle = Enregistrer un administrateur
+registerUserTitle = Enregistrer un utilisateur
+registerAdminDescription = Cr\xE9ez votre compte administrateur
+registerUserDescription = Cr\xE9ez votre compte utilisateur
+registerNameLabel = Nom
+registerNamePlaceholder = Votre nom
+registerEmailLabel = E-mail
+registerEmailPlaceholder = votre@email.fr
+registerPasswordLabel = Mot de passe
+registerPasswordHint = Au moins 10 caract\xE8res
+registerPasswordConfirmLabel = Confirmer le mot de passe
+registerSubmitButton = Cr\xE9er un compte
+registerSuccessTitle = Compte cr\xE9\xE9 avec succ\xE8s
+registerSuccessMessage = Bienvenue, { $name } ! Votre compte administrateur a \xE9t\xE9 cr\xE9\xE9.
+registerSuccessButton = Aller au t\xE9l\xE9chargement
+registerErrorPasswordsMismatch = Les mots de passe ne correspondent pas
+registerErrorMissingToken = Lien d\u2019inscription invalide
+registerErrorGeneric = L\u2019inscription a \xE9chou\xE9. Veuillez r\xE9essayer.
+registerSubmitting = Cr\xE9ation du compte\u2026
+
+authErrorInvalidEmail = Veuillez saisir une adresse e-mail valide
+authErrorPasswordLength = Le mot de passe doit comporter au moins 10 caract\xE8res
+authErrorCryptoUnsupported = Votre navigateur ne prend pas en charge les API de cryptographie requises.
+
+## Login strings
+
+loginTitle = Se connecter
+loginDescription = Saisissez vos identifiants pour continuer
+loginEmailLabel = Adresse e-mail
+loginPasswordLabel = Mot de passe
+loginSubmitButton = Se connecter
+loginSubmitting = Connexion\u2026
+loginErrorChallenge = Impossible de d\xE9marrer le d\xE9fi de connexion. Veuillez r\xE9essayer.
+loginErrorGeneric = \xC9chec de la connexion. Veuillez r\xE9essayer.
 `;
 export {
   fr_default as default
 };
-//# sourceMappingURL=fr-SN6US4SQ.js.map
+//# sourceMappingURL=fr-OOMP6TZG.js.map

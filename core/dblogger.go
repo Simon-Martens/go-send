@@ -129,6 +129,78 @@ func (d *DBLogger) LogFileOp(
 	}
 }
 
+// LogAuthEvent records authentication-related events
+func (d *DBLogger) LogAuthEvent(
+	r *http.Request,
+	eventType string,
+	identifier string,
+	success bool,
+	message string,
+	keyValues ...any,
+) {
+	reqData := storage.NewRequestData(r)
+
+	data := map[string]any{
+		"identifier": identifier,
+		"success":    success,
+	}
+	if message != "" {
+		data["message"] = message
+	}
+
+	for i := 0; i < len(keyValues)-1; i += 2 {
+		if key, ok := keyValues[i].(string); ok {
+			data[key] = keyValues[i+1]
+		}
+	}
+
+	dataJSON, err := json.Marshal(data)
+	if err != nil {
+		d.logger.Error("Failed to marshal auth event data", "error", err)
+		dataJSON = []byte("{}")
+	}
+
+	status := http.StatusOK
+	if !success {
+		status = http.StatusUnauthorized
+	}
+	statusCode := status
+
+	authLog := &storage.AuthEventLog{
+		EventType:   eventType,
+		URL:         r.URL.Path,
+		RequestData: reqData.ToJSON(),
+		StatusCode:  &statusCode,
+		Data:        json.RawMessage(dataJSON),
+	}
+
+	if err := d.logDB.CreateAuthEventLog(authLog); err != nil {
+		d.logger.Error("Failed to write auth event log to database",
+			"error", err,
+			"event_type", eventType,
+			"identifier", identifier,
+			"success", success)
+	}
+
+	logLevel := slog.LevelInfo
+	if !success {
+		logLevel = slog.LevelWarn
+	}
+
+	attrs := []any{
+		"event_type", eventType,
+		"identifier", identifier,
+		"success", success,
+		"ip", reqData.IP,
+	}
+	if message != "" {
+		attrs = append(attrs, "message", message)
+	}
+	attrs = append(attrs, keyValues...)
+
+	d.logger.Log(r.Context(), logLevel, "auth_event", attrs...)
+}
+
 // worker consumes log entries from both channels and writes them to the database
 func (d *DBLogger) worker() {
 	for {

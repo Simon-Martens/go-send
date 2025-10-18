@@ -152,3 +152,43 @@ shareLinkButton = Link teilen
 shareMessage = Laden Sie „{ $name }“ mit { -send-brand } herunter: einfaches, sicheres Teilen von Dateien
 trailheadPromo = Es gibt einen Weg, deine Privatsphäre zu schützen. Komm zu Firefox.
 learnMore = Mehr erfahren.
+
+sponsoredByThunderbird = Gesponsert von Thunderbird
+
+## Registration strings
+
+registerAdminTitle = Administrator registrieren
+registerUserTitle = Benutzer registrieren
+registerAdminDescription = Erstellen Sie Ihr Administrator-Konto
+registerUserDescription = Erstellen Sie Ihr Benutzerkonto
+registerNameLabel = Name
+registerNamePlaceholder = Ihr Name
+registerEmailLabel = E-Mail
+registerEmailPlaceholder = ihre@email.de
+registerPasswordLabel = Passwort
+registerPasswordHint = Mindestens 10 Zeichen
+registerPasswordConfirmLabel = Passwort bestätigen
+registerSubmitButton = Konto erstellen
+registerSuccessTitle = Konto erfolgreich erstellt
+registerSuccessMessage = Willkommen, { $name }! Ihr Administrator-Konto wurde erstellt.
+registerSuccessButton = Zum Hochladen
+registerErrorPasswordsMismatch = Die Passwörter stimmen nicht überein
+registerErrorNameRequired = Bitte geben Sie Ihren Namen ein
+registerErrorMissingToken = Ungültiger Registrierungslink
+registerErrorGeneric = Registrierung fehlgeschlagen. Bitte versuchen Sie es erneut.
+registerSubmitting = Konto wird erstellt…
+
+authErrorInvalidEmail = Bitte geben Sie eine gültige E-Mail-Adresse ein
+authErrorPasswordLength = Das Passwort muss mindestens 10 Zeichen lang sein
+authErrorCryptoUnsupported = Ihr Browser unterstützt die erforderlichen Kryptografie-APIs nicht.
+
+## Login strings
+
+loginTitle = Anmeldung
+loginDescription = Geben Sie Ihre Zugangsdaten ein, um fortzufahren
+loginEmailLabel = E-Mail
+loginPasswordLabel = Passwort
+loginSubmitButton = Anmelden
+loginSubmitting = Anmeldung läuft…
+loginErrorChallenge = Anmeldeanforderung konnte nicht gestartet werden. Bitte versuchen Sie es erneut.
+loginErrorGeneric = Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.

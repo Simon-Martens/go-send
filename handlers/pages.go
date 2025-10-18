@@ -56,7 +56,6 @@ func IndexHandler(app *core.App) http.HandlerFunc {
 				app.DBLogger.LogRequest(r, http.StatusNotFound, nil, err.Error(), "file_id", id, "page", "download")
 				downloadMetadata = `{"status": 404}`
 			} else {
-				app.DBLogger.LogRequest(r, http.StatusOK, nil, "", "file_id", id, "page", "download")
 				// File found - provide nonce and password flag
 				metaJSON, _ := json.Marshal(map[string]interface{}{
 					"nonce": meta.Nonce,

@@ -26,6 +26,12 @@ func NewLogDB(dbPath string) (*LogDB, error) {
 		return nil, err
 	}
 
+	// Configure connection pool to handle concurrent writes better
+	// SQLite with WAL mode can handle multiple readers and one writer
+	db.SetMaxOpenConns(1)  // Serialize all writes to prevent lock contention
+	db.SetMaxIdleConns(1)  // Keep connection alive
+	db.SetConnMaxLifetime(0) // Reuse connection indefinitely
+
 	// Schema creation is handled by migrations
 	return &LogDB{db: db}, nil
 }

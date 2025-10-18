@@ -247,18 +247,26 @@ function translateElement(root) {
 
 export {
   arrayToB64,
+  b64ToArray,
   locale,
+  loadShim,
   isFile,
   copyToClipboard,
   bytes,
+  percent,
+  number,
+  allowedCopy,
   delay,
+  fadeOut,
   openLinksInNewTab,
   browserName,
   streamToArrayBuffer,
   secondsToL10nId,
   timeLeft,
+  platform,
   encryptedSize,
+  translate,
   setTranslate,
   translateElement
 };
-//# sourceMappingURL=chunk-XWMZRMIJ.js.map
+//# sourceMappingURL=chunk-6LPP53TP.js.map

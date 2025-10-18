@@ -38,7 +38,14 @@ func (l *LogDB) CreateRequestLog(log *RequestLog) error {
 		VALUES (?, ?, ?, ?, ?, ?, ?)
 	`
 
-	result, err := l.db.Exec(
+	// Use explicit transaction with immediate lock to avoid conflicts
+	tx, err := l.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	result, err := tx.Exec(
 		query,
 		log.Timestamp,
 		log.Method,
@@ -54,6 +61,10 @@ func (l *LogDB) CreateRequestLog(log *RequestLog) error {
 
 	id, err := result.LastInsertId()
 	if err != nil {
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
 		return err
 	}
 

@@ -152,3 +152,43 @@ shareLinkButton = Partager le lien
 shareMessage = Télécharger « { $name } » avec { -send-brand } : un moyen simple et sûr de partager des fichiers
 trailheadPromo = Il existe un moyen de protéger votre vie privée. Rejoignez Firefox.
 learnMore = En savoir plus.
+
+sponsoredByThunderbird = Sponsorisé par Thunderbird
+
+## Registration strings
+
+registerAdminTitle = Enregistrer un administrateur
+registerUserTitle = Enregistrer un utilisateur
+registerAdminDescription = Créez votre compte administrateur
+registerUserDescription = Créez votre compte utilisateur
+registerNameLabel = Nom
+registerNamePlaceholder = Votre nom
+registerEmailLabel = E-mail
+registerEmailPlaceholder = votre@email.fr
+registerPasswordLabel = Mot de passe
+registerPasswordHint = Au moins 10 caractères
+registerPasswordConfirmLabel = Confirmer le mot de passe
+registerSubmitButton = Créer un compte
+registerSuccessTitle = Compte créé avec succès
+registerSuccessMessage = Bienvenue, { $name } ! Votre compte administrateur a été créé.
+registerSuccessButton = Aller au téléchargement
+registerErrorPasswordsMismatch = Les mots de passe ne correspondent pas
+registerErrorNameRequired = Veuillez saisir votre nom
+registerErrorMissingToken = Lien d’inscription invalide
+registerErrorGeneric = L’inscription a échoué. Veuillez réessayer.
+registerSubmitting = Création du compte…
+
+authErrorInvalidEmail = Veuillez saisir une adresse e-mail valide
+authErrorPasswordLength = Le mot de passe doit comporter au moins 10 caractères
+authErrorCryptoUnsupported = Votre navigateur ne prend pas en charge les API de cryptographie requises.
+
+## Login strings
+
+loginTitle = Se connecter
+loginDescription = Saisissez vos identifiants pour continuer
+loginEmailLabel = Adresse e-mail
+loginPasswordLabel = Mot de passe
+loginSubmitButton = Se connecter
+loginSubmitting = Connexion…
+loginErrorChallenge = Impossible de démarrer le défi de connexion. Veuillez réessayer.
+loginErrorGeneric = Échec de la connexion. Veuillez réessayer.

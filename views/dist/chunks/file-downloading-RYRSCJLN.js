@@ -1,7 +1,7 @@
 import {
   bytes,
   translateElement
-} from "./chunk-XWMZRMIJ.js";
+} from "./chunk-6LPP53TP.js";
 
 // src/ui/file-downloading.mjs
 var FileDownloadingElement = class extends HTMLElement {
@@ -74,4 +74,4 @@ var FileDownloadingElement = class extends HTMLElement {
   }
 };
 customElements.define("file-downloading-view", FileDownloadingElement);
-//# sourceMappingURL=file-downloading-5ZBFTOCG.js.map
+//# sourceMappingURL=file-downloading-RYRSCJLN.js.map

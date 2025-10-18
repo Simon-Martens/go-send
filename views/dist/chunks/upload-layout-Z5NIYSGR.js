@@ -1,6 +1,6 @@
 import {
   translateElement
-} from "./chunk-XWMZRMIJ.js";
+} from "./chunk-6LPP53TP.js";
 
 // src/ui/upload-layout.mjs
 var UploadLayoutElement = class extends HTMLElement {
@@ -257,4 +257,4 @@ var UploadLayoutElement = class extends HTMLElement {
   }
 };
 customElements.define("upload-layout", UploadLayoutElement);
-//# sourceMappingURL=upload-layout-CKM2RW3D.js.map
+//# sourceMappingURL=upload-layout-Z5NIYSGR.js.map

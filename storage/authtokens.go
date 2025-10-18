@@ -1,9 +1,12 @@
 package storage
 
 import (
+	"crypto/rand"
 	"database/sql"
 	"fmt"
 	"time"
+
+	"github.com/Simon-Martens/go-send/utils"
 )
 
 // AuthTokenType represents the type of authentication token
@@ -481,4 +484,66 @@ func (d *DB) GetTokensByUser(userID int64) ([]*AuthToken, error) {
 	defer rows.Close()
 
 	return d.scanAuthTokens(rows)
+}
+
+// DeleteTokensByType deletes all tokens of a specific type
+func (d *DB) DeleteTokensByType(tokenType AuthTokenType) (int64, error) {
+	if !tokenType.IsValid() {
+		return 0, fmt.Errorf("invalid token type: %d", tokenType)
+	}
+
+	query := `DELETE FROM authtokens WHERE type = ?`
+	result, err := d.db.Exec(query, int(tokenType))
+	if err != nil {
+		return 0, err
+	}
+
+	return result.RowsAffected()
+}
+
+// GenerateInitialAdminToken creates a one-time use admin signup token
+// Returns the raw token (to be shown once) and the database record
+func (d *DB) GenerateInitialAdminToken(creatorID int64) (string, *AuthToken, error) {
+	// Generate a user-friendly token using only lowercase letters and digits (a-z, 0-9)
+	// 40 characters = ~206 bits of entropy (log2(36^40))
+	const tokenLength = 40
+	const charset = "abcdefghijklmnopqrstuvwxyz0123456789"
+
+	rawBytes := make([]byte, tokenLength)
+	if _, err := rand.Read(rawBytes); err != nil {
+		return "", nil, fmt.Errorf("failed to generate random token: %w", err)
+	}
+
+	// Convert random bytes to charset characters
+	rawToken := make([]byte, tokenLength)
+	for i := 0; i < tokenLength; i++ {
+		rawToken[i] = charset[int(rawBytes[i])%len(charset)]
+	}
+
+	// Hash the token for storage
+	hashedToken := utils.HashToken(string(rawToken))
+
+	// Create preview (first 8 characters)
+	preview := string(rawToken[:8]) + "..."
+
+	// Create one-time use token
+	expiresIn := 1
+	token := &AuthToken{
+		Token:       hashedToken,
+		Expires:     false, // No time-based expiration
+		ExpiresAt:   nil,
+		ExpiresIn:   &expiresIn, // One-time use
+		Name:        "Initial Admin Token",
+		Description: "Auto-generated token for creating the first administrator account",
+		Preview:     preview,
+		Active:      true,
+		Type:        TokenTypeAdminSignup,
+		CreatedBy:   creatorID,
+	}
+
+	if err := d.CreateAuthToken(token); err != nil {
+		return "", nil, fmt.Errorf("failed to save token to database: %w", err)
+	}
+
+	return string(rawToken), token, nil
 }

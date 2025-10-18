@@ -4,7 +4,7 @@ import {
   secondsToL10nId,
   timeLeft,
   translateElement
-} from "./chunk-XWMZRMIJ.js";
+} from "./chunk-6LPP53TP.js";
 
 // src/ui/upload-area-empty.mjs
 var UploadEmptyView = class extends HTMLElement {
@@ -3423,4 +3423,4 @@ var UploadAreaElement = class extends HTMLElement {
   }
 };
 customElements.define("upload-area", UploadAreaElement);
-//# sourceMappingURL=upload-area-WTIYELCB.js.map
+//# sourceMappingURL=upload-area-OK6IV2EY.js.map

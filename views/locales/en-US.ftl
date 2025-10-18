@@ -150,3 +150,41 @@ shareMessage = Download “{ $name }” with { -send-brand }: simple, safe file 
 learnMore = Learn more.
 
 sponsoredByThunderbird = Sponsored by Thunderbird
+
+## Registration strings
+
+registerAdminTitle = Register Administrator
+registerUserTitle = Register User
+registerAdminDescription = Create your administrator account
+registerUserDescription = Create your user account
+registerNameLabel = Name
+registerNamePlaceholder = Your name
+registerEmailLabel = Email
+registerEmailPlaceholder = your@email.com
+registerPasswordLabel = Password
+registerPasswordHint = At least 10 characters
+registerPasswordConfirmLabel = Confirm Password
+registerSubmitButton = Create Account
+registerSuccessTitle = Account Created Successfully
+registerSuccessMessage = Welcome, { $name }! Your administrator account has been created.
+registerSuccessButton = Go to Upload
+registerErrorPasswordsMismatch = Passwords do not match
+registerErrorNameRequired = Please enter your name
+registerErrorMissingToken = Invalid registration link
+registerErrorGeneric = Registration failed. Please try again.
+registerSubmitting = Creating account...
+
+authErrorInvalidEmail = Please enter a valid email address
+authErrorPasswordLength = Password must be at least 10 characters
+authErrorCryptoUnsupported = Your browser does not support the required cryptography APIs.
+
+## Login strings
+
+loginTitle = Sign in
+loginDescription = Enter your credentials to continue
+loginEmailLabel = Email
+loginPasswordLabel = Password
+loginSubmitButton = Sign in
+loginSubmitting = Signing in...
+loginErrorChallenge = Could not start login challenge. Please try again.
+loginErrorGeneric = Login failed. Please try again.

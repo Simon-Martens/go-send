@@ -1,6 +1,6 @@
 import {
   translateElement
-} from "./chunk-XWMZRMIJ.js";
+} from "./chunk-6LPP53TP.js";
 
 // src/ui/file-error.mjs
 var FileErrorElement = class extends HTMLElement {
@@ -74,4 +74,4 @@ var FileErrorElement = class extends HTMLElement {
   }
 };
 customElements.define("file-error-view", FileErrorElement);
-//# sourceMappingURL=file-error-RYTRMRVD.js.map
+//# sourceMappingURL=file-error-7UWEK6PG.js.map

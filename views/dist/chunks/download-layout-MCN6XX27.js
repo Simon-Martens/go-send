@@ -1,6 +1,6 @@
 import {
   translateElement
-} from "./chunk-XWMZRMIJ.js";
+} from "./chunk-6LPP53TP.js";
 
 // src/ui/download-layout.mjs
 var DownloadLayoutElement = class extends HTMLElement {
@@ -225,4 +225,4 @@ var DownloadLayoutElement = class extends HTMLElement {
   }
 };
 customElements.define("download-layout", DownloadLayoutElement);
-//# sourceMappingURL=download-layout-QZOJNRWN.js.map
+//# sourceMappingURL=download-layout-MCN6XX27.js.map

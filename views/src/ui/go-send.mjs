@@ -120,6 +120,36 @@ class GoSendElement extends HTMLElement {
     this.currentView = "download";
   }
 
+  showRegisterLayout() {
+    const slot = this.querySelector("#app-content");
+    if (!slot) {
+      console.error("Slot #app-content not found in go-send template");
+      return;
+    }
+
+    slot.innerHTML = "";
+    const registerLayout = document.createElement("register-layout");
+    slot.appendChild(registerLayout);
+
+    this.currentLayout = registerLayout;
+    this.currentView = "register";
+  }
+
+  showLoginLayout() {
+    const slot = this.querySelector("#app-content");
+    if (!slot) {
+      console.error("Slot #app-content not found in go-send template");
+      return;
+    }
+
+    slot.innerHTML = "";
+    const loginLayout = document.createElement("login-layout");
+    slot.appendChild(loginLayout);
+
+    this.currentLayout = loginLayout;
+    this.currentView = "login";
+  }
+
   showErrorLayout(errorMessage) {
     const slot = this.querySelector("#app-content");
     if (!slot) {

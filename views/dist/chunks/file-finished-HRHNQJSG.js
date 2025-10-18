@@ -1,6 +1,6 @@
 import {
   translateElement
-} from "./chunk-XWMZRMIJ.js";
+} from "./chunk-6LPP53TP.js";
 
 // src/ui/file-finished.mjs
 var FileFinishedElement = class extends HTMLElement {
@@ -42,4 +42,4 @@ var FileFinishedElement = class extends HTMLElement {
   }
 };
 customElements.define("file-finished-view", FileFinishedElement);
-//# sourceMappingURL=file-finished-ZAU5KCYH.js.map
+//# sourceMappingURL=file-finished-HRHNQJSG.js.map

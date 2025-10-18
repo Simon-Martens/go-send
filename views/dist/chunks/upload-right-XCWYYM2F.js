@@ -3,7 +3,7 @@ import {
   copyToClipboard,
   timeLeft,
   translateElement
-} from "./chunk-XWMZRMIJ.js";
+} from "./chunk-6LPP53TP.js";
 
 // src/ui/upload-right.mjs
 var UploadRightElement = class extends HTMLElement {
@@ -357,4 +357,4 @@ var UploadRightElement = class extends HTMLElement {
   }
 };
 customElements.define("upload-right", UploadRightElement);
-//# sourceMappingURL=upload-right-7NP76HKJ.js.map
+//# sourceMappingURL=upload-right-XCWYYM2F.js.map

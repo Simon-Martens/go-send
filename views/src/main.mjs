@@ -16,6 +16,11 @@ import "./ui/go-send.mjs";
   } else if (path.match(/^\/download/) || path.match(/^\/[0-9a-fA-F]{10,16}/)) {
     // INFO: Matches: /download/... or /{fileId}
     await initDownloadRoute(app);
+  } else if (path.startsWith("/register")) {
+    // INFO: Matches: /register/admin/[token] or /register/[token]
+    await initRegisterRoute(app);
+  } else if (path.startsWith("/login")) {
+    await initLoginRoute(app);
   } else {
     // TODO: Handle 404
     console.warn(`[Router] Unknown route: ${path}, defaulting to upload`);
@@ -54,4 +59,29 @@ export async function initDownloadRoute(app) {
 
   app.showDownloadLayout();
   console.log("[Route] Download page ready");
+}
+
+async function initRegisterRoute(app) {
+  console.log("[Route] Initializing register page...");
+
+  // Import register-specific components
+  await Promise.all([
+    import("./ui/register-layout.mjs"),
+    app.controller.ready,
+  ]);
+
+  app.showRegisterLayout();
+  console.log("[Route] Register page ready");
+}
+
+async function initLoginRoute(app) {
+  console.log("[Route] Initializing login page...");
+
+  await Promise.all([
+    import("./ui/login-layout.mjs"),
+    app.controller.ready,
+  ]);
+
+  app.showLoginLayout();
+  console.log("[Route] Login page ready");
 }

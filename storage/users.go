@@ -37,16 +37,84 @@ func (r UserRole) IsValid() bool {
 
 // User represents a user record in the database
 type User struct {
-	ID        int64            `json:"id"`
-	Name      string           `json:"name"`
-	Email     string           `json:"email"`
-	Salt      string           `json:"salt"`
-	PublicKey string           `json:"public_key"`
-	Created   int64            `json:"created"`
-	Updated   int64            `json:"updated"`
-	Settings  json.RawMessage  `json:"settings"`
-	Role      UserRole         `json:"role"`
-	Active    bool             `json:"active"`
+	ID        int64           `json:"id"`
+	Name      string          `json:"name"`
+	Email     string          `json:"email"`
+	Salt      string          `json:"salt"`
+	PublicKey string          `json:"public_key"`
+	Created   int64           `json:"created"`
+	Updated   int64           `json:"updated"`
+	Settings  json.RawMessage `json:"settings"`
+	Role      UserRole        `json:"role"`
+	Active    bool            `json:"active"`
+}
+
+// UserKDFSettings captures the configuration clients used to derive the key pair
+// so the login flow can reproduce the exact same KDF parameters.
+type UserKDFSettings struct {
+	Algorithm    string                 `json:"algorithm"`
+	Hash         string                 `json:"hash,omitempty"`
+	Iterations   int                    `json:"iterations,omitempty"`
+	Memory       int                    `json:"memory,omitempty"`
+	Parallelism  int                    `json:"parallelism,omitempty"`
+	SaltLength   int                    `json:"saltLength,omitempty"`
+	OutputLength int                    `json:"outputLength,omitempty"`
+	Params       map[string]interface{} `json:"params,omitempty"`
+}
+
+// UserCryptoSettings is persisted in the settings column and can grow with future needs.
+type UserCryptoSettings struct {
+	KDF *UserKDFSettings `json:"kdf,omitempty"`
+}
+
+// SetKDFSettings encodes the KDF settings into the user's settings JSON.
+func (u *User) SetKDFSettings(kdf *UserKDFSettings) error {
+	var settings map[string]interface{}
+	if len(u.Settings) > 0 {
+		if err := json.Unmarshal(u.Settings, &settings); err != nil {
+			return fmt.Errorf("parse user settings: %w", err)
+		}
+	} else {
+		settings = make(map[string]interface{})
+	}
+
+	if kdf != nil {
+		settings["kdf"] = kdf
+	} else {
+		delete(settings, "kdf")
+	}
+
+	raw, err := json.Marshal(settings)
+	if err != nil {
+		return fmt.Errorf("encode user settings: %w", err)
+	}
+
+	u.Settings = json.RawMessage(raw)
+	return nil
+}
+
+// GetKDFSettings extracts the stored KDF settings if present.
+func (u *User) GetKDFSettings() (*UserKDFSettings, error) {
+	if len(u.Settings) == 0 {
+		return nil, nil
+	}
+
+	var settings map[string]json.RawMessage
+	if err := json.Unmarshal(u.Settings, &settings); err != nil {
+		return nil, fmt.Errorf("parse user settings: %w", err)
+	}
+
+	raw, ok := settings["kdf"]
+	if !ok || len(raw) == 0 {
+		return nil, nil
+	}
+
+	var kdf UserKDFSettings
+	if err := json.Unmarshal(raw, &kdf); err != nil {
+		return nil, fmt.Errorf("parse user kdf settings: %w", err)
+	}
+
+	return &kdf, nil
 }
 
 // Database operations for users

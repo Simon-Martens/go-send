@@ -14,7 +14,7 @@ type FileTransferLog struct {
 	Timestamp   int64           `json:"timestamp"`
 	RequestData json.RawMessage `json:"request_data"` // JSON blob with URL, IP, user agent, etc.
 	StatusCode  *int            `json:"status_code,omitempty"`
-	Error       json.RawMessage `json:"error"` // JSON blob with error details, empty {} means no error
+	Data        json.RawMessage `json:"data"` // JSON blob with additional data (errors, context, etc)
 	UserID      *int64          `json:"user_id,omitempty"`
 	SessionID   *int64          `json:"session_id,omitempty"`
 	DurationMS  *int64          `json:"duration_ms,omitempty"`
@@ -28,14 +28,14 @@ func (l *LogDB) CreateFileTransferLog(log *FileTransferLog) error {
 	if len(log.RequestData) == 0 {
 		log.RequestData = json.RawMessage("{}")
 	}
-	if len(log.Error) == 0 {
-		log.Error = json.RawMessage("{}")
+	if len(log.Data) == 0 {
+		log.Data = json.RawMessage("{}")
 	}
 
 	query := `
 		INSERT INTO file_transfer_logs (
 			event_type, file_id, timestamp, request_data, status_code,
-			error, user_id, session_id, duration_ms
+			data, user_id, session_id, duration_ms
 		)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
@@ -47,7 +47,7 @@ func (l *LogDB) CreateFileTransferLog(log *FileTransferLog) error {
 		log.Timestamp,
 		string(log.RequestData),
 		log.StatusCode,
-		string(log.Error),
+		string(log.Data),
 		log.UserID,
 		log.SessionID,
 		log.DurationMS,
@@ -69,14 +69,14 @@ func (l *LogDB) CreateFileTransferLog(log *FileTransferLog) error {
 func (l *LogDB) GetFileTransferLog(id int64) (*FileTransferLog, error) {
 	query := `
 		SELECT id, event_type, file_id, timestamp, request_data, status_code,
-		       error, user_id, session_id, duration_ms
+		       data, user_id, session_id, duration_ms
 		FROM file_transfer_logs
 		WHERE id = ?
 	`
 
 	log := &FileTransferLog{}
 	var fileID sql.NullString
-	var requestData, errorData string
+	var requestData, data string
 	var statusCode sql.NullInt64
 	var userID, sessionID, durationMS sql.NullInt64
 
@@ -87,7 +87,7 @@ func (l *LogDB) GetFileTransferLog(id int64) (*FileTransferLog, error) {
 		&log.Timestamp,
 		&requestData,
 		&statusCode,
-		&errorData,
+		&data,
 		&userID,
 		&sessionID,
 		&durationMS,
@@ -97,7 +97,7 @@ func (l *LogDB) GetFileTransferLog(id int64) (*FileTransferLog, error) {
 	}
 
 	log.RequestData = json.RawMessage(requestData)
-	log.Error = json.RawMessage(errorData)
+	log.Data = json.RawMessage(data)
 
 	if fileID.Valid {
 		log.FileID = &fileID.String
@@ -123,7 +123,7 @@ func (l *LogDB) GetFileTransferLog(id int64) (*FileTransferLog, error) {
 func (l *LogDB) ListFileTransferLogs(eventType *string, userID *int64, fileID *string, limit int, offset int) ([]*FileTransferLog, error) {
 	query := `
 		SELECT id, event_type, file_id, timestamp, request_data, status_code,
-		       error, user_id, session_id, duration_ms
+		       data, user_id, session_id, duration_ms
 		FROM file_transfer_logs
 		WHERE 1=1
 	`
@@ -166,7 +166,7 @@ func (l *LogDB) ListFileTransferLogs(eventType *string, userID *int64, fileID *s
 	for rows.Next() {
 		log := &FileTransferLog{}
 		var fileID sql.NullString
-		var requestData, errorData string
+		var requestData, data string
 		var statusCode sql.NullInt64
 		var userID, sessionID, durationMS sql.NullInt64
 
@@ -177,7 +177,7 @@ func (l *LogDB) ListFileTransferLogs(eventType *string, userID *int64, fileID *s
 			&log.Timestamp,
 			&requestData,
 			&statusCode,
-			&errorData,
+			&data,
 			&userID,
 			&sessionID,
 			&durationMS,
@@ -187,7 +187,7 @@ func (l *LogDB) ListFileTransferLogs(eventType *string, userID *int64, fileID *s
 		}
 
 		log.RequestData = json.RawMessage(requestData)
-		log.Error = json.RawMessage(errorData)
+		log.Data = json.RawMessage(data)
 
 		if fileID.Valid {
 			log.FileID = &fileID.String

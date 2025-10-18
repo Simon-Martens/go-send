@@ -15,12 +15,12 @@ import (
 // App holds all global application state and dependencies
 type App struct {
 	DB         *storage.DB
-	LogDB      *storage.LogDB
 	Config     *config.Config
 	Template   *template.Template
 	Manifest   Manifest
 	Logger     *slog.Logger
 	Translator *i18n.Translator
+	DBLogger   *DBLogger
 
 	// Track active cleanup goroutines with their cancel functions
 	activeCleanups   map[string]context.CancelFunc
@@ -28,17 +28,22 @@ type App struct {
 }
 
 // NewApp creates and initializes a new App instance
-func NewApp(db *storage.DB, logDB *storage.LogDB, cfg *config.Config, tmpl *template.Template, manifest Manifest, translator *i18n.Translator, logger *slog.Logger) *App {
+func NewApp(db *storage.DB, cfg *config.Config, tmpl *template.Template, manifest Manifest, translator *i18n.Translator, logger *slog.Logger, dbLogger *DBLogger) *App {
 	return &App{
 		DB:             db,
-		LogDB:          logDB,
 		Config:         cfg,
 		Template:       tmpl,
 		Manifest:       manifest,
 		Translator:     translator,
 		Logger:         logger,
+		DBLogger:       dbLogger,
 		activeCleanups: make(map[string]context.CancelFunc),
 	}
+}
+
+// LogDB returns the underlying LogDB for migrations and direct access
+func (a *App) LogDB() *storage.LogDB {
+	return a.DBLogger.DB()
 }
 
 // ScheduleCleanup schedules a file for deletion at its expiration time.
@@ -64,7 +69,7 @@ func (a *App) ScheduleCleanup(fileID string, expiresAt int64) bool {
 			// Delete file from disk and database
 			a.Logger.Info("Auto-deleting expired file", "file_id", id)
 			storage.DeleteFile(a.Config.FileDir, id)
-			a.DB.DeleteFile(id)
+			a.DB.DeleteFileRecord(id)
 		case <-ctx.Done():
 			a.Logger.Debug("Cleanup cancelled for file", "file_id", id)
 		}

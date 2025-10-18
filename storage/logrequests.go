@@ -15,7 +15,7 @@ type RequestLog struct {
 	StatusCode  int             `json:"status_code"`
 	RequestData json.RawMessage `json:"request_data"` // JSON blob with IP, user agent, etc.
 	UserID      *int64          `json:"user_id,omitempty"`
-	Error       json.RawMessage `json:"error"` // JSON blob with error details, empty {} means no error
+	Data        json.RawMessage `json:"data"` // JSON blob with additional data (errors, context, etc)
 }
 
 // CreateRequestLog inserts a new request log entry
@@ -26,14 +26,14 @@ func (l *LogDB) CreateRequestLog(log *RequestLog) error {
 	if len(log.RequestData) == 0 {
 		log.RequestData = json.RawMessage("{}")
 	}
-	if len(log.Error) == 0 {
-		log.Error = json.RawMessage("{}")
+	if len(log.Data) == 0 {
+		log.Data = json.RawMessage("{}")
 	}
 
 	query := `
 		INSERT INTO request_logs (
 			timestamp, method, url, status_code,
-			request_data, user_id, error
+			request_data, user_id, data
 		)
 		VALUES (?, ?, ?, ?, ?, ?, ?)
 	`
@@ -46,7 +46,7 @@ func (l *LogDB) CreateRequestLog(log *RequestLog) error {
 		log.StatusCode,
 		string(log.RequestData),
 		log.UserID,
-		string(log.Error),
+		string(log.Data),
 	)
 	if err != nil {
 		return err
@@ -65,14 +65,14 @@ func (l *LogDB) CreateRequestLog(log *RequestLog) error {
 func (l *LogDB) GetRequestLog(id int64) (*RequestLog, error) {
 	query := `
 		SELECT id, timestamp, method, url, status_code,
-		       request_data, user_id, error
+		       request_data, user_id, data
 		FROM request_logs
 		WHERE id = ?
 	`
 
 	log := &RequestLog{}
-	var requestData, errorData string
-	var userID, requestSize, responseSize sql.NullInt64
+	var requestData, data string
+	var userID sql.NullInt64
 
 	err := l.db.QueryRow(query, id).Scan(
 		&log.ID,
@@ -82,16 +82,14 @@ func (l *LogDB) GetRequestLog(id int64) (*RequestLog, error) {
 		&log.StatusCode,
 		&requestData,
 		&userID,
-		&requestSize,
-		&responseSize,
-		&errorData,
+		&data,
 	)
 	if err != nil {
 		return nil, err
 	}
 
 	log.RequestData = json.RawMessage(requestData)
-	log.Error = json.RawMessage(errorData)
+	log.Data = json.RawMessage(data)
 
 	if userID.Valid {
 		log.UserID = &userID.Int64
@@ -104,7 +102,7 @@ func (l *LogDB) GetRequestLog(id int64) (*RequestLog, error) {
 func (l *LogDB) ListRequestLogs(method *string, path *string, statusCode *int, userID *int64, limit int, offset int) ([]*RequestLog, error) {
 	query := `
 		SELECT id, timestamp, method, url, status_code,
-		       request_data, user_id, error
+		       request_data, user_id, data
 		FROM request_logs
 		WHERE 1=1
 	`
@@ -151,7 +149,7 @@ func (l *LogDB) ListRequestLogs(method *string, path *string, statusCode *int, u
 	var logs []*RequestLog
 	for rows.Next() {
 		log := &RequestLog{}
-		var requestData, errorData string
+		var requestData, data string
 		var userID sql.NullInt64
 
 		err := rows.Scan(
@@ -162,14 +160,14 @@ func (l *LogDB) ListRequestLogs(method *string, path *string, statusCode *int, u
 			&log.StatusCode,
 			&requestData,
 			&userID,
-			&errorData,
+			&data,
 		)
 		if err != nil {
 			return nil, err
 		}
 
 		log.RequestData = json.RawMessage(requestData)
-		log.Error = json.RawMessage(errorData)
+		log.Data = json.RawMessage(data)
 
 		if userID.Valid {
 			log.UserID = &userID.Int64

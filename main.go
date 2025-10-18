@@ -42,9 +42,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	logDB, err := storage.NewLogDB(config.LOG_DB_PATH)
+	dbLogger, err := core.NewDBLogger(config.LOG_DB_PATH, logger)
 	if err != nil {
-		logger.Error("Failed to initialize log database. Exiting", "error", err)
+		logger.Error("Failed to initialize DBLogger. Exiting", "error", err)
 		os.Exit(1)
 	}
 
@@ -61,7 +61,7 @@ func main() {
 		logger.Error("Failed to load translations. Exiting", "error", err)
 		os.Exit(1)
 	}
-	app := core.NewApp(db, logDB, cfg, tmpl, manifest, translator, logger)
+	app := core.NewApp(db, cfg, tmpl, manifest, translator, logger, dbLogger)
 	if err := migrations.RunPending(app); err != nil {
 		logger.Error("Failed to run migrations. Exiting", "error", err)
 		os.Exit(1)

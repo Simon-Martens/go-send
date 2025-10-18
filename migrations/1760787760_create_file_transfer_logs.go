@@ -17,7 +17,7 @@ func up_1760787760_create_file_transfer_logs(app *core.App) error {
 		timestamp INTEGER NOT NULL,
 		request_data TEXT DEFAULT '{}',
 		status_code INTEGER,
-		error TEXT DEFAULT '{}',
+		data TEXT DEFAULT '{}',
 		user_id INTEGER,
 		session_id INTEGER,
 		duration_ms INTEGER
@@ -30,7 +30,7 @@ func up_1760787760_create_file_transfer_logs(app *core.App) error {
 	CREATE INDEX IF NOT EXISTS idx_file_transfer_logs_status_code ON file_transfer_logs(status_code);
 	`
 
-	_, err := app.LogDB.DB().Exec(schema)
+	_, err := app.LogDB().DB().Exec(schema)
 	if err != nil {
 		return err
 	}
@@ -40,7 +40,7 @@ func up_1760787760_create_file_transfer_logs(app *core.App) error {
 }
 
 func down_1760787760_create_file_transfer_logs(app *core.App) error {
-	_, err := app.LogDB.DB().Exec(`DROP TABLE IF EXISTS file_transfer_logs`)
+	_, err := app.LogDB().DB().Exec(`DROP TABLE IF EXISTS file_transfer_logs`)
 	if err != nil {
 		return err
 	}

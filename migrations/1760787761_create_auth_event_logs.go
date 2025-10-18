@@ -19,7 +19,7 @@ func up_1760787761_create_auth_event_logs(app *core.App) error {
 		url TEXT NOT NULL,
 		request_data TEXT DEFAULT '{}',
 		status_code INTEGER,
-		error TEXT DEFAULT '{}',
+		data TEXT DEFAULT '{}'
 	);
 
 	CREATE INDEX IF NOT EXISTS idx_auth_event_logs_timestamp ON auth_event_logs(timestamp);
@@ -29,7 +29,7 @@ func up_1760787761_create_auth_event_logs(app *core.App) error {
 	CREATE INDEX IF NOT EXISTS idx_auth_event_logs_url ON auth_event_logs(url);
 	`
 
-	_, err := app.LogDB.DB().Exec(schema)
+	_, err := app.LogDB().DB().Exec(schema)
 	if err != nil {
 		return err
 	}
@@ -39,7 +39,7 @@ func up_1760787761_create_auth_event_logs(app *core.App) error {
 }
 
 func down_1760787761_create_auth_event_logs(app *core.App) error {
-	_, err := app.LogDB.DB().Exec(`DROP TABLE IF EXISTS auth_event_logs`)
+	_, err := app.LogDB().DB().Exec(`DROP TABLE IF EXISTS auth_event_logs`)
 	if err != nil {
 		return err
 	}

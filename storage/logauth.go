@@ -16,7 +16,7 @@ type AuthEventLog struct {
 	URL         string          `json:"url"`
 	RequestData json.RawMessage `json:"request_data"` // JSON blob with IP, user agent, etc.
 	StatusCode  *int            `json:"status_code,omitempty"`
-	Error       json.RawMessage `json:"error"` // JSON blob with error details, empty {} means no error
+	Data        json.RawMessage `json:"data"` // JSON blob with additional data (errors, context, etc)
 }
 
 // CreateAuthEventLog inserts a new authentication event log entry
@@ -27,14 +27,14 @@ func (l *LogDB) CreateAuthEventLog(log *AuthEventLog) error {
 	if len(log.RequestData) == 0 {
 		log.RequestData = json.RawMessage("{}")
 	}
-	if len(log.Error) == 0 {
-		log.Error = json.RawMessage("{}")
+	if len(log.Data) == 0 {
+		log.Data = json.RawMessage("{}")
 	}
 
 	query := `
 		INSERT INTO auth_event_logs (
-			event_type, timestamp, user_id, auth_token_id, 
-	    url, request_data, status_code, error
+			event_type, timestamp, user_id, auth_token_id,
+	    url, request_data, status_code, data
 		)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 	`
@@ -48,7 +48,7 @@ func (l *LogDB) CreateAuthEventLog(log *AuthEventLog) error {
 		log.URL,
 		string(log.RequestData),
 		log.StatusCode,
-		string(log.Error),
+		string(log.Data),
 	)
 	if err != nil {
 		return err
@@ -66,15 +66,15 @@ func (l *LogDB) CreateAuthEventLog(log *AuthEventLog) error {
 // GetAuthEventLog retrieves an authentication event log by ID
 func (l *LogDB) GetAuthEventLog(id int64) (*AuthEventLog, error) {
 	query := `
-		SELECT id, event_type, timestamp, user_id, auth_token_id, url, 
-			request_data, status_code, error
+		SELECT id, event_type, timestamp, user_id, auth_token_id, url,
+			request_data, status_code, data
 		FROM auth_event_logs
 		WHERE id = ?
 	`
 
 	log := &AuthEventLog{}
 	var userID, authTokenID sql.NullInt64
-	var url, requestData, errorData string
+	var url, requestData, data string
 	var statusCode sql.NullInt64
 
 	err := l.db.QueryRow(query, id).Scan(
@@ -86,14 +86,14 @@ func (l *LogDB) GetAuthEventLog(id int64) (*AuthEventLog, error) {
 		&url,
 		&requestData,
 		&statusCode,
-		&errorData,
+		&data,
 	)
 	if err != nil {
 		return nil, err
 	}
 
 	log.RequestData = json.RawMessage(requestData)
-	log.Error = json.RawMessage(errorData)
+	log.Data = json.RawMessage(data)
 	log.URL = url
 
 	if userID.Valid {
@@ -114,8 +114,8 @@ func (l *LogDB) GetAuthEventLog(id int64) (*AuthEventLog, error) {
 func (l *LogDB) ListAuthEventLogs(eventType *string, userID *int64, statusCode *int, limit int, offset int) ([]*AuthEventLog, error) {
 	// INFO: 1=1 is a common pattern to be able to attach filters all with AND
 	query := `
-		SELECT id, event_type, timestamp, user_id, auth_token_id, url, 
-			request_data, status_code, error
+		SELECT id, event_type, timestamp, user_id, auth_token_id, url,
+			request_data, status_code, data
 		FROM auth_event_logs
 		WHERE 1=1
 	`
@@ -158,7 +158,7 @@ func (l *LogDB) ListAuthEventLogs(eventType *string, userID *int64, statusCode *
 	for rows.Next() {
 		log := &AuthEventLog{}
 		var userID, authTokenID sql.NullInt64
-		var requestData, errorData, url string
+		var requestData, data, url string
 		var statusCode sql.NullInt64
 
 		err := rows.Scan(
@@ -170,14 +170,14 @@ func (l *LogDB) ListAuthEventLogs(eventType *string, userID *int64, statusCode *
 			&url,
 			&requestData,
 			&statusCode,
-			&errorData,
+			&data,
 		)
 		if err != nil {
 			return nil, err
 		}
 
 		log.RequestData = json.RawMessage(requestData)
-		log.Error = json.RawMessage(errorData)
+		log.Data = json.RawMessage(data)
 		log.URL = url
 
 		if userID.Valid {

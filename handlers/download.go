@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Simon-Martens/go-send/auth"
 	"github.com/Simon-Martens/go-send/core"
@@ -13,12 +14,16 @@ import (
 
 func NewDownloadHandler(app *core.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		startTime := time.Now()
+
 		// Extract ID from path
 		id := strings.TrimPrefix(r.URL.Path, "/api/download/")
 		id = strings.TrimPrefix(id, "blob/")
 		id = strings.TrimSuffix(id, "/")
 
 		if id == "" {
+			app.DBLogger.LogFileOp(r, "download", "", http.StatusBadRequest,
+				time.Since(startTime).Milliseconds(), "Missing file ID")
 			http.Error(w, "Missing file ID", http.StatusBadRequest)
 			return
 		}
@@ -27,6 +32,8 @@ func NewDownloadHandler(app *core.App) http.HandlerFunc {
 		meta, err := app.DB.GetFile(id)
 		if err != nil {
 			app.Logger.Debug("File not found for download", "file_id", id)
+			app.DBLogger.LogFileOp(r, "download", id, http.StatusNotFound,
+				time.Since(startTime).Milliseconds(), err.Error())
 			http.NotFound(w, r)
 			return
 		}
@@ -39,6 +46,8 @@ func NewDownloadHandler(app *core.App) http.HandlerFunc {
 			app.DB.UpdateNonce(id, newNonce)
 			w.Header().Set("WWW-Authenticate", "send-v1 "+newNonce)
 			app.Logger.Warn("Download auth failed", "file_id", id)
+			app.DBLogger.LogFileOp(r, "download", id, http.StatusUnauthorized,
+				time.Since(startTime).Milliseconds(), "HMAC auth failed")
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
@@ -52,6 +61,8 @@ func NewDownloadHandler(app *core.App) http.HandlerFunc {
 		file, err := storage.OpenFile(app.DB.FileDir(), id)
 		if err != nil {
 			app.Logger.Error("Error opening file for download", "file_id", id, "error", err)
+			app.DBLogger.LogFileOp(r, "download", id, http.StatusNotFound,
+				time.Since(startTime).Milliseconds(), err.Error(), "operation", "open_file")
 			http.NotFound(w, r)
 			return
 		}
@@ -61,6 +72,8 @@ func NewDownloadHandler(app *core.App) http.HandlerFunc {
 		size, err := storage.GetFileSize(app.DB.FileDir(), id)
 		if err != nil {
 			app.Logger.Error("Error getting file size", "file_id", id, "error", err)
+			app.DBLogger.LogFileOp(r, "download", id, http.StatusInternalServerError,
+				time.Since(startTime).Milliseconds(), err.Error(), "operation", "get_file_size")
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
@@ -72,10 +85,16 @@ func NewDownloadHandler(app *core.App) http.HandlerFunc {
 
 		if _, err := io.Copy(w, file); err != nil {
 			app.Logger.Error("Error streaming file", "file_id", id, "error", err)
+			app.DBLogger.LogFileOp(r, "download", id, http.StatusInternalServerError,
+				time.Since(startTime).Milliseconds(), err.Error(), "operation", "stream_file", "size_bytes", size)
 			return
 		}
 
 		app.Logger.Info("File downloaded", "file_id", id, "size_bytes", size)
+
+		// Log successful download
+		app.DBLogger.LogFileOp(r, "download", id, http.StatusOK,
+			time.Since(startTime).Milliseconds(), "", "size_bytes", size)
 
 		// Increment download count
 		if err := app.DB.IncrementDownload(id); err != nil {
@@ -89,7 +108,7 @@ func NewDownloadHandler(app *core.App) http.HandlerFunc {
 			app.CancelCleanup(id)
 
 			// Delete file and metadata
-			app.DB.DeleteFile(id)
+			app.DB.DeleteFileRecord(id)
 			storage.DeleteFile(app.DB.FileDir(), id)
 			app.Logger.Info("File deleted after reaching download limit", "file_id", id, "downloads", meta.DlCount)
 		}

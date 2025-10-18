@@ -18,7 +18,7 @@ func up_1760787762_create_request_logs(app *core.App) error {
 		status_code INTEGER NOT NULL,
 		request_data TEXT DEFAULT '{}',
 		user_id INTEGER,
-		error TEXT DEFAULT '{}'
+		data TEXT DEFAULT '{}'
 	);
 
 	CREATE INDEX IF NOT EXISTS idx_request_logs_timestamp ON request_logs(timestamp);
@@ -28,7 +28,7 @@ func up_1760787762_create_request_logs(app *core.App) error {
 	CREATE INDEX IF NOT EXISTS idx_request_logs_path ON request_logs(url);
 	`
 
-	_, err := app.LogDB.DB().Exec(schema)
+	_, err := app.LogDB().DB().Exec(schema)
 	if err != nil {
 		return err
 	}
@@ -38,7 +38,7 @@ func up_1760787762_create_request_logs(app *core.App) error {
 }
 
 func down_1760787762_create_request_logs(app *core.App) error {
-	_, err := app.LogDB.DB().Exec(`DROP TABLE IF EXISTS request_logs`)
+	_, err := app.LogDB().DB().Exec(`DROP TABLE IF EXISTS request_logs`)
 	if err != nil {
 		return err
 	}

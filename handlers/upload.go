@@ -42,6 +42,8 @@ type UploadResponse struct {
 
 func NewUploadHandler(app *core.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		startTime := time.Now()
+
 		// Upgrade HTTP to WebSocket with proper response headers
 		responseHeader := http.Header{}
 		responseHeader.Set("Sec-WebSocket-Protocol", r.Header.Get("Sec-WebSocket-Protocol"))
@@ -55,6 +57,8 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 				"origin", r.Header.Get("Origin"),
 				"upgrade", r.Header.Get("Upgrade"),
 				"connection", r.Header.Get("Connection"))
+			app.DBLogger.LogFileOp(r, "upload", "", http.StatusInternalServerError,
+				time.Since(startTime).Milliseconds(), err.Error(), "operation", "websocket_upgrade")
 			return
 		}
 		defer conn.Close()
@@ -97,12 +101,16 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 			} else {
 				app.Logger.Error("WebSocket read error", "error", err, "remote_addr", r.RemoteAddr)
 			}
+			app.DBLogger.LogFileOp(r, "upload", "", http.StatusInternalServerError,
+				time.Since(startTime).Milliseconds(), err.Error(), "operation", "websocket_read_metadata")
 			return
 		}
 
 		var req UploadRequest
 		if err := json.Unmarshal(message, &req); err != nil {
 			app.Logger.Warn("Invalid upload request JSON", "error", err, "remote_addr", r.RemoteAddr)
+			app.DBLogger.LogFileOp(r, "upload", "", http.StatusBadRequest,
+				time.Since(startTime).Milliseconds(), err.Error(), "operation", "parse_json")
 			sendError(conn, 400)
 			return
 		}
@@ -113,6 +121,8 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 				"has_metadata", req.FileMetadata != "",
 				"has_auth", req.Authorization != "",
 				"remote_addr", r.RemoteAddr)
+			app.DBLogger.LogFileOp(r, "upload", "", http.StatusBadRequest,
+				time.Since(startTime).Milliseconds(), "Missing required fields", "operation", "validate_request")
 			sendError(conn, 400)
 			return
 		}
@@ -172,6 +182,8 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 		tmpFile, err := os.CreateTemp(tmpDir, "upload-*")
 		if err != nil {
 			app.Logger.Error("Failed to create temp file for upload", "error", err)
+			app.DBLogger.LogFileOp(r, "upload", id, http.StatusInternalServerError,
+				time.Since(startTime).Milliseconds(), err.Error(), "operation", "create_temp_file")
 			sendError(conn, 500)
 			return
 		}
@@ -202,6 +214,8 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 						"bytes_received", totalSize,
 						"remote_addr", r.RemoteAddr)
 				}
+				app.DBLogger.LogFileOp(r, "upload", id, http.StatusInternalServerError,
+					time.Since(startTime).Milliseconds(), err.Error(), "operation", "read_upload_data", "bytes_received", totalSize)
 				return
 			}
 
@@ -217,6 +231,9 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 					"attempted_size", totalSize+int64(len(data)),
 					"max_size", maxSize,
 					"file_id", id)
+				app.DBLogger.LogFileOp(r, "upload", id, http.StatusRequestEntityTooLarge,
+					time.Since(startTime).Milliseconds(), "File size limit exceeded",
+					"attempted_size", totalSize+int64(len(data)), "max_size", maxSize)
 				sendError(conn, 413)
 				return
 			}
@@ -226,6 +243,8 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 			if err != nil {
 				tmpFile.Close()
 				app.Logger.Error("Error writing upload data", "error", err, "file_id", id)
+				app.DBLogger.LogFileOp(r, "upload", id, http.StatusInternalServerError,
+					time.Since(startTime).Milliseconds(), err.Error(), "operation", "write_chunk", "bytes_written", totalSize)
 				sendError(conn, 500)
 				return
 			}
@@ -235,6 +254,8 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 		// Close and move file to final location
 		if err := tmpFile.Close(); err != nil {
 			app.Logger.Error("Error closing temp file", "error", err, "file_id", id)
+			app.DBLogger.LogFileOp(r, "upload", id, http.StatusInternalServerError,
+				time.Since(startTime).Milliseconds(), err.Error(), "operation", "close_temp_file")
 			sendError(conn, 500)
 			return
 		}
@@ -242,6 +263,8 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 		finalPath := filepath.Join(app.Config.FileDir, id)
 		if err := os.Rename(tmpPath, finalPath); err != nil {
 			app.Logger.Error("Error moving uploaded file", "error", err, "file_id", id)
+			app.DBLogger.LogFileOp(r, "upload", id, http.StatusInternalServerError,
+				time.Since(startTime).Milliseconds(), err.Error(), "operation", "move_file")
 			sendError(conn, 500)
 			return
 		}
@@ -263,6 +286,8 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 
 		if err := app.DB.CreateFile(meta); err != nil {
 			app.Logger.Error("Database error creating file metadata", "error", err, "file_id", id)
+			app.DBLogger.LogFileOp(r, "upload", id, http.StatusInternalServerError,
+				time.Since(startTime).Milliseconds(), err.Error(), "operation", "save_metadata")
 			storage.DeleteFile(app.DB.FileDir(), id)
 			sendError(conn, 500)
 			return
@@ -273,6 +298,11 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 			"size_bytes", totalSize,
 			"dl_limit", req.Dlimit,
 			"expires_in_seconds", req.TimeLimit)
+
+		// Log successful upload
+		app.DBLogger.LogFileOp(r, "upload", id, http.StatusOK,
+			time.Since(startTime).Milliseconds(), "",
+			"size_bytes", totalSize, "dl_limit", req.Dlimit, "expire_seconds", req.TimeLimit)
 
 		// Schedule cleanup if file expires within 1 hour
 		ttl := time.Until(time.Unix(meta.ExpiresAt, 0))

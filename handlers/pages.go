@@ -28,6 +28,7 @@ func IndexHandler(app *core.App) http.HandlerFunc {
 		nonce, err := generateNonce()
 		if err != nil {
 			app.Logger.Error("Failed to generate nonce", "error", err)
+			app.DBLogger.LogRequest(r, http.StatusInternalServerError, nil, err.Error(), "operation", "generate_nonce")
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
@@ -52,10 +53,10 @@ func IndexHandler(app *core.App) http.HandlerFunc {
 
 			if err != nil {
 				// File not found - render 404 state
-				app.Logger.Debug("File not found for download page", "file_id", id, "error", err)
+				app.DBLogger.LogRequest(r, http.StatusNotFound, nil, err.Error(), "file_id", id, "page", "download")
 				downloadMetadata = `{"status": 404}`
 			} else {
-				app.Logger.Debug("File found for download page", "file_id", id, "nonce", meta.Nonce)
+				app.DBLogger.LogRequest(r, http.StatusOK, nil, "", "file_id", id, "page", "download")
 				// File found - provide nonce and password flag
 				metaJSON, _ := json.Marshal(map[string]interface{}{
 					"nonce": meta.Nonce,
@@ -75,10 +76,13 @@ func IndexHandler(app *core.App) http.HandlerFunc {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 		if err := app.Template.ExecuteTemplate(w, "index.gohtml", data); err != nil {
-			app.Logger.Error("Failed to execute template", "error", err)
+			app.DBLogger.LogRequest(r, http.StatusInternalServerError, nil, err.Error(), "template", "index.gohtml")
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
+
+		// Log successful request
+		app.DBLogger.LogRequest(r, http.StatusOK, nil, "")
 	}
 }
 

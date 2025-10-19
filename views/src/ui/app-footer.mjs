@@ -1,6 +1,18 @@
 import { translateElement } from "../utils.mjs";
 import storage from "../storage.mjs";
 
+function showElement(el) {
+  if (el) {
+    el.classList.remove("hidden");
+  }
+}
+
+function hideElement(el) {
+  if (el) {
+    el.classList.add("hidden");
+  }
+}
+
 /**
  * <app-footer> - Site footer component
  *
@@ -70,12 +82,12 @@ class AppFooter extends HTMLElement {
     if (this.config.SourceURL) {
       if (sourceLink) {
         sourceLink.href = this.config.SourceURL;
-        sourceLink.style.display = "";
+        showElement(sourceLink);
       }
-      if (brand) brand.style.display = "none";
+      if (brand) hideElement(brand);
     } else {
-      if (sourceLink) sourceLink.style.display = "none";
-      if (brand) brand.style.display = "";
+      if (sourceLink) hideElement(sourceLink);
+      if (brand) showElement(brand);
     }
 
     // Set up status dot (green for upload pages, blue for download pages)
@@ -105,9 +117,9 @@ class AppFooter extends HTMLElement {
         span.textContent = this.config.CustomText;
         customLink.replaceWith(span);
       }
-      if (customLi) customLi.style.display = "";
+      if (customLi) showElement(customLi);
     } else {
-      if (customLi) customLi.style.display = "none";
+      if (customLi) hideElement(customLi);
     }
 
     // Set up CLI link
@@ -118,9 +130,9 @@ class AppFooter extends HTMLElement {
         cliLink.href = this.config.CLIURL;
         cliLink.target = "_blank";
       }
-      if (cliLi) cliLi.style.display = "";
+      if (cliLi) showElement(cliLi);
     } else {
-      if (cliLi) cliLi.style.display = "none";
+      if (cliLi) hideElement(cliLi);
     }
 
     // Set up DMCA link
@@ -131,9 +143,9 @@ class AppFooter extends HTMLElement {
         dmcaLink.href = this.config.DMCAURL;
         dmcaLink.target = "_blank";
       }
-      if (dmcaLi) dmcaLi.style.display = "";
+      if (dmcaLi) showElement(dmcaLi);
     } else {
-      if (dmcaLi) dmcaLi.style.display = "none";
+      if (dmcaLi) hideElement(dmcaLi);
     }
 
     // Set up Source link (in footer list on right side)
@@ -144,9 +156,9 @@ class AppFooter extends HTMLElement {
         sourceFooterLink.href = this.config.SourceURL;
         sourceFooterLink.target = "_blank";
       }
-      if (sourceLi) sourceLi.style.display = "";
+      if (sourceLi) showElement(sourceLi);
     } else {
-      if (sourceLi) sourceLi.style.display = "none";
+      if (sourceLi) hideElement(sourceLi);
     }
 
     // Set up username display and auth link based on authentication state
@@ -158,9 +170,9 @@ class AppFooter extends HTMLElement {
     if (usernameSpan) {
       if (user && user.name) {
         usernameSpan.textContent = user.name;
-        usernameSpan.style.display = "";
+        showElement(usernameSpan);
       } else {
-        usernameSpan.style.display = "none";
+        hideElement(usernameSpan);
       }
     }
 

@@ -103,6 +103,7 @@ downloadTitle = Se igabisile faili
 addFilesButton = E yan awon faili lati gbasoke
 # the first part of the string 'Drag and drop files or click to send up to 1GB'
 dragAndDropFiles = E mu awon faili ki ede ju si bi
+orClickWithSize = or click to send up to { $size }
 emailPlaceholder = E fi imeli si
 accountBenefitDownloadCount = E pin faili pelu awon eyan si
 okButton = O DA

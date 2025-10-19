@@ -153,7 +153,6 @@ class LoginLayoutElement extends HTMLElement {
             name: loginResult.user?.name,
             role: loginResult.user?.role,
             settings: loginResult.user?.settings,
-            edSeed: keyMaterial.edSeed,
             x25519Seed: keyMaterial.x25519Seed,
             version: loginResult.app_version,
           });

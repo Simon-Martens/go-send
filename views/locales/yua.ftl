@@ -17,6 +17,7 @@ mb = MB
 gb = GB
 # localized number and byte abbreviation. example "2.5MB"
 fileSize = { $num }{ $units }
+orClickWithSize = or click to send up to { $size }
 
 footerLinkCli = CLI
 footerLinkDmca = DMCA

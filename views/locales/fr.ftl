@@ -195,6 +195,6 @@ loginErrorGeneric = Échec de la connexion. Veuillez réessayer.
 
 footerLinkCli = CLI
 footerLinkDmca = DMCA
-footerLinkSource = Source
-footerLinkLogin = Sign in
-footerLinkLogout = Sign out
+footerLinkSource = Code source
+footerLinkLogin = Se connecter
+footerLinkLogout = Se déconnecter

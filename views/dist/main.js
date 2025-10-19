@@ -1,6 +1,6 @@
 import {
   syncOwnedFiles
-} from "./chunks/chunk-XFEAVOCH.js";
+} from "./chunks/chunk-5KDIAWWG.js";
 import {
   APP_VERSION,
   Keychain,
@@ -13,7 +13,7 @@ import {
   metadata,
   storage_default,
   uploadWs
-} from "./chunks/chunk-ULTM24DU.js";
+} from "./chunks/chunk-M5WSWOYW.js";
 import {
   arrayToB64,
   browserName,
@@ -26,7 +26,7 @@ import {
   setTranslate,
   streamToArrayBuffer,
   translateElement
-} from "./chunks/chunk-6LPP53TP.js";
+} from "./chunks/chunk-WCSYBWMD.js";
 import "./chunks/chunk-IFG75HHC.js";
 
 // node_modules/crc/mjs/calculators/crc32.js
@@ -1769,19 +1769,19 @@ var localeLoaders = {
   an: () => import("./chunks/an-A6PY75MI.js"),
   ar: () => import("./chunks/ar-2HATU44Q.js"),
   ast: () => import("./chunks/ast-LR6BDCC3.js"),
-  az: () => import("./chunks/az-YV6UYM25.js"),
+  az: () => import("./chunks/az-RH4QZKKJ.js"),
   azz: () => import("./chunks/azz-3DORRJ5A.js"),
   be: () => import("./chunks/be-Z3YTUWKV.js"),
   bn: () => import("./chunks/bn-KDHMXLUX.js"),
   br: () => import("./chunks/br-2AKLHKND.js"),
-  bs: () => import("./chunks/bs-NXUP67OP.js"),
+  bs: () => import("./chunks/bs-C7QVOTSG.js"),
   ca: () => import("./chunks/ca-7IK5ULC3.js"),
   cak: () => import("./chunks/cak-YTL35X4P.js"),
   ckb: () => import("./chunks/ckb-UWFAJNQE.js"),
   cs: () => import("./chunks/cs-4CHTXZSU.js"),
   cy: () => import("./chunks/cy-RP2L2OUK.js"),
   da: () => import("./chunks/da-DPZF5LGO.js"),
-  de: () => import("./chunks/de-YJBLFNS6.js"),
+  de: () => import("./chunks/de-JR5EUQPH.js"),
   dsb: () => import("./chunks/dsb-L7O73QFV.js"),
   el: () => import("./chunks/el-4RABOQBG.js"),
   "en-CA": () => import("./chunks/en-CA-DJ4OOLA4.js"),
@@ -1795,10 +1795,10 @@ var localeLoaders = {
   eu: () => import("./chunks/eu-Q6CLLOH3.js"),
   fa: () => import("./chunks/fa-AEOEUDQ4.js"),
   fi: () => import("./chunks/fi-SI2D7DPR.js"),
-  fr: () => import("./chunks/fr-LU5OTMAM.js"),
+  fr: () => import("./chunks/fr-CF2HNO56.js"),
   "fy-NL": () => import("./chunks/fy-NL-C7AQWS3X.js"),
   gn: () => import("./chunks/gn-6SZWZLYL.js"),
-  gor: () => import("./chunks/gor-YJF5R7VZ.js"),
+  gor: () => import("./chunks/gor-4LJ2LDF3.js"),
   he: () => import("./chunks/he-DNGPDAI7.js"),
   hr: () => import("./chunks/hr-6ZNZH7ZC.js"),
   hsb: () => import("./chunks/hsb-7Q5N5UEG.js"),
@@ -1807,25 +1807,25 @@ var localeLoaders = {
   "hy-AM": () => import("./chunks/hy-AM-TUS55PTJ.js"),
   ia: () => import("./chunks/ia-E3QH7SMP.js"),
   id: () => import("./chunks/id-STWVQPOZ.js"),
-  ig: () => import("./chunks/ig-MI7EUZ3B.js"),
+  ig: () => import("./chunks/ig-5RIZWKPI.js"),
   it: () => import("./chunks/it-BWUQHH6L.js"),
-  ixl: () => import("./chunks/ixl-KA2722GD.js"),
+  ixl: () => import("./chunks/ixl-OTN2KR2T.js"),
   ja: () => import("./chunks/ja-VLMKIH44.js"),
   ka: () => import("./chunks/ka-RUNYPX5J.js"),
   kab: () => import("./chunks/kab-RZRU6CHD.js"),
   ko: () => import("./chunks/ko-U4AU7GYF.js"),
   lt: () => import("./chunks/lt-NFGFU7IR.js"),
-  lus: () => import("./chunks/lus-CFTIZ6AZ.js"),
+  lus: () => import("./chunks/lus-3NGRCSA4.js"),
   meh: () => import("./chunks/meh-4RQCOCAF.js"),
   mix: () => import("./chunks/mix-EMJLLSA6.js"),
   ml: () => import("./chunks/ml-WNP2BYVZ.js"),
-  ms: () => import("./chunks/ms-PP5Z3XYN.js"),
+  ms: () => import("./chunks/ms-XIFIIOWT.js"),
   "nb-NO": () => import("./chunks/nb-NO-7VVUTNJN.js"),
   nl: () => import("./chunks/nl-H2SXW64B.js"),
   "nn-NO": () => import("./chunks/nn-NO-ODKDX4MF.js"),
   oc: () => import("./chunks/oc-XZIVEMM5.js"),
   "pa-IN": () => import("./chunks/pa-IN-HJI7GJVB.js"),
-  pai: () => import("./chunks/pai-YFUEWPT7.js"),
+  pai: () => import("./chunks/pai-K3MAXPZP.js"),
   pl: () => import("./chunks/pl-GBEJ2VQO.js"),
   ppl: () => import("./chunks/ppl-C3TZCUXC.js"),
   "pt-BR": () => import("./chunks/pt-BR-CF2EYIDI.js"),
@@ -1835,20 +1835,20 @@ var localeLoaders = {
   ru: () => import("./chunks/ru-EUWHYN2A.js"),
   sk: () => import("./chunks/sk-7MKUKPZ6.js"),
   sl: () => import("./chunks/sl-4FPG456L.js"),
-  sn: () => import("./chunks/sn-JQZIN3OG.js"),
+  sn: () => import("./chunks/sn-EZGOIFCF.js"),
   sq: () => import("./chunks/sq-J3KKMCHK.js"),
   sr: () => import("./chunks/sr-6HK3XGOP.js"),
   su: () => import("./chunks/su-2GJ7EZ4E.js"),
   "sv-SE": () => import("./chunks/sv-SE-WPNF6TZK.js"),
   te: () => import("./chunks/te-ARJQOBPG.js"),
   th: () => import("./chunks/th-B2CLPTBE.js"),
-  tl: () => import("./chunks/tl-2EWWR34Y.js"),
+  tl: () => import("./chunks/tl-BX57KQRZ.js"),
   tr: () => import("./chunks/tr-QRQLXKCZ.js"),
-  trs: () => import("./chunks/trs-ZQ2TDX65.js"),
+  trs: () => import("./chunks/trs-CTWE6ZKU.js"),
   uk: () => import("./chunks/uk-5X2QADNF.js"),
   vi: () => import("./chunks/vi-RWBGSBAW.js"),
-  yo: () => import("./chunks/yo-CGAMVNL3.js"),
-  yua: () => import("./chunks/yua-CMZBKJQN.js"),
+  yo: () => import("./chunks/yo-6YHN6FVV.js"),
+  yua: () => import("./chunks/yua-SB77N35R.js"),
   zgh: () => import("./chunks/zgh-3HNSXICX.js"),
   "zh-CN": () => import("./chunks/zh-CN-QJOPAOYZ.js"),
   "zh-TW": () => import("./chunks/zh-TW-UQMSTAAU.js")
@@ -2674,6 +2674,16 @@ var GoSendElement = class extends HTMLElement {
 customElements.define("go-send", GoSendElement);
 
 // src/ui/app-footer.mjs
+function showElement(el) {
+  if (el) {
+    el.classList.remove("hidden");
+  }
+}
+function hideElement(el) {
+  if (el) {
+    el.classList.add("hidden");
+  }
+}
 var AppFooter = class extends HTMLElement {
   constructor() {
     super();
@@ -2721,12 +2731,12 @@ var AppFooter = class extends HTMLElement {
     if (this.config.SourceURL) {
       if (sourceLink) {
         sourceLink.href = this.config.SourceURL;
-        sourceLink.style.display = "";
+        showElement(sourceLink);
       }
-      if (brand) brand.style.display = "none";
+      if (brand) hideElement(brand);
     } else {
-      if (sourceLink) sourceLink.style.display = "none";
-      if (brand) brand.style.display = "";
+      if (sourceLink) hideElement(sourceLink);
+      if (brand) showElement(brand);
     }
     const statusDot = this.querySelector('[data-role="status-dot"]');
     if (statusDot) {
@@ -2746,9 +2756,9 @@ var AppFooter = class extends HTMLElement {
         span.textContent = this.config.CustomText;
         customLink.replaceWith(span);
       }
-      if (customLi) customLi.style.display = "";
+      if (customLi) showElement(customLi);
     } else {
-      if (customLi) customLi.style.display = "none";
+      if (customLi) hideElement(customLi);
     }
     const cliLi = this.querySelector("[data-if-cli]");
     const cliLink = this.querySelector('[data-role="cli-link"]');
@@ -2757,9 +2767,9 @@ var AppFooter = class extends HTMLElement {
         cliLink.href = this.config.CLIURL;
         cliLink.target = "_blank";
       }
-      if (cliLi) cliLi.style.display = "";
+      if (cliLi) showElement(cliLi);
     } else {
-      if (cliLi) cliLi.style.display = "none";
+      if (cliLi) hideElement(cliLi);
     }
     const dmcaLi = this.querySelector("[data-if-dmca]");
     const dmcaLink = this.querySelector('[data-role="dmca-link"]');
@@ -2768,9 +2778,9 @@ var AppFooter = class extends HTMLElement {
         dmcaLink.href = this.config.DMCAURL;
         dmcaLink.target = "_blank";
       }
-      if (dmcaLi) dmcaLi.style.display = "";
+      if (dmcaLi) showElement(dmcaLi);
     } else {
-      if (dmcaLi) dmcaLi.style.display = "none";
+      if (dmcaLi) hideElement(dmcaLi);
     }
     const sourceLi = this.querySelector("[data-if-source]");
     const sourceFooterLink = this.querySelector('[data-role="source-link-footer"]');
@@ -2779,9 +2789,9 @@ var AppFooter = class extends HTMLElement {
         sourceFooterLink.href = this.config.SourceURL;
         sourceFooterLink.target = "_blank";
       }
-      if (sourceLi) sourceLi.style.display = "";
+      if (sourceLi) showElement(sourceLi);
     } else {
-      if (sourceLi) sourceLi.style.display = "none";
+      if (sourceLi) hideElement(sourceLi);
     }
     const usernameSpan = this.querySelector('[data-role="username"]');
     const authLink = this.querySelector('[data-role="auth-link"]');
@@ -2790,9 +2800,9 @@ var AppFooter = class extends HTMLElement {
     if (usernameSpan) {
       if (user && user.name) {
         usernameSpan.textContent = user.name;
-        usernameSpan.style.display = "";
+        showElement(usernameSpan);
       } else {
-        usernameSpan.style.display = "none";
+        hideElement(usernameSpan);
       }
     }
     if (authLink && authLabel) {
@@ -2854,9 +2864,9 @@ customElements.define("app-footer", AppFooter);
 async function initUploadRoute(app) {
   console.log("[Route] Initializing upload page...");
   await Promise.all([
-    import("./chunks/upload-layout-7G3DJHRQ.js"),
-    import("./chunks/upload-area-OCAJDSKY.js"),
-    import("./chunks/upload-right-72PSBTIR.js"),
+    import("./chunks/upload-layout-G5VIPOIV.js"),
+    import("./chunks/upload-area-4DS6JWYZ.js"),
+    import("./chunks/upload-right-ARJOGIYC.js"),
     app.controller.ready
   ]);
   app.showUploadLayout();
@@ -2865,12 +2875,12 @@ async function initUploadRoute(app) {
 async function initDownloadRoute(app) {
   console.log("[Route] Initializing download page...");
   await Promise.all([
-    import("./chunks/download-layout-TVPZBNWJ.js"),
-    import("./chunks/file-password-LTSS3PNQ.js"),
-    import("./chunks/file-overview-MLRVTS3C.js"),
-    import("./chunks/file-downloading-7IE5UCSD.js"),
-    import("./chunks/file-finished-ROYVEENB.js"),
-    import("./chunks/file-error-X5RHWBSX.js"),
+    import("./chunks/download-layout-BHPG2RXA.js"),
+    import("./chunks/file-password-QBYXGUID.js"),
+    import("./chunks/file-overview-G4RF7UKD.js"),
+    import("./chunks/file-downloading-VWYKI7EP.js"),
+    import("./chunks/file-finished-SG6MDJKB.js"),
+    import("./chunks/file-error-ZD73KM4H.js"),
     app.controller.ready
   ]);
   app.showDownloadLayout();
@@ -2879,7 +2889,7 @@ async function initDownloadRoute(app) {
 async function initRegisterRoute(app) {
   console.log("[Route] Initializing register page...");
   await Promise.all([
-    import("./chunks/register-layout-SMIZWKB2.js"),
+    import("./chunks/register-layout-HJKN4KBI.js"),
     app.controller.ready
   ]);
   app.showRegisterLayout();
@@ -2888,7 +2898,7 @@ async function initRegisterRoute(app) {
 async function initLoginRoute(app) {
   console.log("[Route] Initializing login page...");
   await Promise.all([
-    import("./chunks/login-layout-NY76L7SL.js"),
+    import("./chunks/login-layout-OYP6SLHP.js"),
     app.controller.ready
   ]);
   app.showLoginLayout();

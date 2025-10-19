@@ -195,6 +195,6 @@ loginErrorGeneric = Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.
 
 footerLinkCli = CLI
 footerLinkDmca = DMCA
-footerLinkSource = Source
-footerLinkLogin = Sign in
-footerLinkLogout = Sign out
+footerLinkSource = Quellcode
+footerLinkLogin = Anmelden
+footerLinkLogout = Abmelden

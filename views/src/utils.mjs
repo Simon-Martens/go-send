@@ -258,12 +258,24 @@ export function encryptedSize(
   return 21 + size + chunk_meta * Math.ceil(size / (rs - chunk_meta));
 }
 
+let translateReady = false;
 let translate = function () {
   throw new Error("uninitialized translate function. call setTranslate first");
 };
+const pendingTranslations = new Set();
 
 export function setTranslate(t) {
   translate = t;
+  translateReady = true;
+
+  // Flush any pending roots that requested translation before we were ready.
+  pendingTranslations.forEach((root) => {
+    // Only translate connected nodes to avoid needless work
+    if (root?.isConnected) {
+      internalTranslateElement(root);
+    }
+  });
+  pendingTranslations.clear();
 }
 
 export { translate };
@@ -273,7 +285,7 @@ export { translate };
  * Uses the element's id attribute as the translation key.
  * @param {HTMLElement} root - The root element to search within
  */
-export function translateElement(root) {
+function internalTranslateElement(root) {
   const elements = root.querySelectorAll('[data-type="lang"]');
   elements.forEach((el) => {
     const key = el.id;
@@ -289,4 +301,17 @@ export function translateElement(root) {
       }
     }
   });
+}
+
+export function translateElement(root) {
+  if (!root) {
+    return;
+  }
+
+  if (!translateReady) {
+    pendingTranslations.add(root);
+    return;
+  }
+
+  internalTranslateElement(root);
 }

@@ -113,6 +113,7 @@ passwordIsSet = Lozinka postavljena
 maxPasswordLength = Maksimalna veličina lozinke: { $length }
 # A short status message shown when there was an error setting the password
 passwordSetError = Ova lozinka se ne može postaviti
+orClickWithSize = or click to send up to { $size }
 
 footerLinkCli = CLI
 footerLinkDmca = DMCA

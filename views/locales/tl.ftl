@@ -92,6 +92,7 @@ addFilesButton = Piliin ang mga file na mai-upload
 uploadButton = I-upload
 # the first part of the string 'Drag and drop files or click to send up to 1GB'
 dragAndDropFiles = I-drag at i-drop ang mga file
+orClickWithSize = or click to send up to { $size }
 addPassword = Protektahan gamit ang password
 emailPlaceholder = Ipasok ang iyong email
 # $size is the size of the file, displayed using the fileSize message as format (e.g. "2.5MB")

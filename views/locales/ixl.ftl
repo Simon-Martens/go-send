@@ -46,6 +46,7 @@ mb = MB
 gb = GB
 # localized number and byte abbreviation. example "2.5MB"
 fileSize = { $num }{ $units }
+orClickWithSize = or click to send up to { $size }
 # A short representation of a countdown timer containing the number of days, hours, and minutes remaining as digits, example "2d 11h 56m"
 expiresDaysHoursMinutes = { $days }d { $hours }h { $minutes }m
 emailPlaceholder = Aq'ku' a correo

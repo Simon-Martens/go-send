@@ -76,9 +76,7 @@ export default class UserSecrets {
     name,
     role,
     settings,
-    ed25519Seed,
     x25519PrivateKey,
-    ed25519PublicKey,
     x25519PublicKey,
     version,
   } = {}) {
@@ -86,9 +84,7 @@ export default class UserSecrets {
     this.name = name || null;
     this.role = role || null;
     this.settings = settings || null;
-    this.ed25519Seed = ed25519Seed || null;
     this.x25519PrivateKey = x25519PrivateKey || null;
-    this.ed25519PublicKey = ed25519PublicKey || null;
     this.x25519PublicKey = x25519PublicKey || null;
     this.version = version || null;
   }
@@ -98,23 +94,17 @@ export default class UserSecrets {
     name,
     role,
     settings,
-    edSeed,
     x25519Seed,
-    edPublicKey,
     x25519PublicKey,
     version,
   }) {
     if (!email) {
       throw new Error("email required to persist user secrets");
     }
-    if (!(edSeed instanceof Uint8Array) || edSeed.length === 0) {
-      throw new Error("invalid Ed25519 seed");
-    }
     if (!(x25519Seed instanceof Uint8Array) || x25519Seed.length === 0) {
       throw new Error("invalid X25519 key material");
     }
 
-    const edSeedB64 = arrayToB64(edSeed);
     const xSeedB64 = arrayToB64(x25519Seed);
     const derivedXPublic = arrayToB64(x25519.scalarMultBase(x25519Seed));
 
@@ -123,9 +113,7 @@ export default class UserSecrets {
       name,
       role,
       settings,
-      ed25519Seed: edSeedB64,
       x25519PrivateKey: xSeedB64,
-      ed25519PublicKey: edPublicKey ? arrayToB64(edPublicKey) : null,
       x25519PublicKey: x25519PublicKey
         ? arrayToB64(x25519PublicKey)
         : derivedXPublic,
@@ -139,24 +127,14 @@ export default class UserSecrets {
       name: this.name,
       role: this.role,
       settings: this.settings,
-      ed25519Seed: this.ed25519Seed,
       x25519PrivateKey: this.x25519PrivateKey,
-      ed25519PublicKey: this.ed25519PublicKey,
       x25519PublicKey: this.x25519PublicKey,
       version: this.version,
     };
   }
 
-  getEd25519Seed() {
-    return this.ed25519Seed ? b64ToArray(this.ed25519Seed) : null;
-  }
-
   getX25519PrivateKey() {
     return this.x25519PrivateKey ? b64ToArray(this.x25519PrivateKey) : null;
-  }
-
-  getEd25519PublicKey() {
-    return this.ed25519PublicKey ? b64ToArray(this.ed25519PublicKey) : null;
   }
 
   getX25519PublicKey() {

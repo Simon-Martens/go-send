@@ -84,6 +84,7 @@ gb = GB
 fileSize = { $num }{ $units }
 # $size is the size of the file, displayed using the fileSize message as format (e.g. "2.5MB")
 totalSize = Dàj nìko yàchi: { $size }
+orClickWithSize = or click to send up to { $size }
 # the next line after the colon contains a file name
 copyLinkDescription = Guxūn lînk da' ga'ue duyingâ't archibô:
 copyLinkButton = Guxûn lînk

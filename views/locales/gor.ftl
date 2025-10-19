@@ -40,6 +40,7 @@ downloadNotification = U pilopohulimu ma yilapato.
 downloadFinish = Mopohuli Yilapato
 # This message is displayed when uploading or downloading a file, e.g. "(1,3 MB of 10 MB)".
 fileSizeProgress = ({ $partialSize } meyalo { $totalSize })
+orClickWithSize = or click to send up to { $size }
 sendYourFilesLink = Yimontali Molawo
 downloadingPageProgress = Modetohu { $filename } ({ $size })
 downloadFirefoxButtonSub = Pereyi Mopohuli

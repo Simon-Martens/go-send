@@ -109,6 +109,7 @@ passwordIsSet = Kata laluan ditetapkan
 maxPasswordLength = Panjang kata laluan maksimum: { $length }
 # A short status message shown when there was an error setting the password
 passwordSetError = Kata laluan ini tidak boleh ditetapkan
+orClickWithSize = or click to send up to { $size }
 
 footerLinkCli = CLI
 footerLinkDmca = DMCA

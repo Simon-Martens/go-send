@@ -1,6 +1,7 @@
 
 ## Send version 2 strings
 
+orClickWithSize = or click to send up to { $size }
 
 footerLinkCli = CLI
 footerLinkDmca = DMCA

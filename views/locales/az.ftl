@@ -57,6 +57,7 @@ mb = MB
 gb = GB
 # localized number and byte abbreviation. example "2.5MB"
 fileSize = { $num }{ $units }
+orClickWithSize = or click to send up to { $size }
 copyLinkButton = Keçidi köçür
 uploadButton = Yüklə
 signInOnlyButton = Daxil ol

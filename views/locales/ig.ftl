@@ -86,6 +86,7 @@ downloadFirefox = Budata
 legalTitle = Nkwupụta Nzuzo
 legalDateStamp = 1.dị 1.0, akara ụbọchị Maachi 12, 2019
 okButton = O
+orClickWithSize = or click to send up to { $size }
 
 footerLinkCli = CLI
 footerLinkDmca = DMCA

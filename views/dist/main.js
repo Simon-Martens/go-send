@@ -2703,8 +2703,7 @@ var AppFooter = class extends HTMLElement {
     this._frame = null;
     this.config = window.FOOTER || {};
     this._boundHandlers = {
-      handleLogoutClick: this.handleLogoutClick.bind(this),
-      handleSettingsClick: this.handleSettingsClick.bind(this)
+      handleLogoutClick: this.handleLogoutClick.bind(this)
     };
   }
   connectedCallback() {
@@ -2736,10 +2735,6 @@ var AppFooter = class extends HTMLElement {
     const authLink = this.querySelector('[data-role="auth-link"]');
     if (authLink && authLink.href.includes("/logout")) {
       authLink.removeEventListener("click", this._boundHandlers.handleLogoutClick);
-    }
-    const settingsLink = this.querySelector('[data-role="settings-link"]');
-    if (settingsLink) {
-      settingsLink.removeEventListener("click", this._boundHandlers.handleSettingsClick);
     }
   }
   setupFooter() {
@@ -2850,9 +2845,6 @@ var AppFooter = class extends HTMLElement {
   }
   handleLogoutClick(event) {
     storage_default.clearAll();
-  }
-  async handleSettingsClick(event) {
-    event.preventDefault();
   }
 };
 customElements.define("app-footer", AppFooter);

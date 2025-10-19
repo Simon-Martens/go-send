@@ -32,7 +32,6 @@ class AppFooter extends HTMLElement {
     this.config = window.FOOTER || {};
     this._boundHandlers = {
       handleLogoutClick: this.handleLogoutClick.bind(this),
-      handleSettingsClick: this.handleSettingsClick.bind(this),
     };
   }
 
@@ -74,10 +73,6 @@ class AppFooter extends HTMLElement {
       authLink.removeEventListener('click', this._boundHandlers.handleLogoutClick);
     }
 
-    const settingsLink = this.querySelector('[data-role="settings-link"]');
-    if (settingsLink) {
-      settingsLink.removeEventListener("click", this._boundHandlers.handleSettingsClick);
-    }
   }
 
   setupFooter() {
@@ -226,11 +221,6 @@ class AppFooter extends HTMLElement {
     // Let the browser continue with navigation to /logout
   }
 
-  async handleSettingsClick(event) {
-    event.preventDefault();
-
-    // Let browser handle navigation normally so /settings is loaded and guarded
-  }
 }
 
 // Register the custom element

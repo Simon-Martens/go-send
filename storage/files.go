@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"database/sql"
 	"io"
 	"os"
 	"path/filepath"
@@ -9,16 +10,21 @@ import (
 
 // FileMetadata represents a file record in the database
 type FileMetadata struct {
-	ID          string
-	OwnerToken  string
-	Metadata    string // base64 encrypted metadata
-	AuthKey     string // base64 auth verifier
-	Nonce       string // base64 nonce
-	DlLimit     int
-	DlCount     int
-	Password    bool
-	CreatedAt   int64
-	ExpiresAt   int64
+	ID                 string
+	OwnerToken         string
+	Metadata           string // base64 encrypted metadata
+	AuthKey            string // base64 auth verifier
+	Nonce              string // base64 nonce
+	DlLimit            int
+	DlCount            int
+	Password           bool
+	CreatedAt          int64
+	ExpiresAt          int64
+	UserID             *int64
+	SecretCiphertext   string
+	SecretEphemeralPub string
+	SecretNonce        string
+	SecretVersion      int
 }
 
 // Database operations for files
@@ -27,9 +33,15 @@ func (d *DB) CreateFile(meta *FileMetadata) error {
 	query := `
 		INSERT INTO files (
 			id, owner_token, metadata, auth_key, nonce,
-			dl_limit, dl_count, password, created_at, expires_at
-		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+			dl_limit, dl_count, password, created_at, expires_at,
+			user_id, secret_ciphertext, secret_ephemeral_pub, secret_nonce, secret_version
+		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
+
+	var userID interface{}
+	if meta.UserID != nil {
+		userID = *meta.UserID
+	}
 
 	_, err := d.db.Exec(
 		query,
@@ -43,6 +55,11 @@ func (d *DB) CreateFile(meta *FileMetadata) error {
 		boolToInt(meta.Password),
 		meta.CreatedAt,
 		meta.ExpiresAt,
+		userID,
+		nullIfEmpty(meta.SecretCiphertext),
+		nullIfEmpty(meta.SecretEphemeralPub),
+		nullIfEmpty(meta.SecretNonce),
+		meta.SecretVersion,
 	)
 
 	return err
@@ -51,13 +68,17 @@ func (d *DB) CreateFile(meta *FileMetadata) error {
 func (d *DB) GetFile(id string) (*FileMetadata, error) {
 	query := `
 		SELECT id, owner_token, metadata, auth_key, nonce,
-		       dl_limit, dl_count, password, created_at, expires_at
+		       dl_limit, dl_count, password, created_at, expires_at,
+		       user_id, secret_ciphertext, secret_ephemeral_pub, secret_nonce, secret_version
 		FROM files
 		WHERE id = ?
 	`
 
 	meta := &FileMetadata{}
 	var password int
+	var userID sql.NullInt64
+	var secretCiphertext, secretEphemeralPub, secretNonce sql.NullString
+	var secretVersion sql.NullInt64
 
 	err := d.db.QueryRow(query, id).Scan(
 		&meta.ID,
@@ -70,6 +91,11 @@ func (d *DB) GetFile(id string) (*FileMetadata, error) {
 		&password,
 		&meta.CreatedAt,
 		&meta.ExpiresAt,
+		&userID,
+		&secretCiphertext,
+		&secretEphemeralPub,
+		&secretNonce,
+		&secretVersion,
 	)
 
 	if err != nil {
@@ -77,7 +103,94 @@ func (d *DB) GetFile(id string) (*FileMetadata, error) {
 	}
 
 	meta.Password = intToBool(password)
+
+	if userID.Valid {
+		val := userID.Int64
+		meta.UserID = &val
+	}
+	if secretCiphertext.Valid {
+		meta.SecretCiphertext = secretCiphertext.String
+	}
+	if secretEphemeralPub.Valid {
+		meta.SecretEphemeralPub = secretEphemeralPub.String
+	}
+	if secretNonce.Valid {
+		meta.SecretNonce = secretNonce.String
+	}
+	if secretVersion.Valid {
+		meta.SecretVersion = int(secretVersion.Int64)
+	}
+
 	return meta, nil
+}
+
+func (d *DB) GetFilesByUserID(userID int64) ([]*FileMetadata, error) {
+	query := `
+		SELECT id, owner_token, metadata, auth_key, nonce,
+		       dl_limit, dl_count, password, created_at, expires_at,
+		       user_id, secret_ciphertext, secret_ephemeral_pub, secret_nonce, secret_version
+		FROM files
+		WHERE user_id = ?
+		ORDER BY created_at DESC
+	`
+
+	rows, err := d.db.Query(query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var files []*FileMetadata
+	for rows.Next() {
+		meta := &FileMetadata{}
+		var password int
+		var rowUserID sql.NullInt64
+		var secretCiphertext, secretEphemeralPub, secretNonce sql.NullString
+		var secretVersion sql.NullInt64
+
+		if err := rows.Scan(
+			&meta.ID,
+			&meta.OwnerToken,
+			&meta.Metadata,
+			&meta.AuthKey,
+			&meta.Nonce,
+			&meta.DlLimit,
+			&meta.DlCount,
+			&password,
+			&meta.CreatedAt,
+			&meta.ExpiresAt,
+			&rowUserID,
+			&secretCiphertext,
+			&secretEphemeralPub,
+			&secretNonce,
+			&secretVersion,
+		); err != nil {
+			return nil, err
+		}
+
+		meta.Password = intToBool(password)
+
+		if rowUserID.Valid {
+			val := rowUserID.Int64
+			meta.UserID = &val
+		}
+		if secretCiphertext.Valid {
+			meta.SecretCiphertext = secretCiphertext.String
+		}
+		if secretEphemeralPub.Valid {
+			meta.SecretEphemeralPub = secretEphemeralPub.String
+		}
+		if secretNonce.Valid {
+			meta.SecretNonce = secretNonce.String
+		}
+		if secretVersion.Valid {
+			meta.SecretVersion = int(secretVersion.Int64)
+		}
+
+		files = append(files, meta)
+	}
+
+	return files, rows.Err()
 }
 
 func (d *DB) UpdateNonce(id, nonce string) error {
@@ -143,7 +256,10 @@ func (d *DB) CleanupExpired() error {
 }
 
 // GetFilesExpiringWithin returns file IDs and expiration times for files expiring within the given duration
-func (d *DB) GetFilesExpiringWithin(duration time.Duration) ([]struct{ ID string; ExpiresAt int64 }, error) {
+func (d *DB) GetFilesExpiringWithin(duration time.Duration) ([]struct {
+	ID        string
+	ExpiresAt int64
+}, error) {
 	now := time.Now().Unix()
 	until := now + int64(duration.Seconds())
 
@@ -154,9 +270,15 @@ func (d *DB) GetFilesExpiringWithin(duration time.Duration) ([]struct{ ID string
 	}
 	defer rows.Close()
 
-	var files []struct{ ID string; ExpiresAt int64 }
+	var files []struct {
+		ID        string
+		ExpiresAt int64
+	}
 	for rows.Next() {
-		var f struct{ ID string; ExpiresAt int64 }
+		var f struct {
+			ID        string
+			ExpiresAt int64
+		}
 		if err := rows.Scan(&f.ID, &f.ExpiresAt); err != nil {
 			return nil, err
 		}
@@ -177,6 +299,13 @@ func boolToInt(b bool) int {
 
 func intToBool(i int) bool {
 	return i != 0
+}
+
+func nullIfEmpty(s string) interface{} {
+	if s == "" {
+		return nil
+	}
+	return s
 }
 
 // Filesystem operations for files

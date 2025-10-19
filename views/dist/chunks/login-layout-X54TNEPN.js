@@ -1,10 +1,19 @@
 import {
   decodeSalt,
-  deriveSeed,
+  deriveKeyMaterial,
   normalizeKDFSettings,
   signChallenge
-} from "./chunk-2S2U2JES.js";
+} from "./chunk-5FOUOON2.js";
 import {
+  Keychain,
+  OwnedFile,
+  UserSecrets,
+  storage_default
+} from "./chunk-42IXS7QU.js";
+import "./chunk-U2WOWVJN.js";
+import {
+  arrayToB64,
+  b64ToArray,
   translate,
   translateElement
 } from "./chunk-6LPP53TP.js";
@@ -104,19 +113,45 @@ var LoginLayoutElement = class extends HTMLElement {
       const challenge = await this.requestChallenge(email);
       const saltBytes = decodeSalt(challenge.salt);
       const settings = normalizeKDFSettings(challenge.kdf);
-      let seed;
+      let keyMaterial;
       try {
         try {
-          seed = await deriveSeed(password, saltBytes, settings);
+          keyMaterial = await deriveKeyMaterial(password, saltBytes, settings);
         } finally {
           if (this.passwordInput) this.passwordInput.value = "";
         }
-        const signature = await signChallenge(seed, challenge.nonce);
+        const signature = await signChallenge(
+          keyMaterial.edSeed,
+          challenge.nonce
+        );
         await this.submitLogin(email, challenge.challenge_id, signature);
+        let userSecrets = null;
+        try {
+          userSecrets = UserSecrets.fromKeyMaterial({
+            email,
+            edSeed: keyMaterial.edSeed,
+            x25519Seed: keyMaterial.x25519Seed
+          });
+          storage_default.clearUser();
+          storage_default.setUser(userSecrets);
+        } catch (persistError) {
+          console.warn(
+            "[LoginLayout] Failed to persist user secrets",
+            persistError
+          );
+        }
+        if (userSecrets) {
+          await this.restoreOwnedFiles(userSecrets);
+        }
         window.location.assign("/");
       } finally {
-        if (seed) seed.fill(0);
-        saltBytes.fill(0);
+        if (keyMaterial == null ? void 0 : keyMaterial.edSeed) {
+          keyMaterial.edSeed.fill(0);
+        }
+        if (keyMaterial == null ? void 0 : keyMaterial.x25519Seed) {
+          keyMaterial.x25519Seed.fill(0);
+        }
+        saltBytes == null ? void 0 : saltBytes.fill(0);
       }
     } catch (error) {
       console.error("[LoginLayout] Login failed", error);
@@ -125,6 +160,68 @@ var LoginLayoutElement = class extends HTMLElement {
         this.submitButton.disabled = false;
         this.setSubmitLabel("loginSubmitButton");
       }
+    }
+  }
+  async restoreOwnedFiles(userSecrets) {
+    try {
+      const response = await fetch("/api/me/files", {
+        method: "GET",
+        headers: {
+          "Accept": "application/json"
+        },
+        credentials: "same-origin"
+      });
+      if (!response.ok) {
+        console.warn(
+          "[LoginLayout] Failed to fetch owned files",
+          response.status
+        );
+        return;
+      }
+      const payload = await response.json();
+      const files = Array.isArray(payload == null ? void 0 : payload.files) ? payload.files : [];
+      storage_default.clearLocalFiles();
+      for (const file of files) {
+        try {
+          const secretBytes = await userSecrets.unwrapSecret({
+            ciphertext: file.secret_ciphertext,
+            nonce: file.secret_nonce,
+            ephemeralPublicKey: file.secret_ephemeral_pub,
+            version: file.secret_version
+          });
+          try {
+            const secretB64 = arrayToB64(secretBytes);
+            const keychain = new Keychain(secretB64, file.nonce);
+            const metadataBytes = b64ToArray(file.metadata);
+            const metadata = await keychain.decryptMetadata(metadataBytes);
+            const ownedFile = new OwnedFile({
+              id: file.id,
+              url: `${window.location.origin}/download/${file.id}#${secretB64}`,
+              name: metadata.name,
+              size: metadata.size,
+              manifest: metadata.manifest || {},
+              time: 0,
+              speed: metadata.size || 0,
+              createdAt: file.created_at * 1e3,
+              expiresAt: file.expires_at * 1e3,
+              secretKey: secretB64,
+              nonce: file.nonce,
+              ownerToken: file.owner_token,
+              dlimit: file.dl_limit,
+              dtotal: file.dl_count,
+              hasPassword: file.password,
+              timeLimit: file.time_limit
+            });
+            storage_default.addFile(ownedFile);
+          } finally {
+            secretBytes.fill(0);
+          }
+        } catch (fileError) {
+          console.warn("[LoginLayout] Failed to restore file", fileError, file == null ? void 0 : file.id);
+        }
+      }
+    } catch (err) {
+      console.warn("[LoginLayout] Failed to restore owned files", err);
     }
   }
   async requestChallenge(email) {
@@ -198,4 +295,4 @@ var LoginLayoutElement = class extends HTMLElement {
   }
 };
 customElements.define("login-layout", LoginLayoutElement);
-//# sourceMappingURL=login-layout-JH7T2MD3.js.map
+//# sourceMappingURL=login-layout-X54TNEPN.js.map

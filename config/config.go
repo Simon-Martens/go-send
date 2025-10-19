@@ -8,14 +8,15 @@ import (
 )
 
 type Config struct {
-	Port            string
-	BaseURL         string
-	DetectBaseURL   bool
-	FileDir         string
-	UserFrontendDir string
-	Environment     string // "development" or "production"
-	UploadGuard     bool
-	AllowAccessLinks bool
+	Port              string
+	BaseURL           string
+	DetectBaseURL     bool
+	FileDir           string
+	UserFrontendDir   string
+	Environment       string // "development" or "production"
+	UploadGuard       bool
+	UseUserManagement bool
+	AllowAccessLinks  bool
 
 	MaxFileSize          int64
 	MaxFilesPerArchive   int
@@ -51,14 +52,15 @@ type Config struct {
 func Load() *Config {
 	cfg := &Config{
 		// Server
-		Port:            getEnv("PORT", DEFAULT_PORT),
-		BaseURL:         getEnv("BASE_URL", DEFAULT_BASE_URL),
-		DetectBaseURL:   getEnvBool("DETECT_BASE_URL", DEFAULT_DETECT_BASE_URL),
-		FileDir:         getEnv("FILE_DIR", DEFAULT_FILE_DIR),
-		UserFrontendDir: getEnv("USER_FRONTEND_DIR", DEFAULT_USER_FRONTEND_DIR),
-		Environment:     getEnv("SEND_ENV", DEFAULT_ENVIRONMENT),
-		UploadGuard:     getEnvBool("UPLOAD_GUARD", DEFAULT_UPLOAD_GUARD),
-		AllowAccessLinks: getEnvBool("ALLOW_ACCESS_LINKS", DEFAULT_ALLOW_ACCESS_LINKS),
+		Port:              getEnv("PORT", DEFAULT_PORT),
+		BaseURL:           getEnv("BASE_URL", DEFAULT_BASE_URL),
+		DetectBaseURL:     getEnvBool("DETECT_BASE_URL", DEFAULT_DETECT_BASE_URL),
+		FileDir:           getEnv("FILE_DIR", DEFAULT_FILE_DIR),
+		UserFrontendDir:   getEnv("USER_FRONTEND_DIR", DEFAULT_USER_FRONTEND_DIR),
+		Environment:       getEnv("SEND_ENV", DEFAULT_ENVIRONMENT),
+		UploadGuard:       getEnvBool("USE_UPLOAD_GUARD", DEFAULT_USE_UPLOAD_GUARD),
+		UseUserManagement: getEnvBool("USE_USER_MGMT", DEFAULT_USE_USER_MGMT),
+		AllowAccessLinks:  getEnvBool("USE_ACCESS_LINKS", DEFAULT_USE_ACCESS_LINKS),
 
 		// Upload/Download Limits
 		MaxFileSize:          getEnvInt64("MAX_FILE_SIZE", DEFAULT_MAX_FILE_SIZE), // 2.5GB
@@ -95,6 +97,10 @@ func Load() *Config {
 
 		// Localization
 		CustomLocale: getEnv("CUSTOM_LOCALE", DEFAULT_CUSTOM_LOCALE),
+	}
+
+	if cfg.UploadGuard {
+		cfg.UseUserManagement = true
 	}
 
 	slog.Info("Initialized configuration", "config", cfg)

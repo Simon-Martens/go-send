@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"crypto/rand"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"net/http"
@@ -25,11 +26,17 @@ var upgrader = websocket.Upgrader{
 	HandshakeTimeout:  10 * time.Second,
 }
 
+const ownerSecretVersion = 1
+
 type UploadRequest struct {
-	FileMetadata  string `json:"fileMetadata"`
-	Authorization string `json:"authorization"`
-	TimeLimit     int    `json:"timeLimit"`
-	Dlimit        int    `json:"dlimit"`
+	FileMetadata            string `json:"fileMetadata"`
+	Authorization           string `json:"authorization"`
+	TimeLimit               int    `json:"timeLimit"`
+	Dlimit                  int    `json:"dlimit"`
+	OwnerSecretCiphertext   string `json:"ownerSecretCiphertext,omitempty"`
+	OwnerSecretNonce        string `json:"ownerSecretNonce,omitempty"`
+	OwnerSecretEphemeralPub string `json:"ownerSecretEphemeralPub,omitempty"`
+	OwnerSecretVersion      int    `json:"ownerSecretVersion,omitempty"`
 }
 
 type UploadResponse struct {
@@ -62,6 +69,15 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 			return
 		}
 		defer conn.Close()
+
+		var uploaderUserID *int64
+		session, err := app.GetAuthenticatedSession(r)
+		if err != nil {
+			app.Logger.Warn("Upload session validation failed", "error", err)
+		} else if session != nil && session.UserID != nil {
+			uploaderUserID = session.UserID
+			app.TouchSession(session, r)
+		}
 
 		// Configure connection parameters for better stability
 		// Longer timeouts for large file uploads, aggressive keepalive for proxy compatibility
@@ -125,6 +141,68 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 				time.Since(startTime).Milliseconds(), "Missing required fields", "operation", "validate_request")
 			sendError(conn, 400)
 			return
+		}
+
+		hasOwnerSecret := false
+		ownerWrapVersion := 0
+		if req.OwnerSecretCiphertext != "" || req.OwnerSecretNonce != "" || req.OwnerSecretEphemeralPub != "" || req.OwnerSecretVersion != 0 {
+			hasOwnerSecret = true
+			if uploaderUserID == nil {
+				app.Logger.Warn("Upload provided owner secret without authenticated session", "remote_addr", r.RemoteAddr)
+				app.DBLogger.LogFileOp(r, "upload", "", http.StatusUnauthorized,
+					time.Since(startTime).Milliseconds(), "Owner secret provided without session", "operation", "validate_owner_secret")
+				sendError(conn, 401)
+				return
+			}
+
+			if req.OwnerSecretCiphertext == "" || req.OwnerSecretNonce == "" || req.OwnerSecretEphemeralPub == "" {
+				app.Logger.Warn("Incomplete owner secret payload", "remote_addr", r.RemoteAddr)
+				app.DBLogger.LogFileOp(r, "upload", "", http.StatusBadRequest,
+					time.Since(startTime).Milliseconds(), "Incomplete owner secret payload", "operation", "validate_owner_secret")
+				sendError(conn, 400)
+				return
+			}
+
+			cipherBytes, err := base64.RawURLEncoding.DecodeString(req.OwnerSecretCiphertext)
+			if err != nil || len(cipherBytes) == 0 {
+				app.Logger.Warn("Invalid owner secret ciphertext", "error", err)
+				app.DBLogger.LogFileOp(r, "upload", "", http.StatusBadRequest,
+					time.Since(startTime).Milliseconds(), "Invalid owner secret ciphertext", "operation", "validate_owner_secret")
+				sendError(conn, 400)
+				return
+			}
+
+			nonceBytes, err := base64.RawURLEncoding.DecodeString(req.OwnerSecretNonce)
+			if err != nil || len(nonceBytes) != 12 {
+				app.Logger.Warn("Invalid owner secret nonce", "error", err, "length", len(nonceBytes))
+				app.DBLogger.LogFileOp(r, "upload", "", http.StatusBadRequest,
+					time.Since(startTime).Milliseconds(), "Invalid owner secret nonce", "operation", "validate_owner_secret")
+				sendError(conn, 400)
+				return
+			}
+
+			ephemeralBytes, err := base64.RawURLEncoding.DecodeString(req.OwnerSecretEphemeralPub)
+			if err != nil || len(ephemeralBytes) != 32 {
+				app.Logger.Warn("Invalid owner secret ephemeral pub", "error", err, "length", len(ephemeralBytes))
+				app.DBLogger.LogFileOp(r, "upload", "", http.StatusBadRequest,
+					time.Since(startTime).Milliseconds(), "Invalid owner secret ephemeral pub", "operation", "validate_owner_secret")
+				sendError(conn, 400)
+				return
+			}
+
+			version := req.OwnerSecretVersion
+			if version == 0 {
+				version = ownerSecretVersion
+			}
+			if version != ownerSecretVersion {
+				app.Logger.Warn("Unsupported owner secret version", "version", version)
+				app.DBLogger.LogFileOp(r, "upload", "", http.StatusBadRequest,
+					time.Since(startTime).Milliseconds(), "Unsupported owner secret version", "operation", "validate_owner_secret")
+				sendError(conn, 400)
+				return
+			}
+
+			ownerWrapVersion = version
 		}
 
 		// Generate ID and tokens
@@ -282,6 +360,14 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 			Password:   false,
 			CreatedAt:  now,
 			ExpiresAt:  now + int64(req.TimeLimit),
+			UserID:     uploaderUserID,
+		}
+
+		if hasOwnerSecret {
+			meta.SecretCiphertext = req.OwnerSecretCiphertext
+			meta.SecretEphemeralPub = req.OwnerSecretEphemeralPub
+			meta.SecretNonce = req.OwnerSecretNonce
+			meta.SecretVersion = ownerWrapVersion
 		}
 
 		if err := app.DB.CreateFile(meta); err != nil {

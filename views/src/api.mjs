@@ -209,6 +209,7 @@ async function upload(
   dlimit,
   onprogress,
   canceller,
+  ownerWrap,
 ) {
   let size = 0;
   const start = Date.now();
@@ -255,6 +256,19 @@ async function upload(
       timeLimit,
       dlimit,
     };
+    if (
+      ownerWrap &&
+      ownerWrap.ciphertext &&
+      ownerWrap.nonce &&
+      ownerWrap.ephemeralPublicKey
+    ) {
+      fileMeta.ownerSecretCiphertext = ownerWrap.ciphertext;
+      fileMeta.ownerSecretNonce = ownerWrap.nonce;
+      fileMeta.ownerSecretEphemeralPub = ownerWrap.ephemeralPublicKey;
+      if (ownerWrap.version != null) {
+        fileMeta.ownerSecretVersion = ownerWrap.version;
+      }
+    }
     const uploadInfoResponse = listenForResponse(ws, canceller);
     ws.send(JSON.stringify(fileMeta));
     const uploadInfo = await uploadInfoResponse;
@@ -308,6 +322,7 @@ export function uploadWs(
   timeLimit,
   dlimit,
   onprogress,
+  ownerWrap = null,
 ) {
   const canceller = { cancelled: false };
 
@@ -324,6 +339,7 @@ export function uploadWs(
       dlimit,
       onprogress,
       canceller,
+      ownerWrap,
     ),
   };
 }

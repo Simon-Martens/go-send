@@ -156,6 +156,14 @@ async function deriveKeySeeds(
   };
 }
 
+export async function deriveKeyMaterial(
+  password,
+  salt,
+  settings = DEFAULT_KDF_SETTINGS,
+) {
+  return deriveKeySeeds(password, salt, settings);
+}
+
 export async function deriveSeed(
   password,
   salt,

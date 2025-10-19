@@ -20,8 +20,13 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 	// API routes
 	mux.HandleFunc("/config", handlers.NewConfigHandler(app))
 
-	// Upload endpoint
-	mux.Handle("/api/ws", handlers.NewUploadHandler(app))
+	uploadHandler := http.Handler(handlers.NewUploadHandler(app))
+	if app.Config.UploadGuard {
+		uploadHandler = middleware.RequireUser(app, middleware.UserGuardOptions{
+			RedirectToLogin: false,
+		})(uploadHandler)
+	}
+	mux.Handle("/api/ws", uploadHandler)
 
 	mux.HandleFunc("/api/download/", handlers.NewDownloadHandler(app))
 	mux.HandleFunc("/api/metadata/", handlers.NewMetadataHandler(app))
@@ -30,26 +35,29 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 	mux.HandleFunc("/api/password/", handlers.NewPasswordHandler(app))
 	mux.HandleFunc("/api/info/", handlers.NewInfoHandler(app))
 
-	// Auth and registration routes
-	mux.HandleFunc("/auth/challenge", handlers.NewLoginChallengeHandler(app))
-	mux.HandleFunc("/auth/login", handlers.NewLoginHandler(app))
-	mux.HandleFunc("/auth/claim/", handlers.NewClaimHandler(app))
+	if app.Config.UseUserManagement {
+		mux.HandleFunc("/api/me/files", handlers.NewUserFilesHandler(app))
 
-	// Registration routes - handle both GET (render page) and POST (submit form)
-	mux.HandleFunc("/register/admin", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodPost {
-			handlers.NewRegisterAdminHandler(app)(w, r)
-		} else {
-			indexHandler(w, r)
-		}
-	})
+		// Auth and registration routes
+		mux.HandleFunc("/auth/challenge", handlers.NewLoginChallengeHandler(app))
+		mux.HandleFunc("/auth/login", handlers.NewLoginHandler(app))
+		mux.HandleFunc("/auth/claim/", handlers.NewClaimHandler(app))
 
-	// Registration page with token in URL - validate token before serving page
-	mux.HandleFunc("/register/admin/", handlers.NewRegisterPageHandler(app, indexHandler, storage.TokenTypeAdminSignup))
-	mux.HandleFunc("/register/user/", handlers.NewRegisterPageHandler(app, indexHandler, storage.TokenTypeUserSignup))
+		// Registration routes - handle both GET (render page) and POST (submit form)
+		mux.HandleFunc("/register/admin", func(w http.ResponseWriter, r *http.Request) {
+			if r.Method == http.MethodPost {
+				handlers.NewRegisterAdminHandler(app)(w, r)
+			} else {
+				indexHandler(w, r)
+			}
+		})
 
-	// Root and static file handler - serve index.gohtml for all paths
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		// Registration page with token in URL - validate token before serving page
+		mux.HandleFunc("/register/admin/", handlers.NewRegisterPageHandler(app, indexHandler, storage.TokenTypeAdminSignup))
+		mux.HandleFunc("/register/user/", handlers.NewRegisterPageHandler(app, indexHandler, storage.TokenTypeUserSignup))
+	}
+
+	rootHandler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Try to serve static files first
 		if r.URL.Path != "/" && r.URL.Path != "/download/" && r.URL.Path != "/error" {
 			if middleware.ServeUserStaticFile(w, r, app.Config.UserFrontendDir, config.USER_DIST_SUBDIR) {
@@ -63,7 +71,19 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 
 		// For all other paths (including /download/*, /), serve index.gohtml
 		indexHandler(w, r)
-	})
+	}))
+
+	if app.Config.UploadGuard {
+		guardOpts := middleware.UserGuardOptions{
+			RedirectToLogin: true,
+			AllowPrefixes:   []string{"/download"},
+			AllowExact:      []string{"/login", "/login/", "/error"},
+			AllowStatic:     true,
+		}
+		rootHandler = middleware.RequireUser(app, guardOpts)(rootHandler)
+	}
+
+	mux.Handle("/", rootHandler)
 
 	return mux
 }

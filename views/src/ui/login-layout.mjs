@@ -1,10 +1,19 @@
-import { translateElement, translate } from "../utils.mjs";
+import {
+  translateElement,
+  translate,
+  arrayToB64,
+  b64ToArray,
+} from "../utils.mjs";
 import {
   decodeSalt,
-  deriveSeed,
+  deriveKeyMaterial,
   normalizeKDFSettings,
   signChallenge,
 } from "../crypto/credentials.mjs";
+import storage from "../storage.mjs";
+import UserSecrets from "../userSecrets.mjs";
+import Keychain from "../keychain.mjs";
+import OwnedFile from "../ownedFile.mjs";
 
 class LoginLayoutElement extends HTMLElement {
   constructor() {
@@ -118,20 +127,49 @@ class LoginLayoutElement extends HTMLElement {
       const saltBytes = decodeSalt(challenge.salt);
       const settings = normalizeKDFSettings(challenge.kdf);
 
-      let seed;
+      let keyMaterial;
       try {
         try {
-          seed = await deriveSeed(password, saltBytes, settings);
+          keyMaterial = await deriveKeyMaterial(password, saltBytes, settings);
         } finally {
           if (this.passwordInput) this.passwordInput.value = "";
         }
 
-        const signature = await signChallenge(seed, challenge.nonce);
+        const signature = await signChallenge(
+          keyMaterial.edSeed,
+          challenge.nonce,
+        );
         await this.submitLogin(email, challenge.challenge_id, signature);
+
+        let userSecrets = null;
+        try {
+          userSecrets = UserSecrets.fromKeyMaterial({
+            email,
+            edSeed: keyMaterial.edSeed,
+            x25519Seed: keyMaterial.x25519Seed,
+          });
+          storage.clearUser();
+          storage.setUser(userSecrets);
+        } catch (persistError) {
+          console.warn(
+            "[LoginLayout] Failed to persist user secrets",
+            persistError,
+          );
+        }
+
+        if (userSecrets) {
+          await this.restoreOwnedFiles(userSecrets);
+        }
+
         window.location.assign("/");
       } finally {
-        if (seed) seed.fill(0);
-        saltBytes.fill(0);
+        if (keyMaterial?.edSeed) {
+          keyMaterial.edSeed.fill(0);
+        }
+        if (keyMaterial?.x25519Seed) {
+          keyMaterial.x25519Seed.fill(0);
+        }
+        saltBytes?.fill(0);
       }
     } catch (error) {
       console.error("[LoginLayout] Login failed", error);
@@ -140,6 +178,76 @@ class LoginLayoutElement extends HTMLElement {
         this.submitButton.disabled = false;
         this.setSubmitLabel("loginSubmitButton");
       }
+    }
+  }
+
+  async restoreOwnedFiles(userSecrets) {
+    try {
+      const response = await fetch("/api/me/files", {
+        method: "GET",
+        headers: {
+          "Accept": "application/json",
+        },
+        credentials: "same-origin",
+      });
+
+      if (!response.ok) {
+        console.warn(
+          "[LoginLayout] Failed to fetch owned files",
+          response.status,
+        );
+        return;
+      }
+
+      const payload = await response.json();
+      const files = Array.isArray(payload?.files) ? payload.files : [];
+
+      storage.clearLocalFiles();
+
+      for (const file of files) {
+        try {
+          const secretBytes = await userSecrets.unwrapSecret({
+            ciphertext: file.secret_ciphertext,
+            nonce: file.secret_nonce,
+            ephemeralPublicKey: file.secret_ephemeral_pub,
+            version: file.secret_version,
+          });
+
+          try {
+            const secretB64 = arrayToB64(secretBytes);
+            const keychain = new Keychain(secretB64, file.nonce);
+            const metadataBytes = b64ToArray(file.metadata);
+            const metadata = await keychain.decryptMetadata(metadataBytes);
+
+            const ownedFile = new OwnedFile({
+              id: file.id,
+              url: `${window.location.origin}/download/${file.id}#${secretB64}`,
+              name: metadata.name,
+              size: metadata.size,
+              manifest: metadata.manifest || {},
+              time: 0,
+              speed: metadata.size || 0,
+              createdAt: file.created_at * 1000,
+              expiresAt: file.expires_at * 1000,
+              secretKey: secretB64,
+              nonce: file.nonce,
+              ownerToken: file.owner_token,
+              dlimit: file.dl_limit,
+              dtotal: file.dl_count,
+              hasPassword: file.password,
+              timeLimit: file.time_limit,
+            });
+
+            storage.addFile(ownedFile);
+          } finally {
+            secretBytes.fill(0);
+          }
+        } catch (fileError) {
+          console.warn("[LoginLayout] Failed to restore file", fileError, file?.id);
+        }
+      }
+    } catch (err) {
+      console.warn("[LoginLayout] Failed to restore owned files", err);
     }
   }
 

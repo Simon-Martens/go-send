@@ -1,5 +1,14 @@
+import {
+  x25519
+} from "./chunk-U2WOWVJN.js";
+import {
+  arrayToB64,
+  b64ToArray,
+  isFile
+} from "./chunk-6LPP53TP.js";
+
 // src/utils-worker.mjs
-function arrayToB64(array) {
+function arrayToB642(array) {
   let bin = "";
   const chunkSize = 32768;
   for (let i = 0; i < array.length; i += chunkSize) {
@@ -7,7 +16,7 @@ function arrayToB64(array) {
   }
   return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
-function b64ToArray(str) {
+function b64ToArray2(str) {
   const b64 = str.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((str.length + 3) % 4);
   const bin = atob(b64);
   const out = new Uint8Array(bin.length);
@@ -441,7 +450,7 @@ var Keychain = class {
   constructor(secretKeyB64, nonce) {
     this._nonce = nonce || "yRCdyQ1EMSA3mo4rqSkuNQ==";
     if (secretKeyB64) {
-      this.rawSecret = b64ToArray(secretKeyB64);
+      this.rawSecret = b64ToArray2(secretKeyB64);
     } else {
       this.rawSecret = crypto.getRandomValues(new Uint8Array(16));
     }
@@ -519,7 +528,7 @@ var Keychain = class {
   setAuthKey(authKeyB64) {
     this.authKeyPromise = crypto.subtle.importKey(
       "raw",
-      b64ToArray(authKeyB64),
+      b64ToArray2(authKeyB64),
       {
         name: "HMAC",
         hash: "SHA-256"
@@ -531,7 +540,7 @@ var Keychain = class {
   async authKeyB64() {
     const authKey = await this.authKeyPromise;
     const rawAuth = await crypto.subtle.exportKey("raw", authKey);
-    return arrayToB64(new Uint8Array(rawAuth));
+    return arrayToB642(new Uint8Array(rawAuth));
   }
   async authHeader() {
     const authKey = await this.authKeyPromise;
@@ -540,9 +549,9 @@ var Keychain = class {
         name: "HMAC"
       },
       authKey,
-      b64ToArray(this.nonce)
+      b64ToArray2(this.nonce)
     );
-    return `send-v1 ${arrayToB64(new Uint8Array(sig))}`;
+    return `send-v1 ${arrayToB642(new Uint8Array(sig))}`;
   }
   async encryptMetadata(metadata2) {
     const metaKey = await this.metaKeyPromise;
@@ -689,7 +698,7 @@ async function metadata(id, keychain) {
   );
   if (result.ok) {
     const data = await result.response.json();
-    const meta = await keychain.decryptMetadata(b64ToArray(data.metadata));
+    const meta = await keychain.decryptMetadata(b64ToArray2(data.metadata));
     return {
       size: meta.size,
       ttl: data.ttl,
@@ -790,7 +799,7 @@ async function upload(stream, metadata2, verifierB64, timeLimit, dlimit, onprogr
     throw lastError || new ConnectionError(false);
   }
   try {
-    const metadataHeader = arrayToB64(new Uint8Array(metadata2));
+    const metadataHeader = arrayToB642(new Uint8Array(metadata2));
     const fileMeta = {
       fileMetadata: metadataHeader,
       authorization: `send-v1 ${verifierB64}`,
@@ -985,605 +994,502 @@ async function getConstants() {
   throw new Error(response.status);
 }
 
-// node_modules/crc/mjs/calculators/crc32.js
-var TABLE = [
-  0,
-  1996959894,
-  3993919788,
-  2567524794,
-  124634137,
-  1886057615,
-  3915621685,
-  2657392035,
-  249268274,
-  2044508324,
-  3772115230,
-  2547177864,
-  162941995,
-  2125561021,
-  3887607047,
-  2428444049,
-  498536548,
-  1789927666,
-  4089016648,
-  2227061214,
-  450548861,
-  1843258603,
-  4107580753,
-  2211677639,
-  325883990,
-  1684777152,
-  4251122042,
-  2321926636,
-  335633487,
-  1661365465,
-  4195302755,
-  2366115317,
-  997073096,
-  1281953886,
-  3579855332,
-  2724688242,
-  1006888145,
-  1258607687,
-  3524101629,
-  2768942443,
-  901097722,
-  1119000684,
-  3686517206,
-  2898065728,
-  853044451,
-  1172266101,
-  3705015759,
-  2882616665,
-  651767980,
-  1373503546,
-  3369554304,
-  3218104598,
-  565507253,
-  1454621731,
-  3485111705,
-  3099436303,
-  671266974,
-  1594198024,
-  3322730930,
-  2970347812,
-  795835527,
-  1483230225,
-  3244367275,
-  3060149565,
-  1994146192,
-  31158534,
-  2563907772,
-  4023717930,
-  1907459465,
-  112637215,
-  2680153253,
-  3904427059,
-  2013776290,
-  251722036,
-  2517215374,
-  3775830040,
-  2137656763,
-  141376813,
-  2439277719,
-  3865271297,
-  1802195444,
-  476864866,
-  2238001368,
-  4066508878,
-  1812370925,
-  453092731,
-  2181625025,
-  4111451223,
-  1706088902,
-  314042704,
-  2344532202,
-  4240017532,
-  1658658271,
-  366619977,
-  2362670323,
-  4224994405,
-  1303535960,
-  984961486,
-  2747007092,
-  3569037538,
-  1256170817,
-  1037604311,
-  2765210733,
-  3554079995,
-  1131014506,
-  879679996,
-  2909243462,
-  3663771856,
-  1141124467,
-  855842277,
-  2852801631,
-  3708648649,
-  1342533948,
-  654459306,
-  3188396048,
-  3373015174,
-  1466479909,
-  544179635,
-  3110523913,
-  3462522015,
-  1591671054,
-  702138776,
-  2966460450,
-  3352799412,
-  1504918807,
-  783551873,
-  3082640443,
-  3233442989,
-  3988292384,
-  2596254646,
-  62317068,
-  1957810842,
-  3939845945,
-  2647816111,
-  81470997,
-  1943803523,
-  3814918930,
-  2489596804,
-  225274430,
-  2053790376,
-  3826175755,
-  2466906013,
-  167816743,
-  2097651377,
-  4027552580,
-  2265490386,
-  503444072,
-  1762050814,
-  4150417245,
-  2154129355,
-  426522225,
-  1852507879,
-  4275313526,
-  2312317920,
-  282753626,
-  1742555852,
-  4189708143,
-  2394877945,
-  397917763,
-  1622183637,
-  3604390888,
-  2714866558,
-  953729732,
-  1340076626,
-  3518719985,
-  2797360999,
-  1068828381,
-  1219638859,
-  3624741850,
-  2936675148,
-  906185462,
-  1090812512,
-  3747672003,
-  2825379669,
-  829329135,
-  1181335161,
-  3412177804,
-  3160834842,
-  628085408,
-  1382605366,
-  3423369109,
-  3138078467,
-  570562233,
-  1426400815,
-  3317316542,
-  2998733608,
-  733239954,
-  1555261956,
-  3268935591,
-  3050360625,
-  752459403,
-  1541320221,
-  2607071920,
-  3965973030,
-  1969922972,
-  40735498,
-  2617837225,
-  3943577151,
-  1913087877,
-  83908371,
-  2512341634,
-  3803740692,
-  2075208622,
-  213261112,
-  2463272603,
-  3855990285,
-  2094854071,
-  198958881,
-  2262029012,
-  4057260610,
-  1759359992,
-  534414190,
-  2176718541,
-  4139329115,
-  1873836001,
-  414664567,
-  2282248934,
-  4279200368,
-  1711684554,
-  285281116,
-  2405801727,
-  4167216745,
-  1634467795,
-  376229701,
-  2685067896,
-  3608007406,
-  1308918612,
-  956543938,
-  2808555105,
-  3495958263,
-  1231636301,
-  1047427035,
-  2932959818,
-  3654703836,
-  1088359270,
-  936918e3,
-  2847714899,
-  3736837829,
-  1202900863,
-  817233897,
-  3183342108,
-  3401237130,
-  1404277552,
-  615818150,
-  3134207493,
-  3453421203,
-  1423857449,
-  601450431,
-  3009837614,
-  3294710456,
-  1567103746,
-  711928724,
-  3020668471,
-  3272380065,
-  1510334235,
-  755167117
-];
-if (typeof Int32Array !== "undefined") {
-  TABLE = new Int32Array(TABLE);
-}
-var crc32 = (current, previous) => {
-  let crc = previous === 0 ? 0 : ~~previous ^ -1;
-  for (let index = 0; index < current.length; index++) {
-    crc = TABLE[(crc ^ current[index]) & 255] ^ crc >>> 8;
+// src/ownedFile.mjs
+var OwnedFile = class {
+  constructor(obj) {
+    if (!obj.manifest) {
+      throw new Error("invalid file object");
+    }
+    this.id = obj.id;
+    this.url = obj.url;
+    this.name = obj.name;
+    this.size = obj.size;
+    this.manifest = obj.manifest;
+    this.time = obj.time;
+    this.speed = obj.speed;
+    this.createdAt = obj.createdAt;
+    this.expiresAt = obj.expiresAt;
+    this.ownerToken = obj.ownerToken;
+    this.dlimit = obj.dlimit || 1;
+    this.dtotal = obj.dtotal || 0;
+    this.keychain = new Keychain(obj.secretKey, obj.nonce);
+    this._hasPassword = !!obj.hasPassword;
+    this.timeLimit = obj.timeLimit;
   }
-  return crc ^ -1;
+  get hasPassword() {
+    return !!this._hasPassword;
+  }
+  get expired() {
+    return this.dlimit === this.dtotal || Date.now() > this.expiresAt;
+  }
+  async setPassword(password) {
+    try {
+      this.password = password;
+      this._hasPassword = true;
+      this.keychain.setPassword(password, this.url);
+      const result = await setPassword(this.id, this.ownerToken, this.keychain);
+      return result;
+    } catch (e) {
+      this.password = null;
+      this._hasPassword = false;
+      throw e;
+    }
+  }
+  del() {
+    return del(this.id, this.ownerToken);
+  }
+  changeLimit(dlimit) {
+    if (this.dlimit !== dlimit) {
+      this.dlimit = dlimit;
+      return setParams(this.id, this.ownerToken, { dlimit });
+    }
+    return Promise.resolve(true);
+  }
+  async updateDownloadCount() {
+    const oldTotal = this.dtotal;
+    const oldLimit = this.dlimit;
+    try {
+      const result = await fileInfo(this.id, this.ownerToken);
+      this.dtotal = result.dtotal;
+      this.dlimit = result.dlimit;
+    } catch (e) {
+      if (e.message === "404") {
+        this.dtotal = this.dlimit;
+      }
+    }
+    return oldTotal !== this.dtotal || oldLimit !== this.dlimit;
+  }
+  toJSON() {
+    return {
+      id: this.id,
+      url: this.url,
+      name: this.name,
+      size: this.size,
+      manifest: this.manifest,
+      time: this.time,
+      speed: this.speed,
+      createdAt: this.createdAt,
+      expiresAt: this.expiresAt,
+      secretKey: arrayToB64(this.keychain.rawSecret),
+      ownerToken: this.ownerToken,
+      dlimit: this.dlimit,
+      dtotal: this.dtotal,
+      hasPassword: this.hasPassword,
+      timeLimit: this.timeLimit
+    };
+  }
 };
-var crc32_default = crc32;
 
-// src/zip.mjs
+// src/userSecrets.mjs
+var OWNER_SECRET_VERSION = 1;
+var USER_STORAGE_KEY = "user_state";
+var WRAP_NONCE_LENGTH = 12;
 var encoder3 = new TextEncoder();
-function dosDateTime(dateTime = /* @__PURE__ */ new Date()) {
-  const year = dateTime.getFullYear() - 1980 << 9;
-  const month = dateTime.getMonth() + 1 << 5;
-  const day = dateTime.getDate();
-  const date = year | month | day;
-  const hour = dateTime.getHours() << 11;
-  const minute = dateTime.getMinutes() << 5;
-  const second = Math.floor(dateTime.getSeconds() / 2);
-  const time = hour | minute | second;
-  return { date, time };
+var WRAP_INFO = encoder3.encode("go-send-owner-wrap-v1");
+function randomX25519PrivateKey() {
+  const key = new Uint8Array(32);
+  crypto.getRandomValues(key);
+  key[0] &= 248;
+  key[31] &= 127;
+  key[31] |= 64;
+  return key;
 }
-var File = class {
-  constructor(info) {
-    this.name = encoder3.encode(info.name);
-    this.size = info.size;
-    this.bytesRead = 0;
-    this.crc = null;
-    this.dateTime = dosDateTime();
+function toArrayBuffer(view) {
+  if (view instanceof ArrayBuffer) {
+    return view.slice(0);
   }
-  get header() {
-    const h = new ArrayBuffer(30 + this.name.byteLength);
-    const v = new DataView(h);
-    v.setUint32(0, 67324752, true);
-    v.setUint16(4, 20, true);
-    v.setUint16(6, 2056, true);
-    v.setUint16(8, 0, true);
-    v.setUint16(10, this.dateTime.time, true);
-    v.setUint16(12, this.dateTime.date, true);
-    v.setUint32(14, 0, true);
-    v.setUint32(18, 0, true);
-    v.setUint32(22, 0, true);
-    v.setUint16(26, this.name.byteLength, true);
-    v.setUint16(28, 0, true);
-    for (let i = 0; i < this.name.byteLength; i++) {
-      v.setUint8(30 + i, this.name[i]);
-    }
-    return new Uint8Array(h);
-  }
-  get dataDescriptor() {
-    const dd = new ArrayBuffer(16);
-    const v = new DataView(dd);
-    v.setUint32(0, 134695760, true);
-    v.setUint32(4, this.crc, true);
-    v.setUint32(8, this.size, true);
-    v.setUint32(12, this.size, true);
-    return new Uint8Array(dd);
-  }
-  directoryRecord(offset) {
-    const dr = new ArrayBuffer(46 + this.name.byteLength);
-    const v = new DataView(dr);
-    v.setUint32(0, 33639248, true);
-    v.setUint16(4, 20, true);
-    v.setUint16(6, 20, true);
-    v.setUint16(8, 2056, true);
-    v.setUint16(10, 0, true);
-    v.setUint16(12, this.dateTime.time, true);
-    v.setUint16(14, this.dateTime.date, true);
-    v.setUint32(16, this.crc, true);
-    v.setUint32(20, this.size, true);
-    v.setUint32(24, this.size, true);
-    v.setUint16(28, this.name.byteLength, true);
-    v.setUint16(30, 0, true);
-    v.setUint16(32, 0, true);
-    v.setUint16(34, 0, true);
-    v.setUint16(36, 0, true);
-    v.setUint32(38, 0, true);
-    v.setUint32(42, offset, true);
-    for (let i = 0; i < this.name.byteLength; i++) {
-      v.setUint8(46 + i, this.name[i]);
-    }
-    return new Uint8Array(dr);
-  }
-  get byteLength() {
-    return this.size + this.name.byteLength + 30 + 16;
-  }
-  append(data, controller) {
-    this.bytesRead += data.byteLength;
-    const endIndex = data.byteLength - Math.max(this.bytesRead - this.size, 0);
-    const buf = data.slice(0, endIndex);
-    this.crc = crc32_default(buf, this.crc);
-    controller.enqueue(buf);
-    if (endIndex < data.byteLength) {
-      return data.slice(endIndex, data.byteLength);
-    }
-  }
-};
-function centralDirectory(files, controller) {
-  let directoryOffset = 0;
-  let directorySize = 0;
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
-    const record = file.directoryRecord(directoryOffset);
-    directoryOffset += file.byteLength;
-    controller.enqueue(record);
-    directorySize += record.byteLength;
-  }
-  controller.enqueue(eod(files.length, directorySize, directoryOffset));
+  return view.buffer.slice(view.byteOffset, view.byteOffset + view.byteLength);
 }
-function eod(fileCount, directorySize, directoryOffset) {
-  const e = new ArrayBuffer(22);
-  const v = new DataView(e);
-  v.setUint32(0, 101010256, true);
-  v.setUint16(4, 0, true);
-  v.setUint16(6, 0, true);
-  v.setUint16(8, fileCount, true);
-  v.setUint16(10, fileCount, true);
-  v.setUint32(12, directorySize, true);
-  v.setUint32(16, directoryOffset, true);
-  v.setUint16(20, 0, true);
-  return new Uint8Array(e);
+async function encryptWithSharedSecret(sharedSecret, secretBytes) {
+  const hkdfKey = await crypto.subtle.importKey(
+    "raw",
+    sharedSecret,
+    "HKDF",
+    false,
+    ["deriveKey"]
+  );
+  const aesKey = await crypto.subtle.deriveKey(
+    {
+      name: "HKDF",
+      hash: "SHA-256",
+      salt: new Uint8Array(),
+      info: WRAP_INFO
+    },
+    hkdfKey,
+    {
+      name: "AES-GCM",
+      length: 256
+    },
+    false,
+    ["encrypt"]
+  );
+  const nonce = crypto.getRandomValues(new Uint8Array(WRAP_NONCE_LENGTH));
+  const ciphertext = await crypto.subtle.encrypt(
+    {
+      name: "AES-GCM",
+      iv: nonce
+    },
+    aesKey,
+    toArrayBuffer(secretBytes)
+  );
+  return {
+    ciphertext: new Uint8Array(ciphertext),
+    nonce
+  };
 }
-var ZipStreamController = class {
-  constructor(files, source) {
-    this.files = files;
-    this.fileIndex = 0;
-    this.file = null;
-    this.reader = source.getReader();
-    this.nextFile();
-    this.extra = null;
+function getUserStorageKey() {
+  return USER_STORAGE_KEY;
+}
+var UserSecrets = class _UserSecrets {
+  constructor({
+    email,
+    ed25519Seed,
+    x25519PrivateKey,
+    ed25519PublicKey,
+    x25519PublicKey
+  } = {}) {
+    this.email = email || null;
+    this.ed25519Seed = ed25519Seed || null;
+    this.x25519PrivateKey = x25519PrivateKey || null;
+    this.ed25519PublicKey = ed25519PublicKey || null;
+    this.x25519PublicKey = x25519PublicKey || null;
   }
-  nextFile() {
-    this.file = this.files[this.fileIndex++];
-  }
-  async pull(controller) {
-    if (!this.file) {
-      centralDirectory(this.files, controller);
-      return controller.close();
+  static fromKeyMaterial({
+    email,
+    edSeed,
+    x25519Seed,
+    edPublicKey,
+    x25519PublicKey
+  }) {
+    if (!email) {
+      throw new Error("email required to persist user secrets");
     }
-    if (this.file.bytesRead === 0) {
-      controller.enqueue(this.file.header);
-      if (this.extra) {
-        this.extra = this.file.append(this.extra, controller);
+    if (!(edSeed instanceof Uint8Array) || edSeed.length === 0) {
+      throw new Error("invalid Ed25519 seed");
+    }
+    if (!(x25519Seed instanceof Uint8Array) || x25519Seed.length === 0) {
+      throw new Error("invalid X25519 key material");
+    }
+    const edSeedB64 = arrayToB64(edSeed);
+    const xSeedB64 = arrayToB64(x25519Seed);
+    const derivedXPublic = arrayToB64(x25519.scalarMultBase(x25519Seed));
+    return new _UserSecrets({
+      email,
+      ed25519Seed: edSeedB64,
+      x25519PrivateKey: xSeedB64,
+      ed25519PublicKey: edPublicKey ? arrayToB64(edPublicKey) : null,
+      x25519PublicKey: x25519PublicKey ? arrayToB64(x25519PublicKey) : derivedXPublic
+    });
+  }
+  toJSON() {
+    return {
+      email: this.email,
+      ed25519Seed: this.ed25519Seed,
+      x25519PrivateKey: this.x25519PrivateKey,
+      ed25519PublicKey: this.ed25519PublicKey,
+      x25519PublicKey: this.x25519PublicKey
+    };
+  }
+  getEd25519Seed() {
+    return this.ed25519Seed ? b64ToArray(this.ed25519Seed) : null;
+  }
+  getX25519PrivateKey() {
+    return this.x25519PrivateKey ? b64ToArray(this.x25519PrivateKey) : null;
+  }
+  getEd25519PublicKey() {
+    return this.ed25519PublicKey ? b64ToArray(this.ed25519PublicKey) : null;
+  }
+  getX25519PublicKey() {
+    return this.x25519PublicKey ? b64ToArray(this.x25519PublicKey) : null;
+  }
+  async wrapSecret(secretBytes) {
+    if (!(secretBytes instanceof Uint8Array)) {
+      throw new TypeError("secretBytes must be a Uint8Array");
+    }
+    if (!secretBytes.length) {
+      throw new Error("secretBytes cannot be empty");
+    }
+    let updated = false;
+    let userPublicKey = this.getX25519PublicKey();
+    if (!userPublicKey) {
+      const xPriv = this.getX25519PrivateKey();
+      if (!xPriv) {
+        throw new Error("missing X25519 key material");
       }
+      userPublicKey = x25519.scalarMultBase(xPriv);
+      xPriv.fill(0);
+      this.x25519PublicKey = arrayToB64(userPublicKey);
+      updated = true;
     }
-    if (this.file.bytesRead >= this.file.size) {
-      controller.enqueue(this.file.dataDescriptor);
-      this.nextFile();
-      return this.pull(controller);
-    }
-    const data = await this.reader.read();
-    if (data.done) {
-      this.nextFile();
-      return this.pull(controller);
-    }
-    this.extra = this.file.append(data.value, controller);
-  }
-};
-var Zip = class {
-  constructor(manifest, source) {
-    this.files = manifest.files.map((info) => new File(info));
-    this.source = source;
-  }
-  get stream() {
-    return new ReadableStream(new ZipStreamController(this.files, this.source));
-  }
-  get size() {
-    const entries = this.files.reduce(
-      (total, file) => total + file.byteLength * 2 - file.size,
-      0
+    const ephemeralPrivate = randomX25519PrivateKey();
+    const ephemeralPublic = x25519.scalarMultBase(ephemeralPrivate);
+    const sharedSecret = x25519.scalarMult(ephemeralPrivate, userPublicKey);
+    const { ciphertext, nonce } = await encryptWithSharedSecret(
+      sharedSecret,
+      secretBytes
     );
-    const eod2 = 22;
-    return entries + eod2;
+    ephemeralPrivate.fill(0);
+    sharedSecret.fill(0);
+    return {
+      ciphertext: arrayToB64(ciphertext),
+      nonce: arrayToB64(nonce),
+      ephemeralPublicKey: arrayToB64(ephemeralPublic),
+      version: OWNER_SECRET_VERSION,
+      updated
+    };
+  }
+  async unwrapSecret({
+    ciphertext,
+    nonce,
+    ephemeralPublicKey,
+    version = OWNER_SECRET_VERSION
+  }) {
+    if (version !== OWNER_SECRET_VERSION) {
+      throw new Error(`Unsupported secret version: ${version}`);
+    }
+    const privateKey = this.getX25519PrivateKey();
+    if (!privateKey) {
+      throw new Error("missing X25519 private key");
+    }
+    const cipherBytes = b64ToArray(ciphertext);
+    const nonceBytes = b64ToArray(nonce);
+    const ephemeralBytes = b64ToArray(ephemeralPublicKey);
+    if (nonceBytes.length !== WRAP_NONCE_LENGTH) {
+      throw new Error("invalid nonce length");
+    }
+    if (ephemeralBytes.length !== 32) {
+      throw new Error("invalid ephemeral public key");
+    }
+    const sharedSecret = x25519.scalarMult(privateKey, ephemeralBytes);
+    privateKey.fill(0);
+    const hkdfKey = await crypto.subtle.importKey(
+      "raw",
+      sharedSecret,
+      "HKDF",
+      false,
+      ["deriveKey"]
+    );
+    const aesKey = await crypto.subtle.deriveKey(
+      {
+        name: "HKDF",
+        hash: "SHA-256",
+        salt: new Uint8Array(),
+        info: WRAP_INFO
+      },
+      hkdfKey,
+      {
+        name: "AES-GCM",
+        length: 256
+      },
+      false,
+      ["decrypt"]
+    );
+    sharedSecret.fill(0);
+    const plaintext = await crypto.subtle.decrypt(
+      {
+        name: "AES-GCM",
+        iv: nonceBytes
+      },
+      aesKey,
+      cipherBytes
+    );
+    return new Uint8Array(plaintext);
   }
 };
 
-// src/serviceWorker.mjs
-function contentDisposition(filename) {
-  const asciiName = filename.replace(/[^\x20-\x7E]/g, "_");
-  const encodedName = encodeURIComponent(filename);
-  return `attachment; filename="${asciiName}"; filename*=UTF-8''${encodedName}`;
-}
-var noSave = false;
-var map = /* @__PURE__ */ new Map();
-var IMAGES = /.*\.(png|svg|jpg)$/;
-var VERSIONED_ASSET = /\.[A-Fa-f0-9]{8}\.(js|css|png|svg|jpg)(#\w+)?$/;
-var DOWNLOAD_URL = /\/api\/download\/([A-Fa-f0-9]{4,})/;
-var FONT = /\.woff2?$/;
-self.addEventListener("install", () => {
-  self.skipWaiting();
-});
-self.addEventListener("activate", (event) => {
-  event.waitUntil(self.clients.claim());
-});
-async function decryptStream2(id, signal) {
-  const file = map.get(id);
-  if (!file) {
-    console.error("[SW] File not found in map for id:", id);
-    return new Response(null, { status: 400 });
+// src/storage.mjs
+var Mem = class {
+  constructor() {
+    this.items = /* @__PURE__ */ new Map();
   }
-  if (signal && signal.aborted) {
-    console.log("[SW] Request already aborted for", id);
-    map.delete(id);
-    return new Response(null, { status: 499 });
+  get length() {
+    return this.items.size;
   }
-  console.log("[SW] Starting decryptStream for", id, "with nonce:", file.nonce);
-  let abortHandler = null;
-  try {
-    let size = file.size;
-    let type = file.type;
-    const keychain = new Keychain(file.key, file.nonce);
-    if (file.requiresPassword) {
-      keychain.setPassword(file.password, file.url);
+  getItem(key) {
+    return this.items.get(key);
+  }
+  setItem(key, value) {
+    return this.items.set(key, value);
+  }
+  removeItem(key) {
+    return this.items.delete(key);
+  }
+  key(i) {
+    return this.items.keys()[i];
+  }
+};
+var Storage = class {
+  constructor() {
+    try {
+      this.engine = localStorage || new Mem();
+    } catch (e) {
+      this.engine = new Mem();
     }
-    console.log("[SW] Calling downloadStream...");
-    file.download = downloadStream(id, keychain);
-    if (signal && typeof signal.addEventListener === "function") {
-      abortHandler = () => {
-        console.log("[SW] Request aborted for", id);
+    this._files = this.loadFiles();
+    this._user = this.loadUser();
+  }
+  loadFiles() {
+    const fs = /* @__PURE__ */ new Map();
+    for (let i = 0; i < this.engine.length; i++) {
+      const k = this.engine.key(i);
+      if (k === getUserStorageKey()) {
+        continue;
+      }
+      if (isFile(k)) {
         try {
-          if (file.download && typeof file.download.cancel === "function") {
-            file.download.cancel();
+          const f = new OwnedFile(JSON.parse(this.engine.getItem(k)));
+          if (!f.id) {
+            f.id = f.fileId;
           }
+          fs.set(f.id, f);
         } catch (err) {
-          console.warn("[SW] Failed to cancel download after abort", err);
+          this.engine.removeItem(k);
         }
-        map.delete(id);
-      };
-      signal.addEventListener("abort", abortHandler, { once: true });
-    }
-    const body = await file.download.result;
-    const decrypted = keychain.decryptStream(body);
-    let zipStream = null;
-    if (file.type === "send-archive") {
-      const zip = new Zip(file.manifest, decrypted);
-      zipStream = zip.stream;
-      type = "application/zip";
-      size = zip.size;
-    }
-    const responseStream = transformStream(
-      zipStream || decrypted,
-      {
-        transform(chunk, controller) {
-          file.progress += chunk.length;
-          if (signal && abortHandler && file.progress >= size) {
-            signal.removeEventListener("abort", abortHandler);
-          }
-          controller.enqueue(chunk);
-        }
-      },
-      function oncancel() {
-        file.download.cancel();
-        map.delete(id);
       }
+    }
+    return fs;
+  }
+  loadUser() {
+    try {
+      const raw = this.engine.getItem(getUserStorageKey());
+      if (!raw) {
+        return null;
+      }
+      return new UserSecrets(JSON.parse(raw));
+    } catch (err) {
+      this.engine.removeItem(getUserStorageKey());
+      return null;
+    }
+  }
+  get id() {
+    let id = this.engine.getItem("device_id");
+    if (!id) {
+      id = arrayToB64(crypto.getRandomValues(new Uint8Array(16)));
+      this.engine.setItem("device_id", id);
+    }
+    return id;
+  }
+  get totalDownloads() {
+    return Number(this.engine.getItem("totalDownloads"));
+  }
+  set totalDownloads(n) {
+    this.engine.setItem("totalDownloads", n);
+  }
+  get totalUploads() {
+    return Number(this.engine.getItem("totalUploads"));
+  }
+  set totalUploads(n) {
+    this.engine.setItem("totalUploads", n);
+  }
+  get referrer() {
+    return this.engine.getItem("referrer");
+  }
+  set referrer(str) {
+    this.engine.setItem("referrer", str);
+  }
+  get enrolled() {
+    return JSON.parse(this.engine.getItem("ab_experiments") || "{}");
+  }
+  enroll(id, variant) {
+    const enrolled = {};
+    enrolled[id] = variant;
+    this.engine.setItem("ab_experiments", JSON.stringify(enrolled));
+  }
+  get files() {
+    return Array.from(this._files.values()).sort(
+      (a, b) => a.createdAt - b.createdAt
     );
-    const headers = {
-      "Content-Disposition": contentDisposition(file.filename),
-      "Content-Type": type,
-      "Content-Length": size
-    };
-    console.log("[SW] Returning decrypted stream response");
-    return new Response(responseStream, { headers });
-  } catch (e) {
-    if (e && (e.message === "0" || e.name === "AbortError")) {
-      console.log("[SW] Download aborted for", id);
-      return new Response(null, { status: 499 });
-    }
-    console.error("[SW] Error in decryptStream:", e, "noSave:", noSave);
-    if (noSave) {
-      return new Response(null, { status: e.message });
-    }
-    console.log("[SW] Redirecting to download page");
-    return new Response(null, {
-      status: 302,
-      headers: {
-        Location: `/download/${id}/#${file.key}`
-      }
-    });
-  } finally {
-    if (signal && abortHandler) {
-      signal.removeEventListener("abort", abortHandler);
-    }
   }
-}
-self.addEventListener("fetch", (event) => {
-  const req = event.request;
-  if (req.method !== "GET") return;
-  const url = new URL(req.url);
-  const dlmatch = DOWNLOAD_URL.exec(url.pathname);
-  if (dlmatch) {
-    console.log("[SW] Intercepted download request for:", dlmatch[1]);
-    event.respondWith(decryptStream2(dlmatch[1], event.request.signal));
+  getFileById(id) {
+    return this._files.get(id);
   }
-});
-self.addEventListener("message", (event) => {
-  if (event.data.request === "init") {
-    console.log(
-      "[SW] Received init message for",
-      event.data.id,
-      "nonce:",
-      event.data.nonce
+  get user() {
+    return this._user;
+  }
+  get(id) {
+    return this.engine.getItem(id);
+  }
+  set(id, value) {
+    return this.engine.setItem(id, value);
+  }
+  remove(property) {
+    if (isFile(property)) {
+      this._files.delete(property);
+    }
+    this.engine.removeItem(property);
+  }
+  addFile(file) {
+    this._files.set(file.id, file);
+    this.writeFile(file);
+  }
+  writeFile(file) {
+    this.engine.setItem(file.id, JSON.stringify(file));
+  }
+  setUser(user) {
+    if (!(user instanceof UserSecrets)) {
+      throw new Error("Expected UserSecrets instance");
+    }
+    this._user = user;
+    this.engine.setItem(
+      getUserStorageKey(),
+      JSON.stringify(user.toJSON())
     );
-    noSave = event.data.noSave;
-    const info = {
-      key: event.data.key,
-      nonce: event.data.nonce,
-      filename: event.data.filename,
-      requiresPassword: event.data.requiresPassword,
-      password: event.data.password,
-      url: event.data.url,
-      type: event.data.type,
-      manifest: event.data.manifest,
-      size: event.data.size,
-      progress: 0
-    };
-    map.set(event.data.id, info);
-    console.log("[SW] File info stored in map");
-    event.ports[0].postMessage("file info received");
-  } else if (event.data.request === "progress") {
-    const file = map.get(event.data.id);
-    if (!file) {
-      event.ports[0].postMessage({ error: "cancelled" });
-    } else {
-      if (file.progress === file.size) {
-        map.delete(event.data.id);
-      }
-      event.ports[0].postMessage({ progress: file.progress });
-    }
-  } else if (event.data.request === "cancel") {
-    const file = map.get(event.data.id);
-    if (file) {
-      if (file.download) {
-        file.download.cancel();
-      }
-      map.delete(event.data.id);
-    }
-    event.ports[0].postMessage("download cancelled");
   }
-});
-//# sourceMappingURL=serviceWorker.js.map
+  clearUser() {
+    this._user = null;
+    this.engine.removeItem(getUserStorageKey());
+  }
+  writeFiles() {
+    this._files.forEach((f) => this.writeFile(f));
+  }
+  clearLocalFiles() {
+    this._files.forEach((f) => this.engine.removeItem(f.id));
+    this._files = /* @__PURE__ */ new Map();
+  }
+  async merge(files = []) {
+    let incoming = false;
+    let outgoing = false;
+    let downloadCount = false;
+    for (const f of files) {
+      if (!this.getFileById(f.id)) {
+        this.addFile(new OwnedFile(f));
+        incoming = true;
+      }
+    }
+    const workingFiles = this.files.slice();
+    for (const f of workingFiles) {
+      const cc = await f.updateDownloadCount();
+      if (cc) {
+        await this.writeFile(f);
+      }
+      downloadCount = downloadCount || cc;
+      outgoing = outgoing || f.expired;
+      if (f.expired) {
+        this.remove(f.id);
+      } else if (!files.find((x) => x.id === f.id)) {
+        outgoing = true;
+      }
+    }
+    return {
+      incoming,
+      outgoing,
+      downloadCount
+    };
+  }
+};
+var storage_default = new Storage();
+
+export {
+  blobStream,
+  concatStream,
+  Keychain,
+  getApiUrl,
+  metadata,
+  uploadWs,
+  downloadFile,
+  OwnedFile,
+  OWNER_SECRET_VERSION,
+  UserSecrets,
+  storage_default
+};
+//# sourceMappingURL=chunk-42IXS7QU.js.map

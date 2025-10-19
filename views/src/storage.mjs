@@ -1,5 +1,6 @@
 import { arrayToB64, isFile } from "./utils";
 import OwnedFile from "./ownedFile";
+import UserSecrets, { getUserStorageKey } from "./userSecrets.mjs";
 
 class Mem {
   constructor() {
@@ -35,12 +36,16 @@ class Storage {
       this.engine = new Mem();
     }
     this._files = this.loadFiles();
+    this._user = this.loadUser();
   }
 
   loadFiles() {
     const fs = new Map();
     for (let i = 0; i < this.engine.length; i++) {
       const k = this.engine.key(i);
+      if (k === getUserStorageKey()) {
+        continue;
+      }
       if (isFile(k)) {
         try {
           const f = new OwnedFile(JSON.parse(this.engine.getItem(k)));
@@ -56,6 +61,19 @@ class Storage {
       }
     }
     return fs;
+  }
+
+  loadUser() {
+    try {
+      const raw = this.engine.getItem(getUserStorageKey());
+      if (!raw) {
+        return null;
+      }
+      return new UserSecrets(JSON.parse(raw));
+    } catch (err) {
+      this.engine.removeItem(getUserStorageKey());
+      return null;
+    }
   }
 
   get id() {
@@ -105,6 +123,10 @@ class Storage {
     return this._files.get(id);
   }
 
+  get user() {
+    return this._user;
+  }
+
   get(id) {
     return this.engine.getItem(id);
   }
@@ -127,6 +149,22 @@ class Storage {
 
   writeFile(file) {
     this.engine.setItem(file.id, JSON.stringify(file));
+  }
+
+  setUser(user) {
+    if (!(user instanceof UserSecrets)) {
+      throw new Error("Expected UserSecrets instance");
+    }
+    this._user = user;
+    this.engine.setItem(
+      getUserStorageKey(),
+      JSON.stringify(user.toJSON()),
+    );
+  }
+
+  clearUser() {
+    this._user = null;
+    this.engine.removeItem(getUserStorageKey());
   }
 
   writeFiles() {

@@ -296,8 +296,13 @@ class RegisterLayoutElement extends HTMLElement {
       console.log("[RegisterLayout] Deriving credentials");
       saltBytes = generateSalt();
       let publicKey;
+      let encryptionPublicKey;
       try {
-        ({ seed, publicKey } = await deriveKeyPair(password, saltBytes, DEFAULT_KDF_SETTINGS));
+        ({ seed, publicKey, encryptionPublicKey } = await deriveKeyPair(
+          password,
+          saltBytes,
+          DEFAULT_KDF_SETTINGS,
+        ));
       } finally {
         // Always clear the password string once the derivation finished
         this.passwordInput.value = "";
@@ -306,6 +311,7 @@ class RegisterLayoutElement extends HTMLElement {
 
       const salt = encodeSalt(saltBytes);
       const publicKeyB64 = encodePublicKey(publicKey);
+      const encryptionPublicKeyB64 = encodePublicKey(encryptionPublicKey);
       const kdfSettings = serializeKDFSettings(DEFAULT_KDF_SETTINGS);
 
       // Zero sensitive buffers
@@ -324,6 +330,7 @@ class RegisterLayoutElement extends HTMLElement {
           email: email,
           salt,
           public_key: publicKeyB64,
+          encryption_public_key: encryptionPublicKeyB64,
           kdf: kdfSettings,
         }),
       });

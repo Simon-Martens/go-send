@@ -1,5 +1,5 @@
 import { arrayToB64, b64ToArray, delay } from "./utils-worker";
-import { ECE_RECORD_SIZE } from "./ece";
+import { ECE_RECORD_SIZE } from "./crypto/ece.mjs";
 
 let fileProtocolWssUrl = null;
 

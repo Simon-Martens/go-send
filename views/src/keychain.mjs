@@ -1,5 +1,5 @@
 import { arrayToB64, b64ToArray } from "./utils-worker.mjs";
-import { decryptStream, encryptStream } from "./ece.mjs";
+import { decryptStream, encryptStream } from "./crypto/ece.mjs";
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 

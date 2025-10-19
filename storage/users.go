@@ -37,16 +37,17 @@ func (r UserRole) IsValid() bool {
 
 // User represents a user record in the database
 type User struct {
-	ID        int64           `json:"id"`
-	Name      string          `json:"name"`
-	Email     string          `json:"email"`
-	Salt      string          `json:"salt"`
-	PublicKey string          `json:"public_key"`
-	Created   int64           `json:"created"`
-	Updated   int64           `json:"updated"`
-	Settings  json.RawMessage `json:"settings"`
-	Role      UserRole        `json:"role"`
-	Active    bool            `json:"active"`
+	ID                  int64           `json:"id"`
+	Name                string          `json:"name"`
+	Email               string          `json:"email"`
+	Salt                string          `json:"salt"`
+	PublicKey           string          `json:"public_key"`
+	EncryptionPublicKey string          `json:"encryption_public_key"`
+	Created             int64           `json:"created"`
+	Updated             int64           `json:"updated"`
+	Settings            json.RawMessage `json:"settings"`
+	Role                UserRole        `json:"role"`
+	Active              bool            `json:"active"`
 }
 
 // UserKDFSettings captures the configuration clients used to derive the key pair
@@ -136,8 +137,8 @@ func (d *DB) CreateUser(user *User) error {
 	}
 
 	query := `
-		INSERT INTO users (name, email, salt, public_key, created, updated, settings, role, active)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+	INSERT INTO users (name, email, salt, public_key, encryption_public_key, created, updated, settings, role, active)
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
 
 	result, err := d.db.Exec(
@@ -146,6 +147,7 @@ func (d *DB) CreateUser(user *User) error {
 		user.Email,
 		user.Salt,
 		user.PublicKey,
+		user.EncryptionPublicKey,
 		user.Created,
 		user.Updated,
 		string(user.Settings),
@@ -168,7 +170,7 @@ func (d *DB) CreateUser(user *User) error {
 // GetUser retrieves a user by ID
 func (d *DB) GetUser(id int64) (*User, error) {
 	query := `
-		SELECT id, name, email, salt, public_key, created, updated, settings, role, active
+	SELECT id, name, email, salt, public_key, encryption_public_key, created, updated, settings, role, active
 		FROM users
 		WHERE id = ?
 	`
@@ -183,6 +185,7 @@ func (d *DB) GetUser(id int64) (*User, error) {
 		&user.Email,
 		&user.Salt,
 		&user.PublicKey,
+		&user.EncryptionPublicKey,
 		&user.Created,
 		&user.Updated,
 		&settings,
@@ -202,7 +205,7 @@ func (d *DB) GetUser(id int64) (*User, error) {
 // GetUserByEmail retrieves a user by email address
 func (d *DB) GetUserByEmail(email string) (*User, error) {
 	query := `
-		SELECT id, name, email, salt, public_key, created, updated, settings, role, active
+		SELECT id, name, email, salt, public_key, encryption_public_key, created, updated, settings, role, active
 		FROM users
 		WHERE email = ?
 	`
@@ -217,6 +220,7 @@ func (d *DB) GetUserByEmail(email string) (*User, error) {
 		&user.Email,
 		&user.Salt,
 		&user.PublicKey,
+		&user.EncryptionPublicKey,
 		&user.Created,
 		&user.Updated,
 		&settings,
@@ -236,7 +240,7 @@ func (d *DB) GetUserByEmail(email string) (*User, error) {
 // GetUserByName retrieves a user by name
 func (d *DB) GetUserByName(name string) (*User, error) {
 	query := `
-		SELECT id, name, email, salt, public_key, created, updated, settings, role, active
+	SELECT id, name, email, salt, public_key, encryption_public_key, created, updated, settings, role, active
 		FROM users
 		WHERE name = ?
 	`
@@ -251,6 +255,7 @@ func (d *DB) GetUserByName(name string) (*User, error) {
 		&user.Email,
 		&user.Salt,
 		&user.PublicKey,
+		&user.EncryptionPublicKey,
 		&user.Created,
 		&user.Updated,
 		&settings,
@@ -483,7 +488,7 @@ func (d *DB) ListUsers(role *UserRole) ([]*User, error) {
 			return nil, fmt.Errorf("invalid role: %d", *role)
 		}
 		query = `
-			SELECT id, name, email, salt, public_key, created, updated, settings, role, active
+SELECT id, name, email, salt, public_key, encryption_public_key, created, updated, settings, role, active
 			FROM users
 			WHERE role = ?
 			ORDER BY created DESC
@@ -491,7 +496,7 @@ func (d *DB) ListUsers(role *UserRole) ([]*User, error) {
 		args = append(args, int(*role))
 	} else {
 		query = `
-			SELECT id, name, email, salt, public_key, created, updated, settings, role, active
+			SELECT id, name, email, salt, public_key, encryption_public_key, created, updated, settings, role, active
 			FROM users
 			ORDER BY created DESC
 		`
@@ -515,6 +520,7 @@ func (d *DB) ListUsers(role *UserRole) ([]*User, error) {
 			&user.Email,
 			&user.Salt,
 			&user.PublicKey,
+			&user.EncryptionPublicKey,
 			&user.Created,
 			&user.Updated,
 			&settings,

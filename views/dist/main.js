@@ -12,6 +12,7 @@ import {
   streamToArrayBuffer,
   translateElement
 } from "./chunks/chunk-6LPP53TP.js";
+import "./chunks/chunk-IFG75HHC.js";
 
 // src/utils-worker.mjs
 function arrayToB642(array) {
@@ -190,7 +191,7 @@ function concatStream(streams) {
   return new ReadableStream(new ConcatStreamController(streams));
 }
 
-// src/ece.mjs
+// src/crypto/ece.mjs
 var NONCE_LENGTH = 12;
 var TAG_LENGTH = 16;
 var KEY_LENGTH = 16;
@@ -2944,96 +2945,96 @@ function makeBundle(locale2, ftl) {
   return bundle;
 }
 var localeLoaders = {
-  an: () => import("./chunks/an-CK6EXXAU.js"),
-  ar: () => import("./chunks/ar-D65CKE24.js"),
-  ast: () => import("./chunks/ast-W3ACMHM5.js"),
-  az: () => import("./chunks/az-TL2HP7SP.js"),
-  azz: () => import("./chunks/azz-2QZVTLVP.js"),
-  be: () => import("./chunks/be-KUOJ46WY.js"),
-  bn: () => import("./chunks/bn-SHMJ5DY4.js"),
-  br: () => import("./chunks/br-IVVK33XK.js"),
-  bs: () => import("./chunks/bs-TRSWKRNX.js"),
-  ca: () => import("./chunks/ca-YKBYJFUI.js"),
-  cak: () => import("./chunks/cak-XXLJKXTN.js"),
-  ckb: () => import("./chunks/ckb-YSUQDCIY.js"),
-  cs: () => import("./chunks/cs-54CJA22V.js"),
-  cy: () => import("./chunks/cy-VX5XDONN.js"),
-  da: () => import("./chunks/da-VHNBJJ3M.js"),
-  de: () => import("./chunks/de-N5P73NZE.js"),
-  dsb: () => import("./chunks/dsb-JOKW2FHE.js"),
-  el: () => import("./chunks/el-RXODO4XP.js"),
-  "en-CA": () => import("./chunks/en-CA-T33TFBNY.js"),
-  "en-GB": () => import("./chunks/en-GB-WAJ6DE3Q.js"),
-  "en-US": () => import("./chunks/en-US-OMK7UQCO.js"),
-  "es-AR": () => import("./chunks/es-AR-TY463SRG.js"),
-  "es-CL": () => import("./chunks/es-CL-SUYCI6CS.js"),
-  "es-ES": () => import("./chunks/es-ES-ZE6GLUEZ.js"),
-  "es-MX": () => import("./chunks/es-MX-SUC4MMFT.js"),
-  et: () => import("./chunks/et-2XMXQVKV.js"),
-  eu: () => import("./chunks/eu-TRZCMMWC.js"),
-  fa: () => import("./chunks/fa-RPVIZIOP.js"),
-  fi: () => import("./chunks/fi-BZAQPAGY.js"),
-  fr: () => import("./chunks/fr-OOMP6TZG.js"),
-  "fy-NL": () => import("./chunks/fy-NL-JIQ7ZHH2.js"),
-  gn: () => import("./chunks/gn-3CTLAO2Q.js"),
-  gor: () => import("./chunks/gor-V6M3J3GT.js"),
-  he: () => import("./chunks/he-US4PASYN.js"),
-  hr: () => import("./chunks/hr-NWZOAC2W.js"),
-  hsb: () => import("./chunks/hsb-XBB6VK5V.js"),
-  hu: () => import("./chunks/hu-OQ42NHBF.js"),
-  hus: () => import("./chunks/hus-EKUWNGKM.js"),
-  "hy-AM": () => import("./chunks/hy-AM-3M4M5FU4.js"),
-  ia: () => import("./chunks/ia-WCWIET3V.js"),
-  id: () => import("./chunks/id-4XZVZ4PQ.js"),
-  ig: () => import("./chunks/ig-JB6AHPYN.js"),
-  it: () => import("./chunks/it-WHQS3MNT.js"),
-  ixl: () => import("./chunks/ixl-DCSCJ4XA.js"),
-  ja: () => import("./chunks/ja-SEDZNBHQ.js"),
-  ka: () => import("./chunks/ka-OHJVYIP6.js"),
-  kab: () => import("./chunks/kab-7T6CJKSN.js"),
-  ko: () => import("./chunks/ko-RVLSJJYY.js"),
-  lt: () => import("./chunks/lt-AWQULDOT.js"),
-  lus: () => import("./chunks/lus-HGDTCTVZ.js"),
-  meh: () => import("./chunks/meh-VTJA7YOH.js"),
-  mix: () => import("./chunks/mix-HICVVWCS.js"),
-  ml: () => import("./chunks/ml-6JFUAUI5.js"),
-  ms: () => import("./chunks/ms-ZUQLS3QH.js"),
-  "nb-NO": () => import("./chunks/nb-NO-6JEOK2AN.js"),
-  nl: () => import("./chunks/nl-2ZIXKJ5D.js"),
-  "nn-NO": () => import("./chunks/nn-NO-KFQICFRH.js"),
-  oc: () => import("./chunks/oc-K27N56PF.js"),
-  "pa-IN": () => import("./chunks/pa-IN-74VIHONK.js"),
-  pai: () => import("./chunks/pai-3PKB3XVI.js"),
-  pl: () => import("./chunks/pl-Q2TDBMOV.js"),
-  ppl: () => import("./chunks/ppl-4SWDQFSF.js"),
-  "pt-BR": () => import("./chunks/pt-BR-6667CK43.js"),
-  "pt-PT": () => import("./chunks/pt-PT-M5VKA3S3.js"),
-  quc: () => import("./chunks/quc-TKONST2B.js"),
-  ro: () => import("./chunks/ro-QWYMRMWS.js"),
-  ru: () => import("./chunks/ru-EXDM47SE.js"),
-  sk: () => import("./chunks/sk-OZRFOL3K.js"),
-  sl: () => import("./chunks/sl-2Y2K77JE.js"),
-  sn: () => import("./chunks/sn-KYKODERM.js"),
-  sq: () => import("./chunks/sq-FX6YZFM7.js"),
-  sr: () => import("./chunks/sr-ST5DTLJN.js"),
-  su: () => import("./chunks/su-6P7YOR22.js"),
-  "sv-SE": () => import("./chunks/sv-SE-SAU6RFZW.js"),
-  te: () => import("./chunks/te-U2TEFCCS.js"),
-  th: () => import("./chunks/th-GJOFCVUD.js"),
-  tl: () => import("./chunks/tl-LNAD6TOS.js"),
-  tr: () => import("./chunks/tr-53SRC6I2.js"),
-  trs: () => import("./chunks/trs-HM5MDPKC.js"),
-  uk: () => import("./chunks/uk-XRZDDJB6.js"),
-  vi: () => import("./chunks/vi-ERHZYYVM.js"),
-  yo: () => import("./chunks/yo-F4GVL2LO.js"),
-  yua: () => import("./chunks/yua-LMDWCREK.js"),
-  zgh: () => import("./chunks/zgh-QION57XE.js"),
-  "zh-CN": () => import("./chunks/zh-CN-VYP3UEGQ.js"),
-  "zh-TW": () => import("./chunks/zh-TW-NYGZFKGG.js")
+  an: () => import("./chunks/an-7QLMDQBX.js"),
+  ar: () => import("./chunks/ar-64CQAO7S.js"),
+  ast: () => import("./chunks/ast-B3FS5GKH.js"),
+  az: () => import("./chunks/az-L7HPQL6A.js"),
+  azz: () => import("./chunks/azz-7O5NFZRU.js"),
+  be: () => import("./chunks/be-GQFJ6DIM.js"),
+  bn: () => import("./chunks/bn-KGRSKCX4.js"),
+  br: () => import("./chunks/br-TWYZZRUK.js"),
+  bs: () => import("./chunks/bs-EHPIMCQR.js"),
+  ca: () => import("./chunks/ca-COWCZNED.js"),
+  cak: () => import("./chunks/cak-ESZX22DV.js"),
+  ckb: () => import("./chunks/ckb-2RQ3FCNO.js"),
+  cs: () => import("./chunks/cs-MOISU4EX.js"),
+  cy: () => import("./chunks/cy-6PLSFA5W.js"),
+  da: () => import("./chunks/da-FU733DL4.js"),
+  de: () => import("./chunks/de-IP5YS5X4.js"),
+  dsb: () => import("./chunks/dsb-WCR6RIJN.js"),
+  el: () => import("./chunks/el-YSDOGLN7.js"),
+  "en-CA": () => import("./chunks/en-CA-NQPBSH32.js"),
+  "en-GB": () => import("./chunks/en-GB-3NTN4JAN.js"),
+  "en-US": () => import("./chunks/en-US-BC7GR5ND.js"),
+  "es-AR": () => import("./chunks/es-AR-Y7S4A3E5.js"),
+  "es-CL": () => import("./chunks/es-CL-X5IPHWV6.js"),
+  "es-ES": () => import("./chunks/es-ES-IWMK3LM5.js"),
+  "es-MX": () => import("./chunks/es-MX-AOXBLYJT.js"),
+  et: () => import("./chunks/et-ZCII5RAH.js"),
+  eu: () => import("./chunks/eu-6G762MX6.js"),
+  fa: () => import("./chunks/fa-GY7CKOEZ.js"),
+  fi: () => import("./chunks/fi-57YFMOLB.js"),
+  fr: () => import("./chunks/fr-V52AAVL3.js"),
+  "fy-NL": () => import("./chunks/fy-NL-EW6FXOGK.js"),
+  gn: () => import("./chunks/gn-OX7FCNBO.js"),
+  gor: () => import("./chunks/gor-7DMQDJ73.js"),
+  he: () => import("./chunks/he-LDNLIYRZ.js"),
+  hr: () => import("./chunks/hr-JHFFRC56.js"),
+  hsb: () => import("./chunks/hsb-DEDKZXBQ.js"),
+  hu: () => import("./chunks/hu-EJEBQNEA.js"),
+  hus: () => import("./chunks/hus-UX2NXYSJ.js"),
+  "hy-AM": () => import("./chunks/hy-AM-XNCNKKX5.js"),
+  ia: () => import("./chunks/ia-ZISJSV3Y.js"),
+  id: () => import("./chunks/id-KRQ5AGEU.js"),
+  ig: () => import("./chunks/ig-P3JZ2R64.js"),
+  it: () => import("./chunks/it-JURHVETE.js"),
+  ixl: () => import("./chunks/ixl-3ADJXQSJ.js"),
+  ja: () => import("./chunks/ja-YVXQCO5H.js"),
+  ka: () => import("./chunks/ka-JLR5MROH.js"),
+  kab: () => import("./chunks/kab-FCRIBPS3.js"),
+  ko: () => import("./chunks/ko-KLMIJHMX.js"),
+  lt: () => import("./chunks/lt-4LNKOM3L.js"),
+  lus: () => import("./chunks/lus-3RVWL6X3.js"),
+  meh: () => import("./chunks/meh-XG6T3EE2.js"),
+  mix: () => import("./chunks/mix-Q6FILZNT.js"),
+  ml: () => import("./chunks/ml-ZPMMHFZC.js"),
+  ms: () => import("./chunks/ms-FKELRLYF.js"),
+  "nb-NO": () => import("./chunks/nb-NO-NTZW2S6G.js"),
+  nl: () => import("./chunks/nl-FCL62L2Z.js"),
+  "nn-NO": () => import("./chunks/nn-NO-ZUA5YLFC.js"),
+  oc: () => import("./chunks/oc-ODYY6NUW.js"),
+  "pa-IN": () => import("./chunks/pa-IN-K3BN4AXX.js"),
+  pai: () => import("./chunks/pai-WGDSRSST.js"),
+  pl: () => import("./chunks/pl-BFCCVVRH.js"),
+  ppl: () => import("./chunks/ppl-UOXYQ3I4.js"),
+  "pt-BR": () => import("./chunks/pt-BR-RBY4C6ZS.js"),
+  "pt-PT": () => import("./chunks/pt-PT-2G66BR24.js"),
+  quc: () => import("./chunks/quc-PWFBRS6I.js"),
+  ro: () => import("./chunks/ro-VV3MGKXL.js"),
+  ru: () => import("./chunks/ru-M2QB5QSG.js"),
+  sk: () => import("./chunks/sk-TOPORNUM.js"),
+  sl: () => import("./chunks/sl-DHTME4NW.js"),
+  sn: () => import("./chunks/sn-75UCJTMV.js"),
+  sq: () => import("./chunks/sq-6KHFORJL.js"),
+  sr: () => import("./chunks/sr-M4TZJYO7.js"),
+  su: () => import("./chunks/su-RQN44UY6.js"),
+  "sv-SE": () => import("./chunks/sv-SE-6MQHKP6U.js"),
+  te: () => import("./chunks/te-GFKCBJ2I.js"),
+  th: () => import("./chunks/th-H4KVO5VB.js"),
+  tl: () => import("./chunks/tl-JHZDIP3W.js"),
+  tr: () => import("./chunks/tr-GOM7WINO.js"),
+  trs: () => import("./chunks/trs-MDIB6KL7.js"),
+  uk: () => import("./chunks/uk-WZGTIFEO.js"),
+  vi: () => import("./chunks/vi-NRETZZCC.js"),
+  yo: () => import("./chunks/yo-JE2SC3PY.js"),
+  yua: () => import("./chunks/yua-5OGT4UI7.js"),
+  zgh: () => import("./chunks/zgh-TQMDSCGQ.js"),
+  "zh-CN": () => import("./chunks/zh-CN-WVGOU4UF.js"),
+  "zh-TW": () => import("./chunks/zh-TW-QKIT42GW.js")
 };
 async function getTranslator(locale2) {
   const bundles = [];
-  const { default: en } = await import("./chunks/en-US-OMK7UQCO.js");
+  const { default: en } = await import("./chunks/en-US-BC7GR5ND.js");
   if (locale2 !== "en-US" && localeLoaders[locale2]) {
     const { default: ftl } = await localeLoaders[locale2]();
     bundles.push(makeBundle(locale2, ftl));
@@ -3876,9 +3877,9 @@ customElements.define("go-send", GoSendElement);
 async function initUploadRoute(app) {
   console.log("[Route] Initializing upload page...");
   await Promise.all([
-    import("./chunks/upload-layout-Z5NIYSGR.js"),
-    import("./chunks/upload-area-OK6IV2EY.js"),
-    import("./chunks/upload-right-XCWYYM2F.js"),
+    import("./chunks/upload-layout-7G3DJHRQ.js"),
+    import("./chunks/upload-area-3Y35JRHO.js"),
+    import("./chunks/upload-right-72PSBTIR.js"),
     app.controller.ready
   ]);
   app.showUploadLayout();
@@ -3887,12 +3888,12 @@ async function initUploadRoute(app) {
 async function initDownloadRoute(app) {
   console.log("[Route] Initializing download page...");
   await Promise.all([
-    import("./chunks/download-layout-MCN6XX27.js"),
-    import("./chunks/file-password-XWDDESIX.js"),
-    import("./chunks/file-overview-3ADYNNRV.js"),
-    import("./chunks/file-downloading-RYRSCJLN.js"),
-    import("./chunks/file-finished-HRHNQJSG.js"),
-    import("./chunks/file-error-7UWEK6PG.js"),
+    import("./chunks/download-layout-TVPZBNWJ.js"),
+    import("./chunks/file-password-LTSS3PNQ.js"),
+    import("./chunks/file-overview-MLRVTS3C.js"),
+    import("./chunks/file-downloading-7IE5UCSD.js"),
+    import("./chunks/file-finished-ROYVEENB.js"),
+    import("./chunks/file-error-X5RHWBSX.js"),
     app.controller.ready
   ]);
   app.showDownloadLayout();
@@ -3901,7 +3902,7 @@ async function initDownloadRoute(app) {
 async function initRegisterRoute(app) {
   console.log("[Route] Initializing register page...");
   await Promise.all([
-    import("./chunks/register-layout-VPIFKXK4.js"),
+    import("./chunks/register-layout-U6BXXNO5.js"),
     app.controller.ready
   ]);
   app.showRegisterLayout();
@@ -3910,7 +3911,7 @@ async function initRegisterRoute(app) {
 async function initLoginRoute(app) {
   console.log("[Route] Initializing login page...");
   await Promise.all([
-    import("./chunks/login-layout-OGQOPXRD.js"),
+    import("./chunks/login-layout-JH7T2MD3.js"),
     app.controller.ready
   ]);
   app.showLoginLayout();

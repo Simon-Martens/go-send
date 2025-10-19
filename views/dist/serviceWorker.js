@@ -175,7 +175,7 @@ function concatStream(streams) {
   return new ReadableStream(new ConcatStreamController(streams));
 }
 
-// src/ece.mjs
+// src/crypto/ece.mjs
 var NONCE_LENGTH = 12;
 var TAG_LENGTH = 16;
 var KEY_LENGTH = 16;

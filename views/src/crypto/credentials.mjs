@@ -1,17 +1,77 @@
+// INFO: Login flow overview:
+// 1. Browser fetches per-user salt & KDF parameters via /auth/challenge.
+// 2. Password + salt feed into PBKDF2 to derive base entropy
+// 3. The hashed result is passed to HKDF to produce the Ed25519 seed (deriveSeed).
+// 4. The seed deterministically regenerates the public/private key pair (deriveKeyPair); // 5. The private seed signs the challenge nonce (signChallenge).
+// 6. Browser posts {email, challenge_id, signature}; server verifies signature with stored public key and issues a session.
+
+// INFO: Registration flow overview:
+// 1. Browser generates a fresh salt (generateSalt) and runs the PBKDF2 + HKDF derivation to obtain the deterministic Ed25519 seed to generate the public key (see above 2/3/4).
+// 2. Only the salt, derived public key, and KDF parameters are sent to /register along with the invitation token.
+// 3. Server stores those public parameters so any future login can reproduce the identical private key from the password alone.
+
+// WARNING: Always confirm posted data contains no sensitive information before commit.
+
+import {
+  getPublicKey,
+  sign,
+  utils as ed25519Utils,
+  etc as ed25519Hash,
+} from "@noble/ed25519";
+import { x25519 } from "@noble/curves/ed25519";
+import { sha512 as nobleSha512 } from "@noble/hashes/sha2";
 import { arrayToB64, b64ToArray } from "../utils.mjs";
-import { getPublicKey, sign } from "../vendor/noble-ed25519.mjs";
 
 const encoder = new TextEncoder();
+
+function concatBytes(...arrays) {
+  const totalLength = arrays.reduce((sum, arr) => sum + arr.length, 0);
+  const output = new Uint8Array(totalLength);
+  let offset = 0;
+  for (const arr of arrays) {
+    output.set(arr, offset);
+    offset += arr.length;
+  }
+  return output;
+}
+
+const sha512Sync = (...messages) => nobleSha512(concatBytes(...messages));
+const sha512Async = async (...messages) => {
+  const data = concatBytes(...messages);
+  if (globalThis?.crypto?.subtle) {
+    const digest = await globalThis.crypto.subtle.digest("SHA-512", data);
+    return new Uint8Array(digest);
+  }
+  return nobleSha512(data);
+};
+
+if (!ed25519Hash.sha512Sync) {
+  ed25519Hash.sha512Sync = sha512Sync;
+}
+
+if (!ed25519Hash.sha512Async) {
+  ed25519Hash.sha512Async = sha512Async;
+}
+
+// Maintain backwards compatibility with utils helpers if accessed elsewhere
+if (!ed25519Utils.sha512Sync) {
+  ed25519Utils.sha512Sync = sha512Sync;
+}
+
+if (!ed25519Utils.sha512) {
+  ed25519Utils.sha512 = sha512Async;
+}
 
 export const DEFAULT_KDF_SETTINGS = {
   algorithm: "pbkdf2-sha256",
   hash: "SHA-256",
-  iterations: 310000,
+  iterations: 600000,
   saltLength: 16,
   outputLength: 32,
 };
 
 const DERIVATION_INFO = encoder.encode("go-send-ed25519-seed");
+const X25519_INFO = encoder.encode("go-send-x25519-seed");
 
 export function generateSalt(length = DEFAULT_KDF_SETTINGS.saltLength) {
   if (length <= 0) {
@@ -22,7 +82,11 @@ export function generateSalt(length = DEFAULT_KDF_SETTINGS.saltLength) {
   return salt;
 }
 
-export async function deriveSeed(password, salt, settings = DEFAULT_KDF_SETTINGS) {
+async function deriveKeySeeds(
+  password,
+  salt,
+  settings = DEFAULT_KDF_SETTINGS,
+) {
   if (!password) {
     throw new Error("Password is required for seed derivation");
   }
@@ -39,7 +103,7 @@ export async function deriveSeed(password, salt, settings = DEFAULT_KDF_SETTINGS
     encoder.encode(password),
     "PBKDF2",
     false,
-    ["deriveBits"]
+    ["deriveBits"],
   );
 
   const derivedBits = await crypto.subtle.deriveBits(
@@ -50,17 +114,19 @@ export async function deriveSeed(password, salt, settings = DEFAULT_KDF_SETTINGS
       hash,
     },
     keyMaterial,
-    length * 8
+    length * 8,
   );
 
-  const seed = new Uint8Array(derivedBits);
+  const pbkdfOutput = new Uint8Array(derivedBits);
+  const hkdfKey = await crypto.subtle.importKey(
+    "raw",
+    pbkdfOutput,
+    { name: "HKDF" },
+    false,
+    ["deriveBits"],
+  );
 
-  // Optional HKDF to decorrelate direct PBKDF2 output from Ed25519 private key
-  const hkdfKey = await crypto.subtle.importKey("raw", seed, { name: "HKDF" }, false, [
-    "deriveBits",
-  ]);
-
-  const hkdfBits = await crypto.subtle.deriveBits(
+  const edSeedBits = await crypto.subtle.deriveBits(
     {
       name: "HKDF",
       hash: "SHA-256",
@@ -68,17 +134,52 @@ export async function deriveSeed(password, salt, settings = DEFAULT_KDF_SETTINGS
       info: DERIVATION_INFO,
     },
     hkdfKey,
-    length * 8
+    length * 8,
   );
 
-  seed.fill(0);
-  return new Uint8Array(hkdfBits);
+  const x25519SeedBits = await crypto.subtle.deriveBits(
+    {
+      name: "HKDF",
+      hash: "SHA-256",
+      salt: new Uint8Array(),
+      info: X25519_INFO,
+    },
+    hkdfKey,
+    32 * 8,
+  );
+
+  pbkdfOutput.fill(0);
+
+  return {
+    edSeed: new Uint8Array(edSeedBits),
+    x25519Seed: new Uint8Array(x25519SeedBits),
+  };
 }
 
-export async function deriveKeyPair(password, salt, settings = DEFAULT_KDF_SETTINGS) {
-  const seed = await deriveSeed(password, salt, settings);
-  const publicKey = await getPublicKey(seed);
-  return { seed, publicKey };
+export async function deriveSeed(
+  password,
+  salt,
+  settings = DEFAULT_KDF_SETTINGS,
+) {
+  const { edSeed, x25519Seed } = await deriveKeySeeds(
+    password,
+    salt,
+    settings,
+  );
+  x25519Seed.fill(0);
+  return edSeed;
+}
+
+export async function deriveKeyPair(
+  password,
+  salt,
+  settings = DEFAULT_KDF_SETTINGS,
+) {
+  const { edSeed, x25519Seed } = await deriveKeySeeds(password, salt, settings);
+  const publicKey = await getPublicKey(edSeed);
+  const encryptionPublicKey = x25519.scalarMultBase(x25519Seed);
+  x25519Seed.fill(0);
+  return { seed: edSeed, publicKey, encryptionPublicKey };
 }
 
 export function serializeKDFSettings(settings = DEFAULT_KDF_SETTINGS) {

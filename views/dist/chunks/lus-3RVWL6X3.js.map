@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../locales/lus.ftl"],
+  "sourcesContent": ["export default \"encryptingFile = Encrypting...\\ndecryptingFile = Decrypting\\n\\n## Send version 2 strings\\n\\n\""],
+  "mappings": ";;;AAAA,IAAO,cAAQ;",
+  "names": []
+}

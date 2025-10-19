@@ -17,6 +17,7 @@ func up_1760782572_add_users_table(app *core.App) error {
 		salt TEXT NOT NULL,
 		active INTEGER NOT NULL DEFAULT 1,
 		public_key TEXT NOT NULL,
+		encryption_public_key TEXT,
 		created INTEGER NOT NULL,
 		updated INTEGER NOT NULL,
 		settings TEXT DEFAULT '{}',

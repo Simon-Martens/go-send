@@ -12,24 +12,26 @@ import (
 
 // RegisterAdminRequest represents the expected JSON payload for admin registration
 type RegisterAdminRequest struct {
-	Token     string                   `json:"token"`
-	Name      string                   `json:"name"`
-	Email     string                   `json:"email"`
-	Salt      string                   `json:"salt"`
-	PublicKey string                   `json:"public_key"`
-	KDF       *storage.UserKDFSettings `json:"kdf,omitempty"`
+	Token               string                   `json:"token"`
+	Name                string                   `json:"name"`
+	Email               string                   `json:"email"`
+	Salt                string                   `json:"salt"`
+	PublicKey           string                   `json:"public_key"`
+	EncryptionPublicKey string                   `json:"encryption_public_key"`
+	KDF                 *storage.UserKDFSettings `json:"kdf,omitempty"`
 }
 
 // RegisterAdminResponse represents the response after successful registration
 type RegisterAdminResponse struct {
-	ID        int64                    `json:"id"`
-	Name      string                   `json:"name"`
-	Email     string                   `json:"email"`
-	PublicKey string                   `json:"public_key"`
-	KDF       *storage.UserKDFSettings `json:"kdf,omitempty"`
-	Role      string                   `json:"role"`
-	Active    bool                     `json:"active"`
-	Created   int64                    `json:"created"`
+	ID                  int64                    `json:"id"`
+	Name                string                   `json:"name"`
+	Email               string                   `json:"email"`
+	PublicKey           string                   `json:"public_key"`
+	EncryptionPublicKey string                   `json:"encryption_public_key"`
+	KDF                 *storage.UserKDFSettings `json:"kdf,omitempty"`
+	Role                string                   `json:"role"`
+	Active              bool                     `json:"active"`
+	Created             int64                    `json:"created"`
 }
 
 // NewRegisterAdminHandler creates a handler for admin registration
@@ -51,7 +53,7 @@ func NewRegisterAdminHandler(app *core.App) http.HandlerFunc {
 		}
 
 		// Validate required fields
-		if req.Token == "" || req.Name == "" || req.Email == "" || req.Salt == "" || req.PublicKey == "" {
+		if req.Token == "" || req.Name == "" || req.Email == "" || req.Salt == "" || req.PublicKey == "" || req.EncryptionPublicKey == "" {
 			app.DBLogger.LogRequest(r, http.StatusBadRequest, nil, "missing required fields")
 			http.Error(w, "Missing required fields", http.StatusBadRequest)
 			return
@@ -78,6 +80,18 @@ func NewRegisterAdminHandler(app *core.App) http.HandlerFunc {
 		if len(pubBytes) != 32 {
 			app.DBLogger.LogRequest(r, http.StatusBadRequest, nil, "invalid public key length", "length", len(pubBytes))
 			http.Error(w, "Invalid public key", http.StatusBadRequest)
+			return
+		}
+
+		encPubBytes, err := base64.RawURLEncoding.DecodeString(req.EncryptionPublicKey)
+		if err != nil {
+			app.DBLogger.LogRequest(r, http.StatusBadRequest, nil, "invalid encryption public key encoding", "error", err.Error())
+			http.Error(w, "Invalid encryption public key", http.StatusBadRequest)
+			return
+		}
+		if len(encPubBytes) != 32 {
+			app.DBLogger.LogRequest(r, http.StatusBadRequest, nil, "invalid encryption public key length", "length", len(encPubBytes))
+			http.Error(w, "Invalid encryption public key", http.StatusBadRequest)
 			return
 		}
 
@@ -120,12 +134,13 @@ func NewRegisterAdminHandler(app *core.App) http.HandlerFunc {
 		}
 
 		user := &storage.User{
-			Name:      req.Name,
-			Email:     req.Email,
-			Salt:      req.Salt,
-			PublicKey: req.PublicKey,
-			Role:      storage.RoleAdmin,
-			Active:    true,
+			Name:                req.Name,
+			Email:               req.Email,
+			Salt:                req.Salt,
+			PublicKey:           req.PublicKey,
+			EncryptionPublicKey: req.EncryptionPublicKey,
+			Role:                storage.RoleAdmin,
+			Active:              true,
 		}
 
 		if req.KDF != nil {
@@ -155,14 +170,15 @@ func NewRegisterAdminHandler(app *core.App) http.HandlerFunc {
 
 		// Prepare response
 		response := RegisterAdminResponse{
-			ID:        user.ID,
-			Name:      user.Name,
-			Email:     user.Email,
-			PublicKey: user.PublicKey,
-			KDF:       req.KDF,
-			Role:      user.Role.String(),
-			Active:    user.Active,
-			Created:   user.Created,
+			ID:                  user.ID,
+			Name:                user.Name,
+			Email:               user.Email,
+			PublicKey:           user.PublicKey,
+			EncryptionPublicKey: user.EncryptionPublicKey,
+			KDF:                 req.KDF,
+			Role:                user.Role.String(),
+			Active:              user.Active,
+			Created:             user.Created,
 		}
 
 		app.DBLogger.LogRequest(r, http.StatusCreated, nil, "", "user_id", user.ID, "email", user.Email, "role", "admin")

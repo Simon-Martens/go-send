@@ -33,6 +33,8 @@ footerLinkDonate = Doneren
 footerLinkCli = CLI
 footerLinkDmca = DMCA
 footerLinkSource = Broncode
+footerLinkLogin = Sign in
+footerLinkLogout = Sign out
 passwordTryAgain = Onjuist wachtwoord. Probeer het opnieuw.
 javascriptRequired = Send vereist JavaScript
 whyJavascript = Waarom vereist Send JavaScript?
@@ -154,3 +156,14 @@ trailheadPromo = Er is een manier om uw privacy te beschermen. Doe mee met Firef
 learnMore = Meer info.
 
 sponsoredByThunderbird = Gesponsord door Thunderbird
+
+## Login strings
+
+loginTitle = Upload Access
+loginDescription = Enter your credentials to continue
+loginEmailLabel = Email
+loginPasswordLabel = Password
+loginSubmitButton = Sign in
+loginSubmitting = Signing in...
+loginErrorChallenge = Could not start login challenge. Please try again.
+loginErrorGeneric = Login failed. Please try again.

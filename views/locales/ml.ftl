@@ -145,3 +145,20 @@ shareLinkDescription = നിങ്ങളുടെ ഫയലിനുള്ള �
 shareLinkButton = കണ്ണി പങ്കിടുക
 # $name is the name of the file
 shareMessage = "{ -send-brand }" ഉപയോഗിച്ച് { $name } ഡൌൺലോഡ് ചെയ്യുക: ലളിതവും സുരക്ഷിതവുമായ ഫയൽ പങ്കിടൽ
+
+footerLinkCli = CLI
+footerLinkDmca = DMCA
+footerLinkSource = Source
+footerLinkLogin = Sign in
+footerLinkLogout = Sign out
+
+## Login strings
+
+loginTitle = Upload Access
+loginDescription = Enter your credentials to continue
+loginEmailLabel = Email
+loginPasswordLabel = Password
+loginSubmitButton = Sign in
+loginSubmitting = Signing in...
+loginErrorChallenge = Could not start login challenge. Please try again.
+loginErrorGeneric = Login failed. Please try again.

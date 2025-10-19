@@ -2,6 +2,7 @@ import { x25519 } from "@noble/curves/ed25519";
 import { arrayToB64, b64ToArray } from "./utils.mjs";
 
 export const OWNER_SECRET_VERSION = 1;
+export const APP_VERSION = "1.0.0";
 
 const USER_STORAGE_KEY = "user_state";
 const WRAP_NONCE_LENGTH = 12;
@@ -72,24 +73,36 @@ export function getUserStorageKey() {
 export default class UserSecrets {
   constructor({
     email,
+    name,
+    role,
+    settings,
     ed25519Seed,
     x25519PrivateKey,
     ed25519PublicKey,
     x25519PublicKey,
+    version,
   } = {}) {
     this.email = email || null;
+    this.name = name || null;
+    this.role = role || null;
+    this.settings = settings || null;
     this.ed25519Seed = ed25519Seed || null;
     this.x25519PrivateKey = x25519PrivateKey || null;
     this.ed25519PublicKey = ed25519PublicKey || null;
     this.x25519PublicKey = x25519PublicKey || null;
+    this.version = version || null;
   }
 
   static fromKeyMaterial({
     email,
+    name,
+    role,
+    settings,
     edSeed,
     x25519Seed,
     edPublicKey,
     x25519PublicKey,
+    version,
   }) {
     if (!email) {
       throw new Error("email required to persist user secrets");
@@ -107,22 +120,30 @@ export default class UserSecrets {
 
     return new UserSecrets({
       email,
+      name,
+      role,
+      settings,
       ed25519Seed: edSeedB64,
       x25519PrivateKey: xSeedB64,
       ed25519PublicKey: edPublicKey ? arrayToB64(edPublicKey) : null,
       x25519PublicKey: x25519PublicKey
         ? arrayToB64(x25519PublicKey)
         : derivedXPublic,
+      version: version || APP_VERSION,
     });
   }
 
   toJSON() {
     return {
       email: this.email,
+      name: this.name,
+      role: this.role,
+      settings: this.settings,
       ed25519Seed: this.ed25519Seed,
       x25519PrivateKey: this.x25519PrivateKey,
       ed25519PublicKey: this.ed25519PublicKey,
       x25519PublicKey: this.x25519PublicKey,
+      version: this.version,
     };
   }
 

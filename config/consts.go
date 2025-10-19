@@ -8,6 +8,13 @@ const (
 )
 
 const (
+	// APP_VERSION tracks the application version
+	// Increment this when making breaking changes that require clearing localStorage
+	// or forcing re-authentication (e.g., security updates, data structure changes)
+	APP_VERSION = "1.0.0"
+)
+
+const (
 	DEFAULT_ENVIRONMENT = "development"
 )
 

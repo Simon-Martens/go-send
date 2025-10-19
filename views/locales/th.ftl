@@ -138,3 +138,20 @@ shareLinkButton = แบ่งปันลิงก์
 shareMessage = ดาวน์โหลด “{ $name }” ด้วย { -send-brand }: การแบ่งปันไฟล์ที่ง่ายและเป็นส่วนตัว
 trailheadPromo = มีวิธีปกป้องความเป็นส่วนตัวของคุณ เข้าร่วม Firefox
 learnMore = เรียนรู้เพิ่มเติม
+
+footerLinkCli = CLI
+footerLinkDmca = DMCA
+footerLinkSource = Source
+footerLinkLogin = Sign in
+footerLinkLogout = Sign out
+
+## Login strings
+
+loginTitle = Upload Access
+loginDescription = Enter your credentials to continue
+loginEmailLabel = Email
+loginPasswordLabel = Password
+loginSubmitButton = Sign in
+loginSubmitting = Signing in...
+loginErrorChallenge = Could not start login challenge. Please try again.
+loginErrorGeneric = Login failed. Please try again.

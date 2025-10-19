@@ -31,6 +31,8 @@ footerLinkDonate = 捐助
 footerLinkCli = 命令行
 footerLinkDmca = DMCA
 footerLinkSource = 源代码
+footerLinkLogin = Sign in
+footerLinkLogout = Sign out
 passwordTryAgain = 密码不正确。请重试。
 javascriptRequired = Send 需要 JavaScript
 whyJavascript = 为什么 Send 需要 JavaScript？
@@ -148,3 +150,14 @@ shareLinkButton = 分享链接
 # $name is the name of the file
 shareMessage = 使用 { -send-brand } 下载“{ $name }”：简单、安全的文件分享服务
 learnMore = 详细了解。
+
+## Login strings
+
+loginTitle = Upload Access
+loginDescription = Enter your credentials to continue
+loginEmailLabel = Email
+loginPasswordLabel = Password
+loginSubmitButton = Sign in
+loginSubmitting = Signing in...
+loginErrorChallenge = Could not start login challenge. Please try again.
+loginErrorGeneric = Login failed. Please try again.

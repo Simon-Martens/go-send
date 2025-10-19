@@ -1,8 +1,6 @@
 import {
   translateElement,
   translate,
-  arrayToB64,
-  b64ToArray,
 } from "../utils.mjs";
 import {
   decodeSalt,
@@ -12,8 +10,7 @@ import {
 } from "../crypto/credentials.mjs";
 import storage from "../storage.mjs";
 import UserSecrets from "../userSecrets.mjs";
-import Keychain from "../keychain.mjs";
-import OwnedFile from "../ownedFile.mjs";
+import { syncOwnedFiles } from "../syncFiles.mjs";
 
 class LoginLayoutElement extends HTMLElement {
   constructor() {
@@ -27,6 +24,7 @@ class LoginLayoutElement extends HTMLElement {
 
     this._frame = null;
     this._templateMounted = false;
+    this._storageCleared = false;
 
     this._boundHandlers = {
       submit: this.handleSubmit.bind(this),
@@ -35,6 +33,13 @@ class LoginLayoutElement extends HTMLElement {
   }
 
   connectedCallback() {
+    // Clear all localStorage when login page is first opened
+    // If user is redirected here, session is invalid and all state should be wiped
+    if (!this._storageCleared) {
+      storage.clearAll();
+      this._storageCleared = true;
+    }
+
     if (!this._templateMounted) {
       const template = document.getElementById("login-layout");
       if (!template) {
@@ -139,14 +144,18 @@ class LoginLayoutElement extends HTMLElement {
           keyMaterial.edSeed,
           challenge.nonce,
         );
-        await this.submitLogin(email, challenge.challenge_id, signature);
+        const loginResult = await this.submitLogin(email, challenge.challenge_id, signature);
 
         let userSecrets = null;
         try {
           userSecrets = UserSecrets.fromKeyMaterial({
             email,
+            name: loginResult.user?.name,
+            role: loginResult.user?.role,
+            settings: loginResult.user?.settings,
             edSeed: keyMaterial.edSeed,
             x25519Seed: keyMaterial.x25519Seed,
+            version: loginResult.app_version,
           });
           storage.clearUser();
           storage.setUser(userSecrets);
@@ -158,7 +167,7 @@ class LoginLayoutElement extends HTMLElement {
         }
 
         if (userSecrets) {
-          await this.restoreOwnedFiles(userSecrets);
+          await syncOwnedFiles(userSecrets, { clearFirst: true });
         }
 
         window.location.assign("/");
@@ -178,76 +187,6 @@ class LoginLayoutElement extends HTMLElement {
         this.submitButton.disabled = false;
         this.setSubmitLabel("loginSubmitButton");
       }
-    }
-  }
-
-  async restoreOwnedFiles(userSecrets) {
-    try {
-      const response = await fetch("/api/me/files", {
-        method: "GET",
-        headers: {
-          "Accept": "application/json",
-        },
-        credentials: "same-origin",
-      });
-
-      if (!response.ok) {
-        console.warn(
-          "[LoginLayout] Failed to fetch owned files",
-          response.status,
-        );
-        return;
-      }
-
-      const payload = await response.json();
-      const files = Array.isArray(payload?.files) ? payload.files : [];
-
-      storage.clearLocalFiles();
-
-      for (const file of files) {
-        try {
-          const secretBytes = await userSecrets.unwrapSecret({
-            ciphertext: file.secret_ciphertext,
-            nonce: file.secret_nonce,
-            ephemeralPublicKey: file.secret_ephemeral_pub,
-            version: file.secret_version,
-          });
-
-          try {
-            const secretB64 = arrayToB64(secretBytes);
-            const keychain = new Keychain(secretB64, file.nonce);
-            const metadataBytes = b64ToArray(file.metadata);
-            const metadata = await keychain.decryptMetadata(metadataBytes);
-
-            const ownedFile = new OwnedFile({
-              id: file.id,
-              url: `${window.location.origin}/download/${file.id}#${secretB64}`,
-              name: metadata.name,
-              size: metadata.size,
-              manifest: metadata.manifest || {},
-              time: 0,
-              speed: metadata.size || 0,
-              createdAt: file.created_at * 1000,
-              expiresAt: file.expires_at * 1000,
-              secretKey: secretB64,
-              nonce: file.nonce,
-              ownerToken: file.owner_token,
-              dlimit: file.dl_limit,
-              dtotal: file.dl_count,
-              hasPassword: file.password,
-              timeLimit: file.time_limit,
-            });
-
-            storage.addFile(ownedFile);
-          } finally {
-            secretBytes.fill(0);
-          }
-        } catch (fileError) {
-          console.warn("[LoginLayout] Failed to restore file", fileError, file?.id);
-        }
-      }
-    } catch (err) {
-      console.warn("[LoginLayout] Failed to restore owned files", err);
     }
   }
 
@@ -297,6 +236,8 @@ class LoginLayoutElement extends HTMLElement {
       console.error("[LoginLayout] Login submission failed", response.status, serverMessage);
       throw new Error(translate("loginErrorGeneric"));
     }
+
+    return response.json();
   }
 
   showError(message) {

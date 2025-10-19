@@ -147,3 +147,20 @@ shareLinkButton = Compartir lo vinclo
 shareMessage = Baixa-te «{ $name }» con { -send-brand }: compartición de fiches simpla y segura
 trailheadPromo = I hai una manera de protecher la tuya privacidat. Une-te a Firefox.
 learnMore = Mas información
+
+footerLinkCli = CLI
+footerLinkDmca = DMCA
+footerLinkSource = Source
+footerLinkLogin = Sign in
+footerLinkLogout = Sign out
+
+## Login strings
+
+loginTitle = Upload Access
+loginDescription = Enter your credentials to continue
+loginEmailLabel = Email
+loginPasswordLabel = Password
+loginSubmitButton = Sign in
+loginSubmitting = Signing in...
+loginErrorChallenge = Could not start login challenge. Please try again.
+loginErrorGeneric = Login failed. Please try again.

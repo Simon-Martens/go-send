@@ -147,3 +147,20 @@ shareLinkButton = Jaga linki
 shareMessage = Laadi “{ $name }” alla teenusega { -send-brand }, mis pakub lihtsat ja turvalist failijagamist
 trailheadPromo = Oma privaatsust on võimalik kaitsta. Liitu Firefoxiga.
 learnMore = Rohkem teavet.
+
+footerLinkCli = CLI
+footerLinkDmca = DMCA
+footerLinkSource = Source
+footerLinkLogin = Sign in
+footerLinkLogout = Sign out
+
+## Login strings
+
+loginTitle = Upload Access
+loginDescription = Enter your credentials to continue
+loginEmailLabel = Email
+loginPasswordLabel = Password
+loginSubmitButton = Sign in
+loginSubmitting = Signing in...
+loginErrorChallenge = Could not start login challenge. Please try again.
+loginErrorGeneric = Login failed. Please try again.

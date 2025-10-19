@@ -156,3 +156,20 @@ shareLinkButton = Partajează linkul
 shareMessage = Descarcă „{ $name }” cu { -send-brand }: partajare simplă și sigură a fișierelor
 trailheadPromo = Există o modalitate de a-ți proteja viața privată. Folosește Firefox.
 learnMore = Află mai multe.
+
+footerLinkCli = CLI
+footerLinkDmca = DMCA
+footerLinkSource = Source
+footerLinkLogin = Sign in
+footerLinkLogout = Sign out
+
+## Login strings
+
+loginTitle = Upload Access
+loginDescription = Enter your credentials to continue
+loginEmailLabel = Email
+loginPasswordLabel = Password
+loginSubmitButton = Sign in
+loginSubmitting = Signing in...
+loginErrorChallenge = Could not start login challenge. Please try again.
+loginErrorGeneric = Login failed. Please try again.

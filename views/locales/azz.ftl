@@ -138,3 +138,20 @@ shareLinkButton = Kampa se kipatskilis tein uelis tikinpanoltilis oksekin
 shareMessage = Xiktemoui “{ $name }” ika { -send-brand }: amo ouij uelis tikinpanoltilis oksekin motajkuiloluan archivos uan tikyekmatis ke amo tej kipanos
 trailheadPromo = Kemaj, uelis tikyekpias tein moaxka itech tepos. Xipoui Firefox.
 learnMore = Xiktemoui tajkuilolmej archivos.
+
+footerLinkCli = CLI
+footerLinkDmca = DMCA
+footerLinkSource = Source
+footerLinkLogin = Sign in
+footerLinkLogout = Sign out
+
+## Login strings
+
+loginTitle = Upload Access
+loginDescription = Enter your credentials to continue
+loginEmailLabel = Email
+loginPasswordLabel = Password
+loginSubmitButton = Sign in
+loginSubmitting = Signing in...
+loginErrorChallenge = Could not start login challenge. Please try again.
+loginErrorGeneric = Login failed. Please try again.

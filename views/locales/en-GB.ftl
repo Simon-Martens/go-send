@@ -33,6 +33,8 @@ footerLinkDonate = Donate
 footerLinkCli = CLI
 footerLinkDmca = DMCA
 footerLinkSource = Source
+footerLinkLogin = Sign in
+footerLinkLogout = Sign out
 passwordTryAgain = Incorrect password. Try again.
 javascriptRequired = Go Send requires JavaScript
 whyJavascript = Why does Go Send require JavaScript?
@@ -154,3 +156,14 @@ trailheadPromo = There is a way to protect your privacy. Join Firefox.
 learnMore = Learn more.
 
 sponsoredByThunderbird = Sponsored by Thunderbird
+
+## Login strings
+
+loginTitle = Upload Access
+loginDescription = Enter your credentials to continue
+loginEmailLabel = Email
+loginPasswordLabel = Password
+loginSubmitButton = Sign in
+loginSubmitting = Signing in...
+loginErrorChallenge = Could not start login challenge. Please try again.
+loginErrorGeneric = Login failed. Please try again.

@@ -7,6 +7,7 @@ import {
   generateSalt,
   serializeKDFSettings,
 } from "../crypto/credentials.mjs";
+import storage from "../storage.mjs";
 
 /**
  * <register-layout> - User registration form
@@ -44,6 +45,7 @@ class RegisterLayoutElement extends HTMLElement {
 
     this._postMountFrame = null;
     this._templateMounted = false;
+    this._storageCleared = false;
     this._handlersBound = false;
 
     // Bound event handlers
@@ -55,6 +57,13 @@ class RegisterLayoutElement extends HTMLElement {
   }
 
   connectedCallback() {
+    // Clear all localStorage when register page is first opened
+    // New users should start with clean state
+    if (!this._storageCleared) {
+      storage.clearAll();
+      this._storageCleared = true;
+    }
+
     // Mount template first (synchronous)
     if (!this._templateMounted) {
       const template = document.getElementById("register-layout");

@@ -184,7 +184,7 @@ authErrorCryptoUnsupported = Ihr Browser unterstützt die erforderlichen Kryptog
 
 ## Login strings
 
-loginTitle = Anmeldung
+loginTitle = Upload
 loginDescription = Geben Sie Ihre Zugangsdaten ein, um fortzufahren
 loginEmailLabel = E-Mail
 loginPasswordLabel = Passwort
@@ -192,3 +192,9 @@ loginSubmitButton = Anmelden
 loginSubmitting = Anmeldung läuft…
 loginErrorChallenge = Anmeldeanforderung konnte nicht gestartet werden. Bitte versuchen Sie es erneut.
 loginErrorGeneric = Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.
+
+footerLinkCli = CLI
+footerLinkDmca = DMCA
+footerLinkSource = Source
+footerLinkLogin = Sign in
+footerLinkLogout = Sign out

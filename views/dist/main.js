@@ -1,4 +1,8 @@
 import {
+  syncOwnedFiles
+} from "./chunks/chunk-XFEAVOCH.js";
+import {
+  APP_VERSION,
   Keychain,
   OWNER_SECRET_VERSION,
   OwnedFile,
@@ -9,8 +13,7 @@ import {
   metadata,
   storage_default,
   uploadWs
-} from "./chunks/chunk-42IXS7QU.js";
-import "./chunks/chunk-U2WOWVJN.js";
+} from "./chunks/chunk-ULTM24DU.js";
 import {
   arrayToB64,
   browserName,
@@ -1763,96 +1766,96 @@ function makeBundle(locale2, ftl) {
   return bundle;
 }
 var localeLoaders = {
-  an: () => import("./chunks/an-7QLMDQBX.js"),
-  ar: () => import("./chunks/ar-64CQAO7S.js"),
-  ast: () => import("./chunks/ast-B3FS5GKH.js"),
-  az: () => import("./chunks/az-L7HPQL6A.js"),
-  azz: () => import("./chunks/azz-7O5NFZRU.js"),
-  be: () => import("./chunks/be-GQFJ6DIM.js"),
-  bn: () => import("./chunks/bn-KGRSKCX4.js"),
-  br: () => import("./chunks/br-TWYZZRUK.js"),
-  bs: () => import("./chunks/bs-EHPIMCQR.js"),
-  ca: () => import("./chunks/ca-COWCZNED.js"),
-  cak: () => import("./chunks/cak-ESZX22DV.js"),
-  ckb: () => import("./chunks/ckb-2RQ3FCNO.js"),
-  cs: () => import("./chunks/cs-MOISU4EX.js"),
-  cy: () => import("./chunks/cy-6PLSFA5W.js"),
-  da: () => import("./chunks/da-FU733DL4.js"),
-  de: () => import("./chunks/de-IP5YS5X4.js"),
-  dsb: () => import("./chunks/dsb-WCR6RIJN.js"),
-  el: () => import("./chunks/el-YSDOGLN7.js"),
-  "en-CA": () => import("./chunks/en-CA-NQPBSH32.js"),
-  "en-GB": () => import("./chunks/en-GB-3NTN4JAN.js"),
-  "en-US": () => import("./chunks/en-US-BC7GR5ND.js"),
-  "es-AR": () => import("./chunks/es-AR-Y7S4A3E5.js"),
-  "es-CL": () => import("./chunks/es-CL-X5IPHWV6.js"),
-  "es-ES": () => import("./chunks/es-ES-IWMK3LM5.js"),
-  "es-MX": () => import("./chunks/es-MX-AOXBLYJT.js"),
-  et: () => import("./chunks/et-ZCII5RAH.js"),
-  eu: () => import("./chunks/eu-6G762MX6.js"),
-  fa: () => import("./chunks/fa-GY7CKOEZ.js"),
-  fi: () => import("./chunks/fi-57YFMOLB.js"),
-  fr: () => import("./chunks/fr-V52AAVL3.js"),
-  "fy-NL": () => import("./chunks/fy-NL-EW6FXOGK.js"),
-  gn: () => import("./chunks/gn-OX7FCNBO.js"),
-  gor: () => import("./chunks/gor-7DMQDJ73.js"),
-  he: () => import("./chunks/he-LDNLIYRZ.js"),
-  hr: () => import("./chunks/hr-JHFFRC56.js"),
-  hsb: () => import("./chunks/hsb-DEDKZXBQ.js"),
-  hu: () => import("./chunks/hu-EJEBQNEA.js"),
-  hus: () => import("./chunks/hus-UX2NXYSJ.js"),
-  "hy-AM": () => import("./chunks/hy-AM-XNCNKKX5.js"),
-  ia: () => import("./chunks/ia-ZISJSV3Y.js"),
-  id: () => import("./chunks/id-KRQ5AGEU.js"),
-  ig: () => import("./chunks/ig-P3JZ2R64.js"),
-  it: () => import("./chunks/it-JURHVETE.js"),
-  ixl: () => import("./chunks/ixl-3ADJXQSJ.js"),
-  ja: () => import("./chunks/ja-YVXQCO5H.js"),
-  ka: () => import("./chunks/ka-JLR5MROH.js"),
-  kab: () => import("./chunks/kab-FCRIBPS3.js"),
-  ko: () => import("./chunks/ko-KLMIJHMX.js"),
-  lt: () => import("./chunks/lt-4LNKOM3L.js"),
-  lus: () => import("./chunks/lus-3RVWL6X3.js"),
-  meh: () => import("./chunks/meh-XG6T3EE2.js"),
-  mix: () => import("./chunks/mix-Q6FILZNT.js"),
-  ml: () => import("./chunks/ml-ZPMMHFZC.js"),
-  ms: () => import("./chunks/ms-FKELRLYF.js"),
-  "nb-NO": () => import("./chunks/nb-NO-NTZW2S6G.js"),
-  nl: () => import("./chunks/nl-FCL62L2Z.js"),
-  "nn-NO": () => import("./chunks/nn-NO-ZUA5YLFC.js"),
-  oc: () => import("./chunks/oc-ODYY6NUW.js"),
-  "pa-IN": () => import("./chunks/pa-IN-K3BN4AXX.js"),
-  pai: () => import("./chunks/pai-WGDSRSST.js"),
-  pl: () => import("./chunks/pl-BFCCVVRH.js"),
-  ppl: () => import("./chunks/ppl-UOXYQ3I4.js"),
-  "pt-BR": () => import("./chunks/pt-BR-RBY4C6ZS.js"),
-  "pt-PT": () => import("./chunks/pt-PT-2G66BR24.js"),
-  quc: () => import("./chunks/quc-PWFBRS6I.js"),
-  ro: () => import("./chunks/ro-VV3MGKXL.js"),
-  ru: () => import("./chunks/ru-M2QB5QSG.js"),
-  sk: () => import("./chunks/sk-TOPORNUM.js"),
-  sl: () => import("./chunks/sl-DHTME4NW.js"),
-  sn: () => import("./chunks/sn-75UCJTMV.js"),
-  sq: () => import("./chunks/sq-6KHFORJL.js"),
-  sr: () => import("./chunks/sr-M4TZJYO7.js"),
-  su: () => import("./chunks/su-RQN44UY6.js"),
-  "sv-SE": () => import("./chunks/sv-SE-6MQHKP6U.js"),
-  te: () => import("./chunks/te-GFKCBJ2I.js"),
-  th: () => import("./chunks/th-H4KVO5VB.js"),
-  tl: () => import("./chunks/tl-JHZDIP3W.js"),
-  tr: () => import("./chunks/tr-GOM7WINO.js"),
-  trs: () => import("./chunks/trs-MDIB6KL7.js"),
-  uk: () => import("./chunks/uk-WZGTIFEO.js"),
-  vi: () => import("./chunks/vi-NRETZZCC.js"),
-  yo: () => import("./chunks/yo-JE2SC3PY.js"),
-  yua: () => import("./chunks/yua-5OGT4UI7.js"),
-  zgh: () => import("./chunks/zgh-TQMDSCGQ.js"),
-  "zh-CN": () => import("./chunks/zh-CN-WVGOU4UF.js"),
-  "zh-TW": () => import("./chunks/zh-TW-QKIT42GW.js")
+  an: () => import("./chunks/an-A6PY75MI.js"),
+  ar: () => import("./chunks/ar-2HATU44Q.js"),
+  ast: () => import("./chunks/ast-LR6BDCC3.js"),
+  az: () => import("./chunks/az-YV6UYM25.js"),
+  azz: () => import("./chunks/azz-3DORRJ5A.js"),
+  be: () => import("./chunks/be-Z3YTUWKV.js"),
+  bn: () => import("./chunks/bn-KDHMXLUX.js"),
+  br: () => import("./chunks/br-2AKLHKND.js"),
+  bs: () => import("./chunks/bs-NXUP67OP.js"),
+  ca: () => import("./chunks/ca-7IK5ULC3.js"),
+  cak: () => import("./chunks/cak-YTL35X4P.js"),
+  ckb: () => import("./chunks/ckb-UWFAJNQE.js"),
+  cs: () => import("./chunks/cs-4CHTXZSU.js"),
+  cy: () => import("./chunks/cy-RP2L2OUK.js"),
+  da: () => import("./chunks/da-DPZF5LGO.js"),
+  de: () => import("./chunks/de-YJBLFNS6.js"),
+  dsb: () => import("./chunks/dsb-L7O73QFV.js"),
+  el: () => import("./chunks/el-4RABOQBG.js"),
+  "en-CA": () => import("./chunks/en-CA-DJ4OOLA4.js"),
+  "en-GB": () => import("./chunks/en-GB-D7G7RTNJ.js"),
+  "en-US": () => import("./chunks/en-US-MJFAX5RI.js"),
+  "es-AR": () => import("./chunks/es-AR-6PZGYKH3.js"),
+  "es-CL": () => import("./chunks/es-CL-HE4SPZ7U.js"),
+  "es-ES": () => import("./chunks/es-ES-XGWIURD2.js"),
+  "es-MX": () => import("./chunks/es-MX-RUTDOFMO.js"),
+  et: () => import("./chunks/et-3A3F3UPB.js"),
+  eu: () => import("./chunks/eu-Q6CLLOH3.js"),
+  fa: () => import("./chunks/fa-AEOEUDQ4.js"),
+  fi: () => import("./chunks/fi-SI2D7DPR.js"),
+  fr: () => import("./chunks/fr-LU5OTMAM.js"),
+  "fy-NL": () => import("./chunks/fy-NL-C7AQWS3X.js"),
+  gn: () => import("./chunks/gn-6SZWZLYL.js"),
+  gor: () => import("./chunks/gor-YJF5R7VZ.js"),
+  he: () => import("./chunks/he-DNGPDAI7.js"),
+  hr: () => import("./chunks/hr-6ZNZH7ZC.js"),
+  hsb: () => import("./chunks/hsb-7Q5N5UEG.js"),
+  hu: () => import("./chunks/hu-BKJDP5AP.js"),
+  hus: () => import("./chunks/hus-RKK3QQND.js"),
+  "hy-AM": () => import("./chunks/hy-AM-TUS55PTJ.js"),
+  ia: () => import("./chunks/ia-E3QH7SMP.js"),
+  id: () => import("./chunks/id-STWVQPOZ.js"),
+  ig: () => import("./chunks/ig-MI7EUZ3B.js"),
+  it: () => import("./chunks/it-BWUQHH6L.js"),
+  ixl: () => import("./chunks/ixl-KA2722GD.js"),
+  ja: () => import("./chunks/ja-VLMKIH44.js"),
+  ka: () => import("./chunks/ka-RUNYPX5J.js"),
+  kab: () => import("./chunks/kab-RZRU6CHD.js"),
+  ko: () => import("./chunks/ko-U4AU7GYF.js"),
+  lt: () => import("./chunks/lt-NFGFU7IR.js"),
+  lus: () => import("./chunks/lus-CFTIZ6AZ.js"),
+  meh: () => import("./chunks/meh-4RQCOCAF.js"),
+  mix: () => import("./chunks/mix-EMJLLSA6.js"),
+  ml: () => import("./chunks/ml-WNP2BYVZ.js"),
+  ms: () => import("./chunks/ms-PP5Z3XYN.js"),
+  "nb-NO": () => import("./chunks/nb-NO-7VVUTNJN.js"),
+  nl: () => import("./chunks/nl-H2SXW64B.js"),
+  "nn-NO": () => import("./chunks/nn-NO-ODKDX4MF.js"),
+  oc: () => import("./chunks/oc-XZIVEMM5.js"),
+  "pa-IN": () => import("./chunks/pa-IN-HJI7GJVB.js"),
+  pai: () => import("./chunks/pai-YFUEWPT7.js"),
+  pl: () => import("./chunks/pl-GBEJ2VQO.js"),
+  ppl: () => import("./chunks/ppl-C3TZCUXC.js"),
+  "pt-BR": () => import("./chunks/pt-BR-CF2EYIDI.js"),
+  "pt-PT": () => import("./chunks/pt-PT-G43ZZJVC.js"),
+  quc: () => import("./chunks/quc-ALTXFCEH.js"),
+  ro: () => import("./chunks/ro-HZFRCIZH.js"),
+  ru: () => import("./chunks/ru-EUWHYN2A.js"),
+  sk: () => import("./chunks/sk-7MKUKPZ6.js"),
+  sl: () => import("./chunks/sl-4FPG456L.js"),
+  sn: () => import("./chunks/sn-JQZIN3OG.js"),
+  sq: () => import("./chunks/sq-J3KKMCHK.js"),
+  sr: () => import("./chunks/sr-6HK3XGOP.js"),
+  su: () => import("./chunks/su-2GJ7EZ4E.js"),
+  "sv-SE": () => import("./chunks/sv-SE-WPNF6TZK.js"),
+  te: () => import("./chunks/te-ARJQOBPG.js"),
+  th: () => import("./chunks/th-B2CLPTBE.js"),
+  tl: () => import("./chunks/tl-2EWWR34Y.js"),
+  tr: () => import("./chunks/tr-QRQLXKCZ.js"),
+  trs: () => import("./chunks/trs-ZQ2TDX65.js"),
+  uk: () => import("./chunks/uk-5X2QADNF.js"),
+  vi: () => import("./chunks/vi-RWBGSBAW.js"),
+  yo: () => import("./chunks/yo-CGAMVNL3.js"),
+  yua: () => import("./chunks/yua-CMZBKJQN.js"),
+  zgh: () => import("./chunks/zgh-3HNSXICX.js"),
+  "zh-CN": () => import("./chunks/zh-CN-QJOPAOYZ.js"),
+  "zh-TW": () => import("./chunks/zh-TW-UQMSTAAU.js")
 };
 async function getTranslator(locale2) {
   const bundles = [];
-  const { default: en } = await import("./chunks/en-US-BC7GR5ND.js");
+  const { default: en } = await import("./chunks/en-US-MJFAX5RI.js");
   if (locale2 !== "en-US" && localeLoaders[locale2]) {
     const { default: ftl } = await localeLoaders[locale2]();
     bundles.push(makeBundle(locale2, ftl));
@@ -2670,8 +2673,164 @@ var GoSendElement = class extends HTMLElement {
 };
 customElements.define("go-send", GoSendElement);
 
+// src/ui/app-footer.mjs
+var AppFooter = class extends HTMLElement {
+  constructor() {
+    super();
+    this._templateMounted = false;
+    this._frame = null;
+    this.config = window.FOOTER || {};
+    this._boundHandlers = {
+      handleLogoutClick: this.handleLogoutClick.bind(this)
+    };
+  }
+  connectedCallback() {
+    if (!this._templateMounted) {
+      const template = document.getElementById("app-footer");
+      if (!template) {
+        console.error("Template #app-footer not found");
+        return;
+      }
+      const content = template.content.cloneNode(true);
+      this.appendChild(content);
+      this._templateMounted = true;
+    }
+    if (this._frame !== null) {
+      cancelAnimationFrame(this._frame);
+    }
+    this._frame = requestAnimationFrame(() => {
+      this._frame = null;
+      if (!this.isConnected) return;
+      translateElement(this);
+      this.setupFooter();
+    });
+  }
+  disconnectedCallback() {
+    if (this._frame !== null) {
+      cancelAnimationFrame(this._frame);
+      this._frame = null;
+    }
+    const authLink = this.querySelector('[data-role="auth-link"]');
+    if (authLink && authLink.href.includes("/logout")) {
+      authLink.removeEventListener("click", this._boundHandlers.handleLogoutClick);
+    }
+  }
+  setupFooter() {
+    const sourceLink = this.querySelector('[data-role="source-link"]');
+    const brand = this.querySelector('[data-role="brand"]');
+    if (this.config.SourceURL) {
+      if (sourceLink) {
+        sourceLink.href = this.config.SourceURL;
+        sourceLink.style.display = "";
+      }
+      if (brand) brand.style.display = "none";
+    } else {
+      if (sourceLink) sourceLink.style.display = "none";
+      if (brand) brand.style.display = "";
+    }
+    const statusDot = this.querySelector('[data-role="status-dot"]');
+    if (statusDot) {
+      const isDownload = window.location.pathname.match(/^\/download/) || window.location.pathname.match(/^\/[0-9a-fA-F]{10,16}/);
+      statusDot.className = isDownload ? "status-dot status-dot-blue" : "status-dot status-dot-green";
+    }
+    const customLi = this.querySelector("[data-if-custom]");
+    const customLink = this.querySelector('[data-role="custom-link"]');
+    const customText = this.querySelector('[data-role="custom-text"]');
+    if (this.config.CustomText) {
+      if (customText) customText.textContent = this.config.CustomText;
+      if (this.config.CustomURL && customLink) {
+        customLink.href = this.config.CustomURL;
+        customLink.target = "_blank";
+      } else if (customLink) {
+        const span = document.createElement("span");
+        span.textContent = this.config.CustomText;
+        customLink.replaceWith(span);
+      }
+      if (customLi) customLi.style.display = "";
+    } else {
+      if (customLi) customLi.style.display = "none";
+    }
+    const cliLi = this.querySelector("[data-if-cli]");
+    const cliLink = this.querySelector('[data-role="cli-link"]');
+    if (this.config.CLIURL) {
+      if (cliLink) {
+        cliLink.href = this.config.CLIURL;
+        cliLink.target = "_blank";
+      }
+      if (cliLi) cliLi.style.display = "";
+    } else {
+      if (cliLi) cliLi.style.display = "none";
+    }
+    const dmcaLi = this.querySelector("[data-if-dmca]");
+    const dmcaLink = this.querySelector('[data-role="dmca-link"]');
+    if (this.config.DMCAURL) {
+      if (dmcaLink) {
+        dmcaLink.href = this.config.DMCAURL;
+        dmcaLink.target = "_blank";
+      }
+      if (dmcaLi) dmcaLi.style.display = "";
+    } else {
+      if (dmcaLi) dmcaLi.style.display = "none";
+    }
+    const sourceLi = this.querySelector("[data-if-source]");
+    const sourceFooterLink = this.querySelector('[data-role="source-link-footer"]');
+    if (this.config.SourceURL) {
+      if (sourceFooterLink) {
+        sourceFooterLink.href = this.config.SourceURL;
+        sourceFooterLink.target = "_blank";
+      }
+      if (sourceLi) sourceLi.style.display = "";
+    } else {
+      if (sourceLi) sourceLi.style.display = "none";
+    }
+    const usernameSpan = this.querySelector('[data-role="username"]');
+    const authLink = this.querySelector('[data-role="auth-link"]');
+    const authLabel = this.querySelector('[data-role="auth-label"]');
+    const user = storage_default.user;
+    if (usernameSpan) {
+      if (user && user.name) {
+        usernameSpan.textContent = user.name;
+        usernameSpan.style.display = "";
+      } else {
+        usernameSpan.style.display = "none";
+      }
+    }
+    if (authLink && authLabel) {
+      authLink.removeEventListener("click", this._boundHandlers.handleLogoutClick);
+      authLink.removeAttribute("target");
+      if (user) {
+        authLink.href = "/logout";
+        authLabel.id = "footerLinkLogout";
+        authLabel.setAttribute("data-type", "lang");
+        authLabel.textContent = "Sign out";
+        authLink.addEventListener("click", this._boundHandlers.handleLogoutClick);
+      } else {
+        authLink.href = "/login";
+        authLabel.id = "footerLinkLogin";
+        authLabel.setAttribute("data-type", "lang");
+        authLabel.textContent = "Sign in";
+      }
+      translateElement(this);
+    }
+  }
+  handleLogoutClick(event) {
+    storage_default.clearAll();
+  }
+};
+customElements.define("app-footer", AppFooter);
+
 // src/main.mjs
 (async function start() {
+  const user = storage_default.user;
+  if (user && user.version && user.version !== APP_VERSION) {
+    console.warn(`[App] Version mismatch: stored ${user.version}, current ${APP_VERSION}. Clearing localStorage.`);
+    storage_default.clearAll();
+  }
+  if (storage_default.user) {
+    syncOwnedFiles(storage_default.user).catch((err) => {
+      console.warn("[App] File sync failed during startup", err);
+    });
+  }
   const app = document.querySelector("go-send");
   if (!app) {
     console.warn("[Router] <go-send> element not found in DOM");
@@ -2696,7 +2855,7 @@ async function initUploadRoute(app) {
   console.log("[Route] Initializing upload page...");
   await Promise.all([
     import("./chunks/upload-layout-7G3DJHRQ.js"),
-    import("./chunks/upload-area-3Y35JRHO.js"),
+    import("./chunks/upload-area-HXQCZR4I.js"),
     import("./chunks/upload-right-72PSBTIR.js"),
     app.controller.ready
   ]);
@@ -2720,7 +2879,7 @@ async function initDownloadRoute(app) {
 async function initRegisterRoute(app) {
   console.log("[Route] Initializing register page...");
   await Promise.all([
-    import("./chunks/register-layout-7RSYQ72R.js"),
+    import("./chunks/register-layout-SMIZWKB2.js"),
     app.controller.ready
   ]);
   app.showRegisterLayout();
@@ -2729,7 +2888,7 @@ async function initRegisterRoute(app) {
 async function initLoginRoute(app) {
   console.log("[Route] Initializing login page...");
   await Promise.all([
-    import("./chunks/login-layout-X54TNEPN.js"),
+    import("./chunks/login-layout-NY76L7SL.js"),
     app.controller.ready
   ]);
   app.showLoginLayout();

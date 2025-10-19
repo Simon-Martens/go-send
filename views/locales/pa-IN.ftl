@@ -147,3 +147,20 @@ shareLinkButton = ਲਿੰਕ ਸਾਂਝਾ ਕਰੋ
 shareMessage = { -send-brand } ਨਾਲ "{ $name }" ਡਾਊਨਲੋਡ ਕਰੋ: ਸੌਖਾ, ਸੁਰੱਖਿਅਤ ਫਾਇਲ ਸਾਂਝਾ ਕਰਨਾ
 trailheadPromo = ਤੁਹਾਡੀ ਪਰਦੇਦਾਰੀ ਦੀ ਸੁਰੱਖਿਆ ਦਾ ਢੰਗ ਹੈ। ਫਾਇਰਫਾਕਸ ਨਾਲ ਜੁੜੋ।
 learnMore = ਹੋਰ ਸਿੱਖੋ
+
+footerLinkCli = CLI
+footerLinkDmca = DMCA
+footerLinkSource = Source
+footerLinkLogin = Sign in
+footerLinkLogout = Sign out
+
+## Login strings
+
+loginTitle = Upload Access
+loginDescription = Enter your credentials to continue
+loginEmailLabel = Email
+loginPasswordLabel = Password
+loginSubmitButton = Sign in
+loginSubmitting = Signing in...
+loginErrorChallenge = Could not start login challenge. Please try again.
+loginErrorGeneric = Login failed. Please try again.

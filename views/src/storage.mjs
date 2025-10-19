@@ -176,6 +176,21 @@ class Storage {
     this._files = new Map();
   }
 
+  clearAll() {
+    this._files = new Map();
+    this._user = null;
+    if (this.engine.clear) {
+      this.engine.clear();
+    } else {
+      // Fallback for Mem storage
+      const keys = [];
+      for (let i = 0; i < this.engine.length; i++) {
+        keys.push(this.engine.key(i));
+      }
+      keys.forEach(k => this.engine.removeItem(k));
+    }
+  }
+
   async merge(files = []) {
     let incoming = false;
     let outgoing = false;

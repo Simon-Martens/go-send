@@ -147,3 +147,20 @@ shareLinkButton = ⴱⴹⵓ ⴰⵙⵖⵏ
 shareMessage = ⴰⴳⵎⴰⵜ "{ $name }" ⵙ { -send-brand }: ⴰⴱⵟⵟⵓ ⴰⴼⵔⴰⵔ ⴷ ⵡⵓⵙⵍⵉⴳ ⵏ ⵉⴼⵓⵢⵍⴰ
 trailheadPromo = ⵜⵍⵍⴰ ⵢⴰⵜ ⵜⵖⴰⵔⴰⵙⵜ ⴰⴼⴰⴷ ⴰⴷ ⵜⴼⵔⴳⵎ ⵜⵉⵏⵏⵓⵜⵍⴰ ⵏⵏⵓⵏ. ⵍⴽⵎⴰⵜ ⴼⴰⵢⵔⴼⵓⴽⵙ.
 learnMore = ⵙⵙⵏ ⵓⴳⴳⴰⵔ.
+
+footerLinkCli = CLI
+footerLinkDmca = DMCA
+footerLinkSource = Source
+footerLinkLogin = Sign in
+footerLinkLogout = Sign out
+
+## Login strings
+
+loginTitle = Upload Access
+loginDescription = Enter your credentials to continue
+loginEmailLabel = Email
+loginPasswordLabel = Password
+loginSubmitButton = Sign in
+loginSubmitting = Signing in...
+loginErrorChallenge = Could not start login challenge. Please try again.
+loginErrorGeneric = Login failed. Please try again.

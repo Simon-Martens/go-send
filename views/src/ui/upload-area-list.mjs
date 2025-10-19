@@ -972,6 +972,9 @@ class UploadListView extends HTMLElement {
         lockIcon.classList.remove("hidden");
       }
 
+      // Add primary background to the toggle icon box
+      this.elements.passwordToggleIcon.classList.add("bg-primary");
+
       if (this.elements.passwordInput) {
         this.elements.passwordInput.value = this._password || "";
         this.elements.passwordInput.type = "password";
@@ -986,6 +989,9 @@ class UploadListView extends HTMLElement {
       if (lockIcon) {
         lockIcon.classList.add("hidden");
       }
+
+      // Remove primary background from the toggle icon box
+      this.elements.passwordToggleIcon.classList.remove("bg-primary");
 
       if (this.elements.passwordInput) {
         this.elements.passwordInput.value = "";

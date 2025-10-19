@@ -146,6 +146,7 @@ body {
   @apply py-2;
   @apply px-3;
   @apply font-semibold;
+  @apply rounded-xs;
 }
 
 .btn:hover {
@@ -173,7 +174,7 @@ body {
 .checkbox > label::before {
   /* @apply bg-grey-10; */
   border: 1px solid currentColor;
-  @apply rounded-sm;
+  @apply rounded-xs;
 
   content: "";
   height: 1.5rem;

@@ -147,3 +147,20 @@ shareLinkButton = Emoherakuã juajuha
 shareMessage = Emboguejy “{ $name }” { -send-brand } ndive: emoherakuã marandurenda tasy’ỹ ha tekorosãme
 trailheadPromo = Mba’éichapa emo’ãta ne ñemigua. Eipuru Firefox.
 learnMore = Kuaave.
+
+footerLinkCli = CLI
+footerLinkDmca = DMCA
+footerLinkSource = Source
+footerLinkLogin = Sign in
+footerLinkLogout = Sign out
+
+## Login strings
+
+loginTitle = Upload Access
+loginDescription = Enter your credentials to continue
+loginEmailLabel = Email
+loginPasswordLabel = Password
+loginSubmitButton = Sign in
+loginSubmitting = Signing in...
+loginErrorChallenge = Could not start login challenge. Please try again.
+loginErrorGeneric = Login failed. Please try again.

@@ -184,7 +184,7 @@ authErrorCryptoUnsupported = Votre navigateur ne prend pas en charge les API de 
 
 ## Login strings
 
-loginTitle = Se connecter
+loginTitle = Upload Access
 loginDescription = Saisissez vos identifiants pour continuer
 loginEmailLabel = Adresse e-mail
 loginPasswordLabel = Mot de passe
@@ -192,3 +192,9 @@ loginSubmitButton = Se connecter
 loginSubmitting = Connexion…
 loginErrorChallenge = Impossible de démarrer le défi de connexion. Veuillez réessayer.
 loginErrorGeneric = Échec de la connexion. Veuillez réessayer.
+
+footerLinkCli = CLI
+footerLinkDmca = DMCA
+footerLinkSource = Source
+footerLinkLogin = Sign in
+footerLinkLogout = Sign out

@@ -109,3 +109,20 @@ passwordIsSet = Kata laluan ditetapkan
 maxPasswordLength = Panjang kata laluan maksimum: { $length }
 # A short status message shown when there was an error setting the password
 passwordSetError = Kata laluan ini tidak boleh ditetapkan
+
+footerLinkCli = CLI
+footerLinkDmca = DMCA
+footerLinkSource = Source
+footerLinkLogin = Sign in
+footerLinkLogout = Sign out
+
+## Login strings
+
+loginTitle = Upload Access
+loginDescription = Enter your credentials to continue
+loginEmailLabel = Email
+loginPasswordLabel = Password
+loginSubmitButton = Sign in
+loginSubmitting = Signing in...
+loginErrorChallenge = Could not start login challenge. Please try again.
+loginErrorGeneric = Login failed. Please try again.

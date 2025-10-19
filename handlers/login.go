@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Simon-Martens/go-send/config"
 	"github.com/Simon-Martens/go-send/core"
 	"github.com/Simon-Martens/go-send/storage"
 	"github.com/Simon-Martens/go-send/utils"
@@ -40,7 +41,17 @@ type loginRequest struct {
 }
 
 type loginResponse struct {
-	OK bool `json:"ok"`
+	OK         bool            `json:"ok"`
+	User       *loginUserData  `json:"user,omitempty"`
+	AppVersion string          `json:"app_version"`
+}
+
+type loginUserData struct {
+	ID       int64           `json:"id"`
+	Name     string          `json:"name"`
+	Email    string          `json:"email"`
+	Role     storage.UserRole `json:"role"`
+	Settings json.RawMessage `json:"settings,omitempty"`
 }
 
 func NewLoginChallengeHandler(app *core.App) http.HandlerFunc {
@@ -232,7 +243,17 @@ func NewLoginHandler(app *core.App) http.HandlerFunc {
 		})
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(loginResponse{OK: true})
+		json.NewEncoder(w).Encode(loginResponse{
+		OK: true,
+		User: &loginUserData{
+			ID:       user.ID,
+			Name:     user.Name,
+			Email:    user.Email,
+			Role:     user.Role,
+			Settings: user.Settings,
+		},
+		AppVersion: config.APP_VERSION,
+	})
 
 		app.DBLogger.LogAuthEvent(r, "login_success", req.Email, true, "")
 	}

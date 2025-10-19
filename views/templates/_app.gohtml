@@ -7,12 +7,14 @@
 	
 <main class="flex flex-col items-center md:h-screen w-full">
 	<go-send id="app" class="main flex relative max-w-[82rem] w-full"></go-send>
+	<app-footer></app-footer>
 </main>
 
 <script {{.NonceAttr}}>
 	var LIMITS = {{toJSON .State.Limits}};
 	var WEB_UI = {{toJSON .State.WebUI}};
 	var DEFAULTS = {{toJSON .State.Defaults}};
+	var FOOTER = {{toJSON .Footer}};
 	var PREFS = {};
 	var downloadMetadata = {{rawJSON .State.DownloadMetadata}};
 </script>
@@ -50,7 +52,7 @@
 <!-- Register layout: <register-layout> uses this to create registration form -->
 <template id="register-layout">
 	<section class="h-full w-full flex items-center justify-center px-4 py-8">
-		<div class="flex flex-col bg-white dark:bg-grey-90 rounded-default shadow-light px-8 py-10 w-full max-w-md">
+		<div class="flex flex-col bg-white dark:bg-grey-90 rounded-xs shadow-light px-8 py-10 w-full max-w-md">
 			<h1 class="text-3xl font-bold mb-2 text-grey-90 dark:text-grey-10 text-center" data-role="register-title">
 				<span id="registerAdminTitle" data-type="lang">Register Administrator</span>
 			</h1>
@@ -71,7 +73,7 @@
 						autocomplete="name"
 						required
 						data-placeholder-key="registerNamePlaceholder"
-						class="w-full rounded-default border border-grey-30 dark:border-grey-60 bg-white dark:bg-grey-80 px-3 py-2 text-sm"
+						class="w-full rounded-xs border border-grey-30 dark:border-grey-60 bg-white dark:bg-grey-80 px-3 py-2 text-sm"
 					/>
 				</div>
 
@@ -87,7 +89,7 @@
 						autocomplete="email"
 						required
 						data-placeholder-key="registerEmailPlaceholder"
-						class="w-full rounded-default border border-grey-30 dark:border-grey-60 bg-white dark:bg-grey-80 px-3 py-2 text-sm"
+						class="w-full rounded-xs border border-grey-30 dark:border-grey-60 bg-white dark:bg-grey-80 px-3 py-2 text-sm"
 					/>
 				</div>
 
@@ -104,8 +106,8 @@
 							autocomplete="new-password"
 							required
 							minlength="10"
-							placeholder="••••••••••"
-							class="w-full rounded-default border border-grey-30 dark:border-grey-60 bg-white dark:bg-grey-80 px-3 py-2 text-sm pr-10"
+							placeholder="Enter your password"
+							class="w-full rounded-xs border border-grey-30 dark:border-grey-60 bg-white dark:bg-grey-80 px-3 py-2 text-sm pr-10"
 						/>
 						<button
 							type="button"
@@ -133,8 +135,8 @@
 							autocomplete="new-password"
 							required
 							minlength="10"
-							placeholder="••••••••••"
-							class="w-full rounded-default border border-grey-30 dark:border-grey-60 bg-white dark:bg-grey-80 px-3 py-2 text-sm pr-10"
+							placeholder="Confirm your password"
+							class="w-full rounded-xs border border-grey-30 dark:border-grey-60 bg-white dark:bg-grey-80 px-3 py-2 text-sm pr-10"
 						/>
 						<button
 							type="button"
@@ -165,13 +167,10 @@
 <!-- Login layout: <login-layout> handles login flow -->
 <template id="login-layout">
 	<section class="h-full w-full flex items-center justify-center px-4 py-8">
-		<div class="flex flex-col bg-white dark:bg-grey-90 rounded-default shadow-light px-8 py-10 w-full max-w-md">
-			<h1 class="text-3xl font-bold mb-2 text-grey-90 dark:text-grey-10 text-center">
-				<span id="loginTitle" data-type="lang">Sign in</span>
+		<div class="flex flex-col bg-white dark:bg-grey-90 rounded-xs shadow-light px-8 py-10 w-full max-w-md">
+			<h1 class="text-3xl font-bold mb-6 text-grey-90 dark:text-grey-10 text-center">
+				<span id="loginTitle" data-type="lang">Upload Access</span>
 			</h1>
-			<p class="text-sm text-grey-70 dark:text-grey-40 mb-6 text-center">
-				<span id="loginDescription" data-type="lang">Enter your credentials to continue</span>
-			</p>
 
 			<form data-role="login-form" class="flex flex-col w-full gap-4">
 				<div class="flex flex-col gap-1">
@@ -184,7 +183,7 @@
 						type="email"
 						autocomplete="email"
 						required
-						class="w-full rounded-default border border-grey-30 dark:border-grey-60 bg-white dark:bg-grey-80 px-3 py-2 text-sm"
+						class="w-full rounded-xs border border-grey-30 dark:border-grey-60 bg-white dark:bg-grey-80 px-3 py-2 text-sm"
 					/>
 				</div>
 
@@ -200,8 +199,8 @@
 							autocomplete="current-password"
 							required
 							minlength="10"
-							placeholder="••••••••••"
-							class="w-full rounded-default border border-grey-30 dark:border-grey-60 bg-white dark:bg-grey-80 px-3 py-2 text-sm pr-10"
+							placeholder="Enter your password"
+							class="w-full rounded-xs border border-grey-30 dark:border-grey-60 bg-white dark:bg-grey-80 px-3 py-2 text-sm pr-10"
 						/>
 						<button
 							type="button"
@@ -249,7 +248,7 @@
 
 <!-- Download view: Password entry for protected files -->
 <template id="file-password-view">
-	<div class="flex flex-col items-center justify-center bg-white dark:bg-grey-90 rounded-default shadow-light px-8 py-10">
+	<div class="flex flex-col items-center justify-center bg-white dark:bg-grey-90 rounded-xs shadow-light px-8 py-10">
 		<h1 class="text-3xl font-bold mb-4 text-grey-90 dark:text-grey-10">
 			<span id="downloadTitle" data-type="lang">Download</span>
 		</h1>
@@ -266,7 +265,7 @@
 						autocomplete="off"
 						maxlength="4096"
 						placeholder="Enter password"
-						class="w-full h-full rounded-default border border-grey-30 dark:border-grey-60 bg-white dark:bg-grey-80 px-3 py-2 text-sm"
+						class="w-full h-full rounded-xs border border-grey-30 dark:border-grey-60 bg-white dark:bg-grey-80 px-3 py-2 text-sm"
 					/>
 					<button
 						type="button"
@@ -279,7 +278,7 @@
 				<button
 					type="submit"
 					data-role="submit"
-					class="rounded-default bg-primary text-white px-3 py-2 text-sm font-medium hover:opacity-90 focus:outline focus:outline-2 focus:outline-primary flex items-center justify-center"
+					class="rounded-xs bg-primary text-white px-3 py-2 text-sm font-medium hover:opacity-90 focus:outline focus:outline-2 focus:outline-primary flex items-center justify-center"
 				>
 					<i class="ri-lock-unlock-fill text-lg leading-4"></i>
 				</button>
@@ -294,7 +293,7 @@
 
 <!-- Download view: File overview before download -->
 <template id="file-overview-view">
-	<div class="flex flex-col bg-white dark:bg-grey-90 rounded-default shadow-light px-8 py-8">
+	<div class="flex flex-col bg-white dark:bg-grey-90 rounded-xs shadow-light px-8 py-8">
 		<h1 class="text-2xl font-bold mb-6 text-grey-90 dark:text-grey-10 text-center">
 			<span id="downloadTitle" data-type="lang">Download</span>
 		</h1>
@@ -327,7 +326,7 @@
 
 <!-- File list for archives (expandable details) -->
 <template id="file-overview-file-list">
-	<details class="w-full mb-4 border border-grey-30 dark:border-grey-70 rounded-lg">
+	<details class="w-full mb-4 border border-grey-30 dark:border-grey-70 rounded-xs">
 		<summary class="flex items-center link-primary text-sm cursor-pointer px-4 py-3 hover:bg-grey-10 dark:hover:bg-grey-80">
 			<svg class="fill-current w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
 				<path d="M12.95 10.707l.707-.707L8 4.343 6.586 5.757 10.828 10l-4.242 4.243L8 15.657l4.95-4.95z"/>
@@ -351,7 +350,7 @@
 
 <!-- Download view: Progress indicator -->
 <template id="file-downloading-view">
-	<div class="flex flex-col bg-white dark:bg-grey-90 rounded-default shadow-light p-6 w-[90vw] max-w-md md:w-[48rem]">
+	<div class="flex flex-col bg-white dark:bg-grey-90 rounded-xs shadow-light p-6 w-[90vw] max-w-md md:w-[48rem]">
 		<!-- Archive info -->
 		<div class="w-full flex items-center mb-4">
 			<i class="ri-file-line h-10 w-10 flex-shrink-0 text-primary mr-4 text-4xl leading-10" data-role="file-icon"></i>
@@ -371,7 +370,7 @@
 
 <!-- Download view: Completion screen (stub) -->
 <template id="file-finished-view">
-	<div class="flex flex-col items-center justify-center bg-white dark:bg-grey-90 rounded-default shadow-light px-8 py-12">
+	<div class="flex flex-col items-center justify-center bg-white dark:bg-grey-90 rounded-xs shadow-light px-8 py-12">
 		<i class="ri-checkbox-circle-fill text-green-600 dark:text-green-400 text-8xl leading-none mb-6"></i>
 		<h2 class="text-2xl font-bold text-grey-90 dark:text-grey-10 mb-4">
 			<span id="downloadFinish" data-type="lang">Download complete</span>
@@ -384,7 +383,7 @@
 
 <!-- Download view: Error/expired screen -->
 <template id="file-error-view">
-	<div class="flex flex-col items-center justify-center bg-white dark:bg-grey-90 rounded-default shadow-light px-8 py-12">
+	<div class="flex flex-col items-center justify-center bg-white dark:bg-grey-90 rounded-xs shadow-light px-8 py-12">
 		<h1 class="text-center text-3xl font-bold text-grey-90 dark:text-grey-10 mb-8">
 			<span id="expiredTitle" data-type="lang">This link has expired or never existed</span>
 		</h1>
@@ -407,7 +406,7 @@
 
 <!-- Upload view: empty -->
 <template id="upload-view-empty">
-	<div class="flex flex-col items-center justify-center border-2 border-dashed border-grey-transparent rounded-default px-6 py-16 h-full w-full dark:border-grey-60">
+	<div class="flex flex-col items-center justify-center border-2 border-dashed border-grey-transparent rounded-xs px-6 py-16 h-full w-full dark:border-grey-60">
 		<i class="ri-add-circle-fill w-10 h-10 text-primary dark:text-blue-40 text-5xl leading-10"></i>
 		<div class="pt-6 pb-2 text-center text-lg font-bold tracking-wide text-grey-90 dark:text-grey-20">
 			<span id="dragAndDropFiles" data-type="lang">Drag and drop files</span>
@@ -434,8 +433,8 @@
 
 <!-- Upload view: list -->
 <template id="upload-view-list">
-	<div class="flex flex-col bg-white dark:bg-grey-90 rounded-default shadow-light h-full w-full">
-		<div class="flex-1 overflow-y-auto px-4 py-4" data-role="file-list" aria-live="polite"></div>
+	<div class="flex flex-col bg-white dark:bg-grey-90 border border-grey-30 dark:border-grey-70 rounded-xs shadow-light h-full w-full">
+		<div class="flex-1 overflow-y-auto px-4 py-4 shadow-inner" data-role="file-list" aria-live="polite"></div>
 			<div class="border-t border-grey-30 dark:border-grey-70 px-4 py-4 space-y-4">
 			<input
 				id="file-upload"
@@ -469,7 +468,7 @@
 
 <!-- Upload view: list item -->
 <template id="upload-view-list-item">
-	<li class="flex items-start rounded-default border border-grey-20 dark:border-grey-70 px-3 py-3 mb-3 last:mb-0 bg-white dark:bg-grey-80">
+	<li class="flex items-start rounded-xs border border-grey-20 dark:border-grey-70 px-3 py-3 mb-3 last:mb-0 bg-white dark:bg-grey-80">
 		<i class="ri-file-ai-line h-8 w-8 flex-shrink-0 text-primary mr-3 text-3xl leading-8" data-role="file-icon"></i>
 		<div class="flex-grow min-w-0 pr-3">
 			<p class="text-sm font-medium text-grey-90 dark:text-grey-10 break-words" data-role="file-name"></p>
@@ -486,17 +485,17 @@
 <template id="upload-view-list-options">
 	<div class="space-y-6" data-role="options-form">
 		<div data-role="expiry-container" class="text-sm font-medium text-grey-80 dark:text-grey-30">
-			<div class="font-medium mb-1" data-role="expiry-label-top">Expires after</div>
+			<div class="font-medium mb-1.5 px-2" data-role="expiry-label-top">Expires after</div>
 			<div class="flex items-center gap-3">
-				<select data-role="download-limit" class="w-full rounded-default border border-grey-30 bg-white px-3 py-2 text-sm dark:bg-grey-80 dark:border-grey-60"></select>
-				<span class="text-xs tracking-wide text-grey-60 dark:text-grey-40 font-medium px-2" data-role="or-label">or</span>
-				<select data-role="time-limit" class="w-full rounded-default border border-grey-30 bg-white px-3 py-2 text-sm dark:bg-grey-80 dark:border-grey-60"></select>
+				<select data-role="download-limit" class="w-full rounded-xs border border-grey-30 bg-white px-2 py-2 text-sm dark:bg-grey-80 dark:border-grey-60"></select>
+				<span class="text-sm tracking-wide text-grey-80 dark:text-grey-30 font-medium px-2" data-role="or-label">or</span>
+				<select data-role="time-limit" class="w-full rounded-xs border border-grey-30 bg-white px-2 py-2 text-sm dark:bg-grey-80 dark:border-grey-60"></select>
 			</div>
 			<!-- Some languages have a different wording for this sentence -->
-			<div class="font-medium mt-1 text-right" data-role="expiry-label-bottom"></div>
+			<div class="font-medium mt-1.5 text-right px-2" data-role="expiry-label-bottom"></div>
 		</div>
 		<div data-role="archive-name-container" class="hidden">
-			<label for="archive-name-input" class="block text-sm font-medium text-grey-80 dark:text-grey-20 mb-2">
+			<label for="archive-name-input" class="px-2 block text-sm font-medium text-grey-80 dark:text-grey-20 mb-1.5 flex flex-row justify-between items-end">
 				<span id="archiveNameLabel" data-type="lang">Archive name</span>
 			</label>
 			<div class="relative">
@@ -504,7 +503,7 @@
 					id="archive-name-input"
 					type="text"
 					data-role="archive-name"
-					class="w-full rounded-default border border-grey-30 bg-white px-3 py-2 text-sm dark:bg-grey-80 dark:border-grey-60"
+					class="w-full rounded-xs border border-grey-30 bg-white px-2 py-2 text-sm dark:bg-grey-80 dark:border-grey-60"
 					placeholder="Send-Archive"
 					maxlength="255"
 				/>
@@ -512,13 +511,15 @@
 					.zip
 				</span>
 			</div>
-			<div class="mt-1 text-xs text-grey-60 dark:text-grey-40" id="archiveNameHint" data-type="lang">The name recipients will see when downloading</div>
+			<div class="flex flex-row justify-end">
+				<div class="text-xs text-grey-60 dark:text-grey-40 align-baseline align-right mt-1.5" id="archiveNameHint" data-type="lang">The name recipients will see when downloading</div>
+			</div>
 			<div class="mt-1 text-xs text-red-600 dark:text-red-400 hidden" data-role="archive-name-error"></div>
 		</div>
 		<div>
-			<button type="button" class="flex items-center text-sm font-medium text-grey-80 dark:text-grey-20" data-role="password-toggle">
-				<span class="mr-2 inline-flex h-6 w-6 items-center justify-center rounded border border-grey-40 text-grey-70 dark:border-grey-60 dark:text-grey-30" data-role="password-toggle-icon">
-					<img src="/lock.svg" alt="" class="h-4 w-4 hidden" data-role="lock-icon" />
+			<button type="button" class="flex items-center text-sm font-medium text-grey-80 dark:text-grey-20 cursor-pointer" data-role="password-toggle">
+				<span class="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-xs border border-grey-40 text-grey-70 dark:border-grey-60 dark:text-grey-30" data-role="password-toggle-icon">
+					<img src="/lock.svg" alt="" class="h-4 w-4" data-role="lock-icon" />
 				</span>
 				<span id="addPassword" data-type="lang">Add a password (optional)</span>
 			</button>
@@ -527,8 +528,8 @@
 					id="password-input"
 					type="password"
 					autocomplete="off"
-					class="w-full rounded-default border border-grey-30 bg-white px-3 py-2 text-sm dark:bg-grey-80 dark:border-grey-60"
-					placeholder="••••••"
+					class="w-full rounded-xs border border-grey-30 bg-white px-3 py-2 text-sm dark:bg-grey-80 dark:border-grey-60"
+					placeholder="Enter password"
 					data-role="password"
 					maxlength="4096"
 				/>
@@ -543,7 +544,7 @@
 
 <!-- Upload view: error (for errors during upload) -->
 <template id="upload-view-error">
-	<div class="flex flex-col items-center justify-center bg-white dark:bg-grey-90 rounded-default shadow-light h-full w-full px-6 py-8">
+	<div class="flex flex-col items-center justify-center bg-white dark:bg-grey-90 rounded-xs shadow-light h-full w-full px-6 py-8">
 		<i class="ri-error-warning-fill text-red-600 dark:text-red-400 text-8xl leading-none mb-6"></i>
 		<h2 class="text-2xl font-bold text-grey-90 dark:text-grey-10 mb-4">
 			<span id="errorTitle" data-type="lang">Error</span>
@@ -572,7 +573,7 @@
 
 <!-- Upload view: uploading (shows progress) -->
 <template id="upload-view-uploading">
-	<div class="flex flex-col items-start rounded-default shadow-light bg-white dark:bg-grey-90 p-4 w-full">
+	<div class="flex flex-col items-start rounded-xs shadow-light bg-white dark:bg-grey-90 p-4 w-full">
 		<!-- Archive info -->
 		<div class="w-full flex items-center mb-3">
 			<i class="ri-file-line h-8 w-8 flex-shrink-0 text-primary mr-3 text-3xl leading-8" data-role="file-icon"></i>
@@ -604,7 +605,7 @@
 
 <!-- Upload view: success -->
 <template id="upload-view-complete">
-	<div class="flex flex-col items-center justify-center bg-white dark:bg-grey-90 rounded-default shadow-light h-full w-full px-6 py-8">
+	<div class="flex flex-col items-center justify-center bg-white dark:bg-grey-90 rounded-xs shadow-light h-full w-full px-6 py-8">
 		<div class="w-full max-w-md space-y-6">
 			<div class="text-center space-y-2">
 				<h2 class="text-xl font-bold text-grey-90 dark:text-grey-10 flex items-center justify-center gap-2">
@@ -626,12 +627,12 @@
 					<input
 						type="text"
 						readonly
-						class="flex-1 rounded-default border border-grey-30 bg-white px-3 py-2 text-sm dark:bg-grey-80 dark:border-grey-60 font-mono"
+						class="flex-1 rounded-xs border border-grey-30 bg-white px-3 py-2 text-sm dark:bg-grey-80 dark:border-grey-60 font-mono"
 						data-role="download-link"
 					/>
 					<button
 						type="button"
-						class="rounded-default border border-grey-30 bg-white dark:bg-grey-80 dark:border-grey-60 px-3 py-2 flex items-center justify-center hover:bg-grey-10 dark:hover:bg-grey-70 focus:outline focus:outline-2 focus:outline-primary"
+						class="rounded-xs border border-grey-30 bg-white dark:bg-grey-80 dark:border-grey-60 px-3 py-2 flex items-center justify-center hover:bg-grey-10 dark:hover:bg-grey-70 focus:outline focus:outline-2 focus:outline-primary cursor-pointer"
 						data-action="copy"
 					>
 						<i class="ri-file-copy-line text-lg leading-4" data-role="copy-icon"></i>
@@ -678,7 +679,7 @@
 
 <!-- Upload view: list item -->
 <template id="upload-tile-item">
-	<li class="rounded-default shadow-light bg-white p-4 dark:bg-grey-90 dark:border dark:border-grey-70" data-upload-id="">
+	<li class="rounded-xs shadow-light bg-white p-4 dark:bg-grey-90 dark:border dark:border-grey-70" data-upload-id="">
 		<!-- Header: Icon, Name, Size, Delete -->
 		<div class="flex items-start w-full mb-2">
 			<i class="ri-file-line h-8 w-8 flex-shrink-0 text-primary text-3xl leading-8" data-role="file-icon"></i>
@@ -723,7 +724,7 @@
 			</a>
 			<button
 				type="button"
-				class="link-primary text-sm flex items-center focus:outline"
+				class="link-primary text-sm flex items-center focus:outline cursor-pointer"
 				data-action="copy"
 			>
 				<i class="ri-file-copy-line h-4 w-4 mr-2 text-base leading-4" data-role="copy-icon"></i>
@@ -753,4 +754,44 @@
 			<div class="text-xs opacity-75" data-role="item-size"></div>
 		</div>
 	</div>
+</template>
+
+<!-- Footer: <app-footer> displays site footer with branding, links, and auth state -->
+<template id="app-footer">
+	<footer class="flex flex-col md:flex-row items-start w-full flex-none self-start px-6 mb-12 font-medium text-xs md:items-center justify-between">
+		<ul class="flex flex-col md:flex-row items-start md:items-center md:justify-start">
+			<li class="m-2 flex items-center gap-4 text-xs md:text-sm font-semibold">
+				<a href="" data-role="source-link" class="italic" style="display: none;">Go Send</a>
+				<span data-role="brand" class="italic">Go Send</span>
+				<div data-role="status-dot" class="status-dot status-dot-green"></div>
+				<span data-role="username" class="text-grey-70 dark:text-grey-40" style="display: none;"></span>
+				<span data-role="auth-separator" class="text-grey-50 dark:text-grey-50">|</span>
+				<a href="/login" data-role="auth-link" class="text-grey-70 dark:text-grey-40 hover:text-grey-90 dark:hover:text-grey-10">
+					<span id="footerLinkLogin" data-role="auth-label" data-type="lang">Sign in</span>
+				</a>
+			</li>
+		</ul>
+		<ul class="flex flex-col md:flex-row items-start md:items-center md:justify-end">
+			<li class="m-2" data-if-cli style="display: none;">
+				<a href="" data-role="cli-link" target="_blank">
+					<span id="footerLinkCli" data-type="lang">CLI</span>
+				</a>
+			</li>
+			<li class="m-2" data-if-dmca style="display: none;">
+				<a href="" data-role="dmca-link" target="_blank">
+					<span id="footerLinkDmca" data-type="lang">DMCA</span>
+				</a>
+			</li>
+			<li class="m-2" data-if-source style="display: none;">
+				<a href="" data-role="source-link-footer" target="_blank">
+					<span id="footerLinkSource" data-type="lang">Source</span>
+				</a>
+			</li>
+			<li class="m-2 max-w-[80ch] hyphens-auto" data-if-custom style="display: none;">
+				<a href="" data-role="custom-link" target="_blank">
+					<span data-role="custom-text"></span>
+				</a>
+			</li>
+		</ul>
+	</footer>
 </template>

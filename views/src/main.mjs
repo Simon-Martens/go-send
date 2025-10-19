@@ -1,7 +1,26 @@
 import "./styles.css";
 import "./ui/go-send.mjs";
+import "./ui/app-footer.mjs";
+import storage from "./storage.mjs";
+import { APP_VERSION } from "./userSecrets.mjs";
+import { syncOwnedFiles } from "./syncFiles.mjs";
 
 (async function start() {
+  // Check app version and clear localStorage if version mismatch
+  const user = storage.user;
+  if (user && user.version && user.version !== APP_VERSION) {
+    console.warn(`[App] Version mismatch: stored ${user.version}, current ${APP_VERSION}. Clearing localStorage.`);
+    storage.clearAll();
+  }
+
+  // Sync files from server if user is logged in
+  // This ensures files uploaded from other devices are available
+  if (storage.user) {
+    syncOwnedFiles(storage.user).catch(err => {
+      console.warn("[App] File sync failed during startup", err);
+    });
+  }
+
   const app = document.querySelector("go-send");
   if (!app) {
     console.warn("[Router] <go-send> element not found in DOM");

@@ -1,14 +1,21 @@
 // INFO: Login flow overview:
 // 1. Browser fetches per-user salt & KDF parameters via /auth/challenge.
-// 2. Password + salt feed into PBKDF2 to derive base entropy
-// 3. The hashed result is passed to HKDF to produce the Ed25519 seed (deriveSeed).
-// 4. The seed deterministically regenerates the public/private key pair (deriveKeyPair); // 5. The private seed signs the challenge nonce (signChallenge).
-// 6. Browser posts {email, challenge_id, signature}; server verifies signature with stored public key and issues a session.
+// TODO: make sure the salt is sent regardless if the user exists or not.
+// 2. Password + salt feed into PBKDF2 to derive base entropy.
+// 3. The hashed result is passed to HKDF with two separate info strings to produce:
+//    - Ed25519 seed (for authentication/signing)
+//    - X25519 seed (for encryption key agreement)
+// 4. The seeds deterministically regenerate both key pairs (deriveKeyPair):
+//    Ed25519 and X25519 public/private keys
+// 5. The Ed25519 private seed signs the challenge nonce (signChallenge).
+// 6. Browser posts {email, challenge_id, signature}; server verifies signature with stored Ed25519 public key and issues a session.
 
 // INFO: Registration flow overview:
-// 1. Browser generates a fresh salt (generateSalt) and runs the PBKDF2 + HKDF derivation to obtain the deterministic Ed25519 seed to generate the public key (see above 2/3/4).
-// 2. Only the salt, derived public key, and KDF parameters are sent to /register along with the invitation token.
-// 3. Server stores those public parameters so any future login can reproduce the identical private key from the password alone.
+// 1. Browser generates a fresh salt (generateSalt) and runs the PBKDF2 + HKDF derivation to obtain:
+//    - Deterministic Ed25519 seed → Ed25519 public key (for authentication)
+//    - Deterministic X25519 seed → X25519 public key (for encryption)
+// 2. Only the salt, both derived public keys (Ed25519 + X25519), and KDF parameters are sent to /register along with the invitation token.
+// 3. Server stores those public parameters so any future login can reproduce the identical private keys from the password alone.
 
 // WARNING: Always confirm posted data contains no sensitive information before commit.
 
@@ -82,11 +89,7 @@ export function generateSalt(length = DEFAULT_KDF_SETTINGS.saltLength) {
   return salt;
 }
 
-async function deriveKeySeeds(
-  password,
-  salt,
-  settings = DEFAULT_KDF_SETTINGS,
-) {
+async function deriveKeySeeds(password, salt, settings = DEFAULT_KDF_SETTINGS) {
   if (!password) {
     throw new Error("Password is required for seed derivation");
   }
@@ -169,11 +172,7 @@ export async function deriveSeed(
   salt,
   settings = DEFAULT_KDF_SETTINGS,
 ) {
-  const { edSeed, x25519Seed } = await deriveKeySeeds(
-    password,
-    salt,
-    settings,
-  );
+  const { edSeed, x25519Seed } = await deriveKeySeeds(password, salt, settings);
   x25519Seed.fill(0);
   return edSeed;
 }

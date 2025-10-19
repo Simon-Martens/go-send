@@ -31,6 +31,8 @@ footerLinkDonate = Donate
 footerLinkCli = CLI
 footerLinkDmca = DMCA
 footerLinkSource = Source
+footerLinkLogin = Sign in
+footerLinkLogout = Sign out
 passwordTryAgain = Incorrect password. Try again.
 javascriptRequired = Go Send requires JavaScript
 whyJavascript = Why does Go Send require JavaScript?
@@ -180,7 +182,7 @@ authErrorCryptoUnsupported = Your browser does not support the required cryptogr
 
 ## Login strings
 
-loginTitle = Sign in
+loginTitle = Upload Access
 loginDescription = Enter your credentials to continue
 loginEmailLabel = Email
 loginPasswordLabel = Password

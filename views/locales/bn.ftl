@@ -147,3 +147,20 @@ shareLinkButton = লিঙ্ক শেয়ার করুন
 shareMessage = { -send-brand } এর মাধ্যমে "{ $name }" ডাউনলোড করুন: সরল, নিরাপদ ফাইল শেয়ারিং
 trailheadPromo = আপনার গোপনীয়তা রক্ষা করার একটি উপায় আছে। Firefox এ যোগ দিন।
 learnMore = আরও জানুন।
+
+footerLinkCli = CLI
+footerLinkDmca = DMCA
+footerLinkSource = Source
+footerLinkLogin = Sign in
+footerLinkLogout = Sign out
+
+## Login strings
+
+loginTitle = Upload Access
+loginDescription = Enter your credentials to continue
+loginEmailLabel = Email
+loginPasswordLabel = Password
+loginSubmitButton = Sign in
+loginSubmitting = Signing in...
+loginErrorChallenge = Could not start login challenge. Please try again.
+loginErrorGeneric = Login failed. Please try again.

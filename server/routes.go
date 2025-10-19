@@ -42,6 +42,7 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 		mux.HandleFunc("/auth/challenge", handlers.NewLoginChallengeHandler(app))
 		mux.HandleFunc("/auth/login", handlers.NewLoginHandler(app))
 		mux.HandleFunc("/auth/claim/", handlers.NewClaimHandler(app))
+		mux.HandleFunc("/logout", handlers.NewLogoutHandler(app))
 
 		// Registration routes - handle both GET (render page) and POST (submit form)
 		mux.HandleFunc("/register/admin", func(w http.ResponseWriter, r *http.Request) {
@@ -77,7 +78,7 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 		guardOpts := middleware.UserGuardOptions{
 			RedirectToLogin: true,
 			AllowPrefixes:   []string{"/download"},
-			AllowExact:      []string{"/login", "/login/", "/error"},
+			AllowExact:      []string{"/login", "/login/", "/logout", "/error"},
 			AllowStatic:     true,
 		}
 		rootHandler = middleware.RequireUser(app, guardOpts)(rootHandler)

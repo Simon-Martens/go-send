@@ -147,3 +147,20 @@ shareLinkButton = Chakomone'j kemwiqb'al
 shareMessage = Chaqasaj “{ $name }” ruk' { -send-brand }: man k'ax ta ub'anik, ukomone'xik kemk'olib'al pa chajib'al
 trailheadPromo = K'o jun ub'e'al chech uchajixik le a'echeb'alil. Chat'iqa' awib' pa. Firefox.
 learnMore = Chaweta'maj nik'aj chik
+
+footerLinkCli = CLI
+footerLinkDmca = DMCA
+footerLinkSource = Source
+footerLinkLogin = Sign in
+footerLinkLogout = Sign out
+
+## Login strings
+
+loginTitle = Upload Access
+loginDescription = Enter your credentials to continue
+loginEmailLabel = Email
+loginPasswordLabel = Password
+loginSubmitButton = Sign in
+loginSubmitting = Signing in...
+loginErrorChallenge = Could not start login challenge. Please try again.
+loginErrorGeneric = Login failed. Please try again.

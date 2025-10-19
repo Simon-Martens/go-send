@@ -144,3 +144,20 @@ shareLinkButton = Ka abna' an enlace
 shareMessage = Ka pa'ba' “{ $name }” k'al { -send-brand }: ka abna' a t'ojlabil, yab k'ibat ani k'anidh
 trailheadPromo = U awil ka k'aniy axi tat a k'al. Kit tamkun k'al Firefox.
 learnMore = Ka ajiy más.
+
+footerLinkCli = CLI
+footerLinkDmca = DMCA
+footerLinkSource = Source
+footerLinkLogin = Sign in
+footerLinkLogout = Sign out
+
+## Login strings
+
+loginTitle = Upload Access
+loginDescription = Enter your credentials to continue
+loginEmailLabel = Email
+loginPasswordLabel = Password
+loginSubmitButton = Sign in
+loginSubmitting = Signing in...
+loginErrorChallenge = Could not start login challenge. Please try again.
+loginErrorGeneric = Login failed. Please try again.

@@ -192,3 +192,20 @@ shareLinkButton = Sdílet odkaz
 shareMessage = Stáhněte si soubor „{ $name }“ se { -send-brand(case: "ins") } - jednoduché a bezpečné sdílení souborů
 trailheadPromo = Existuje způsob, jak ochránit své soukromí. Používejte Firefox.
 learnMore = Zjistit více.
+
+footerLinkCli = CLI
+footerLinkDmca = DMCA
+footerLinkSource = Source
+footerLinkLogin = Sign in
+footerLinkLogout = Sign out
+
+## Login strings
+
+loginTitle = Upload Access
+loginDescription = Enter your credentials to continue
+loginEmailLabel = Email
+loginPasswordLabel = Password
+loginSubmitButton = Sign in
+loginSubmitting = Signing in...
+loginErrorChallenge = Could not start login challenge. Please try again.
+loginErrorGeneric = Login failed. Please try again.

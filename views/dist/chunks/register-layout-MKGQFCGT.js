@@ -5,14 +5,14 @@ import {
   encodeSalt,
   generateSalt,
   serializeKDFSettings
-} from "./chunk-N5UUCCZR.js";
+} from "./chunk-JBOF2JTJ.js";
 import {
   storage_default
-} from "./chunk-M5WSWOYW.js";
+} from "./chunk-FZGJLVBJ.js";
 import {
   translate,
   translateElement
-} from "./chunk-WCSYBWMD.js";
+} from "./chunk-6DFT5NXM.js";
 import "./chunk-IFG75HHC.js";
 
 // src/ui/register-layout.mjs
@@ -289,7 +289,7 @@ var RegisterLayoutElement = class extends HTMLElement {
     }
     container.innerHTML = "";
     const content = template.content.cloneNode(true);
-    const { translate: translate2, translateElement: translateElement2 } = await import("./utils-OI7QSSA3.js");
+    const { translate: translate2, translateElement: translateElement2 } = await import("./utils-374GK6XC.js");
     const messageElement = content.querySelector('[data-role="success-message"]');
     if (messageElement) {
       messageElement.textContent = translate2("registerSuccessMessage", { name });
@@ -328,7 +328,7 @@ var RegisterLayoutElement = class extends HTMLElement {
    */
   async setPlaceholders() {
     try {
-      const { translate: translate2 } = await import("./utils-OI7QSSA3.js");
+      const { translate: translate2 } = await import("./utils-374GK6XC.js");
       const nameInput = this.querySelector('[data-placeholder-key="registerNamePlaceholder"]');
       const emailInput = this.querySelector('[data-placeholder-key="registerEmailPlaceholder"]');
       if (nameInput) {
@@ -380,4 +380,4 @@ var RegisterLayoutElement = class extends HTMLElement {
   }
 };
 customElements.define("register-layout", RegisterLayoutElement);
-//# sourceMappingURL=register-layout-HJKN4KBI.js.map
+//# sourceMappingURL=register-layout-MKGQFCGT.js.map

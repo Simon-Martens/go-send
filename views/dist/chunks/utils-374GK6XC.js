@@ -21,7 +21,7 @@ import {
   timeLeft,
   translate,
   translateElement
-} from "./chunk-WCSYBWMD.js";
+} from "./chunk-6DFT5NXM.js";
 import "./chunk-IFG75HHC.js";
 export {
   allowedCopy,
@@ -47,4 +47,4 @@ export {
   translate,
   translateElement
 };
-//# sourceMappingURL=utils-OI7QSSA3.js.map
+//# sourceMappingURL=utils-374GK6XC.js.map

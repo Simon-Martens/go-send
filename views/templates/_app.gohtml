@@ -767,12 +767,17 @@
 				<div data-role="status-dot" class="status-dot status-dot-green"></div>
 				<span data-role="username" class="text-grey-70 dark:text-grey-40 hidden"></span>
 				<span data-role="auth-separator" class="text-grey-50 dark:text-grey-50">|</span>
-				<a href="/login" data-role="auth-link" class="text-grey-70 dark:text-grey-40 hover:text-grey-90 dark:hover:text-grey-10">
+					<a href="/login" data-role="auth-link" data-no-new-tab class="text-grey-70 dark:text-grey-40 hover:text-grey-90 dark:hover:text-grey-10">
 					<span id="footerLinkLogin" data-role="auth-label" data-type="lang">Sign in</span>
 				</a>
 			</li>
 		</ul>
 		<ul class="flex flex-col md:flex-row items-start md:items-center md:justify-end">
+			<li class="m-2 hidden" data-if-settings>
+				<a href="/settings" data-role="settings-link" data-no-new-tab class="text-grey-70 dark:text-grey-40 hover:text-grey-90 dark:hover:text-grey-10">
+					<span>Settings</span>
+				</a>
+			</li>
 			<li class="m-2 hidden" data-if-cli>
 				<a href="" data-role="cli-link" target="_blank">
 					<span id="footerLinkCli" data-type="lang">CLI</span>
@@ -795,4 +800,74 @@
 			</li>
 		</ul>
 	</footer>
+</template>
+
+<!-- Settings layout -->
+<template id="settings-layout">
+	<div class="flex flex-col h-full w-full bg-white dark:bg-grey-90 border border-grey-30 dark:border-grey-70 rounded-xs shadow-light px-6 py-6">
+		<div class="flex items-start justify-between gap-4 pb-6 border-b border-grey-20 dark:border-grey-70 mb-6">
+			<div>
+				<h1 class="text-2xl font-semibold text-grey-90 dark:text-grey-10">Settings</h1>
+				<p class="text-sm text-grey-70 dark:text-grey-40 mt-1">Manage your account preferences and team members.</p>
+			</div>
+			<button type="button" data-action="close" data-no-new-tab class="inline-flex items-center gap-2 px-3 py-2 rounded border border-grey-40 dark:border-grey-60 text-sm font-medium text-grey-80 dark:text-grey-20 hover:bg-grey-10 dark:hover:bg-grey-80 transition">
+				<i class="ri-arrow-left-line"></i>
+				<span>Back</span>
+			</button>
+		</div>
+
+		<div class="flex flex-1 gap-6 overflow-hidden">
+			<nav class="w-56 flex-shrink-0">
+				<ul class="flex flex-col gap-2" data-role="category-list">
+					<li>
+						<button type="button" class="w-full text-left px-4 py-3 rounded border border-transparent text-sm font-medium text-grey-70 dark:text-grey-30 hover:border-primary/40 transition" data-category="password">
+							Change password
+						</button>
+					</li>
+					<li>
+						<button type="button" class="w-full text-left px-4 py-3 rounded border border-transparent text-sm font-medium text-grey-70 dark:text-grey-30 hover:border-primary/40 transition" data-category="users">
+							Users
+						</button>
+					</li>
+				</ul>
+			</nav>
+
+			<section class="flex-1 overflow-y-auto pr-2" data-role="content-area">
+				<div data-panel="password" class="space-y-6">
+					<header>
+						<h2 class="text-xl font-semibold text-grey-90 dark:text-grey-10">Change password</h2>
+						<p class="text-sm text-grey-70 dark:text-grey-40 mt-1">Update the administrator password. Your changes apply immediately.</p>
+					</header>
+					<form class="space-y-4 max-w-xl">
+						<div>
+							<label for="settings-current-password" class="block text-sm font-medium text-grey-80 dark:text-grey-30 mb-1">Current password</label>
+							<input id="settings-current-password" type="password" class="w-full rounded border border-grey-40 dark:border-grey-70 bg-white dark:bg-grey-80 px-3 py-2 text-sm text-grey-90 dark:text-grey-10 focus:outline-none focus:ring-2 focus:ring-primary" autocomplete="current-password">
+						</div>
+						<div>
+							<label for="settings-new-password" class="block text-sm font-medium text-grey-80 dark:text-grey-30 mb-1">New password</label>
+							<input id="settings-new-password" type="password" class="w-full rounded border border-grey-40 dark:border-grey-70 bg-white dark:bg-grey-80 px-3 py-2 text-sm text-grey-90 dark:text-grey-10 focus:outline-none focus:ring-2 focus:ring-primary" autocomplete="new-password">
+						</div>
+						<div>
+							<label for="settings-confirm-password" class="block text-sm font-medium text-grey-80 dark:text-grey-30 mb-1">Confirm new password</label>
+							<input id="settings-confirm-password" type="password" class="w-full rounded border border-grey-40 dark:border-grey-70 bg-white dark:bg-grey-80 px-3 py-2 text-sm text-grey-90 dark:text-grey-10 focus:outline-none focus:ring-2 focus:ring-primary" autocomplete="new-password">
+						</div>
+						<div class="flex items-center gap-3 pt-2">
+							<button type="button" class="btn">Save changes</button>
+							<p class="text-xs text-grey-60 dark:text-grey-50">Passwords must be at least 10 characters long.</p>
+						</div>
+					</form>
+				</div>
+
+				<div data-panel="users" class="hidden">
+					<header class="mb-4">
+						<h2 class="text-xl font-semibold text-grey-90 dark:text-grey-10">Users</h2>
+						<p class="text-sm text-grey-70 dark:text-grey-40 mt-1">Invite and manage collaborators. This section is coming soon.</p>
+					</header>
+					<div class="rounded border border-grey-30 dark:border-grey-70 bg-grey-5 dark:bg-grey-80/40 px-4 py-6 text-sm text-grey-70 dark:text-grey-40">
+						<p>We're working on user management tools that will let you invite team members and adjust permissions.</p>
+					</div>
+				</div>
+			</section>
+		</div>
+	</div>
 </template>

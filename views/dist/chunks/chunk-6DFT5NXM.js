@@ -102,7 +102,9 @@ function fadeOut(selector) {
   return delay(300);
 }
 function openLinksInNewTab(links, should = true) {
-  links = links || Array.from(document.querySelectorAll("a:not([target])"));
+  links = links || Array.from(
+    document.querySelectorAll("a:not([target]):not([data-no-new-tab])")
+  );
   if (should) {
     links.forEach((l) => {
       l.setAttribute("target", "_blank");
@@ -288,4 +290,4 @@ export {
   setTranslate,
   translateElement
 };
-//# sourceMappingURL=chunk-WCSYBWMD.js.map
+//# sourceMappingURL=chunk-6DFT5NXM.js.map

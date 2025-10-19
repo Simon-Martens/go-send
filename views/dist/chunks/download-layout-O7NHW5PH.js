@@ -1,6 +1,6 @@
 import {
   translateElement
-} from "./chunk-WCSYBWMD.js";
+} from "./chunk-6DFT5NXM.js";
 import "./chunk-IFG75HHC.js";
 
 // src/ui/download-layout.mjs
@@ -226,4 +226,4 @@ var DownloadLayoutElement = class extends HTMLElement {
   }
 };
 customElements.define("download-layout", DownloadLayoutElement);
-//# sourceMappingURL=download-layout-BHPG2RXA.js.map
+//# sourceMappingURL=download-layout-O7NHW5PH.js.map

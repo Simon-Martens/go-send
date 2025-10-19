@@ -150,6 +150,21 @@ class GoSendElement extends HTMLElement {
     this.currentView = "login";
   }
 
+  showSettingsLayout() {
+    const slot = this.querySelector("#app-content");
+    if (!slot) {
+      console.error("Slot #app-content not found in go-send template");
+      return;
+    }
+
+    slot.innerHTML = "";
+    const settingsLayout = document.createElement("settings-layout");
+    slot.appendChild(settingsLayout);
+
+    this.currentLayout = settingsLayout;
+    this.currentView = "settings";
+  }
+
   showErrorLayout(errorMessage) {
     const slot = this.querySelector("#app-content");
     if (!slot) {

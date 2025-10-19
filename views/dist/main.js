@@ -1,6 +1,6 @@
 import {
   syncOwnedFiles
-} from "./chunks/chunk-5KDIAWWG.js";
+} from "./chunks/chunk-WDONBXZZ.js";
 import {
   APP_VERSION,
   Keychain,
@@ -13,7 +13,7 @@ import {
   metadata,
   storage_default,
   uploadWs
-} from "./chunks/chunk-M5WSWOYW.js";
+} from "./chunks/chunk-FZGJLVBJ.js";
 import {
   arrayToB64,
   browserName,
@@ -26,7 +26,7 @@ import {
   setTranslate,
   streamToArrayBuffer,
   translateElement
-} from "./chunks/chunk-WCSYBWMD.js";
+} from "./chunks/chunk-6DFT5NXM.js";
 import "./chunks/chunk-IFG75HHC.js";
 
 // node_modules/crc/mjs/calculators/crc32.js
@@ -2655,6 +2655,18 @@ var GoSendElement = class extends HTMLElement {
     this.currentLayout = loginLayout;
     this.currentView = "login";
   }
+  showSettingsLayout() {
+    const slot = this.querySelector("#app-content");
+    if (!slot) {
+      console.error("Slot #app-content not found in go-send template");
+      return;
+    }
+    slot.innerHTML = "";
+    const settingsLayout = document.createElement("settings-layout");
+    slot.appendChild(settingsLayout);
+    this.currentLayout = settingsLayout;
+    this.currentView = "settings";
+  }
   showErrorLayout(errorMessage) {
     const slot = this.querySelector("#app-content");
     if (!slot) {
@@ -2691,7 +2703,8 @@ var AppFooter = class extends HTMLElement {
     this._frame = null;
     this.config = window.FOOTER || {};
     this._boundHandlers = {
-      handleLogoutClick: this.handleLogoutClick.bind(this)
+      handleLogoutClick: this.handleLogoutClick.bind(this),
+      handleSettingsClick: this.handleSettingsClick.bind(this)
     };
   }
   connectedCallback() {
@@ -2723,6 +2736,10 @@ var AppFooter = class extends HTMLElement {
     const authLink = this.querySelector('[data-role="auth-link"]');
     if (authLink && authLink.href.includes("/logout")) {
       authLink.removeEventListener("click", this._boundHandlers.handleLogoutClick);
+    }
+    const settingsLink = this.querySelector('[data-role="settings-link"]');
+    if (settingsLink) {
+      settingsLink.removeEventListener("click", this._boundHandlers.handleSettingsClick);
     }
   }
   setupFooter() {
@@ -2822,9 +2839,39 @@ var AppFooter = class extends HTMLElement {
       }
       translateElement(this);
     }
+    const settingsLi = this.querySelector("[data-if-settings]");
+    const settingsLink = this.querySelector('[data-role="settings-link"]');
+    if (settingsLink) {
+      settingsLink.removeEventListener("click", this._boundHandlers.handleSettingsClick);
+    }
+    if (settingsLi) {
+      if (user) {
+        showElement(settingsLi);
+        if (settingsLink) {
+          settingsLink.addEventListener("click", this._boundHandlers.handleSettingsClick);
+        }
+      } else {
+        hideElement(settingsLi);
+      }
+    }
   }
   handleLogoutClick(event) {
     storage_default.clearAll();
+  }
+  async handleSettingsClick(event) {
+    event.preventDefault();
+    try {
+      if (!customElements.get("settings-layout")) {
+        await import("./chunks/settings-layout-6RCFW6YK.js");
+      }
+    } catch (err) {
+      console.error("[AppFooter] Failed to load settings layout", err);
+      return;
+    }
+    const app = document.querySelector("go-send");
+    if (app && typeof app.showSettingsLayout === "function") {
+      app.showSettingsLayout();
+    }
   }
 };
 customElements.define("app-footer", AppFooter);
@@ -2864,9 +2911,9 @@ customElements.define("app-footer", AppFooter);
 async function initUploadRoute(app) {
   console.log("[Route] Initializing upload page...");
   await Promise.all([
-    import("./chunks/upload-layout-G5VIPOIV.js"),
-    import("./chunks/upload-area-4DS6JWYZ.js"),
-    import("./chunks/upload-right-ARJOGIYC.js"),
+    import("./chunks/upload-layout-TALE332G.js"),
+    import("./chunks/upload-area-KUUK5HPW.js"),
+    import("./chunks/upload-right-A7KKMMXG.js"),
     app.controller.ready
   ]);
   app.showUploadLayout();
@@ -2875,12 +2922,12 @@ async function initUploadRoute(app) {
 async function initDownloadRoute(app) {
   console.log("[Route] Initializing download page...");
   await Promise.all([
-    import("./chunks/download-layout-BHPG2RXA.js"),
-    import("./chunks/file-password-QBYXGUID.js"),
-    import("./chunks/file-overview-G4RF7UKD.js"),
-    import("./chunks/file-downloading-VWYKI7EP.js"),
-    import("./chunks/file-finished-SG6MDJKB.js"),
-    import("./chunks/file-error-ZD73KM4H.js"),
+    import("./chunks/download-layout-O7NHW5PH.js"),
+    import("./chunks/file-password-ZGHDMKTF.js"),
+    import("./chunks/file-overview-WKKY5HIL.js"),
+    import("./chunks/file-downloading-CDWALU4Y.js"),
+    import("./chunks/file-finished-7RTHU3Z5.js"),
+    import("./chunks/file-error-KJPHPVVB.js"),
     app.controller.ready
   ]);
   app.showDownloadLayout();
@@ -2889,7 +2936,7 @@ async function initDownloadRoute(app) {
 async function initRegisterRoute(app) {
   console.log("[Route] Initializing register page...");
   await Promise.all([
-    import("./chunks/register-layout-HJKN4KBI.js"),
+    import("./chunks/register-layout-MKGQFCGT.js"),
     app.controller.ready
   ]);
   app.showRegisterLayout();
@@ -2898,7 +2945,7 @@ async function initRegisterRoute(app) {
 async function initLoginRoute(app) {
   console.log("[Route] Initializing login page...");
   await Promise.all([
-    import("./chunks/login-layout-OYP6SLHP.js"),
+    import("./chunks/login-layout-VRIO4GTL.js"),
     app.controller.ready
   ]);
   app.showLoginLayout();

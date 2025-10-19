@@ -1,6 +1,6 @@
 import {
   translateElement
-} from "./chunk-WCSYBWMD.js";
+} from "./chunk-6DFT5NXM.js";
 import "./chunk-IFG75HHC.js";
 
 // src/ui/file-error.mjs
@@ -75,4 +75,4 @@ var FileErrorElement = class extends HTMLElement {
   }
 };
 customElements.define("file-error-view", FileErrorElement);
-//# sourceMappingURL=file-error-ZD73KM4H.js.map
+//# sourceMappingURL=file-error-KJPHPVVB.js.map

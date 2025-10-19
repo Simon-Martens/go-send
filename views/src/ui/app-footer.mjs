@@ -32,6 +32,7 @@ class AppFooter extends HTMLElement {
     this.config = window.FOOTER || {};
     this._boundHandlers = {
       handleLogoutClick: this.handleLogoutClick.bind(this),
+      handleSettingsClick: this.handleSettingsClick.bind(this),
     };
   }
 
@@ -71,6 +72,11 @@ class AppFooter extends HTMLElement {
     const authLink = this.querySelector('[data-role="auth-link"]');
     if (authLink && authLink.href.includes('/logout')) {
       authLink.removeEventListener('click', this._boundHandlers.handleLogoutClick);
+    }
+
+    const settingsLink = this.querySelector('[data-role="settings-link"]');
+    if (settingsLink) {
+      settingsLink.removeEventListener("click", this._boundHandlers.handleSettingsClick);
     }
   }
 
@@ -203,12 +209,46 @@ class AppFooter extends HTMLElement {
       // Re-translate after changing the text
       translateElement(this);
     }
+
+    const settingsLi = this.querySelector('[data-if-settings]');
+    const settingsLink = this.querySelector('[data-role="settings-link"]');
+    if (settingsLink) {
+      settingsLink.removeEventListener("click", this._boundHandlers.handleSettingsClick);
+    }
+
+    if (settingsLi) {
+      if (user) {
+        showElement(settingsLi);
+        if (settingsLink) {
+          settingsLink.addEventListener("click", this._boundHandlers.handleSettingsClick);
+        }
+      } else {
+        hideElement(settingsLi);
+      }
+    }
   }
 
   handleLogoutClick(event) {
     // Clear all localStorage before navigating to logout endpoint
     storage.clearAll();
     // Let the browser continue with navigation to /logout
+  }
+
+  async handleSettingsClick(event) {
+    event.preventDefault();
+    try {
+      if (!customElements.get("settings-layout")) {
+        await import("./settings-layout.mjs");
+      }
+    } catch (err) {
+      console.error("[AppFooter] Failed to load settings layout", err);
+      return;
+    }
+
+    const app = document.querySelector("go-send");
+    if (app && typeof app.showSettingsLayout === "function") {
+      app.showSettingsLayout();
+    }
   }
 }
 

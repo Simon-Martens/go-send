@@ -4,7 +4,7 @@ import {
   secondsToL10nId,
   timeLeft,
   translateElement
-} from "./chunk-WCSYBWMD.js";
+} from "./chunk-6DFT5NXM.js";
 import "./chunk-IFG75HHC.js";
 
 // src/ui/upload-area-empty.mjs
@@ -3437,4 +3437,4 @@ var UploadAreaElement = class extends HTMLElement {
   }
 };
 customElements.define("upload-area", UploadAreaElement);
-//# sourceMappingURL=upload-area-4DS6JWYZ.js.map
+//# sourceMappingURL=upload-area-KUUK5HPW.js.map

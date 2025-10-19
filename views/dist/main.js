@@ -2734,22 +2734,13 @@ var AppFooter = class extends HTMLElement {
     }
     const authLink = this.querySelector('[data-role="auth-link"]');
     if (authLink && authLink.href.includes("/logout")) {
-      authLink.removeEventListener("click", this._boundHandlers.handleLogoutClick);
+      authLink.removeEventListener(
+        "click",
+        this._boundHandlers.handleLogoutClick
+      );
     }
   }
   setupFooter() {
-    const sourceLink = this.querySelector('[data-role="source-link"]');
-    const brand = this.querySelector('[data-role="brand"]');
-    if (this.config.SourceURL) {
-      if (sourceLink) {
-        sourceLink.href = this.config.SourceURL;
-        showElement(sourceLink);
-      }
-      if (brand) hideElement(brand);
-    } else {
-      if (sourceLink) hideElement(sourceLink);
-      if (brand) showElement(brand);
-    }
     const statusDot = this.querySelector('[data-role="status-dot"]');
     if (statusDot) {
       const isDownload = window.location.pathname.match(/^\/download/) || window.location.pathname.match(/^\/[0-9a-fA-F]{10,16}/);
@@ -2795,7 +2786,9 @@ var AppFooter = class extends HTMLElement {
       if (dmcaLi) hideElement(dmcaLi);
     }
     const sourceLi = this.querySelector("[data-if-source]");
-    const sourceFooterLink = this.querySelector('[data-role="source-link-footer"]');
+    const sourceFooterLink = this.querySelector(
+      '[data-role="source-link-footer"]'
+    );
     if (this.config.SourceURL) {
       if (sourceFooterLink) {
         sourceFooterLink.href = this.config.SourceURL;
@@ -2818,14 +2811,20 @@ var AppFooter = class extends HTMLElement {
       }
     }
     if (authLink && authLabel) {
-      authLink.removeEventListener("click", this._boundHandlers.handleLogoutClick);
+      authLink.removeEventListener(
+        "click",
+        this._boundHandlers.handleLogoutClick
+      );
       authLink.removeAttribute("target");
       if (user) {
         authLink.href = "/logout";
         authLabel.id = "footerLinkLogout";
         authLabel.setAttribute("data-type", "lang");
         authLabel.textContent = "Sign out";
-        authLink.addEventListener("click", this._boundHandlers.handleLogoutClick);
+        authLink.addEventListener(
+          "click",
+          this._boundHandlers.handleLogoutClick
+        );
       } else {
         authLink.href = "/login";
         authLabel.id = "footerLinkLogin";

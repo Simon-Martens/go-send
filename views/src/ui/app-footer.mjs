@@ -69,28 +69,15 @@ class AppFooter extends HTMLElement {
 
     // Remove logout click handler
     const authLink = this.querySelector('[data-role="auth-link"]');
-    if (authLink && authLink.href.includes('/logout')) {
-      authLink.removeEventListener('click', this._boundHandlers.handleLogoutClick);
+    if (authLink && authLink.href.includes("/logout")) {
+      authLink.removeEventListener(
+        "click",
+        this._boundHandlers.handleLogoutClick,
+      );
     }
-
   }
 
   setupFooter() {
-    // Set up branding and source link (left side)
-    const sourceLink = this.querySelector('[data-role="source-link"]');
-    const brand = this.querySelector('[data-role="brand"]');
-
-    if (this.config.SourceURL) {
-      if (sourceLink) {
-        sourceLink.href = this.config.SourceURL;
-        showElement(sourceLink);
-      }
-      if (brand) hideElement(brand);
-    } else {
-      if (sourceLink) hideElement(sourceLink);
-      if (brand) showElement(brand);
-    }
-
     // Set up status dot (green for upload pages, blue for download pages)
     const statusDot = this.querySelector('[data-role="status-dot"]');
     if (statusDot) {
@@ -103,7 +90,7 @@ class AppFooter extends HTMLElement {
     }
 
     // Set up custom text/link
-    const customLi = this.querySelector('[data-if-custom]');
+    const customLi = this.querySelector("[data-if-custom]");
     const customLink = this.querySelector('[data-role="custom-link"]');
     const customText = this.querySelector('[data-role="custom-text"]');
 
@@ -124,7 +111,7 @@ class AppFooter extends HTMLElement {
     }
 
     // Set up CLI link
-    const cliLi = this.querySelector('[data-if-cli]');
+    const cliLi = this.querySelector("[data-if-cli]");
     const cliLink = this.querySelector('[data-role="cli-link"]');
     if (this.config.CLIURL) {
       if (cliLink) {
@@ -137,7 +124,7 @@ class AppFooter extends HTMLElement {
     }
 
     // Set up DMCA link
-    const dmcaLi = this.querySelector('[data-if-dmca]');
+    const dmcaLi = this.querySelector("[data-if-dmca]");
     const dmcaLink = this.querySelector('[data-role="dmca-link"]');
     if (this.config.DMCAURL) {
       if (dmcaLink) {
@@ -150,8 +137,10 @@ class AppFooter extends HTMLElement {
     }
 
     // Set up Source link (in footer list on right side)
-    const sourceLi = this.querySelector('[data-if-source]');
-    const sourceFooterLink = this.querySelector('[data-role="source-link-footer"]');
+    const sourceLi = this.querySelector("[data-if-source]");
+    const sourceFooterLink = this.querySelector(
+      '[data-role="source-link-footer"]',
+    );
     if (this.config.SourceURL) {
       if (sourceFooterLink) {
         sourceFooterLink.href = this.config.SourceURL;
@@ -179,10 +168,13 @@ class AppFooter extends HTMLElement {
 
     if (authLink && authLabel) {
       // Remove any existing listener first
-      authLink.removeEventListener('click', this._boundHandlers.handleLogoutClick);
+      authLink.removeEventListener(
+        "click",
+        this._boundHandlers.handleLogoutClick,
+      );
 
       // Ensure target is NOT set to _blank (should open in same tab)
-      authLink.removeAttribute('target');
+      authLink.removeAttribute("target");
 
       if (user) {
         // User is logged in - show logout
@@ -192,7 +184,10 @@ class AppFooter extends HTMLElement {
         authLabel.textContent = "Sign out"; // Will be translated
 
         // Add click handler to clear localStorage before navigation
-        authLink.addEventListener('click', this._boundHandlers.handleLogoutClick);
+        authLink.addEventListener(
+          "click",
+          this._boundHandlers.handleLogoutClick,
+        );
       } else {
         // User is not logged in - show login
         authLink.href = "/login";
@@ -205,7 +200,7 @@ class AppFooter extends HTMLElement {
       translateElement(this);
     }
 
-    const settingsLi = this.querySelector('[data-if-settings]');
+    const settingsLi = this.querySelector("[data-if-settings]");
     if (settingsLi) {
       if (user) {
         showElement(settingsLi);
@@ -220,7 +215,6 @@ class AppFooter extends HTMLElement {
     storage.clearAll();
     // Let the browser continue with navigation to /logout
   }
-
 }
 
 // Register the custom element

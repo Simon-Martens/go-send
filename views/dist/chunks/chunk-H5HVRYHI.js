@@ -3067,14 +3067,16 @@ var UserSecrets = class _UserSecrets {
     name,
     role,
     settings,
+    salt,
     x25519PrivateKey,
     x25519PublicKey,
     version
   } = {}) {
     this.email = email || null;
     this.name = name || null;
-    this.role = role || null;
+    this.role = role ?? null;
     this.settings = settings || null;
+    this.salt = salt || null;
     this.x25519PrivateKey = x25519PrivateKey || null;
     this.x25519PublicKey = x25519PublicKey || null;
     this.version = version || null;
@@ -3084,12 +3086,16 @@ var UserSecrets = class _UserSecrets {
     name,
     role,
     settings,
+    salt,
     x25519Seed,
     x25519PublicKey,
     version
   }) {
     if (!email) {
       throw new Error("email required to persist user secrets");
+    }
+    if (!salt) {
+      throw new Error("salt required to persist user secrets");
     }
     if (!(x25519Seed instanceof Uint8Array) || x25519Seed.length === 0) {
       throw new Error("invalid X25519 key material");
@@ -3101,6 +3107,7 @@ var UserSecrets = class _UserSecrets {
       name,
       role,
       settings,
+      salt,
       x25519PrivateKey: xSeedB64,
       x25519PublicKey: x25519PublicKey ? arrayToB64(x25519PublicKey) : derivedXPublic,
       version: version || APP_VERSION
@@ -3112,6 +3119,7 @@ var UserSecrets = class _UserSecrets {
       name: this.name,
       role: this.role,
       settings: this.settings,
+      salt: this.salt,
       x25519PrivateKey: this.x25519PrivateKey,
       x25519PublicKey: this.x25519PublicKey,
       version: this.version
@@ -3122,6 +3130,9 @@ var UserSecrets = class _UserSecrets {
   }
   getX25519PublicKey() {
     return this.x25519PublicKey ? b64ToArray(this.x25519PublicKey) : null;
+  }
+  getSaltBytes() {
+    return this.salt ? b64ToArray(this.salt) : null;
   }
   async wrapSecret(secretBytes) {
     if (!(secretBytes instanceof Uint8Array)) {
@@ -4515,4 +4526,4 @@ export {
 @noble/curves/esm/ed25519.js:
   (*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
 */
-//# sourceMappingURL=chunk-FZGJLVBJ.js.map
+//# sourceMappingURL=chunk-H5HVRYHI.js.map

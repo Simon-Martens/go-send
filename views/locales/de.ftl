@@ -182,6 +182,41 @@ authErrorInvalidEmail = Bitte geben Sie eine gültige E-Mail-Adresse ein
 authErrorPasswordLength = Das Passwort muss mindestens 10 Zeichen lang sein
 authErrorCryptoUnsupported = Ihr Browser unterstützt die erforderlichen Kryptografie-APIs nicht.
 
+## Settings strings
+
+footerLinkSettings = Einstellungen
+settingsDialogTitle = Einstellungen
+settingsDialogDescription = Verwalten Sie Ihre Kontoeinstellungen und Teammitglieder.
+settingsBackButton = Upload
+settingsNavPassword = Passwort
+settingsNavUsers = Benutzer
+settingsPasswordHeading = Ändern Sie Ihr Passwort
+settingsPasswordSubheading = Aktualisieren Sie Ihr Passwort. Ihre Änderungen gelten sofort.
+settingsPasswordCurrentLabel = Aktuelles Passwort
+settingsPasswordNewLabel = Neues Passwort
+settingsPasswordConfirmLabel = Neues Passwort bestätigen
+settingsPasswordSave = Änderungen speichern
+settingsPasswordHint = Passwörter müssen mindestens 10 Zeichen lang sein.
+settingsUsersHeading = Benutzer
+settingsUsersDescription = Laden Sie Mitwirkende ein und verwalten Sie diese. Dieser Bereich folgt in Kürze.
+settingsUsersPlaceholder = Wir arbeiten an Verwaltungstools, mit denen Sie Teammitglieder einladen und berechtigen können.
+settingsPasswordStatusInfoDeriving = Schlüssel werden neu abgeleitet …
+settingsPasswordStatusInfoPreparing = Neue Anmeldedaten werden vorbereitet …
+settingsPasswordStatusInfoUpdating = Passwort wird aktualisiert …
+settingsPasswordStatusErrorCurrent = Das aktuelle Passwort wird benötigt.
+settingsPasswordStatusErrorNewLength = Das neue Passwort muss mindestens 10 Zeichen lang sein.
+settingsPasswordStatusErrorMismatch = Die neuen Passwörter stimmen nicht überein.
+settingsPasswordStatusErrorNoSession = Keine Sitzung gefunden. Bitte melden Sie sich erneut an.
+settingsPasswordStatusErrorMissingKeys = Fehlendes Schlüsselmaterial. Bitte melden Sie sich erneut an.
+settingsPasswordStatusErrorIncorrect = Das aktuelle Passwort ist falsch.
+settingsPasswordStatusErrorDerive = Zugangsdaten konnten nicht abgeleitet werden. Versuchen Sie es erneut.
+settingsPasswordStatusErrorPublicKeys = Öffentliche Schlüssel konnten nicht berechnet werden.
+settingsPasswordStatusErrorUserSecrets = Neues Schlüsselmaterial konnte nicht vorbereitet werden.
+settingsPasswordStatusErrorWrap = Datei-Schlüssel konnten nicht erneut verschlüsselt werden.
+settingsPasswordStatusErrorRequest = Passwort konnte nicht zurückgesetzt werden.
+settingsPasswordStatusErrorGeneric = Passwort konnte nicht aktualisiert werden.
+settingsPasswordStatusSuccess = Passwort wurde erfolgreich aktualisiert.
+
 ## Login strings
 
 loginTitle = Upload

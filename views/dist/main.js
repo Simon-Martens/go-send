@@ -1,6 +1,6 @@
 import {
   syncOwnedFiles
-} from "./chunks/chunk-WDONBXZZ.js";
+} from "./chunks/chunk-7PTR2SYB.js";
 import {
   APP_VERSION,
   Keychain,
@@ -13,7 +13,7 @@ import {
   metadata,
   storage_default,
   uploadWs
-} from "./chunks/chunk-FZGJLVBJ.js";
+} from "./chunks/chunk-H5HVRYHI.js";
 import {
   arrayToB64,
   browserName,
@@ -1781,12 +1781,12 @@ var localeLoaders = {
   cs: () => import("./chunks/cs-4CHTXZSU.js"),
   cy: () => import("./chunks/cy-RP2L2OUK.js"),
   da: () => import("./chunks/da-DPZF5LGO.js"),
-  de: () => import("./chunks/de-JR5EUQPH.js"),
+  de: () => import("./chunks/de-43IMUXRW.js"),
   dsb: () => import("./chunks/dsb-L7O73QFV.js"),
   el: () => import("./chunks/el-4RABOQBG.js"),
   "en-CA": () => import("./chunks/en-CA-DJ4OOLA4.js"),
   "en-GB": () => import("./chunks/en-GB-D7G7RTNJ.js"),
-  "en-US": () => import("./chunks/en-US-MJFAX5RI.js"),
+  "en-US": () => import("./chunks/en-US-5ZWNZEYB.js"),
   "es-AR": () => import("./chunks/es-AR-6PZGYKH3.js"),
   "es-CL": () => import("./chunks/es-CL-HE4SPZ7U.js"),
   "es-ES": () => import("./chunks/es-ES-XGWIURD2.js"),
@@ -1795,7 +1795,7 @@ var localeLoaders = {
   eu: () => import("./chunks/eu-Q6CLLOH3.js"),
   fa: () => import("./chunks/fa-AEOEUDQ4.js"),
   fi: () => import("./chunks/fi-SI2D7DPR.js"),
-  fr: () => import("./chunks/fr-CF2HNO56.js"),
+  fr: () => import("./chunks/fr-EGDDMNHJ.js"),
   "fy-NL": () => import("./chunks/fy-NL-C7AQWS3X.js"),
   gn: () => import("./chunks/gn-6SZWZLYL.js"),
   gor: () => import("./chunks/gor-4LJ2LDF3.js"),
@@ -1855,7 +1855,7 @@ var localeLoaders = {
 };
 async function getTranslator(locale2) {
   const bundles = [];
-  const { default: en } = await import("./chunks/en-US-MJFAX5RI.js");
+  const { default: en } = await import("./chunks/en-US-5ZWNZEYB.js");
   if (locale2 !== "en-US" && localeLoaders[locale2]) {
     const { default: ftl } = await localeLoaders[locale2]();
     bundles.push(makeBundle(locale2, ftl));
@@ -2840,16 +2840,9 @@ var AppFooter = class extends HTMLElement {
       translateElement(this);
     }
     const settingsLi = this.querySelector("[data-if-settings]");
-    const settingsLink = this.querySelector('[data-role="settings-link"]');
-    if (settingsLink) {
-      settingsLink.removeEventListener("click", this._boundHandlers.handleSettingsClick);
-    }
     if (settingsLi) {
       if (user) {
         showElement(settingsLi);
-        if (settingsLink) {
-          settingsLink.addEventListener("click", this._boundHandlers.handleSettingsClick);
-        }
       } else {
         hideElement(settingsLi);
       }
@@ -2860,54 +2853,11 @@ var AppFooter = class extends HTMLElement {
   }
   async handleSettingsClick(event) {
     event.preventDefault();
-    try {
-      if (!customElements.get("settings-layout")) {
-        await import("./chunks/settings-layout-6RCFW6YK.js");
-      }
-    } catch (err) {
-      console.error("[AppFooter] Failed to load settings layout", err);
-      return;
-    }
-    const app = document.querySelector("go-send");
-    if (app && typeof app.showSettingsLayout === "function") {
-      app.showSettingsLayout();
-    }
   }
 };
 customElements.define("app-footer", AppFooter);
 
-// src/main.mjs
-(async function start() {
-  const user = storage_default.user;
-  if (user && user.version && user.version !== APP_VERSION) {
-    console.warn(`[App] Version mismatch: stored ${user.version}, current ${APP_VERSION}. Clearing localStorage.`);
-    storage_default.clearAll();
-  }
-  if (storage_default.user) {
-    syncOwnedFiles(storage_default.user).catch((err) => {
-      console.warn("[App] File sync failed during startup", err);
-    });
-  }
-  const app = document.querySelector("go-send");
-  if (!app) {
-    console.warn("[Router] <go-send> element not found in DOM");
-    return;
-  }
-  const path = window.location.pathname;
-  if (path === "/" || path.startsWith("/upload")) {
-    await initUploadRoute(app);
-  } else if (path.match(/^\/download/) || path.match(/^\/[0-9a-fA-F]{10,16}/)) {
-    await initDownloadRoute(app);
-  } else if (path.startsWith("/register")) {
-    await initRegisterRoute(app);
-  } else if (path.startsWith("/login")) {
-    await initLoginRoute(app);
-  } else {
-    console.warn(`[Router] Unknown route: ${path}, defaulting to upload`);
-    await initUploadRoute(app);
-  }
-  console.log("[Router] Route initialized");
-})();
+// src/router.mjs
 async function initUploadRoute(app) {
   console.log("[Route] Initializing upload page...");
   await Promise.all([
@@ -2936,7 +2886,7 @@ async function initDownloadRoute(app) {
 async function initRegisterRoute(app) {
   console.log("[Route] Initializing register page...");
   await Promise.all([
-    import("./chunks/register-layout-MKGQFCGT.js"),
+    import("./chunks/register-layout-UEXLH6PD.js"),
     app.controller.ready
   ]);
   app.showRegisterLayout();
@@ -2945,13 +2895,62 @@ async function initRegisterRoute(app) {
 async function initLoginRoute(app) {
   console.log("[Route] Initializing login page...");
   await Promise.all([
-    import("./chunks/login-layout-VRIO4GTL.js"),
+    import("./chunks/login-layout-M6KGGELY.js"),
     app.controller.ready
   ]);
   app.showLoginLayout();
   console.log("[Route] Login page ready");
 }
-export {
-  initDownloadRoute
-};
+async function initSettingsRoute(app) {
+  console.log("[Route] Initializing settings page...");
+  await Promise.all([
+    import("./chunks/settings-layout-4V27SK73.js"),
+    app.controller.ready
+  ]);
+  app.showSettingsLayout();
+  console.log("[Route] Settings page ready");
+}
+async function bootstrapApplication() {
+  const user = storage_default.user;
+  if (user && user.version && user.version !== APP_VERSION) {
+    console.warn(`[App] Version mismatch: stored ${user.version}, current ${APP_VERSION}. Clearing localStorage.`);
+    storage_default.clearAll();
+  }
+  if (storage_default.user) {
+    syncOwnedFiles(storage_default.user).catch((err) => {
+      console.warn("[App] File sync failed during startup", err);
+    });
+  }
+}
+
+// src/main.mjs
+(async function start() {
+  await bootstrapApplication();
+  const app = document.querySelector("go-send");
+  if (!app) {
+    console.warn("[Router] <go-send> element not found in DOM");
+    return;
+  }
+  await navigate(window.location.pathname, app);
+  window.addEventListener("popstate", async () => {
+    await navigate(window.location.pathname, app);
+  });
+  console.log("[Router] Route initialized");
+})();
+async function navigate(path, app) {
+  if (path === "/" || path.startsWith("/upload")) {
+    await initUploadRoute(app);
+  } else if (path.match(/^\/download/) || path.match(/^\/[0-9a-fA-F]{10,16}/)) {
+    await initDownloadRoute(app);
+  } else if (path.startsWith("/register")) {
+    await initRegisterRoute(app);
+  } else if (path === "/settings") {
+    await initSettingsRoute(app);
+  } else if (path.startsWith("/login")) {
+    await initLoginRoute(app);
+  } else {
+    console.warn(`[Router] Unknown route: ${path}, defaulting to upload`);
+    await initUploadRoute(app);
+  }
+}
 //# sourceMappingURL=main.js.map

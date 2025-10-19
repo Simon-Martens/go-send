@@ -185,6 +185,41 @@ authErrorInvalidEmail = Bitte geben Sie eine g\xFCltige E-Mail-Adresse ein
 authErrorPasswordLength = Das Passwort muss mindestens 10 Zeichen lang sein
 authErrorCryptoUnsupported = Ihr Browser unterst\xFCtzt die erforderlichen Kryptografie-APIs nicht.
 
+## Settings strings
+
+footerLinkSettings = Einstellungen
+settingsDialogTitle = Einstellungen
+settingsDialogDescription = Verwalten Sie Ihre Kontoeinstellungen und Teammitglieder.
+settingsBackButton = Upload
+settingsNavPassword = Passwort
+settingsNavUsers = Benutzer
+settingsPasswordHeading = \xC4ndern Sie Ihr Passwort
+settingsPasswordSubheading = Aktualisieren Sie Ihr Passwort. Ihre \xC4nderungen gelten sofort.
+settingsPasswordCurrentLabel = Aktuelles Passwort
+settingsPasswordNewLabel = Neues Passwort
+settingsPasswordConfirmLabel = Neues Passwort best\xE4tigen
+settingsPasswordSave = \xC4nderungen speichern
+settingsPasswordHint = Passw\xF6rter m\xFCssen mindestens 10 Zeichen lang sein.
+settingsUsersHeading = Benutzer
+settingsUsersDescription = Laden Sie Mitwirkende ein und verwalten Sie diese. Dieser Bereich folgt in K\xFCrze.
+settingsUsersPlaceholder = Wir arbeiten an Verwaltungstools, mit denen Sie Teammitglieder einladen und berechtigen k\xF6nnen.
+settingsPasswordStatusInfoDeriving = Schl\xFCssel werden neu abgeleitet \u2026
+settingsPasswordStatusInfoPreparing = Neue Anmeldedaten werden vorbereitet \u2026
+settingsPasswordStatusInfoUpdating = Passwort wird aktualisiert \u2026
+settingsPasswordStatusErrorCurrent = Das aktuelle Passwort wird ben\xF6tigt.
+settingsPasswordStatusErrorNewLength = Das neue Passwort muss mindestens 10 Zeichen lang sein.
+settingsPasswordStatusErrorMismatch = Die neuen Passw\xF6rter stimmen nicht \xFCberein.
+settingsPasswordStatusErrorNoSession = Keine Sitzung gefunden. Bitte melden Sie sich erneut an.
+settingsPasswordStatusErrorMissingKeys = Fehlendes Schl\xFCsselmaterial. Bitte melden Sie sich erneut an.
+settingsPasswordStatusErrorIncorrect = Das aktuelle Passwort ist falsch.
+settingsPasswordStatusErrorDerive = Zugangsdaten konnten nicht abgeleitet werden. Versuchen Sie es erneut.
+settingsPasswordStatusErrorPublicKeys = \xD6ffentliche Schl\xFCssel konnten nicht berechnet werden.
+settingsPasswordStatusErrorUserSecrets = Neues Schl\xFCsselmaterial konnte nicht vorbereitet werden.
+settingsPasswordStatusErrorWrap = Datei-Schl\xFCssel konnten nicht erneut verschl\xFCsselt werden.
+settingsPasswordStatusErrorRequest = Passwort konnte nicht zur\xFCckgesetzt werden.
+settingsPasswordStatusErrorGeneric = Passwort konnte nicht aktualisiert werden.
+settingsPasswordStatusSuccess = Passwort wurde erfolgreich aktualisiert.
+
 ## Login strings
 
 loginTitle = Upload
@@ -205,4 +240,4 @@ footerLinkLogout = Abmelden
 export {
   de_default as default
 };
-//# sourceMappingURL=de-JR5EUQPH.js.map
+//# sourceMappingURL=de-43IMUXRW.js.map

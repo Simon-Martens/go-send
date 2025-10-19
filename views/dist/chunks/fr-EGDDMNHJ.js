@@ -185,6 +185,41 @@ authErrorInvalidEmail = Veuillez saisir une adresse e-mail valide
 authErrorPasswordLength = Le mot de passe doit comporter au moins 10 caract\xE8res
 authErrorCryptoUnsupported = Votre navigateur ne prend pas en charge les API de cryptographie requises.
 
+## Settings strings
+
+footerLinkSettings = Param\xE8tres
+settingsDialogTitle = Param\xE8tres
+settingsDialogDescription = G\xE9rez les pr\xE9f\xE9rences de votre compte et les membres de l\u2019\xE9quipe.
+settingsBackButton = Upload
+settingsNavPassword = Modifiez votre mot de passe
+settingsNavUsers = Utilisateurs
+settingsPasswordHeading = Modifiez votre mot de passe
+settingsPasswordSubheading = Mettez \xE0 jour votre mot de passe. Les modifications sont appliqu\xE9es imm\xE9diatement.
+settingsPasswordCurrentLabel = Mot de passe actuel
+settingsPasswordNewLabel = Nouveau mot de passe
+settingsPasswordConfirmLabel = Confirmez le nouveau mot de passe
+settingsPasswordSave = Enregistrer les modifications
+settingsPasswordHint = Les mots de passe doivent comporter au moins 10 caract\xE8res.
+settingsUsersHeading = Utilisateurs
+settingsUsersDescription = Invitez et g\xE9rez les collaborateurs. Cette section arrive bient\xF4t.
+settingsUsersPlaceholder = Nous pr\xE9parons des outils de gestion pour inviter des membres de l\u2019\xE9quipe et ajuster leurs autorisations.
+settingsPasswordStatusInfoDeriving = Recalcul des cl\xE9s\u2026
+settingsPasswordStatusInfoPreparing = Pr\xE9paration des nouvelles informations d\u2019identification\u2026
+settingsPasswordStatusInfoUpdating = Mise \xE0 jour du mot de passe\u2026
+settingsPasswordStatusErrorCurrent = Le mot de passe actuel est obligatoire.
+settingsPasswordStatusErrorNewLength = Le nouveau mot de passe doit comporter au moins 10 caract\xE8res.
+settingsPasswordStatusErrorMismatch = Les nouveaux mots de passe ne correspondent pas.
+settingsPasswordStatusErrorNoSession = Aucune session trouv\xE9e. Veuillez vous reconnecter.
+settingsPasswordStatusErrorMissingKeys = Mat\xE9riel de cl\xE9 manquant. Veuillez vous reconnecter.
+settingsPasswordStatusErrorIncorrect = Le mot de passe actuel est incorrect.
+settingsPasswordStatusErrorDerive = Impossible de d\xE9river les identifiants. R\xE9essayez.
+settingsPasswordStatusErrorPublicKeys = \xC9chec du calcul des cl\xE9s publiques.
+settingsPasswordStatusErrorUserSecrets = Impossible de pr\xE9parer le nouveau mat\xE9riel de cl\xE9.
+settingsPasswordStatusErrorWrap = Impossible de rechiffrer les cl\xE9s de fichier.
+settingsPasswordStatusErrorRequest = \xC9chec de la r\xE9initialisation du mot de passe.
+settingsPasswordStatusErrorGeneric = \xC9chec de la mise \xE0 jour du mot de passe.
+settingsPasswordStatusSuccess = Mot de passe mis \xE0 jour avec succ\xE8s.
+
 ## Login strings
 
 loginTitle = Upload Access
@@ -205,4 +240,4 @@ footerLinkLogout = Se d\xE9connecter
 export {
   fr_default as default
 };
-//# sourceMappingURL=fr-CF2HNO56.js.map
+//# sourceMappingURL=fr-EGDDMNHJ.js.map

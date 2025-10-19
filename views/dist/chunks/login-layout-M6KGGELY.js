@@ -3,15 +3,16 @@ import {
   deriveKeyMaterial,
   normalizeKDFSettings,
   signChallenge
-} from "./chunk-JBOF2JTJ.js";
+} from "./chunk-PEKSNMKL.js";
 import {
   syncOwnedFiles
-} from "./chunk-WDONBXZZ.js";
+} from "./chunk-7PTR2SYB.js";
 import {
   UserSecrets,
   storage_default
-} from "./chunk-FZGJLVBJ.js";
+} from "./chunk-H5HVRYHI.js";
 import {
+  arrayToB64,
   translate,
   translateElement
 } from "./chunk-6DFT5NXM.js";
@@ -135,6 +136,7 @@ var LoginLayoutElement = class extends HTMLElement {
             name: (_c = loginResult.user) == null ? void 0 : _c.name,
             role: (_d = loginResult.user) == null ? void 0 : _d.role,
             settings: (_e = loginResult.user) == null ? void 0 : _e.settings,
+            salt: arrayToB64(saltBytes),
             x25519Seed: keyMaterial.x25519Seed,
             version: loginResult.app_version
           });
@@ -240,4 +242,4 @@ var LoginLayoutElement = class extends HTMLElement {
   }
 };
 customElements.define("login-layout", LoginLayoutElement);
-//# sourceMappingURL=login-layout-VRIO4GTL.js.map
+//# sourceMappingURL=login-layout-M6KGGELY.js.map

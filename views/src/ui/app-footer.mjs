@@ -211,17 +211,9 @@ class AppFooter extends HTMLElement {
     }
 
     const settingsLi = this.querySelector('[data-if-settings]');
-    const settingsLink = this.querySelector('[data-role="settings-link"]');
-    if (settingsLink) {
-      settingsLink.removeEventListener("click", this._boundHandlers.handleSettingsClick);
-    }
-
     if (settingsLi) {
       if (user) {
         showElement(settingsLi);
-        if (settingsLink) {
-          settingsLink.addEventListener("click", this._boundHandlers.handleSettingsClick);
-        }
       } else {
         hideElement(settingsLi);
       }
@@ -236,19 +228,8 @@ class AppFooter extends HTMLElement {
 
   async handleSettingsClick(event) {
     event.preventDefault();
-    try {
-      if (!customElements.get("settings-layout")) {
-        await import("./settings-layout.mjs");
-      }
-    } catch (err) {
-      console.error("[AppFooter] Failed to load settings layout", err);
-      return;
-    }
 
-    const app = document.querySelector("go-send");
-    if (app && typeof app.showSettingsLayout === "function") {
-      app.showSettingsLayout();
-    }
+    // Let browser handle navigation normally so /settings is loaded and guarded
   }
 }
 

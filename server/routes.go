@@ -37,6 +37,7 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 
 	if app.Config.UseUserManagement {
 		mux.HandleFunc("/api/me/files", handlers.NewUserFilesHandler(app))
+		mux.HandleFunc("/api/passwordreset", handlers.NewPasswordResetHandler(app))
 
 		// Auth and registration routes
 		mux.HandleFunc("/auth/challenge", handlers.NewLoginChallengeHandler(app))
@@ -60,7 +61,7 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 
 	rootHandler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Try to serve static files first
-		if r.URL.Path != "/" && r.URL.Path != "/download/" && r.URL.Path != "/error" {
+		if r.URL.Path != "/" && r.URL.Path != "/download/" && r.URL.Path != "/error" && r.URL.Path != "/settings" {
 			if middleware.ServeUserStaticFile(w, r, app.Config.UserFrontendDir, config.USER_DIST_SUBDIR) {
 				return
 			}
@@ -75,12 +76,12 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 	}))
 
 	if app.Config.UploadGuard {
-		guardOpts := middleware.UserGuardOptions{
-			RedirectToLogin: true,
-			AllowPrefixes:   []string{"/download"},
-			AllowExact:      []string{"/login", "/login/", "/logout", "/error"},
-			AllowStatic:     true,
-		}
+        guardOpts := middleware.UserGuardOptions{
+            RedirectToLogin: true,
+            AllowPrefixes:   []string{"/download"},
+            AllowExact:      []string{"/login", "/login/", "/logout", "/error", "/settings"},
+            AllowStatic:     true,
+        }
 		rootHandler = middleware.RequireUser(app, guardOpts)(rootHandler)
 	}
 

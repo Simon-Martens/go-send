@@ -182,6 +182,41 @@ authErrorInvalidEmail = Veuillez saisir une adresse e-mail valide
 authErrorPasswordLength = Le mot de passe doit comporter au moins 10 caractères
 authErrorCryptoUnsupported = Votre navigateur ne prend pas en charge les API de cryptographie requises.
 
+## Settings strings
+
+footerLinkSettings = Paramètres
+settingsDialogTitle = Paramètres
+settingsDialogDescription = Gérez les préférences de votre compte et les membres de l’équipe.
+settingsBackButton = Upload
+settingsNavPassword = Modifiez votre mot de passe
+settingsNavUsers = Utilisateurs
+settingsPasswordHeading = Modifiez votre mot de passe
+settingsPasswordSubheading = Mettez à jour votre mot de passe. Les modifications sont appliquées immédiatement.
+settingsPasswordCurrentLabel = Mot de passe actuel
+settingsPasswordNewLabel = Nouveau mot de passe
+settingsPasswordConfirmLabel = Confirmez le nouveau mot de passe
+settingsPasswordSave = Enregistrer les modifications
+settingsPasswordHint = Les mots de passe doivent comporter au moins 10 caractères.
+settingsUsersHeading = Utilisateurs
+settingsUsersDescription = Invitez et gérez les collaborateurs. Cette section arrive bientôt.
+settingsUsersPlaceholder = Nous préparons des outils de gestion pour inviter des membres de l’équipe et ajuster leurs autorisations.
+settingsPasswordStatusInfoDeriving = Recalcul des clés…
+settingsPasswordStatusInfoPreparing = Préparation des nouvelles informations d’identification…
+settingsPasswordStatusInfoUpdating = Mise à jour du mot de passe…
+settingsPasswordStatusErrorCurrent = Le mot de passe actuel est obligatoire.
+settingsPasswordStatusErrorNewLength = Le nouveau mot de passe doit comporter au moins 10 caractères.
+settingsPasswordStatusErrorMismatch = Les nouveaux mots de passe ne correspondent pas.
+settingsPasswordStatusErrorNoSession = Aucune session trouvée. Veuillez vous reconnecter.
+settingsPasswordStatusErrorMissingKeys = Matériel de clé manquant. Veuillez vous reconnecter.
+settingsPasswordStatusErrorIncorrect = Le mot de passe actuel est incorrect.
+settingsPasswordStatusErrorDerive = Impossible de dériver les identifiants. Réessayez.
+settingsPasswordStatusErrorPublicKeys = Échec du calcul des clés publiques.
+settingsPasswordStatusErrorUserSecrets = Impossible de préparer le nouveau matériel de clé.
+settingsPasswordStatusErrorWrap = Impossible de rechiffrer les clés de fichier.
+settingsPasswordStatusErrorRequest = Échec de la réinitialisation du mot de passe.
+settingsPasswordStatusErrorGeneric = Échec de la mise à jour du mot de passe.
+settingsPasswordStatusSuccess = Mot de passe mis à jour avec succès.
+
 ## Login strings
 
 loginTitle = Upload Access

@@ -183,6 +183,41 @@ authErrorInvalidEmail = Please enter a valid email address
 authErrorPasswordLength = Password must be at least 10 characters
 authErrorCryptoUnsupported = Your browser does not support the required cryptography APIs.
 
+## Settings strings
+
+footerLinkSettings = Settings
+settingsDialogTitle = Settings
+settingsDialogDescription = Manage your account preferences and team members.
+settingsBackButton = Upload
+settingsNavPassword = Password
+settingsNavUsers = Users
+settingsPasswordHeading = Change your password
+settingsPasswordSubheading = Update your password. Changes apply immediately.
+settingsPasswordCurrentLabel = Current password
+settingsPasswordNewLabel = New password
+settingsPasswordConfirmLabel = Confirm new password
+settingsPasswordSave = Save changes
+settingsPasswordHint = Passwords must be at least 10 characters long.
+settingsUsersHeading = Users
+settingsUsersDescription = Invite and manage collaborators. This section is coming soon.
+settingsUsersPlaceholder = We're working on user management tools that will let you invite team members and adjust permissions.
+settingsPasswordStatusInfoDeriving = Re-deriving keys\u2026
+settingsPasswordStatusInfoPreparing = Preparing new credentials\u2026
+settingsPasswordStatusInfoUpdating = Updating password\u2026
+settingsPasswordStatusErrorCurrent = Current password is required.
+settingsPasswordStatusErrorNewLength = New password must be at least 10 characters long.
+settingsPasswordStatusErrorMismatch = New passwords do not match.
+settingsPasswordStatusErrorNoSession = No user session found. Please log in again.
+settingsPasswordStatusErrorMissingKeys = Missing key material. Please log in again.
+settingsPasswordStatusErrorIncorrect = Current password is incorrect.
+settingsPasswordStatusErrorDerive = Could not derive credentials. Please try again.
+settingsPasswordStatusErrorPublicKeys = Failed to compute public keys.
+settingsPasswordStatusErrorUserSecrets = Failed to prepare new key material.
+settingsPasswordStatusErrorWrap = Failed to re-encrypt file keys.
+settingsPasswordStatusErrorRequest = Password reset failed.
+settingsPasswordStatusErrorGeneric = Failed to update password.
+settingsPasswordStatusSuccess = Password updated successfully.
+
 ## Login strings
 
 loginTitle = Upload Access
@@ -197,4 +232,4 @@ loginErrorGeneric = Login failed. Please try again.
 export {
   en_US_default as default
 };
-//# sourceMappingURL=en-US-MJFAX5RI.js.map
+//# sourceMappingURL=en-US-5ZWNZEYB.js.map

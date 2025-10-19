@@ -1,6 +1,7 @@
 import {
   translateElement,
   translate,
+  arrayToB64,
 } from "../utils.mjs";
 import {
   decodeSalt,
@@ -153,6 +154,7 @@ class LoginLayoutElement extends HTMLElement {
             name: loginResult.user?.name,
             role: loginResult.user?.role,
             settings: loginResult.user?.settings,
+            salt: arrayToB64(saltBytes),
             x25519Seed: keyMaterial.x25519Seed,
             version: loginResult.app_version,
           });

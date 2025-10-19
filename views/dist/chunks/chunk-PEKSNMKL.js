@@ -1,7 +1,7 @@
 import {
   sha512,
   x25519
-} from "./chunk-FZGJLVBJ.js";
+} from "./chunk-H5HVRYHI.js";
 import {
   arrayToB64,
   b64ToArray
@@ -672,6 +672,7 @@ async function signChallenge(seed, challengeB64) {
 }
 
 export {
+  getPublicKey,
   DEFAULT_KDF_SETTINGS,
   generateSalt,
   deriveKeyMaterial,
@@ -688,4 +689,4 @@ export {
 @noble/ed25519/index.js:
   (*! noble-ed25519 - MIT License (c) 2019 Paul Miller (paulmillr.com) *)
 */
-//# sourceMappingURL=chunk-JBOF2JTJ.js.map
+//# sourceMappingURL=chunk-PEKSNMKL.js.map

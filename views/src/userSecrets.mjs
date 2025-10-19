@@ -76,14 +76,16 @@ export default class UserSecrets {
     name,
     role,
     settings,
+    salt,
     x25519PrivateKey,
     x25519PublicKey,
     version,
   } = {}) {
     this.email = email || null;
     this.name = name || null;
-    this.role = role || null;
+    this.role = role ?? null;
     this.settings = settings || null;
+    this.salt = salt || null;
     this.x25519PrivateKey = x25519PrivateKey || null;
     this.x25519PublicKey = x25519PublicKey || null;
     this.version = version || null;
@@ -94,12 +96,16 @@ export default class UserSecrets {
     name,
     role,
     settings,
+    salt,
     x25519Seed,
     x25519PublicKey,
     version,
   }) {
     if (!email) {
       throw new Error("email required to persist user secrets");
+    }
+    if (!salt) {
+      throw new Error("salt required to persist user secrets");
     }
     if (!(x25519Seed instanceof Uint8Array) || x25519Seed.length === 0) {
       throw new Error("invalid X25519 key material");
@@ -113,6 +119,7 @@ export default class UserSecrets {
       name,
       role,
       settings,
+      salt,
       x25519PrivateKey: xSeedB64,
       x25519PublicKey: x25519PublicKey
         ? arrayToB64(x25519PublicKey)
@@ -127,6 +134,7 @@ export default class UserSecrets {
       name: this.name,
       role: this.role,
       settings: this.settings,
+      salt: this.salt,
       x25519PrivateKey: this.x25519PrivateKey,
       x25519PublicKey: this.x25519PublicKey,
       version: this.version,
@@ -139,6 +147,10 @@ export default class UserSecrets {
 
   getX25519PublicKey() {
     return this.x25519PublicKey ? b64ToArray(this.x25519PublicKey) : null;
+  }
+
+  getSaltBytes() {
+    return this.salt ? b64ToArray(this.salt) : null;
   }
 
   async wrapSecret(secretBytes) {

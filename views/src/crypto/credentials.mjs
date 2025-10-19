@@ -199,6 +199,8 @@ export function serializeKDFSettings(settings = DEFAULT_KDF_SETTINGS) {
   };
 }
 
+export { getPublicKey };
+
 export function normalizeKDFSettings(settings) {
   if (!settings) {
     return { ...DEFAULT_KDF_SETTINGS };

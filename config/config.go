@@ -47,6 +47,120 @@ type Config struct {
 	FooterSourceURL  string
 
 	CustomLocale string
+
+	// Cached client config (instantiated once)
+	clientConfig *ClientConfig
+}
+
+// ClientConfig is the JSON-serializable config sent to the client
+type ClientConfig struct {
+	LIMITS   LimitsConfig   `json:"LIMITS"`
+	WEB_UI   WebUIConfig    `json:"WEB_UI"`
+	DEFAULTS DefaultsConfig `json:"DEFAULTS"`
+	FOOTER   FooterConfig   `json:"FOOTER"`
+	FEATURES FeaturesConfig `json:"FEATURES"`
+}
+
+type LimitsConfig struct {
+	MaxFileSize        int64 `json:"MAX_FILE_SIZE"`
+	MaxDownloads       int   `json:"MAX_DOWNLOADS"`
+	MaxExpireSeconds   int   `json:"MAX_EXPIRE_SECONDS"`
+	MaxFilesPerArchive int   `json:"MAX_FILES_PER_ARCHIVE"`
+	MaxArchivesPerUser int   `json:"MAX_ARCHIVES_PER_USER"`
+}
+
+type WebUIConfig struct {
+	Colors       ColorsConfig       `json:"COLORS"`
+	CustomAssets CustomAssetsConfig `json:"CUSTOM_ASSETS"`
+}
+
+type ColorsConfig struct {
+	Primary string `json:"PRIMARY"`
+	Accent  string `json:"ACCENT"`
+}
+
+type CustomAssetsConfig struct {
+	AndroidChrome192 string `json:"android_chrome_192px"`
+	AndroidChrome512 string `json:"android_chrome_512px"`
+	AppleTouchIcon   string `json:"apple_touch_icon"`
+	Favicon16        string `json:"favicon_16px"`
+	Favicon32        string `json:"favicon_32px"`
+	Icon             string `json:"icon"`
+	SafariPinnedTab  string `json:"safari_pinned_tab"`
+	Facebook         string `json:"facebook"`
+	Twitter          string `json:"twitter"`
+}
+
+type DefaultsConfig struct {
+	Downloads          int   `json:"DOWNLOADS"`
+	DownloadCounts     []int `json:"DOWNLOAD_COUNTS"`
+	ExpireTimesSeconds []int `json:"EXPIRE_TIMES_SECONDS"`
+	ExpireSeconds      int   `json:"EXPIRE_SECONDS"`
+}
+
+type FooterConfig struct {
+	CustomText string `json:"CustomText"`
+	CustomURL  string `json:"CustomURL"`
+	CLIURL     string `json:"CLIURL"`
+	DMCAURL    string `json:"DMCAURL"`
+	SourceURL  string `json:"SourceURL"`
+}
+
+type FeaturesConfig struct {
+	AllowAccessLinks bool `json:"AllowAccessLinks"`
+}
+
+// GetClientConfig returns the JSON-serializable client configuration
+// It's created once and cached for efficiency
+func (c *Config) GetClientConfig() *ClientConfig {
+	if c.clientConfig != nil {
+		return c.clientConfig
+	}
+
+	c.clientConfig = &ClientConfig{
+		LIMITS: LimitsConfig{
+			MaxFileSize:        c.MaxFileSize,
+			MaxDownloads:       c.MaxDownloads,
+			MaxExpireSeconds:   c.MaxExpireSeconds,
+			MaxFilesPerArchive: c.MaxFilesPerArchive,
+			MaxArchivesPerUser: 100, // TODO: make this configurable if needed
+		},
+		WEB_UI: WebUIConfig{
+			Colors: ColorsConfig{
+				Primary: c.UIColorPrimary,
+				Accent:  c.UIColorAccent,
+			},
+			CustomAssets: CustomAssetsConfig{
+				AndroidChrome192: c.CustomAssetsAndroidChrome192,
+				AndroidChrome512: c.CustomAssetsAndroidChrome512,
+				AppleTouchIcon:   c.CustomAssetsAppleTouchIcon,
+				Favicon16:        c.CustomAssetsFavicon16,
+				Favicon32:        c.CustomAssetsFavicon32,
+				Icon:             c.CustomAssetsIcon,
+				SafariPinnedTab:  c.CustomAssetsSafariPinnedTab,
+				Facebook:         c.CustomAssetsFacebook,
+				Twitter:          c.CustomAssetsTwitter,
+			},
+		},
+		DEFAULTS: DefaultsConfig{
+			Downloads:          c.DefaultDownloads,
+			DownloadCounts:     c.DownloadCounts,
+			ExpireTimesSeconds: c.ExpireTimesSeconds,
+			ExpireSeconds:      c.DefaultExpireSeconds,
+		},
+		FOOTER: FooterConfig{
+			CustomText: c.CustomFooterText,
+			CustomURL:  c.CustomFooterURL,
+			CLIURL:     c.FooterCLIURL,
+			DMCAURL:    c.FooterDMCAURL,
+			SourceURL:  c.FooterSourceURL,
+		},
+		FEATURES: FeaturesConfig{
+			AllowAccessLinks: c.AllowAccessLinks,
+		},
+	}
+
+	return c.clientConfig
 }
 
 func Load() *Config {

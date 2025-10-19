@@ -11,12 +11,13 @@
 </main>
 
 <script {{.NonceAttr}}>
-	var LIMITS = {{toJSON .State.Limits}};
-	var WEB_UI = {{toJSON .State.WebUI}};
-	var DEFAULTS = {{toJSON .State.Defaults}};
-	var FOOTER = {{toJSON .Footer}};
+	var LIMITS = {{toJSON .ClientConfig.LIMITS}};
+	var WEB_UI = {{toJSON .ClientConfig.WEB_UI}};
+	var DEFAULTS = {{toJSON .ClientConfig.DEFAULTS}};
+	var FOOTER = {{toJSON .ClientConfig.FOOTER}};
+	var FEATURES = {{toJSON .ClientConfig.FEATURES}};
 	var PREFS = {};
-	var downloadMetadata = {{rawJSON .State.DownloadMetadata}};
+	var downloadMetadata = {{rawJSON .DownloadMetadata}};
 </script>
 
 <!--
@@ -406,7 +407,7 @@
 
 <!-- Upload view: empty -->
 <template id="upload-view-empty">
-	<div class="flex flex-col items-center justify-center border-2 border-dashed border-grey-transparent rounded-xs px-6 py-16 h-full w-full dark:border-grey-60">
+	<div class="flex flex-col items-center justify-center border-2 border-dashed border-grey-transparent rounded-xs px-6 py-16 h-full w-full dark:border-grey-60 cursor-pointer">
 		<i class="ri-add-circle-fill w-10 h-10 text-primary dark:text-blue-40 text-5xl leading-10"></i>
 		<div class="pt-6 pb-2 text-center text-lg font-bold tracking-wide text-grey-90 dark:text-grey-20">
 			<span id="dragAndDropFiles" data-type="lang">Drag and drop files</span>

@@ -2855,7 +2855,7 @@ async function initUploadRoute(app) {
   console.log("[Route] Initializing upload page...");
   await Promise.all([
     import("./chunks/upload-layout-7G3DJHRQ.js"),
-    import("./chunks/upload-area-HXQCZR4I.js"),
+    import("./chunks/upload-area-OCAJDSKY.js"),
     import("./chunks/upload-right-72PSBTIR.js"),
     app.controller.ready
   ]);

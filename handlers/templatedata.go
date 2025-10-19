@@ -14,11 +14,11 @@ type TemplateData struct {
 	NonceAttr      template.HTMLAttr
 	Theme          ThemeConfig
 	Assets         AssetBundle
-	Footer         FooterLinks
-	Features       FeatureFlags
-	State          TemplateState
+	ClientConfig   *config.ClientConfig
 	Translate      func(string, ...interface{}) string
 	IsDownloadPage bool
+	// DownloadMetadata is only set on download pages
+	DownloadMetadata json.RawMessage
 }
 
 type ThemeConfig struct {
@@ -39,62 +39,6 @@ type AssetBundle struct {
 	SafariPinnedTab string
 }
 
-type FooterLinks struct {
-	CustomText string
-	CustomURL  string
-	CLIURL     string
-	DMCAURL    string
-	SourceURL  string
-}
-
-type FeatureFlags struct {
-	AllowAccessLinks bool
-}
-
-type TemplateState struct {
-	Limits           LimitsPayload
-	WebUI            WebUIPayload
-	Defaults         DefaultsPayload
-	DownloadMetadata json.RawMessage
-}
-
-type LimitsPayload struct {
-	MaxFileSize        int64 `json:"MAX_FILE_SIZE"`
-	MaxDownloads       int   `json:"MAX_DOWNLOADS"`
-	MaxExpireSeconds   int   `json:"MAX_EXPIRE_SECONDS"`
-	MaxFilesPerArchive int   `json:"MAX_FILES_PER_ARCHIVE"`
-	MaxArchivesPerUser int   `json:"MAX_ARCHIVES_PER_USER"`
-}
-
-type WebUIPayload struct {
-	Colors       WebUIColorPayload   `json:"COLORS"`
-	CustomAssets CustomAssetsPayload `json:"CUSTOM_ASSETS"`
-}
-
-type WebUIColorPayload struct {
-	Primary string `json:"PRIMARY"`
-	Accent  string `json:"ACCENT"`
-}
-
-type CustomAssetsPayload struct {
-	AndroidChrome192 string `json:"android_chrome_192px"`
-	AndroidChrome512 string `json:"android_chrome_512px"`
-	AppleTouchIcon   string `json:"apple_touch_icon"`
-	Favicon16        string `json:"favicon_16px"`
-	Favicon32        string `json:"favicon_32px"`
-	Icon             string `json:"icon"`
-	SafariPinnedTab  string `json:"safari_pinned_tab"`
-	Facebook         string `json:"facebook"`
-	Twitter          string `json:"twitter"`
-}
-
-type DefaultsPayload struct {
-	Downloads          int   `json:"DOWNLOADS"`
-	DownloadCounts     []int `json:"DOWNLOAD_COUNTS"`
-	ExpireTimesSeconds []int `json:"EXPIRE_TIMES_SECONDS"`
-	ExpireSeconds      int   `json:"EXPIRE_SECONDS"`
-}
-
 func getTemplateData(manifest map[string]string, downloadMetadata string, cfg *config.Config, detectedLocale string, nonce string, translate func(string, map[string]interface{}) string) TemplateData {
 	assets := AssetBundle{
 		CSS:             assetFromManifest(manifest, config.DEFAULT_MANIFEST_CSS, config.DEFAULT_MANIFEST_CSS),
@@ -105,40 +49,6 @@ func getTemplateData(manifest map[string]string, downloadMetadata string, cfg *c
 		SafariPinnedTab: chooseAsset(cfg.CustomAssetsSafariPinnedTab, "safari-pinned-tab.svg"),
 	}
 
-	state := TemplateState{
-		Limits: LimitsPayload{
-			MaxFileSize:        cfg.MaxFileSize,
-			MaxDownloads:       cfg.MaxDownloads,
-			MaxExpireSeconds:   cfg.MaxExpireSeconds,
-			MaxFilesPerArchive: cfg.MaxFilesPerArchive,
-			MaxArchivesPerUser: 100,
-		},
-		WebUI: WebUIPayload{
-			Colors: WebUIColorPayload{
-				Primary: cfg.UIColorPrimary,
-				Accent:  cfg.UIColorAccent,
-			},
-			CustomAssets: CustomAssetsPayload{
-				AndroidChrome192: cfg.CustomAssetsAndroidChrome192,
-				AndroidChrome512: cfg.CustomAssetsAndroidChrome512,
-				AppleTouchIcon:   cfg.CustomAssetsAppleTouchIcon,
-				Favicon16:        cfg.CustomAssetsFavicon16,
-				Favicon32:        cfg.CustomAssetsFavicon32,
-				Icon:             cfg.CustomAssetsIcon,
-				SafariPinnedTab:  cfg.CustomAssetsSafariPinnedTab,
-				Facebook:         cfg.CustomAssetsFacebook,
-				Twitter:          cfg.CustomAssetsTwitter,
-			},
-		},
-		Defaults: DefaultsPayload{
-			Downloads:          cfg.DefaultDownloads,
-			DownloadCounts:     cfg.DownloadCounts,
-			ExpireTimesSeconds: cfg.ExpireTimesSeconds,
-			ExpireSeconds:      cfg.DefaultExpireSeconds,
-		},
-		DownloadMetadata: normalizeRawJSON(downloadMetadata),
-	}
-
 	return TemplateData{
 		Locale:    detectedLocale,
 		NonceAttr: template.HTMLAttr(fmt.Sprintf("nonce=\"%s\"", nonce)),
@@ -146,18 +56,9 @@ func getTemplateData(manifest map[string]string, downloadMetadata string, cfg *c
 			Primary: cfg.UIColorPrimary,
 			Accent:  cfg.UIColorAccent,
 		},
-		Assets: assets,
-		Footer: FooterLinks{
-			CustomText: cfg.CustomFooterText,
-			CustomURL:  cfg.CustomFooterURL,
-			CLIURL:     cfg.FooterCLIURL,
-			DMCAURL:    cfg.FooterDMCAURL,
-			SourceURL:  cfg.FooterSourceURL,
-		},
-		Features: FeatureFlags{
-			AllowAccessLinks: cfg.AllowAccessLinks,
-		},
-		State: state,
+		Assets:           assets,
+		ClientConfig:     cfg.GetClientConfig(),
+		DownloadMetadata: normalizeRawJSON(downloadMetadata),
 		Translate: func(id string, args ...interface{}) string {
 			var data map[string]interface{}
 			if len(args) > 0 {

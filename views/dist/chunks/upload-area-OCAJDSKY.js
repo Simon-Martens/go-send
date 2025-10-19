@@ -20,6 +20,7 @@ var UploadEmptyView = class extends HTMLElement {
     this._boundDragOver = this.handleDragOver.bind(this);
     this._boundDragLeave = this.handleDragLeave.bind(this);
     this._boundDrop = this.handleDrop.bind(this);
+    this._boundDropZoneClick = this.handleDropZoneClick.bind(this);
   }
   connectedCallback() {
     this.render();
@@ -113,6 +114,14 @@ var UploadEmptyView = class extends HTMLElement {
       this._errorEl.classList.add("hidden");
     }
   }
+  handleDropZoneClick(event) {
+    if (event.target.closest('label[for="file-upload"]')) {
+      return;
+    }
+    if (this._fileInput) {
+      this._fileInput.click();
+    }
+  }
   _setupDragListeners() {
     if (!this._dropZone) {
       return;
@@ -121,6 +130,7 @@ var UploadEmptyView = class extends HTMLElement {
     this._dropZone.addEventListener("dragover", this._boundDragOver);
     this._dropZone.addEventListener("dragleave", this._boundDragLeave);
     this._dropZone.addEventListener("drop", this._boundDrop);
+    this._dropZone.addEventListener("click", this._boundDropZoneClick);
   }
   _removeDragListeners() {
     if (!this._dropZone) {
@@ -130,6 +140,7 @@ var UploadEmptyView = class extends HTMLElement {
     this._dropZone.removeEventListener("dragover", this._boundDragOver);
     this._dropZone.removeEventListener("dragleave", this._boundDragLeave);
     this._dropZone.removeEventListener("drop", this._boundDrop);
+    this._dropZone.removeEventListener("click", this._boundDropZoneClick);
     this._dropZone = null;
   }
   handleDragEnter(event) {
@@ -3426,4 +3437,4 @@ var UploadAreaElement = class extends HTMLElement {
   }
 };
 customElements.define("upload-area", UploadAreaElement);
-//# sourceMappingURL=upload-area-HXQCZR4I.js.map
+//# sourceMappingURL=upload-area-OCAJDSKY.js.map

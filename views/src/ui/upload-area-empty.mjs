@@ -12,6 +12,7 @@ class UploadEmptyView extends HTMLElement {
     this._boundDragOver = this.handleDragOver.bind(this);
     this._boundDragLeave = this.handleDragLeave.bind(this);
     this._boundDrop = this.handleDrop.bind(this);
+    this._boundDropZoneClick = this.handleDropZoneClick.bind(this);
   }
 
   connectedCallback() {
@@ -121,6 +122,17 @@ class UploadEmptyView extends HTMLElement {
     }
   }
 
+  handleDropZoneClick(event) {
+    // Don't trigger if clicking on the button itself (it has its own label)
+    if (event.target.closest('label[for="file-upload"]')) {
+      return;
+    }
+
+    if (this._fileInput) {
+      this._fileInput.click();
+    }
+  }
+
   _setupDragListeners() {
     if (!this._dropZone) {
       return;
@@ -129,6 +141,7 @@ class UploadEmptyView extends HTMLElement {
     this._dropZone.addEventListener("dragover", this._boundDragOver);
     this._dropZone.addEventListener("dragleave", this._boundDragLeave);
     this._dropZone.addEventListener("drop", this._boundDrop);
+    this._dropZone.addEventListener("click", this._boundDropZoneClick);
   }
 
   _removeDragListeners() {
@@ -139,6 +152,7 @@ class UploadEmptyView extends HTMLElement {
     this._dropZone.removeEventListener("dragover", this._boundDragOver);
     this._dropZone.removeEventListener("dragleave", this._boundDragLeave);
     this._dropZone.removeEventListener("drop", this._boundDrop);
+    this._dropZone.removeEventListener("click", this._boundDropZoneClick);
     this._dropZone = null;
   }
 

@@ -1,8 +1,8 @@
 {{ define "_footer" }}
 	<ul class="flex flex-col md:flex-row items-start md:items-center md:justify-start">
 		<li class="m-2 flex items-center gap-4 text-xs md:text-sm font-semibold">
-			{{ if .Footer.SourceURL }}
-			<a href="{{ .Footer.SourceURL }}" target="_blank" class="italic">Go Send</a>
+			{{ if .ClientConfig.FOOTER.SourceURL }}
+			<a href="{{ .ClientConfig.FOOTER.SourceURL }}" target="_blank" class="italic">Go Send</a>
 			{{ else }}
 			<span class="italic">Go Send</span>
 			{{ end }}
@@ -14,23 +14,23 @@
 		</li>
 	</ul>
 	<ul class="flex flex-col md:flex-row items-start md:items-center md:justify-end">
-		{{ if .Footer.CustomText }}
+		{{ if .ClientConfig.FOOTER.CustomText }}
 		<li class="m-2 max-w-[80ch] hyphens-auto">
-			{{ if .Footer.CustomURL }}
-			<a href="{{ .Footer.CustomURL }}" target="_blank">{{ .Footer.CustomText }}</a>
+			{{ if .ClientConfig.FOOTER.CustomURL }}
+			<a href="{{ .ClientConfig.FOOTER.CustomURL }}" target="_blank">{{ .ClientConfig.FOOTER.CustomText }}</a>
 			{{ else }}
-			{{ .Footer.CustomText }}
+			{{ .ClientConfig.FOOTER.CustomText }}
 			{{ end }}
 		</li>
 		{{ end }}
-		{{ if .Footer.CLIURL }}
-		<li class="m-2"><a href="{{ .Footer.CLIURL }}" target="_blank">{{ call .Translate "footer.cli" }}</a></li>
+		{{ if .ClientConfig.FOOTER.CLIURL }}
+		<li class="m-2"><a href="{{ .ClientConfig.FOOTER.CLIURL }}" target="_blank">{{ call .Translate "footer.cli" }}</a></li>
 		{{ end }}
-		{{ if .Footer.DMCAURL }}
-		<li class="m-2"><a href="{{ .Footer.DMCAURL }}" target="_blank">{{ call .Translate "footer.dmca" }}</a></li>
+		{{ if .ClientConfig.FOOTER.DMCAURL }}
+		<li class="m-2"><a href="{{ .ClientConfig.FOOTER.DMCAURL }}" target="_blank">{{ call .Translate "footer.dmca" }}</a></li>
 		{{ end }}
-		{{ if .Footer.SourceURL }}
-		<li class="m-2"><a href="{{ .Footer.SourceURL }}" target="_blank">{{ call .Translate "footer.source" }}</a></li>
+		{{ if .ClientConfig.FOOTER.SourceURL }}
+		<li class="m-2"><a href="{{ .ClientConfig.FOOTER.SourceURL }}" target="_blank">{{ call .Translate "footer.source" }}</a></li>
 		{{ end }}
 	</ul>
 

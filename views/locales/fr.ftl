@@ -125,8 +125,11 @@ archiveNameHint = Le nom que les destinataires verront lors du téléchargement
 archiveNameInvalidChars = Le nom de fichier ne peut pas contenir : < > : " / \ | ? *
 archiveNameInvalidEnd = Le nom de fichier ne peut pas se terminer par un point ou un espace
 archiveNameReserved = Ce nom de fichier est réservé par le système
+encryptForLabel = Destinataire
+recipientUnspecified = Toute personne avec le lien
+recipientHintSelected = Le destinataire peut voir, télécharger et déchiffrer le fichier.
 # $size is the size of the file, displayed using the fileSize message as format (e.g. "2.5MB")
-signInSizeBump = Connectez-vous pour envoyer jusqu’à { $size }
+signInSizeBump = Connectez-vous pour envoyer jusqu'à { $size }
 signInOnlyButton = Connexion
 accountBenefitTitle = Créez un compte { -firefox } ou connectez-vous
 # $size is the size of the file, displayed using the fileSize message as format (e.g. "2.5MB")
@@ -379,3 +382,24 @@ footerLinkSource = Code source
 footerLinkLogin = Se connecter
 footerLinkLogout = Se déconnecter
 footerUntrustedWarning = Cet ordinateur n'est pas sûr ! Pensez à vous déconnecter !
+
+## Inbox/Outbox strings
+
+inboxLabel = Boîte de réception
+outboxLabel = Boîte d'envoi
+sharedBy = Partagé par
+sentTo = Envoyé à
+noInboxFiles = Aucun fichier dans votre boîte de réception
+noOutboxFiles = Aucun fichier dans votre boîte d'envoi
+deleteConfirm = Voulez-vous vraiment supprimer ce fichier ?
+deleteFailed = Échec de la suppression du fichier
+expiresInDays = Expire dans { $days ->
+    [one] 1 jour
+   *[other] { $days } jours
+}
+expiresInHours = Expire dans { $hours ->
+    [one] 1 heure
+   *[other] { $hours } heures
+}
+expiresInMinutes = Expire bientôt
+expired = Expiré

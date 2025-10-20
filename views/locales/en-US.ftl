@@ -126,6 +126,9 @@ archiveNameHint = The name recipients will see when downloading
 archiveNameInvalidChars = Filename cannot contain: < > : " / \ | ? *
 archiveNameInvalidEnd = Filename cannot end with a dot or space
 archiveNameReserved = This filename is reserved by the system
+encryptForLabel = Recipient
+recipientUnspecified = Anyone with the link
+recipientHintSelected = The recipient can see, download and decrypt the file.
 # $size is the size of the file, displayed using the fileSize message as format (e.g. "2.5MB")
 signInSizeBump = Sign in to send up to { $size }
 signInOnlyButton = Sign in
@@ -371,3 +374,24 @@ loginSubmitButton = Sign in
 loginSubmitting = Signing in...
 loginErrorChallenge = Could not start login challenge. Please try again.
 loginErrorGeneric = Login failed. Please try again.
+
+## Inbox/Outbox strings
+
+inboxLabel = Inbox
+outboxLabel = Outbox
+sharedBy = Shared by
+sentTo = Sent to
+noInboxFiles = No files in your inbox
+noOutboxFiles = No files in your outbox
+deleteConfirm = Are you sure you want to delete this file?
+deleteFailed = Failed to delete file
+expiresInDays = Expires in { $days ->
+    [one] 1 day
+   *[other] { $days } days
+}
+expiresInHours = Expires in { $hours ->
+    [one] 1 hour
+   *[other] { $hours } hours
+}
+expiresInMinutes = Expires soon
+expired = Expired

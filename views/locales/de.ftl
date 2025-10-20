@@ -125,6 +125,9 @@ archiveNameHint = Der Name, den Empfänger beim Herunterladen sehen
 archiveNameInvalidChars = Dateiname darf nicht enthalten: < > : " / \ | ? *
 archiveNameInvalidEnd = Dateiname darf nicht mit einem Punkt oder Leerzeichen enden
 archiveNameReserved = Dieser Dateiname ist vom System reserviert
+encryptForLabel = Empfänger
+recipientUnspecified = Jeder mit dem Link
+recipientHintSelected = Der Empfänger kann die Datei sehen, herunterladen und entschlüsseln.
 # $size is the size of the file, displayed using the fileSize message as format (e.g. "2.5MB")
 signInSizeBump = melden Sie sich an, um Dateien bis { $size } zu senden
 signInOnlyButton = Anmelden
@@ -379,3 +382,24 @@ footerLinkSource = Quellcode
 footerLinkLogin = Anmelden
 footerLinkLogout = Abmelden
 footerUntrustedWarning = Diesem Computer wird nicht vertraut! Denken Sie daran, sich abzumelden!
+
+## Inbox/Outbox strings
+
+inboxLabel = Posteingang
+outboxLabel = Postausgang
+sharedBy = Geteilt von
+sentTo = Gesendet an
+noInboxFiles = Keine Dateien in Ihrem Posteingang
+noOutboxFiles = Keine Dateien in Ihrem Postausgang
+deleteConfirm = Möchten Sie diese Datei wirklich löschen?
+deleteFailed = Löschen fehlgeschlagen
+expiresInDays = Läuft ab in { $days ->
+    [one] 1 Tag
+   *[other] { $days } Tagen
+}
+expiresInHours = Läuft ab in { $hours ->
+    [one] 1 Stunde
+   *[other] { $hours } Stunden
+}
+expiresInMinutes = Läuft bald ab
+expired = Abgelaufen

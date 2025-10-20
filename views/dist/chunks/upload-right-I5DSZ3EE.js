@@ -1,10 +1,13 @@
-import "./chunk-GIJL4XMM.js";
+import {
+  storage_default
+} from "./chunk-X6I5MNOH.js";
 import {
   bytes,
   copyToClipboard,
   timeLeft,
   translateElement
 } from "./chunk-TXB3JAVG.js";
+import "./chunk-KHETNALE.js";
 import "./chunk-IFG75HHC.js";
 
 // src/ui/upload-right.mjs
@@ -48,10 +51,26 @@ var UploadRightElement = class extends HTMLElement {
         return;
       }
       translateElement(this);
+      this._initInboxOutbox();
       if (typeof onReady === "function") {
         onReady();
       }
     });
+  }
+  _initInboxOutbox() {
+    this.refreshInboxOutbox();
+  }
+  refreshInboxOutbox() {
+    const inboxOutbox = this.querySelector("inbox-outbox-view");
+    if (!inboxOutbox) {
+      return;
+    }
+    if (typeof inboxOutbox.setState === "function") {
+      inboxOutbox.setState({ translate: this.translate });
+    }
+    if (typeof inboxOutbox.refresh === "function") {
+      inboxOutbox.refresh();
+    }
   }
   /**
    * Template Switching Methods
@@ -67,10 +86,14 @@ var UploadRightElement = class extends HTMLElement {
   }
   /**
    * Show list of completed uploads
-   * Uses template: #upload-list
-   * @param {Array} files - Array of OwnedFile objects from storage
-   */
+  * Uses template: #upload-list
+  * @param {Array} files - Array of OwnedFile objects from storage
+  */
   showUploadList(files = []) {
+    if (storage_default.user) {
+      this.showIntro();
+      return;
+    }
     this._renderTemplate("upload-list", () => {
       this.elements.uploadList = this.querySelector("#upload-list-container");
       this.currentTemplate = "list";
@@ -359,4 +382,4 @@ var UploadRightElement = class extends HTMLElement {
   }
 };
 customElements.define("upload-right", UploadRightElement);
-//# sourceMappingURL=upload-right-TKW3X77H.js.map
+//# sourceMappingURL=upload-right-I5DSZ3EE.js.map

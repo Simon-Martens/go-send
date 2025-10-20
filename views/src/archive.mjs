@@ -22,6 +22,8 @@ export default class Archive {
     this.dlimit = defaultDownloadLimit;
     this.password = null;
     this.customArchiveName = null;
+    this.recipientUserId = null; // ID of user to encrypt for (optional)
+    this.recipientPublicKey = null; // X25519 public key of recipient (base64)
   }
 
   get name() {
@@ -95,5 +97,17 @@ export default class Archive {
     this.timeLimit = this.defaultTimeLimit;
     this.password = null;
     this.customArchiveName = null;
+    this.recipientUserId = null;
+    this.recipientPublicKey = null;
+  }
+
+  setRecipient(userId, publicKey) {
+    this.recipientUserId = userId;
+    this.recipientPublicKey = publicKey;
+  }
+
+  clearRecipient() {
+    this.recipientUserId = null;
+    this.recipientPublicKey = null;
   }
 }

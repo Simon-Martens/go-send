@@ -1,0 +1,26 @@
+<!-- Upload view: recipient selector (compact, above file list) -->
+<template id="upload-view-recipient">
+	<div class="flex flex-col gap-2">
+		<div class="flex items-center gap-3">
+			<label for="recipient-select-top" class="text-sm font-medium text-grey-80 dark:text-grey-20 whitespace-nowrap">
+				<span id="encryptForLabel" data-type="lang">Recipient</span>
+			</label>
+			<select
+				id="recipient-select-top"
+				data-role="recipient-select"
+				class="flex-1 rounded-xs border border-grey-30 bg-white px-2 py-1.5 text-sm dark:bg-grey-80 dark:border-grey-60"
+			>
+				<option value="" data-role="recipient-unspecified" id="recipientUnspecified" data-type="lang">Anyone with the link</option>
+			</select>
+		</div>
+		<div class="flex items-center gap-3 hidden" id="recipientHint">
+			<div class="text-sm font-medium whitespace-nowrap invisible" aria-hidden="true">
+				<span id="encryptForLabel">Recipient</span>
+			</div>
+			<div class="flex-1 flex items-center gap-1.5 text-xs text-grey-60 dark:text-grey-40">
+				<i class="ri-information-line flex-shrink-0"></i>
+				<span data-type="lang"></span>
+			</div>
+		</div>
+	</div>
+</template>

@@ -74,7 +74,7 @@ var FileOverviewElement = class extends HTMLElement {
     this.fileInfo = fileInfo;
     this.render();
   }
-  render() {
+  async render() {
     if (!this.fileInfo) {
       return;
     }
@@ -93,6 +93,7 @@ var FileOverviewElement = class extends HTMLElement {
         iconEl.className = "ri-folder-6-line h-12 w-12 flex-shrink-0 text-primary mr-4 text-5xl leading-[3rem]";
       }
     }
+    await this.renderSenderInfo();
     this.renderExpiryInfo();
     if (this.isArchive()) {
       this.renderFileList();
@@ -101,6 +102,32 @@ var FileOverviewElement = class extends HTMLElement {
       if (listContainer) {
         listContainer.classList.add("hidden");
       }
+    }
+  }
+  async renderSenderInfo() {
+    const senderInfoEl = this.querySelector('[data-role="sender-info"]');
+    if (!senderInfoEl) {
+      return;
+    }
+    try {
+      const { fetchFileInfo } = await import("./api-73SPJSAN.js");
+      const fileId = this.fileInfo.id || window.location.pathname.split("/").pop();
+      if (!fileId) {
+        return;
+      }
+      const fileDetails = await fetchFileInfo(fileId);
+      if (fileDetails.owner_name) {
+        const senderLabelEl = senderInfoEl.querySelector('[data-role="sender-label"]');
+        const senderNameEl = senderInfoEl.querySelector('[data-role="sender-name"]');
+        if (senderLabelEl && senderNameEl) {
+          const translate = window.translate || ((key, params) => key);
+          senderLabelEl.textContent = translate("sharedBy", "Shared by");
+          senderNameEl.textContent = fileDetails.owner_name;
+          senderInfoEl.classList.remove("hidden");
+        }
+      }
+    } catch (err) {
+      console.debug("Could not fetch sender info:", err);
     }
   }
   renderExpiryInfo() {
@@ -190,4 +217,4 @@ var FileOverviewElement = class extends HTMLElement {
   }
 };
 customElements.define("file-overview-view", FileOverviewElement);
-//# sourceMappingURL=file-overview-DPWK5SCW.js.map
+//# sourceMappingURL=file-overview-2N6J4KXJ.js.map

@@ -1,6 +1,10 @@
 import {
+  storage_default
+} from "./chunk-X6I5MNOH.js";
+import {
   translateElement
 } from "./chunk-TXB3JAVG.js";
+import "./chunk-KHETNALE.js";
 import "./chunk-IFG75HHC.js";
 
 // src/ui/upload-layout.mjs
@@ -242,6 +246,17 @@ var UploadLayoutElement = class extends HTMLElement {
       }
       return;
     }
+    const hasUser = Boolean(
+      this.app.state.storage && this.app.state.storage.user || storage_default.user
+    );
+    if (hasUser) {
+      if (this.uploadRight.currentTemplate !== "intro") {
+        this.uploadRight.showIntro();
+      } else if (typeof this.uploadRight.refreshInboxOutbox === "function") {
+        this.uploadRight.refreshInboxOutbox();
+      }
+      return;
+    }
     const files = this.app.state.storage ? this.app.state.storage.files : [];
     const activeFiles = files.filter((f) => !f.expired);
     if (activeFiles.length > 0) {
@@ -258,4 +273,4 @@ var UploadLayoutElement = class extends HTMLElement {
   }
 };
 customElements.define("upload-layout", UploadLayoutElement);
-//# sourceMappingURL=upload-layout-DFS3ROWS.js.map
+//# sourceMappingURL=upload-layout-W4IPH6SA.js.map

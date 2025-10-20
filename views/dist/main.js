@@ -1,20 +1,15 @@
 import {
   syncOwnedFiles
-} from "./chunks/chunk-TQC4VBEF.js";
+} from "./chunks/chunk-FOOKK6H5.js";
 import {
   APP_VERSION,
   Keychain,
   OWNER_SECRET_VERSION,
   OwnedFile,
   USER_ROLES,
-  blobStream,
-  concatStream,
-  downloadFile,
-  getApiUrl,
-  metadata,
-  storage_default,
-  uploadWs
-} from "./chunks/chunk-GIJL4XMM.js";
+  UserSecrets,
+  storage_default
+} from "./chunks/chunk-X6I5MNOH.js";
 import {
   arrayToB64,
   browserName,
@@ -30,6 +25,14 @@ import {
   streamToArrayBuffer,
   translateElement
 } from "./chunks/chunk-TXB3JAVG.js";
+import {
+  blobStream,
+  concatStream,
+  downloadFile,
+  getApiUrl,
+  metadata,
+  uploadWs
+} from "./chunks/chunk-KHETNALE.js";
 import "./chunks/chunk-IFG75HHC.js";
 
 // node_modules/crc/mjs/calculators/crc32.js
@@ -723,6 +726,7 @@ var FileSender = class extends EventTarget {
     const metadata2 = await this.keychain.encryptMetadata(archive);
     const authKeyB64 = await this.keychain.authKeyB64();
     let ownerSecretWrap = null;
+    let recipientSecretWrap = null;
     const userSecrets = storage_default.user;
     if (userSecrets) {
       try {
@@ -740,6 +744,23 @@ var FileSender = class extends EventTarget {
         console.warn("[FileSender] Failed to wrap owner secret", err);
       }
     }
+    if (archive.recipientUserId && archive.recipientPublicKey) {
+      try {
+        const wrapResult = await UserSecrets.wrapSecretForRecipient(
+          this.keychain.rawSecret,
+          archive.recipientPublicKey
+        );
+        recipientSecretWrap = {
+          userId: archive.recipientUserId,
+          ciphertext: wrapResult.ciphertext,
+          nonce: wrapResult.nonce,
+          ephemeralPublicKey: wrapResult.ephemeralPublicKey,
+          version: wrapResult.version || OWNER_SECRET_VERSION
+        };
+      } catch (err) {
+        console.warn("[FileSender] Failed to wrap recipient secret", err);
+      }
+    }
     this.uploadRequest = uploadWs(
       encStream,
       metadata2,
@@ -750,7 +771,8 @@ var FileSender = class extends EventTarget {
         this.progress = [p, totalSize];
         this.dispatchEvent(new Event("progress"));
       },
-      ownerSecretWrap
+      ownerSecretWrap,
+      recipientSecretWrap
     );
     if (this.cancelled) {
       throw new Error(0);
@@ -1784,12 +1806,12 @@ var localeLoaders = {
   cs: () => import("./chunks/cs-4CHTXZSU.js"),
   cy: () => import("./chunks/cy-RP2L2OUK.js"),
   da: () => import("./chunks/da-DPZF5LGO.js"),
-  de: () => import("./chunks/de-6EKRBKH3.js"),
+  de: () => import("./chunks/de-CG6YYEO5.js"),
   dsb: () => import("./chunks/dsb-L7O73QFV.js"),
   el: () => import("./chunks/el-4RABOQBG.js"),
   "en-CA": () => import("./chunks/en-CA-DJ4OOLA4.js"),
   "en-GB": () => import("./chunks/en-GB-D7G7RTNJ.js"),
-  "en-US": () => import("./chunks/en-US-JOWE2PYS.js"),
+  "en-US": () => import("./chunks/en-US-G2IDPXH4.js"),
   "es-AR": () => import("./chunks/es-AR-6PZGYKH3.js"),
   "es-CL": () => import("./chunks/es-CL-HE4SPZ7U.js"),
   "es-ES": () => import("./chunks/es-ES-XGWIURD2.js"),
@@ -1798,7 +1820,7 @@ var localeLoaders = {
   eu: () => import("./chunks/eu-Q6CLLOH3.js"),
   fa: () => import("./chunks/fa-AEOEUDQ4.js"),
   fi: () => import("./chunks/fi-SI2D7DPR.js"),
-  fr: () => import("./chunks/fr-RO7FD4ZC.js"),
+  fr: () => import("./chunks/fr-GZZDV6YL.js"),
   "fy-NL": () => import("./chunks/fy-NL-C7AQWS3X.js"),
   gn: () => import("./chunks/gn-6SZWZLYL.js"),
   gor: () => import("./chunks/gor-4LJ2LDF3.js"),
@@ -1858,7 +1880,7 @@ var localeLoaders = {
 };
 async function getTranslator(locale2) {
   const bundles = [];
-  const { default: en } = await import("./chunks/en-US-JOWE2PYS.js");
+  const { default: en } = await import("./chunks/en-US-G2IDPXH4.js");
   if (locale2 !== "en-US" && localeLoaders[locale2]) {
     const { default: ftl } = await localeLoaders[locale2]();
     bundles.push(makeBundle(locale2, ftl));
@@ -1891,6 +1913,8 @@ var Archive = class {
     this.dlimit = defaultDownloadLimit;
     this.password = null;
     this.customArchiveName = null;
+    this.recipientUserId = null;
+    this.recipientPublicKey = null;
   }
   get name() {
     if (this.files.length > 1) {
@@ -1951,6 +1975,16 @@ var Archive = class {
     this.timeLimit = this.defaultTimeLimit;
     this.password = null;
     this.customArchiveName = null;
+    this.recipientUserId = null;
+    this.recipientPublicKey = null;
+  }
+  setRecipient(userId, publicKey) {
+    this.recipientUserId = userId;
+    this.recipientPublicKey = publicKey;
+  }
+  clearRecipient() {
+    this.recipientUserId = null;
+    this.recipientPublicKey = null;
   }
 };
 
@@ -2179,7 +2213,7 @@ var Controller = class {
     }
   }
   handleUpdateOptions(event) {
-    const { timeLimit, downloadLimit, password, archiveName } = event.detail;
+    const { timeLimit, downloadLimit, password, archiveName, recipientUserId, recipientPublicKey } = event.detail;
     const archive = this.state.archive;
     if (!archive) {
       return;
@@ -2196,10 +2230,18 @@ var Controller = class {
     if (archiveName !== void 0) {
       archive.customArchiveName = archiveName ? archiveName : null;
     }
+    if (recipientUserId !== void 0 || recipientPublicKey !== void 0) {
+      if (recipientUserId && recipientPublicKey) {
+        archive.setRecipient(recipientUserId, recipientPublicKey);
+      } else {
+        archive.clearRecipient();
+      }
+    }
     console.log("[Controller] Updated archive options", {
       timeLimit: archive.timeLimit,
       downloadLimit: archive.dlimit,
-      password: archive.password ? "***" : null
+      password: archive.password ? "***" : null,
+      recipientUserId: archive.recipientUserId || null
     });
   }
   async handleUpload(event) {
@@ -2907,9 +2949,10 @@ customElements.define("app-footer", AppFooter);
 async function initUploadRoute(app) {
   console.log("[Route] Initializing upload page...");
   await Promise.all([
-    import("./chunks/upload-layout-DFS3ROWS.js"),
-    import("./chunks/upload-area-7MOKQ2DK.js"),
-    import("./chunks/upload-right-TKW3X77H.js"),
+    import("./chunks/upload-layout-W4IPH6SA.js"),
+    import("./chunks/upload-area-RG4MRFBD.js"),
+    import("./chunks/upload-right-I5DSZ3EE.js"),
+    import("./chunks/inbox-outbox-view-YNTPOXZX.js"),
     app.controller.ready
   ]);
   app.showUploadLayout();
@@ -2920,7 +2963,7 @@ async function initDownloadRoute(app) {
   await Promise.all([
     import("./chunks/download-layout-3LFQU4VZ.js"),
     import("./chunks/file-password-IAMWH3LL.js"),
-    import("./chunks/file-overview-DPWK5SCW.js"),
+    import("./chunks/file-overview-2N6J4KXJ.js"),
     import("./chunks/file-downloading-NYJFEL2T.js"),
     import("./chunks/file-finished-KI5FWEUS.js"),
     import("./chunks/file-error-DA3PZDO3.js"),
@@ -2932,7 +2975,7 @@ async function initDownloadRoute(app) {
 async function initRegisterRoute(app) {
   console.log("[Route] Initializing register page...");
   await Promise.all([
-    import("./chunks/register-layout-DOIZIAV7.js"),
+    import("./chunks/register-layout-FKWASSCZ.js"),
     app.controller.ready
   ]);
   app.showRegisterLayout();
@@ -2941,7 +2984,7 @@ async function initRegisterRoute(app) {
 async function initLoginRoute(app) {
   console.log("[Route] Initializing login page...");
   await Promise.all([
-    import("./chunks/login-layout-ZOEEBUG2.js"),
+    import("./chunks/login-layout-7L7YBCVR.js"),
     app.controller.ready
   ]);
   app.showLoginLayout();
@@ -2950,7 +2993,7 @@ async function initLoginRoute(app) {
 async function initSettingsRoute(app) {
   console.log("[Route] Initializing settings page...");
   await Promise.all([
-    import("./chunks/settings-layout-NJEUXXPI.js"),
+    import("./chunks/settings-layout-XQF7Z2HF.js"),
     app.controller.ready
   ]);
   app.showSettingsLayout();

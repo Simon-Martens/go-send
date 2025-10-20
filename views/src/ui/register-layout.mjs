@@ -190,7 +190,7 @@ class RegisterLayoutElement extends HTMLElement {
 
   /**
    * Extract token from URL path
-   * Expected paths: /register/admin/[token] or /register/[token]
+   * Expected paths: /register/admin/[token] or /register/user/[token]
    */
   extractToken() {
     const path = window.location.pathname;
@@ -201,9 +201,9 @@ class RegisterLayoutElement extends HTMLElement {
       this.token = parts[2];
       this.registerType = 'admin';
     }
-    // /register/[token] (for regular users)
-    else if (parts[0] === 'register' && parts[1]) {
-      this.token = parts[1];
+    // /register/user/[token]
+    else if (parts[0] === 'register' && parts[1] === 'user' && parts[2]) {
+      this.token = parts[2];
       this.registerType = 'user';
     }
     // No token found

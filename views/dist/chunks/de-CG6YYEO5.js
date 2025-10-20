@@ -128,6 +128,9 @@ archiveNameHint = Der Name, den Empf\xE4nger beim Herunterladen sehen
 archiveNameInvalidChars = Dateiname darf nicht enthalten: < > : " / \\ | ? *
 archiveNameInvalidEnd = Dateiname darf nicht mit einem Punkt oder Leerzeichen enden
 archiveNameReserved = Dieser Dateiname ist vom System reserviert
+encryptForLabel = Empf\xE4nger
+recipientUnspecified = Jeder mit dem Link
+recipientHintSelected = Der Empf\xE4nger kann die Datei sehen, herunterladen und entschl\xFCsseln.
 # $size is the size of the file, displayed using the fileSize message as format (e.g. "2.5MB")
 signInSizeBump = melden Sie sich an, um Dateien bis { $size } zu senden
 signInOnlyButton = Anmelden
@@ -382,8 +385,29 @@ footerLinkSource = Quellcode
 footerLinkLogin = Anmelden
 footerLinkLogout = Abmelden
 footerUntrustedWarning = Diesem Computer wird nicht vertraut! Denken Sie daran, sich abzumelden!
+
+## Inbox/Outbox strings
+
+inboxLabel = Posteingang
+outboxLabel = Postausgang
+sharedBy = Geteilt von
+sentTo = Gesendet an
+noInboxFiles = Keine Dateien in Ihrem Posteingang
+noOutboxFiles = Keine Dateien in Ihrem Postausgang
+deleteConfirm = M\xF6chten Sie diese Datei wirklich l\xF6schen?
+deleteFailed = L\xF6schen fehlgeschlagen
+expiresInDays = L\xE4uft ab in { $days ->
+    [one] 1 Tag
+   *[other] { $days } Tagen
+}
+expiresInHours = L\xE4uft ab in { $hours ->
+    [one] 1 Stunde
+   *[other] { $hours } Stunden
+}
+expiresInMinutes = L\xE4uft bald ab
+expired = Abgelaufen
 `;
 export {
   de_default as default
 };
-//# sourceMappingURL=de-6EKRBKH3.js.map
+//# sourceMappingURL=de-CG6YYEO5.js.map

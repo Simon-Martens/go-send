@@ -1,6 +1,6 @@
 import OwnedFile from "./ownedFile";
 import storage from "./storage.mjs";
-import { OWNER_SECRET_VERSION } from "./userSecrets.mjs";
+import UserSecrets, { OWNER_SECRET_VERSION } from "./userSecrets.mjs";
 import Keychain from "./keychain";
 import { arrayToB64, bytes } from "./utils";
 import { uploadWs } from "./api";
@@ -55,7 +55,9 @@ export default class FileSender extends EventTarget {
     const metadata = await this.keychain.encryptMetadata(archive);
     const authKeyB64 = await this.keychain.authKeyB64();
     let ownerSecretWrap = null;
+    let recipientSecretWrap = null;
 
+    // Wrap secret for owner (if logged in user)
     const userSecrets = storage.user;
     if (userSecrets) {
       try {
@@ -74,6 +76,26 @@ export default class FileSender extends EventTarget {
       }
     }
 
+    // Wrap secret for recipient (if one was selected)
+    if (archive.recipientUserId && archive.recipientPublicKey) {
+      try {
+        const wrapResult = await UserSecrets.wrapSecretForRecipient(
+          this.keychain.rawSecret,
+          archive.recipientPublicKey,
+        );
+        recipientSecretWrap = {
+          userId: archive.recipientUserId,
+          ciphertext: wrapResult.ciphertext,
+          nonce: wrapResult.nonce,
+          ephemeralPublicKey: wrapResult.ephemeralPublicKey,
+          version: wrapResult.version || OWNER_SECRET_VERSION,
+        };
+      } catch (err) {
+        console.warn("[FileSender] Failed to wrap recipient secret", err);
+        // Don't fail upload if recipient wrapping fails, just proceed without it
+      }
+    }
+
     this.uploadRequest = uploadWs(
       encStream,
       metadata,
@@ -85,6 +107,7 @@ export default class FileSender extends EventTarget {
         this.dispatchEvent(new Event("progress"));
       },
       ownerSecretWrap,
+      recipientSecretWrap,
     );
 
     if (this.cancelled) {

@@ -37,6 +37,17 @@ type RegisterAdminResponse struct {
 // NewRegisterAdminHandler creates a handler for admin registration
 // POST /register/admin - creates a new admin user using a valid admin signup token
 func NewRegisterAdminHandler(app *core.App) http.HandlerFunc {
+	return registerHandler(app, storage.TokenTypeAdminSignup, storage.RoleAdmin)
+}
+
+// NewRegisterUserHandler creates a handler for regular user registration
+// POST /register/user - creates a new regular user using a valid user signup token
+func NewRegisterUserHandler(app *core.App) http.HandlerFunc {
+	return registerHandler(app, storage.TokenTypeUserSignup, storage.RoleUser)
+}
+
+// registerHandler is the shared implementation for both admin and user registration
+func registerHandler(app *core.App, expectedTokenType storage.AuthTokenType, userRole storage.UserRole) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			app.DBLogger.LogRequest(r, http.StatusMethodNotAllowed, nil, "method not allowed", "method", r.Method)
@@ -55,7 +66,7 @@ func NewRegisterAdminHandler(app *core.App) http.HandlerFunc {
 		// Validate required fields
 		if req.Token == "" || req.Name == "" || req.Email == "" || req.Salt == "" || req.PublicKey == "" || req.EncryptionPublicKey == "" {
 			app.DBLogger.LogRequest(r, http.StatusBadRequest, nil, "missing required fields")
-			http.Error(w, "Missing required fields", http.StatusBadRequest)
+			http.Error(w, "Missing registration token", http.StatusBadRequest)
 			return
 		}
 
@@ -111,9 +122,9 @@ func NewRegisterAdminHandler(app *core.App) http.HandlerFunc {
 			return
 		}
 
-		// Verify token is for admin signup
-		if token.Type != storage.TokenTypeAdminSignup {
-			app.DBLogger.LogRequest(r, http.StatusUnauthorized, nil, "wrong token type", "expected", "admin_signup", "got", token.Type.String())
+		// Verify token type matches expected type
+		if token.Type != expectedTokenType {
+			app.DBLogger.LogRequest(r, http.StatusUnauthorized, nil, "wrong token type", "expected", expectedTokenType.String(), "got", token.Type.String())
 			http.Error(w, "Invalid token type", http.StatusUnauthorized)
 			return
 		}
@@ -139,7 +150,7 @@ func NewRegisterAdminHandler(app *core.App) http.HandlerFunc {
 			Salt:                req.Salt,
 			PublicKey:           req.PublicKey,
 			EncryptionPublicKey: req.EncryptionPublicKey,
-			Role:                storage.RoleAdmin,
+			Role:                userRole,
 			Active:              true,
 		}
 
@@ -153,7 +164,7 @@ func NewRegisterAdminHandler(app *core.App) http.HandlerFunc {
 		}
 
 		if err := app.DB.CreateUser(user); err != nil {
-			app.Logger.Error("Error creating admin user", "error", err, "email", req.Email)
+			app.Logger.Error("Error creating user", "error", err, "email", req.Email, "role", userRole.String())
 			app.DBLogger.LogRequest(r, http.StatusInternalServerError, nil, err.Error(), "operation", "create_user")
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
@@ -181,8 +192,8 @@ func NewRegisterAdminHandler(app *core.App) http.HandlerFunc {
 			Created:             user.Created,
 		}
 
-		app.DBLogger.LogRequest(r, http.StatusCreated, nil, "", "user_id", user.ID, "email", user.Email, "role", "admin")
-		app.Logger.Info("Admin user registered", "user_id", user.ID, "email", user.Email)
+		app.DBLogger.LogRequest(r, http.StatusCreated, nil, "", "user_id", user.ID, "email", user.Email, "role", userRole.String())
+		app.Logger.Info("User registered", "user_id", user.ID, "email", user.Email, "role", userRole.String())
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)

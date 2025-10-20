@@ -99,7 +99,7 @@ class FileOverviewElement extends HTMLElement {
     this.render();
   }
 
-  render() {
+  async render() {
     if (!this.fileInfo) {
       return;
     }
@@ -125,6 +125,9 @@ class FileOverviewElement extends HTMLElement {
       }
     }
 
+    // Render sender info (for logged-in users)
+    await this.renderSenderInfo();
+
     // Render expiry info if available
     this.renderExpiryInfo();
 
@@ -137,6 +140,41 @@ class FileOverviewElement extends HTMLElement {
       if (listContainer) {
         listContainer.classList.add("hidden");
       }
+    }
+  }
+
+  async renderSenderInfo() {
+    const senderInfoEl = this.querySelector('[data-role="sender-info"]');
+    if (!senderInfoEl) {
+      return;
+    }
+
+    // Try to fetch file info with user details (only works for logged-in users)
+    try {
+      const { fetchFileInfo } = await import("../api.mjs");
+      const fileId = this.fileInfo.id || window.location.pathname.split('/').pop();
+
+      if (!fileId) {
+        return;
+      }
+
+      const fileDetails = await fetchFileInfo(fileId);
+
+      // Display owner name if available
+      if (fileDetails.owner_name) {
+        const senderLabelEl = senderInfoEl.querySelector('[data-role="sender-label"]');
+        const senderNameEl = senderInfoEl.querySelector('[data-role="sender-name"]');
+
+        if (senderLabelEl && senderNameEl) {
+          const translate = window.translate || ((key, params) => key);
+          senderLabelEl.textContent = translate("sharedBy", "Shared by");
+          senderNameEl.textContent = fileDetails.owner_name;
+          senderInfoEl.classList.remove("hidden");
+        }
+      }
+    } catch (err) {
+      // Silently fail - sender info is optional and only available for logged-in users
+      console.debug("Could not fetch sender info:", err);
     }
   }
 

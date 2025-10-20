@@ -8,6 +8,7 @@ export async function initUploadRoute(app) {
     import("./ui/upload-layout.mjs"),
     import("./ui/upload-area.mjs"),
     import("./ui/upload-right.mjs"),
+    import("./ui/inbox-outbox-view.mjs"),
     app.controller.ready,
   ]);
 

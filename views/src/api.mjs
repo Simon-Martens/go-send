@@ -210,6 +210,7 @@ async function upload(
   onprogress,
   canceller,
   ownerWrap,
+  recipientWrap,
 ) {
   let size = 0;
   const start = Date.now();
@@ -269,6 +270,22 @@ async function upload(
         fileMeta.ownerSecretVersion = ownerWrap.version;
       }
     }
+    // Add recipient encryption data (optional - file encrypted FOR a specific user)
+    if (
+      recipientWrap &&
+      recipientWrap.userId &&
+      recipientWrap.ciphertext &&
+      recipientWrap.nonce &&
+      recipientWrap.ephemeralPublicKey
+    ) {
+      fileMeta.recipientUserId = recipientWrap.userId;
+      fileMeta.recipientSecretCiphertext = recipientWrap.ciphertext;
+      fileMeta.recipientSecretNonce = recipientWrap.nonce;
+      fileMeta.recipientSecretEphemeralPub = recipientWrap.ephemeralPublicKey;
+      if (recipientWrap.version != null) {
+        fileMeta.recipientSecretVersion = recipientWrap.version;
+      }
+    }
     const uploadInfoResponse = listenForResponse(ws, canceller);
     ws.send(JSON.stringify(fileMeta));
     const uploadInfo = await uploadInfoResponse;
@@ -323,6 +340,7 @@ export function uploadWs(
   dlimit,
   onprogress,
   ownerWrap = null,
+  recipientWrap = null,
 ) {
   const canceller = { cancelled: false };
 
@@ -340,6 +358,7 @@ export function uploadWs(
       onprogress,
       canceller,
       ownerWrap,
+      recipientWrap,
     ),
   };
 }
@@ -480,6 +499,50 @@ export async function getConstants() {
   if (response.ok) {
     const obj = await response.json();
     return obj;
+  }
+
+  throw new Error(response.status);
+}
+
+export async function fetchUsers() {
+  const response = await fetch(getApiUrl("/api/users"));
+
+  if (response.ok) {
+    const data = await response.json();
+    return data.users || [];
+  }
+
+  throw new Error(response.status);
+}
+
+export async function fetchInbox() {
+  const response = await fetch(getApiUrl("/api/me/inbox"));
+
+  if (response.ok) {
+    const data = await response.json();
+    return data.files || [];
+  }
+
+  throw new Error(response.status);
+}
+
+export async function fetchOutbox() {
+  const response = await fetch(getApiUrl("/api/me/outbox"));
+
+  if (response.ok) {
+    const data = await response.json();
+    return data.files || [];
+  }
+
+  throw new Error(response.status);
+}
+
+export async function fetchFileInfo(fileID) {
+  const response = await fetch(getApiUrl(`/api/me/file-info/${fileID}`));
+
+  if (response.ok) {
+    const data = await response.json();
+    return data;
   }
 
   throw new Error(response.status);

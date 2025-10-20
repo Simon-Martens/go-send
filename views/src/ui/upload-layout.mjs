@@ -1,4 +1,5 @@
 import { translateElement } from "../utils.mjs";
+import storage from "../storage.mjs";
 
 /**
  * <upload-layout> - Complete upload flow container
@@ -326,6 +327,19 @@ class UploadLayoutElement extends HTMLElement {
     }
 
     // Get files from storage
+    const hasUser = Boolean(
+      (this.app.state.storage && this.app.state.storage.user) || storage.user,
+    );
+
+    if (hasUser) {
+      if (this.uploadRight.currentTemplate !== "intro") {
+        this.uploadRight.showIntro();
+      } else if (typeof this.uploadRight.refreshInboxOutbox === "function") {
+        this.uploadRight.refreshInboxOutbox();
+      }
+      return;
+    }
+
     const files = this.app.state.storage ? this.app.state.storage.files : [];
     const activeFiles = files.filter(f => !f.expired);
 

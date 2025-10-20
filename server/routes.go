@@ -37,8 +37,17 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 	mux.HandleFunc("/api/password/", handlers.NewPasswordHandler(app))
 	mux.HandleFunc("/api/info/", handlers.NewInfoHandler(app))
 
+	// Public user endpoints (accessible to logged-in users OR guests)
+	if app.Config.UseUserManagement {
+		mux.HandleFunc("/api/users", handlers.NewUsersListHandler(app))
+		mux.HandleFunc("/api/users/", handlers.NewUserDetailsHandler(app))
+	}
+
 	if app.Config.UseUserManagement {
 		mux.HandleFunc("/api/me/files", handlers.NewUserFilesHandler(app))
+		mux.HandleFunc("/api/me/inbox", handlers.NewInboxHandler(app))
+		mux.HandleFunc("/api/me/outbox", handlers.NewOutboxHandler(app))
+		mux.HandleFunc("/api/me/file-info/", handlers.NewFileInfoHandler(app))
 		mux.HandleFunc("/api/me/profile", handlers.NewAccountProfileHandler(app))
 		mux.HandleFunc("/api/me/clear-sessions", handlers.NewAccountClearSessionsHandler(app))
 		mux.HandleFunc("/api/me/deactivate", handlers.NewAccountDeactivateHandler(app))
@@ -59,6 +68,14 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 		mux.HandleFunc("/register/admin", func(w http.ResponseWriter, r *http.Request) {
 			if r.Method == http.MethodPost {
 				handlers.NewRegisterAdminHandler(app)(w, r)
+			} else {
+				indexHandler(w, r)
+			}
+		})
+
+		mux.HandleFunc("/register/user", func(w http.ResponseWriter, r *http.Request) {
+			if r.Method == http.MethodPost {
+				handlers.NewRegisterUserHandler(app)(w, r)
 			} else {
 				indexHandler(w, r)
 			}

@@ -128,8 +128,11 @@ archiveNameHint = Le nom que les destinataires verront lors du t\xE9l\xE9chargem
 archiveNameInvalidChars = Le nom de fichier ne peut pas contenir : < > : " / \\ | ? *
 archiveNameInvalidEnd = Le nom de fichier ne peut pas se terminer par un point ou un espace
 archiveNameReserved = Ce nom de fichier est r\xE9serv\xE9 par le syst\xE8me
+encryptForLabel = Destinataire
+recipientUnspecified = Toute personne avec le lien
+recipientHintSelected = Le destinataire peut voir, t\xE9l\xE9charger et d\xE9chiffrer le fichier.
 # $size is the size of the file, displayed using the fileSize message as format (e.g. "2.5MB")
-signInSizeBump = Connectez-vous pour envoyer jusqu\u2019\xE0 { $size }
+signInSizeBump = Connectez-vous pour envoyer jusqu'\xE0 { $size }
 signInOnlyButton = Connexion
 accountBenefitTitle = Cr\xE9ez un compte { -firefox } ou connectez-vous
 # $size is the size of the file, displayed using the fileSize message as format (e.g. "2.5MB")
@@ -382,8 +385,29 @@ footerLinkSource = Code source
 footerLinkLogin = Se connecter
 footerLinkLogout = Se d\xE9connecter
 footerUntrustedWarning = Cet ordinateur n'est pas s\xFBr ! Pensez \xE0 vous d\xE9connecter !
+
+## Inbox/Outbox strings
+
+inboxLabel = Bo\xEEte de r\xE9ception
+outboxLabel = Bo\xEEte d'envoi
+sharedBy = Partag\xE9 par
+sentTo = Envoy\xE9 \xE0
+noInboxFiles = Aucun fichier dans votre bo\xEEte de r\xE9ception
+noOutboxFiles = Aucun fichier dans votre bo\xEEte d'envoi
+deleteConfirm = Voulez-vous vraiment supprimer ce fichier ?
+deleteFailed = \xC9chec de la suppression du fichier
+expiresInDays = Expire dans { $days ->
+    [one] 1 jour
+   *[other] { $days } jours
+}
+expiresInHours = Expire dans { $hours ->
+    [one] 1 heure
+   *[other] { $hours } heures
+}
+expiresInMinutes = Expire bient\xF4t
+expired = Expir\xE9
 `;
 export {
   fr_default as default
 };
-//# sourceMappingURL=fr-RO7FD4ZC.js.map
+//# sourceMappingURL=fr-GZZDV6YL.js.map

@@ -236,7 +236,7 @@ export class Controller {
   }
 
   handleUpdateOptions(event) {
-    const { timeLimit, downloadLimit, password, archiveName } = event.detail;
+    const { timeLimit, downloadLimit, password, archiveName, recipientUserId, recipientPublicKey } = event.detail;
     const archive = this.state.archive;
 
     if (!archive) {
@@ -259,10 +259,20 @@ export class Controller {
       archive.customArchiveName = archiveName ? archiveName : null;
     }
 
+    // Handle recipient selection (encrypt for specific user)
+    if (recipientUserId !== undefined || recipientPublicKey !== undefined) {
+      if (recipientUserId && recipientPublicKey) {
+        archive.setRecipient(recipientUserId, recipientPublicKey);
+      } else {
+        archive.clearRecipient();
+      }
+    }
+
     console.log("[Controller] Updated archive options", {
       timeLimit: archive.timeLimit,
       downloadLimit: archive.dlimit,
       password: archive.password ? "***" : null,
+      recipientUserId: archive.recipientUserId || null,
     });
 
   }

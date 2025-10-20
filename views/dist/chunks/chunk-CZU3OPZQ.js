@@ -4330,8 +4330,17 @@ var Mem = class {
 };
 var Storage = class {
   constructor() {
+    this._trustStorage = null;
     try {
-      this.engine = localStorage || new Mem();
+      this._trustStorage = localStorage;
+    } catch (e) {
+    }
+    const trusted = this.getTrustPreference();
+    try {
+      this.engine = trusted ? localStorage : sessionStorage;
+      if (!this.engine) {
+        this.engine = new Mem();
+      }
     } catch (e) {
       this.engine = new Mem();
     }
@@ -4499,6 +4508,69 @@ var Storage = class {
       downloadCount
     };
   }
+  getTrustPreference() {
+    if (!this._trustStorage) {
+      return false;
+    }
+    try {
+      const pref = this._trustStorage.getItem("trust_this_computer");
+      return pref === null ? true : pref === "true";
+    } catch (e) {
+      return false;
+    }
+  }
+  setTrustPreference(trusted) {
+    if (!this._trustStorage) {
+      return;
+    }
+    try {
+      this._trustStorage.setItem("trust_this_computer", trusted ? "true" : "false");
+    } catch (e) {
+      console.warn("[Storage] Failed to persist trust preference", e);
+    }
+  }
+  switchStorageEngine(trusted) {
+    this.setTrustPreference(trusted);
+    let newEngine;
+    try {
+      newEngine = trusted ? localStorage : sessionStorage;
+      if (!newEngine) {
+        console.warn("[Storage] Requested storage engine unavailable");
+        return;
+      }
+    } catch (e) {
+      console.warn("[Storage] Failed to access storage engine", e);
+      return;
+    }
+    if (!trusted && this.engine === localStorage) {
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key === "trust_this_computer") {
+            continue;
+          }
+          const value = localStorage.getItem(key);
+          sessionStorage.setItem(key, value);
+        }
+      } catch (e) {
+        console.warn("[Storage] Failed to migrate data to sessionStorage", e);
+      }
+    }
+    if (trusted && this.engine === sessionStorage) {
+      try {
+        for (let i = 0; i < sessionStorage.length; i++) {
+          const key = sessionStorage.key(i);
+          const value = sessionStorage.getItem(key);
+          localStorage.setItem(key, value);
+        }
+      } catch (e) {
+        console.warn("[Storage] Failed to migrate data to localStorage", e);
+      }
+    }
+    this.engine = newEngine;
+    this._files = this.loadFiles();
+    this._user = this.loadUser();
+  }
 };
 var storage_default = new Storage();
 
@@ -4532,4 +4604,4 @@ export {
 @noble/curves/esm/ed25519.js:
   (*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
 */
-//# sourceMappingURL=chunk-3WB5XX6J.js.map
+//# sourceMappingURL=chunk-CZU3OPZQ.js.map

@@ -18,6 +18,7 @@ func up_1760786317_add_sessions_table(app *core.App) error {
 		expires_at INTEGER NOT NULL,
 		created_at INTEGER NOT NULL,
 		updated_at INTEGER NOT NULL,
+		ephemeral INTEGER DEFAULT 0,
 		user_id INTEGER DEFAULT NULL,
 		auth_token_id INTEGER DEFAULT NULL,
 		FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,

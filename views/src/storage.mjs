@@ -30,8 +30,22 @@ class Mem {
 
 class Storage {
   constructor() {
+    // The trust preference is always stored in localStorage
+    // so it persists across sessions
+    this._trustStorage = null;
     try {
-      this.engine = localStorage || new Mem();
+      this._trustStorage = localStorage;
+    } catch (e) {
+      // If localStorage is not available, we can't persist trust preference
+    }
+
+    // Determine which storage engine to use based on trust preference
+    const trusted = this.getTrustPreference();
+    try {
+      this.engine = trusted ? localStorage : sessionStorage;
+      if (!this.engine) {
+        this.engine = new Mem();
+      }
     } catch (e) {
       this.engine = new Mem();
     }
@@ -220,6 +234,88 @@ class Storage {
       outgoing,
       downloadCount,
     };
+  }
+
+  getTrustPreference() {
+    // Trust preference is always stored in localStorage (if available)
+    // so it persists even when using sessionStorage for data
+    if (!this._trustStorage) {
+      return false; // Default to not trusted if localStorage unavailable
+    }
+    try {
+      const pref = this._trustStorage.getItem("trust_this_computer");
+      // Default to true for backwards compatibility (existing users)
+      return pref === null ? true : pref === "true";
+    } catch (e) {
+      return false;
+    }
+  }
+
+  setTrustPreference(trusted) {
+    if (!this._trustStorage) {
+      return; // Can't persist preference without localStorage
+    }
+    try {
+      this._trustStorage.setItem("trust_this_computer", trusted ? "true" : "false");
+    } catch (e) {
+      console.warn("[Storage] Failed to persist trust preference", e);
+    }
+  }
+
+  switchStorageEngine(trusted) {
+    // Save the preference
+    this.setTrustPreference(trusted);
+
+    // Determine new storage engine
+    let newEngine;
+    try {
+      newEngine = trusted ? localStorage : sessionStorage;
+      if (!newEngine) {
+        console.warn("[Storage] Requested storage engine unavailable");
+        return;
+      }
+    } catch (e) {
+      console.warn("[Storage] Failed to access storage engine", e);
+      return;
+    }
+
+    // If switching from localStorage to sessionStorage, copy data
+    if (!trusted && this.engine === localStorage) {
+      try {
+        // Copy all items from localStorage to sessionStorage
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key === "trust_this_computer") {
+            continue; // Don't copy the trust preference itself
+          }
+          const value = localStorage.getItem(key);
+          sessionStorage.setItem(key, value);
+        }
+      } catch (e) {
+        console.warn("[Storage] Failed to migrate data to sessionStorage", e);
+      }
+    }
+
+    // If switching from sessionStorage to localStorage, copy data
+    if (trusted && this.engine === sessionStorage) {
+      try {
+        // Copy all items from sessionStorage to localStorage
+        for (let i = 0; i < sessionStorage.length; i++) {
+          const key = sessionStorage.key(i);
+          const value = sessionStorage.getItem(key);
+          localStorage.setItem(key, value);
+        }
+      } catch (e) {
+        console.warn("[Storage] Failed to migrate data to localStorage", e);
+      }
+    }
+
+    // Switch engine
+    this.engine = newEngine;
+
+    // Reload data from new engine
+    this._files = this.loadFiles();
+    this._user = this.loadUser();
   }
 }
 

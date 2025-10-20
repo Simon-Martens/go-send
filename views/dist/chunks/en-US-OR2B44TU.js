@@ -36,6 +36,7 @@ footerLinkDmca = DMCA
 footerLinkSource = Source
 footerLinkLogin = Sign in
 footerLinkLogout = Sign out
+footerUntrustedWarning = This computer isn't trusted! Remember to sign out!
 passwordTryAgain = Incorrect password. Try again.
 javascriptRequired = Go Send requires JavaScript
 whyJavascript = Why does Go Send require JavaScript?
@@ -322,6 +323,8 @@ loginTitle = Upload Access
 loginDescription = Enter your credentials to continue
 loginEmailLabel = Email
 loginPasswordLabel = Password
+loginTrustComputerLabel = Trust this computer
+loginTrustComputerHint = Stay logged in for 30 days
 loginSubmitButton = Sign in
 loginSubmitting = Signing in...
 loginErrorChallenge = Could not start login challenge. Please try again.
@@ -330,4 +333,4 @@ loginErrorGeneric = Login failed. Please try again.
 export {
   en_US_default as default
 };
-//# sourceMappingURL=en-US-RQRE55RZ.js.map
+//# sourceMappingURL=en-US-OR2B44TU.js.map

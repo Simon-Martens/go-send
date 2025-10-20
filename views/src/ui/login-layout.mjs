@@ -22,6 +22,7 @@ class LoginLayoutElement extends HTMLElement {
     this.errorElement = null;
     this.submitButton = null;
     this.passwordToggle = null;
+    this.trustCheckbox = null;
 
     this._frame = null;
     this._templateMounted = false;
@@ -30,6 +31,7 @@ class LoginLayoutElement extends HTMLElement {
     this._boundHandlers = {
       submit: this.handleSubmit.bind(this),
       togglePassword: this.togglePasswordVisibility.bind(this),
+      trustChanged: this.handleTrustChanged.bind(this),
     };
   }
 
@@ -70,12 +72,21 @@ class LoginLayoutElement extends HTMLElement {
       this.errorElement = this.querySelector('[data-role="error"]');
       this.submitButton = this.querySelector('[data-role="submit"]');
       this.passwordToggle = this.querySelector('[data-role="toggle-password"]');
+      this.trustCheckbox = this.querySelector('[data-role="trust-checkbox"]');
+
+      // Initialize checkbox state from storage preference
+      if (this.trustCheckbox) {
+        this.trustCheckbox.checked = storage.getTrustPreference();
+      }
 
       if (this.form) {
         this.form.addEventListener("submit", this._boundHandlers.submit);
       }
       if (this.passwordToggle) {
         this.passwordToggle.addEventListener("click", this._boundHandlers.togglePassword);
+      }
+      if (this.trustCheckbox) {
+        this.trustCheckbox.addEventListener("change", this._boundHandlers.trustChanged);
       }
     });
   }
@@ -93,12 +104,21 @@ class LoginLayoutElement extends HTMLElement {
     if (this.passwordToggle) {
       this.passwordToggle.removeEventListener("click", this._boundHandlers.togglePassword);
     }
+
+    if (this.trustCheckbox) {
+      this.trustCheckbox.removeEventListener("change", this._boundHandlers.trustChanged);
+    }
   }
 
   togglePasswordVisibility(event) {
     event.preventDefault();
     if (!this.passwordInput) return;
     this.passwordInput.type = this.passwordInput.type === "password" ? "text" : "password";
+  }
+
+  handleTrustChanged(event) {
+    const trusted = event.target.checked;
+    storage.switchStorageEngine(trusted);
   }
 
   async handleSubmit(event) {
@@ -146,6 +166,16 @@ class LoginLayoutElement extends HTMLElement {
           challenge.nonce,
         );
         const loginResult = await this.submitLogin(email, challenge.challenge_id, signature);
+
+        // Set session validity marker for ephemeral sessions
+        // This will be used to detect browser restarts and force logout
+        const trustComputer = storage.getTrustPreference();
+        if (!trustComputer) {
+          sessionStorage.setItem("session_valid", "true");
+        } else {
+          // Clear the flag if trusting computer (using persistent cookie)
+          sessionStorage.removeItem("session_valid");
+        }
 
         let userSecrets = null;
         try {
@@ -224,6 +254,7 @@ class LoginLayoutElement extends HTMLElement {
         email,
         challenge_id: challengeID,
         signature,
+        trust_computer: storage.getTrustPreference(),
       }),
     });
 

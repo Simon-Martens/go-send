@@ -108,6 +108,7 @@ type FooterConfig struct {
 
 type FeaturesConfig struct {
 	AllowAccessLinks bool `json:"AllowAccessLinks"`
+	UploadGuard      bool `json:"UploadGuard"`
 }
 
 // GetClientConfig returns the JSON-serializable client configuration
@@ -157,6 +158,7 @@ func (c *Config) GetClientConfig() *ClientConfig {
 		},
 		FEATURES: FeaturesConfig{
 			AllowAccessLinks: c.AllowAccessLinks,
+			UploadGuard:      c.UploadGuard,
 		},
 	}
 

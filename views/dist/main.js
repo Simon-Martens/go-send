@@ -1,6 +1,6 @@
 import {
   syncOwnedFiles
-} from "./chunks/chunk-JMDY67YH.js";
+} from "./chunks/chunk-AZ3PCK2L.js";
 import {
   APP_VERSION,
   Keychain,
@@ -13,7 +13,7 @@ import {
   metadata,
   storage_default,
   uploadWs
-} from "./chunks/chunk-3WB5XX6J.js";
+} from "./chunks/chunk-CZU3OPZQ.js";
 import {
   arrayToB64,
   browserName,
@@ -1781,12 +1781,12 @@ var localeLoaders = {
   cs: () => import("./chunks/cs-4CHTXZSU.js"),
   cy: () => import("./chunks/cy-RP2L2OUK.js"),
   da: () => import("./chunks/da-DPZF5LGO.js"),
-  de: () => import("./chunks/de-EGREVIDT.js"),
+  de: () => import("./chunks/de-TTYJZRC7.js"),
   dsb: () => import("./chunks/dsb-L7O73QFV.js"),
   el: () => import("./chunks/el-4RABOQBG.js"),
   "en-CA": () => import("./chunks/en-CA-DJ4OOLA4.js"),
   "en-GB": () => import("./chunks/en-GB-D7G7RTNJ.js"),
-  "en-US": () => import("./chunks/en-US-RQRE55RZ.js"),
+  "en-US": () => import("./chunks/en-US-OR2B44TU.js"),
   "es-AR": () => import("./chunks/es-AR-6PZGYKH3.js"),
   "es-CL": () => import("./chunks/es-CL-HE4SPZ7U.js"),
   "es-ES": () => import("./chunks/es-ES-XGWIURD2.js"),
@@ -1795,7 +1795,7 @@ var localeLoaders = {
   eu: () => import("./chunks/eu-Q6CLLOH3.js"),
   fa: () => import("./chunks/fa-AEOEUDQ4.js"),
   fi: () => import("./chunks/fi-SI2D7DPR.js"),
-  fr: () => import("./chunks/fr-N5OOEZIX.js"),
+  fr: () => import("./chunks/fr-KIKM2NRE.js"),
   "fy-NL": () => import("./chunks/fy-NL-C7AQWS3X.js"),
   gn: () => import("./chunks/gn-6SZWZLYL.js"),
   gor: () => import("./chunks/gor-4LJ2LDF3.js"),
@@ -1855,7 +1855,7 @@ var localeLoaders = {
 };
 async function getTranslator(locale2) {
   const bundles = [];
-  const { default: en } = await import("./chunks/en-US-RQRE55RZ.js");
+  const { default: en } = await import("./chunks/en-US-OR2B44TU.js");
   if (locale2 !== "en-US" && localeLoaders[locale2]) {
     const { default: ftl } = await localeLoaders[locale2]();
     bundles.push(makeBundle(locale2, ftl));
@@ -2801,6 +2801,7 @@ var AppFooter = class extends HTMLElement {
     const usernameSpan = this.querySelector('[data-role="username"]');
     const authLink = this.querySelector('[data-role="auth-link"]');
     const authLabel = this.querySelector('[data-role="auth-label"]');
+    const untrustedWarning = this.querySelector('[data-role="untrusted-warning"]');
     const user = storage_default.user;
     if (usernameSpan) {
       if (user && user.name) {
@@ -2825,11 +2826,22 @@ var AppFooter = class extends HTMLElement {
           "click",
           this._boundHandlers.handleLogoutClick
         );
+        const isTrusted = storage_default.getTrustPreference();
+        if (untrustedWarning) {
+          if (!isTrusted) {
+            showElement(untrustedWarning);
+          } else {
+            hideElement(untrustedWarning);
+          }
+        }
       } else {
         authLink.href = "/login";
         authLabel.id = "footerLinkLogin";
         authLabel.setAttribute("data-type", "lang");
         authLabel.textContent = "Sign in";
+        if (untrustedWarning) {
+          hideElement(untrustedWarning);
+        }
       }
       translateElement(this);
     }
@@ -2877,7 +2889,7 @@ async function initDownloadRoute(app) {
 async function initRegisterRoute(app) {
   console.log("[Route] Initializing register page...");
   await Promise.all([
-    import("./chunks/register-layout-HODAIXHR.js"),
+    import("./chunks/register-layout-MRSU3IUZ.js"),
     app.controller.ready
   ]);
   app.showRegisterLayout();
@@ -2886,7 +2898,7 @@ async function initRegisterRoute(app) {
 async function initLoginRoute(app) {
   console.log("[Route] Initializing login page...");
   await Promise.all([
-    import("./chunks/login-layout-OHDD36JK.js"),
+    import("./chunks/login-layout-FDYPB6T4.js"),
     app.controller.ready
   ]);
   app.showLoginLayout();
@@ -2895,7 +2907,7 @@ async function initLoginRoute(app) {
 async function initSettingsRoute(app) {
   console.log("[Route] Initializing settings page...");
   await Promise.all([
-    import("./chunks/settings-layout-GXVZD6JT.js"),
+    import("./chunks/settings-layout-WAAWLM3I.js"),
     app.controller.ready
   ]);
   app.showSettingsLayout();
@@ -2928,17 +2940,49 @@ async function bootstrapApplication() {
   });
   console.log("[Router] Route initialized");
 })();
+function checkAuth() {
+  const user = storage_default.user;
+  if (!user) {
+    return false;
+  }
+  const isTrusted = storage_default.getTrustPreference();
+  if (!isTrusted) {
+    const sessionValid = sessionStorage.getItem("session_valid");
+    if (!sessionValid) {
+      console.log("[Auth] Ephemeral session expired (browser restart detected)");
+      window.location.assign("/logout");
+      return false;
+    }
+  }
+  return true;
+}
 async function navigate(path, app) {
+  var _a;
+  if (path.match(/^\/download/) || path.match(/^\/[0-9a-fA-F]{10,16}/)) {
+    await initDownloadRoute(app);
+    return;
+  }
+  if (path.startsWith("/login")) {
+    await initLoginRoute(app);
+    return;
+  }
+  if (path.startsWith("/register")) {
+    await initRegisterRoute(app);
+    return;
+  }
+  const uploadGuardEnabled = ((_a = window.FEATURES) == null ? void 0 : _a.UploadGuard) ?? false;
+  const isProtectedRoute = path === "/" || path.startsWith("/upload") || path === "/settings";
+  if (uploadGuardEnabled && isProtectedRoute) {
+    if (!checkAuth()) {
+      console.log("[Auth] Protected route requires authentication, redirecting to /login");
+      window.location.assign("/login");
+      return;
+    }
+  }
   if (path === "/" || path.startsWith("/upload")) {
     await initUploadRoute(app);
-  } else if (path.match(/^\/download/) || path.match(/^\/[0-9a-fA-F]{10,16}/)) {
-    await initDownloadRoute(app);
-  } else if (path.startsWith("/register")) {
-    await initRegisterRoute(app);
   } else if (path === "/settings") {
     await initSettingsRoute(app);
-  } else if (path.startsWith("/login")) {
-    await initLoginRoute(app);
   } else {
     console.warn(`[Router] Unknown route: ${path}, defaulting to upload`);
     await initUploadRoute(app);

@@ -17,10 +17,11 @@ import (
 )
 
 const (
-	challengeTTL   = 5 * time.Minute
-	sessionTTL     = 24 * time.Hour
-	sessionCookie  = "send_session"
-	signatureBytes = 64
+	challengeTTL        = 5 * time.Minute
+	sessionTTL          = 24 * time.Hour
+	persistentSessionTTL = 30 * 24 * time.Hour // 30 days
+	sessionCookie       = "send_session"
+	signatureBytes      = 64
 )
 
 type loginChallengeRequest struct {
@@ -35,9 +36,10 @@ type loginChallengeResponse struct {
 }
 
 type loginRequest struct {
-	Email       string `json:"email"`
-	ChallengeID int64  `json:"challenge_id"`
-	Signature   string `json:"signature"`
+	Email         string `json:"email"`
+	ChallengeID   int64  `json:"challenge_id"`
+	Signature     string `json:"signature"`
+	TrustComputer bool   `json:"trust_computer"`
 }
 
 type loginResponse struct {
@@ -214,11 +216,23 @@ func NewLoginHandler(app *core.App) http.HandlerFunc {
 			return
 		}
 
+		// Determine session duration and ephemeral flag based on trust preference
+		var sessionDuration time.Duration
+		var ephemeral bool
+		if req.TrustComputer {
+			sessionDuration = persistentSessionTTL
+			ephemeral = false
+		} else {
+			sessionDuration = sessionTTL
+			ephemeral = true
+		}
+
 		userID := user.ID
 		session := &storage.Session{
 			Token:     hashedToken,
 			LastIP:    storage.NewRequestData(r).IP,
-			ExpiresAt: time.Now().Add(sessionTTL).Unix(),
+			ExpiresAt: time.Now().Add(sessionDuration).Unix(),
+			Ephemeral: ephemeral,
 			UserID:    &userID,
 		}
 
@@ -232,15 +246,26 @@ func NewLoginHandler(app *core.App) http.HandlerFunc {
 			app.Logger.Warn("Failed to mark challenge used", "error", err, "challenge_id", challenge.ID)
 		}
 
-		http.SetCookie(w, &http.Cookie{
+		// Set cookie based on trust preference
+		cookie := &http.Cookie{
 			Name:     sessionCookie,
 			Value:    rawToken,
 			Path:     "/",
 			HttpOnly: true,
 			Secure:   r.TLS != nil,
 			SameSite: http.SameSiteLaxMode,
-			Expires:  time.Unix(session.ExpiresAt, 0),
-		})
+		}
+
+		if req.TrustComputer {
+			// Persistent cookie: set both MaxAge and Expires for maximum compatibility
+			cookie.MaxAge = int(persistentSessionTTL.Seconds())
+			cookie.Expires = time.Unix(session.ExpiresAt, 0)
+		}
+		// For session cookie: leave MaxAge at 0 and Expires unset (zero value)
+		// This creates a session cookie (deleted when browser closes)
+		// Note: MaxAge=0 means "no Max-Age attribute", NOT "delete cookie"
+
+		http.SetCookie(w, cookie)
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(loginResponse{

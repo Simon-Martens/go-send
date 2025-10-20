@@ -324,6 +324,8 @@ loginTitle = Upload Access
 loginDescription = Saisissez vos identifiants pour continuer
 loginEmailLabel = Adresse e-mail
 loginPasswordLabel = Mot de passe
+loginTrustComputerLabel = Faire confiance \xE0 cet ordinateur
+loginTrustComputerHint = Rester connect\xE9 pendant 30 jours
 loginSubmitButton = Se connecter
 loginSubmitting = Connexion\u2026
 loginErrorChallenge = Impossible de d\xE9marrer le d\xE9fi de connexion. Veuillez r\xE9essayer.
@@ -334,8 +336,9 @@ footerLinkDmca = DMCA
 footerLinkSource = Code source
 footerLinkLogin = Se connecter
 footerLinkLogout = Se d\xE9connecter
+footerUntrustedWarning = Cet ordinateur n'est pas s\xFBr ! Pensez \xE0 vous d\xE9connecter !
 `;
 export {
   fr_default as default
 };
-//# sourceMappingURL=fr-N5OOEZIX.js.map
+//# sourceMappingURL=fr-KIKM2NRE.js.map

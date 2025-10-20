@@ -7,7 +7,7 @@ import {
   getPublicKey,
   normalizeKDFSettings,
   serializeKDFSettings
-} from "./chunk-Q3KV7SOV.js";
+} from "./chunk-RSYMEIED.js";
 import {
   qrcode_default
 } from "./chunk-U2YGIKKI.js";
@@ -17,7 +17,7 @@ import {
   UserSecrets,
   storage_default,
   x25519
-} from "./chunk-3WB5XX6J.js";
+} from "./chunk-CZU3OPZQ.js";
 import {
   arrayToB64,
   copyToClipboard,
@@ -1797,4 +1797,4 @@ var SettingsLayout = class extends HTMLElement {
   }
 };
 customElements.define("settings-layout", SettingsLayout);
-//# sourceMappingURL=settings-layout-GXVZD6JT.js.map
+//# sourceMappingURL=settings-layout-WAAWLM3I.js.map

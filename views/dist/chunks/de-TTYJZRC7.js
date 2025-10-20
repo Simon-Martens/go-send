@@ -324,6 +324,8 @@ loginTitle = Upload
 loginDescription = Geben Sie Ihre Zugangsdaten ein, um fortzufahren
 loginEmailLabel = E-Mail
 loginPasswordLabel = Passwort
+loginTrustComputerLabel = Diesem Computer vertrauen
+loginTrustComputerHint = 30 Tage angemeldet bleiben
 loginSubmitButton = Anmelden
 loginSubmitting = Anmeldung l\xE4uft\u2026
 loginErrorChallenge = Anmeldeanforderung konnte nicht gestartet werden. Bitte versuchen Sie es erneut.
@@ -334,8 +336,9 @@ footerLinkDmca = DMCA
 footerLinkSource = Quellcode
 footerLinkLogin = Anmelden
 footerLinkLogout = Abmelden
+footerUntrustedWarning = Diesem Computer wird nicht vertraut! Denken Sie daran, sich abzumelden!
 `;
 export {
   de_default as default
 };
-//# sourceMappingURL=de-EGREVIDT.js.map
+//# sourceMappingURL=de-TTYJZRC7.js.map

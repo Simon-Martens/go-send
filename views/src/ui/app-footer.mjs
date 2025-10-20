@@ -155,6 +155,7 @@ class AppFooter extends HTMLElement {
     const usernameSpan = this.querySelector('[data-role="username"]');
     const authLink = this.querySelector('[data-role="auth-link"]');
     const authLabel = this.querySelector('[data-role="auth-label"]');
+    const untrustedWarning = this.querySelector('[data-role="untrusted-warning"]');
     const user = storage.user;
 
     if (usernameSpan) {
@@ -188,12 +189,27 @@ class AppFooter extends HTMLElement {
           "click",
           this._boundHandlers.handleLogoutClick,
         );
+
+        // Show untrusted warning if computer is not trusted
+        const isTrusted = storage.getTrustPreference();
+        if (untrustedWarning) {
+          if (!isTrusted) {
+            showElement(untrustedWarning);
+          } else {
+            hideElement(untrustedWarning);
+          }
+        }
       } else {
         // User is not logged in - show login
         authLink.href = "/login";
         authLabel.id = "footerLinkLogin";
         authLabel.setAttribute("data-type", "lang");
         authLabel.textContent = "Sign in"; // Will be translated
+
+        // Hide untrusted warning when not logged in
+        if (untrustedWarning) {
+          hideElement(untrustedWarning);
+        }
       }
 
       // Re-translate after changing the text

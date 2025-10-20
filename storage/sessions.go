@@ -15,6 +15,7 @@ type Session struct {
 	ExpiresAt   int64  `json:"expires_at"`
 	CreatedAt   int64  `json:"created_at"`
 	UpdatedAt   int64  `json:"updated_at"`
+	Ephemeral   bool   `json:"ephemeral"`
 	UserID      *int64 `json:"user_id,omitempty"`
 	AuthTokenID *int64 `json:"auth_token_id,omitempty"`
 }
@@ -52,9 +53,9 @@ func (d *DB) CreateSession(session *Session) error {
 	query := `
 		INSERT INTO sessions (
 			token, last_seen, last_ip, expires_at, created_at, updated_at,
-			user_id, auth_token_id
+			ephemeral, user_id, auth_token_id
 		)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
 
 	result, err := d.db.Exec(
@@ -65,6 +66,7 @@ func (d *DB) CreateSession(session *Session) error {
 		session.ExpiresAt,
 		session.CreatedAt,
 		session.UpdatedAt,
+		session.Ephemeral,
 		session.UserID,
 		session.AuthTokenID,
 	)
@@ -85,7 +87,7 @@ func (d *DB) CreateSession(session *Session) error {
 func (d *DB) GetSession(tokenHash string) (*Session, error) {
 	query := `
 		SELECT id, token, last_seen, last_ip, expires_at, created_at, updated_at,
-		       user_id, auth_token_id
+		       ephemeral, user_id, auth_token_id
 		FROM sessions
 		WHERE token = ?
 	`
@@ -97,7 +99,7 @@ func (d *DB) GetSession(tokenHash string) (*Session, error) {
 func (d *DB) GetSessionByID(id int64) (*Session, error) {
 	query := `
 		SELECT id, token, last_seen, last_ip, expires_at, created_at, updated_at,
-		       user_id, auth_token_id
+		       ephemeral, user_id, auth_token_id
 		FROM sessions
 		WHERE id = ?
 	`
@@ -109,6 +111,7 @@ func (d *DB) GetSessionByID(id int64) (*Session, error) {
 func (d *DB) scanSession(row *sql.Row) (*Session, error) {
 	session := &Session{}
 	var userID, authTokenID sql.NullInt64
+	var ephemeral int
 
 	err := row.Scan(
 		&session.ID,
@@ -118,12 +121,15 @@ func (d *DB) scanSession(row *sql.Row) (*Session, error) {
 		&session.ExpiresAt,
 		&session.CreatedAt,
 		&session.UpdatedAt,
+		&ephemeral,
 		&userID,
 		&authTokenID,
 	)
 	if err != nil {
 		return nil, err
 	}
+
+	session.Ephemeral = ephemeral != 0
 
 	if userID.Valid {
 		session.UserID = &userID.Int64
@@ -142,6 +148,7 @@ func (d *DB) scanSessions(rows *sql.Rows) ([]*Session, error) {
 	for rows.Next() {
 		session := &Session{}
 		var userID, authTokenID sql.NullInt64
+		var ephemeral int
 
 		err := rows.Scan(
 			&session.ID,
@@ -151,12 +158,15 @@ func (d *DB) scanSessions(rows *sql.Rows) ([]*Session, error) {
 			&session.ExpiresAt,
 			&session.CreatedAt,
 			&session.UpdatedAt,
+			&ephemeral,
 			&userID,
 			&authTokenID,
 		)
 		if err != nil {
 			return nil, err
 		}
+
+		session.Ephemeral = ephemeral != 0
 
 		if userID.Valid {
 			session.UserID = &userID.Int64
@@ -184,7 +194,7 @@ func (d *DB) UpdateSession(session *Session) error {
 	query := `
 		UPDATE sessions
 		SET token = ?, last_seen = ?, last_ip = ?, expires_at = ?, updated_at = ?,
-		    user_id = ?, auth_token_id = ?
+		    ephemeral = ?, user_id = ?, auth_token_id = ?
 		WHERE id = ?
 	`
 
@@ -195,6 +205,7 @@ func (d *DB) UpdateSession(session *Session) error {
 		session.LastIP,
 		session.ExpiresAt,
 		session.UpdatedAt,
+		session.Ephemeral,
 		session.UserID,
 		session.AuthTokenID,
 		session.ID,
@@ -331,7 +342,7 @@ func (d *DB) IsSessionValid(tokenHash string) (bool, *Session, error) {
 func (d *DB) GetSessionsByUser(userID int64) ([]*Session, error) {
 	query := `
 		SELECT id, token, last_seen, last_ip, expires_at, created_at, updated_at,
-		       user_id, auth_token_id
+		       ephemeral, user_id, auth_token_id
 		FROM sessions
 		WHERE user_id = ?
 		ORDER BY last_seen DESC
@@ -350,7 +361,7 @@ func (d *DB) GetSessionsByUser(userID int64) ([]*Session, error) {
 func (d *DB) GetSessionsByAuthToken(authTokenID int64) ([]*Session, error) {
 	query := `
 		SELECT id, token, last_seen, last_ip, expires_at, created_at, updated_at,
-		       user_id, auth_token_id
+		       ephemeral, user_id, auth_token_id
 		FROM sessions
 		WHERE auth_token_id = ?
 		ORDER BY last_seen DESC
@@ -435,7 +446,7 @@ func (d *DB) GetActiveSessions(limit int) ([]*Session, error) {
 
 	query := `
 		SELECT id, token, last_seen, last_ip, expires_at, created_at, updated_at,
-		       user_id, auth_token_id
+		       ephemeral, user_id, auth_token_id
 		FROM sessions
 		WHERE expires_at > ?
 		ORDER BY last_seen DESC
@@ -460,7 +471,7 @@ func (d *DB) GetInactiveSessions(inactiveDuration time.Duration) ([]*Session, er
 
 	query := `
 		SELECT id, token, last_seen, last_ip, expires_at, created_at, updated_at,
-		       user_id, auth_token_id
+		       ephemeral, user_id, auth_token_id
 		FROM sessions
 		WHERE last_seen < ?
 		ORDER BY last_seen ASC

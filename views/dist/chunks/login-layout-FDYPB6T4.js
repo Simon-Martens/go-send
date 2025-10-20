@@ -3,14 +3,14 @@ import {
   deriveKeyMaterial,
   normalizeKDFSettings,
   signChallenge
-} from "./chunk-Q3KV7SOV.js";
+} from "./chunk-RSYMEIED.js";
 import {
   syncOwnedFiles
-} from "./chunk-JMDY67YH.js";
+} from "./chunk-AZ3PCK2L.js";
 import {
   UserSecrets,
   storage_default
-} from "./chunk-3WB5XX6J.js";
+} from "./chunk-CZU3OPZQ.js";
 import {
   arrayToB64,
   translate,
@@ -28,12 +28,14 @@ var LoginLayoutElement = class extends HTMLElement {
     this.errorElement = null;
     this.submitButton = null;
     this.passwordToggle = null;
+    this.trustCheckbox = null;
     this._frame = null;
     this._templateMounted = false;
     this._storageCleared = false;
     this._boundHandlers = {
       submit: this.handleSubmit.bind(this),
-      togglePassword: this.togglePasswordVisibility.bind(this)
+      togglePassword: this.togglePasswordVisibility.bind(this),
+      trustChanged: this.handleTrustChanged.bind(this)
     };
   }
   connectedCallback() {
@@ -66,11 +68,18 @@ var LoginLayoutElement = class extends HTMLElement {
       this.errorElement = this.querySelector('[data-role="error"]');
       this.submitButton = this.querySelector('[data-role="submit"]');
       this.passwordToggle = this.querySelector('[data-role="toggle-password"]');
+      this.trustCheckbox = this.querySelector('[data-role="trust-checkbox"]');
+      if (this.trustCheckbox) {
+        this.trustCheckbox.checked = storage_default.getTrustPreference();
+      }
       if (this.form) {
         this.form.addEventListener("submit", this._boundHandlers.submit);
       }
       if (this.passwordToggle) {
         this.passwordToggle.addEventListener("click", this._boundHandlers.togglePassword);
+      }
+      if (this.trustCheckbox) {
+        this.trustCheckbox.addEventListener("change", this._boundHandlers.trustChanged);
       }
     });
   }
@@ -85,11 +94,18 @@ var LoginLayoutElement = class extends HTMLElement {
     if (this.passwordToggle) {
       this.passwordToggle.removeEventListener("click", this._boundHandlers.togglePassword);
     }
+    if (this.trustCheckbox) {
+      this.trustCheckbox.removeEventListener("change", this._boundHandlers.trustChanged);
+    }
   }
   togglePasswordVisibility(event) {
     event.preventDefault();
     if (!this.passwordInput) return;
     this.passwordInput.type = this.passwordInput.type === "password" ? "text" : "password";
+  }
+  handleTrustChanged(event) {
+    const trusted = event.target.checked;
+    storage_default.switchStorageEngine(trusted);
   }
   async handleSubmit(event) {
     var _a, _b, _c, _d, _e;
@@ -129,6 +145,12 @@ var LoginLayoutElement = class extends HTMLElement {
           challenge.nonce
         );
         const loginResult = await this.submitLogin(email, challenge.challenge_id, signature);
+        const trustComputer = storage_default.getTrustPreference();
+        if (!trustComputer) {
+          sessionStorage.setItem("session_valid", "true");
+        } else {
+          sessionStorage.removeItem("session_valid");
+        }
         let userSecrets = null;
         try {
           userSecrets = UserSecrets.fromKeyMaterial({
@@ -198,7 +220,8 @@ var LoginLayoutElement = class extends HTMLElement {
       body: JSON.stringify({
         email,
         challenge_id: challengeID,
-        signature
+        signature,
+        trust_computer: storage_default.getTrustPreference()
       })
     });
     if (!response.ok) {
@@ -242,4 +265,4 @@ var LoginLayoutElement = class extends HTMLElement {
   }
 };
 customElements.define("login-layout", LoginLayoutElement);
-//# sourceMappingURL=login-layout-OHDD36JK.js.map
+//# sourceMappingURL=login-layout-FDYPB6T4.js.map

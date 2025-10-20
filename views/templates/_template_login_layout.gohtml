@@ -46,6 +46,24 @@
 					</div>
 				</div>
 
+				<div class="flex flex-col gap-1 mt-1">
+					<div class="flex items-center gap-2">
+						<input
+							id="login-trust-computer"
+							data-role="trust-checkbox"
+							type="checkbox"
+							checked
+							class="w-4 h-4 rounded border-grey-30 dark:border-grey-60 text-primary-600 focus:ring-primary-500"
+						/>
+						<label for="login-trust-computer" class="text-sm text-grey-80 dark:text-grey-20 cursor-pointer">
+							<span id="loginTrustComputerLabel" data-type="lang">Trust this computer</span>
+						</label>
+					</div>
+					<p class="text-xs text-grey-60 dark:text-grey-40 ml-6">
+						<span id="loginTrustComputerHint" data-type="lang">Stay logged in for 30 days</span>
+					</p>
+				</div>
+
 				<p data-role="error" class="text-red-600 dark:text-red-400 text-sm text-center hidden"></p>
 
 				<button

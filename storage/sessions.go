@@ -335,6 +335,28 @@ func (d *DB) IsSessionValid(tokenHash string) (bool, *Session, error) {
 		return false, session, nil
 	}
 
+	if session.AuthTokenID != nil {
+		token, err := d.GetAuthTokenByID(*session.AuthTokenID)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				return false, session, nil
+			}
+			return false, nil, err
+		}
+
+		if !token.Active {
+			return false, session, nil
+		}
+
+		now := time.Now().Unix()
+		if token.Expires && token.ExpiresAt != nil && now > *token.ExpiresAt {
+			return false, session, nil
+		}
+		if token.ExpiresIn != nil && *token.ExpiresIn <= 0 {
+			return false, session, nil
+		}
+	}
+
 	return true, session, nil
 }
 

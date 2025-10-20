@@ -79,6 +79,26 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 			app.TouchSession(session, r)
 		}
 
+		guestToken := core.GuestTokenFromContext(r)
+		if session == nil {
+			if guestToken == nil {
+				guestToken, err = app.GetGuestAuthToken(r)
+				if err != nil {
+					app.Logger.Error("Upload guest token lookup failed", "error", err)
+					app.DBLogger.LogFileOp(r, "upload", "", http.StatusInternalServerError,
+						time.Since(startTime).Milliseconds(), err.Error(), "operation", "guest_token_lookup")
+					sendError(conn, 500)
+					return
+				}
+			}
+			if guestToken == nil {
+				app.DBLogger.LogFileOp(r, "upload", "", http.StatusUnauthorized,
+					time.Since(startTime).Milliseconds(), "guest upload token missing", "operation", "authorize")
+				sendError(conn, 401)
+				return
+			}
+		}
+
 		// Configure connection parameters for better stability
 		// Longer timeouts for large file uploads, aggressive keepalive for proxy compatibility
 		conn.SetReadDeadline(time.Now().Add(120 * time.Second))
@@ -386,9 +406,16 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 			"expires_in_seconds", req.TimeLimit)
 
 		// Log successful upload
+		logFields := []interface{}{
+			"size_bytes", totalSize,
+			"dl_limit", req.Dlimit,
+			"expire_seconds", req.TimeLimit,
+		}
+		if guestToken != nil {
+			logFields = append(logFields, "auth_token_id", guestToken.ID)
+		}
 		app.DBLogger.LogFileOp(r, "upload", id, http.StatusOK,
-			time.Since(startTime).Milliseconds(), "",
-			"size_bytes", totalSize, "dl_limit", req.Dlimit, "expire_seconds", req.TimeLimit)
+			time.Since(startTime).Milliseconds(), "", logFields...)
 
 		// Schedule cleanup if file expires within 1 hour
 		ttl := time.Until(time.Unix(meta.ExpiresAt, 0))

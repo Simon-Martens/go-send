@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/Simon-Martens/go-send/utils"
@@ -605,6 +606,40 @@ func (d *DB) GenerateSignupToken(creatorID int64, tokenType AuthTokenType, ttl t
 	case TokenTypeUserSignup:
 		token.Name = "User signup link"
 		token.Description = "Invite link for creating standard user accounts"
+	}
+
+	if err := d.CreateAuthToken(token); err != nil {
+		return "", nil, fmt.Errorf("failed to save token to database: %w", err)
+	}
+
+	return rawToken, token, nil
+}
+
+// GenerateGuestUploadToken creates a general guest upload token with the provided label and optional description.
+// The returned raw token must be shown to the caller immediately, as only the hashed value is stored in the database.
+func (d *DB) GenerateGuestUploadToken(creatorID int64, name, description string) (string, *AuthToken, error) {
+	name = strings.TrimSpace(name)
+	if name == "" {
+		return "", nil, fmt.Errorf("token label is required")
+	}
+
+	const tokenLength = 40
+	rawToken, hashedToken, preview, err := generateReadableToken(tokenLength)
+	if err != nil {
+		return "", nil, fmt.Errorf("failed to generate random token: %w", err)
+	}
+
+	token := &AuthToken{
+		Token:       hashedToken,
+		Expires:     false,
+		ExpiresAt:   nil,
+		ExpiresIn:   nil,
+		Name:        name,
+		Description: strings.TrimSpace(description),
+		Preview:     preview,
+		Active:      true,
+		Type:        TokenTypeGeneralGuestUpload,
+		CreatedBy:   creatorID,
 	}
 
 	if err := d.CreateAuthToken(token); err != nil {

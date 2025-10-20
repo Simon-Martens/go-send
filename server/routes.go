@@ -24,6 +24,8 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 	if app.Config.UploadGuard {
 		uploadHandler = middleware.RequireUser(app, middleware.UserGuardOptions{
 			RedirectToLogin: false,
+			AllowGuest:      true,
+			GuestAllowExact: []string{"/api/ws"},
 		})(uploadHandler)
 	}
 	mux.Handle("/api/ws", uploadHandler)
@@ -41,6 +43,8 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 		mux.HandleFunc("/api/me/clear-sessions", handlers.NewAccountClearSessionsHandler(app))
 		mux.HandleFunc("/api/me/deactivate", handlers.NewAccountDeactivateHandler(app))
 		mux.HandleFunc("/api/passwordreset", handlers.NewPasswordResetHandler(app))
+		mux.HandleFunc("/api/admin/upload-links", handlers.NewAdminUploadLinksHandler(app))
+		mux.HandleFunc("/api/admin/upload-links/", handlers.NewAdminUploadLinkHandler(app))
 		mux.HandleFunc("/api/admin/signup-links", handlers.NewSignupLinksHandler(app))
 		mux.HandleFunc("/api/admin/users", handlers.NewAdminUsersHandler(app))
 		mux.HandleFunc("/api/admin/users/", handlers.NewAdminUserHandler(app))
@@ -83,10 +87,13 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 
 	if app.Config.UploadGuard {
 		guardOpts := middleware.UserGuardOptions{
-			RedirectToLogin: true,
-			AllowPrefixes:   []string{"/download"},
-			AllowExact:      []string{"/login", "/login/", "/logout", "/error", "/settings"},
-			AllowStatic:     true,
+			RedirectToLogin:    true,
+			AllowPrefixes:      []string{"/download"},
+			AllowExact:         []string{"/login", "/login/", "/logout", "/error"},
+			AllowStatic:        true,
+			AllowGuest:         true,
+			GuestAllowExact:    []string{"/", "/upload", "/upload/"},
+			GuestAllowPrefixes: []string{"/download"},
 		}
 		rootHandler = middleware.RequireUser(app, guardOpts)(rootHandler)
 	}

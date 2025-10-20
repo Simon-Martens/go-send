@@ -4,6 +4,7 @@ import {
   timeLeft,
   copyToClipboard,
 } from "../utils.mjs";
+import storage from "../storage.mjs";
 
 /**
  * <upload-right> - Right column component

@@ -49,6 +49,39 @@ function copyToClipboard(str) {
   document.body.removeChild(aux);
   return result;
 }
+var GUEST_COOKIE_NAME = "send_guest_token";
+var GUEST_LABEL_COOKIE_NAME = "send_guest_label";
+function getCookie(name) {
+  if (typeof document === "undefined" || !document.cookie) {
+    return null;
+  }
+  const target = `${name}=`;
+  const parts = document.cookie.split("; ");
+  for (const part of parts) {
+    if (part.startsWith(target)) {
+      return decodeURIComponent(part.slice(target.length));
+    }
+  }
+  return null;
+}
+function hasGuestToken() {
+  return Boolean(getCookie(GUEST_COOKIE_NAME));
+}
+function getGuestLabel() {
+  const value = getCookie(GUEST_LABEL_COOKIE_NAME);
+  if (!value) {
+    return null;
+  }
+  try {
+    const normalized = value.replace(/\+/g, " ");
+    const decoded = decodeURIComponent(normalized);
+    const trimmed = decoded.trim();
+    return trimmed ? trimmed : null;
+  } catch (err) {
+    console.warn("[Utils] Failed to decode guest label cookie", err);
+    return value.replace(/\+/g, " ");
+  }
+}
 var LOCALIZE_NUMBERS = !!(typeof Intl === "object" && Intl && typeof Intl.NumberFormat === "function" && typeof navigator === "object");
 var UNITS = ["bytes", "kb", "mb", "gb"];
 function bytes(num) {
@@ -254,6 +287,21 @@ function internalTranslateElement(root) {
       }
     }
   });
+  const placeholderElements = root.querySelectorAll("[data-placeholder-id]");
+  placeholderElements.forEach((el) => {
+    const key = el.dataset.placeholderId;
+    if (!key) {
+      return;
+    }
+    try {
+      const translated = translate(key);
+      if (translated) {
+        el.placeholder = translated;
+      }
+    } catch (e) {
+      console.warn(`Translation missing for placeholder: ${key}`);
+    }
+  });
 }
 function translateElement(root) {
   if (!root) {
@@ -273,6 +321,11 @@ export {
   loadShim,
   isFile,
   copyToClipboard,
+  GUEST_COOKIE_NAME,
+  GUEST_LABEL_COOKIE_NAME,
+  getCookie,
+  hasGuestToken,
+  getGuestLabel,
   bytes,
   percent,
   number,
@@ -290,4 +343,4 @@ export {
   setTranslate,
   translateElement
 };
-//# sourceMappingURL=chunk-6DFT5NXM.js.map
+//# sourceMappingURL=chunk-TXB3JAVG.js.map

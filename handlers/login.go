@@ -17,11 +17,11 @@ import (
 )
 
 const (
-	challengeTTL        = 5 * time.Minute
-	sessionTTL          = 24 * time.Hour
+	challengeTTL         = 5 * time.Minute
+	sessionTTL           = 24 * time.Hour
 	persistentSessionTTL = 30 * 24 * time.Hour // 30 days
-	sessionCookie       = "send_session"
-	signatureBytes      = 64
+	sessionCookie        = "send_session"
+	signatureBytes       = 64
 )
 
 type loginChallengeRequest struct {
@@ -43,17 +43,17 @@ type loginRequest struct {
 }
 
 type loginResponse struct {
-	OK         bool            `json:"ok"`
-	User       *loginUserData  `json:"user,omitempty"`
-	AppVersion string          `json:"app_version"`
+	OK         bool           `json:"ok"`
+	User       *loginUserData `json:"user,omitempty"`
+	AppVersion string         `json:"app_version"`
 }
 
 type loginUserData struct {
-	ID       int64           `json:"id"`
-	Name     string          `json:"name"`
-	Email    string          `json:"email"`
+	ID       int64            `json:"id"`
+	Name     string           `json:"name"`
+	Email    string           `json:"email"`
 	Role     storage.UserRole `json:"role"`
-	Settings json.RawMessage `json:"settings,omitempty"`
+	Settings json.RawMessage  `json:"settings,omitempty"`
 }
 
 func NewLoginChallengeHandler(app *core.App) http.HandlerFunc {
@@ -266,19 +266,40 @@ func NewLoginHandler(app *core.App) http.HandlerFunc {
 		// Note: MaxAge=0 means "no Max-Age attribute", NOT "delete cookie"
 
 		http.SetCookie(w, cookie)
+		// Clear any guest token cookie now that the user has a full session.
+		http.SetCookie(w, &http.Cookie{
+			Name:     core.GuestTokenCookieName,
+			Value:    "",
+			Path:     "/",
+			HttpOnly: false,
+			Secure:   r.TLS != nil,
+			SameSite: http.SameSiteLaxMode,
+			MaxAge:   -1,
+			Expires:  time.Unix(0, 0),
+		})
+		http.SetCookie(w, &http.Cookie{
+			Name:     core.GuestLabelCookieName,
+			Value:    "",
+			Path:     "/",
+			HttpOnly: false,
+			Secure:   r.TLS != nil,
+			SameSite: http.SameSiteLaxMode,
+			MaxAge:   -1,
+			Expires:  time.Unix(0, 0),
+		})
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(loginResponse{
-		OK: true,
-		User: &loginUserData{
-			ID:       user.ID,
-			Name:     user.Name,
-			Email:    user.Email,
-			Role:     user.Role,
-			Settings: user.Settings,
-		},
-		AppVersion: config.APP_VERSION,
-	})
+			OK: true,
+			User: &loginUserData{
+				ID:       user.ID,
+				Name:     user.Name,
+				Email:    user.Email,
+				Role:     user.Role,
+				Settings: user.Settings,
+			},
+			AppVersion: config.APP_VERSION,
+		})
 
 		app.DBLogger.LogAuthEvent(r, "login_success", req.Email, true, "")
 	}

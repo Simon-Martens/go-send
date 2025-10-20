@@ -57,6 +57,43 @@ export function copyToClipboard(str) {
   return result;
 }
 
+export const GUEST_COOKIE_NAME = "send_guest_token";
+export const GUEST_LABEL_COOKIE_NAME = "send_guest_label";
+
+export function getCookie(name) {
+  if (typeof document === "undefined" || !document.cookie) {
+    return null;
+  }
+  const target = `${name}=`;
+  const parts = document.cookie.split("; ");
+  for (const part of parts) {
+    if (part.startsWith(target)) {
+      return decodeURIComponent(part.slice(target.length));
+    }
+  }
+  return null;
+}
+
+export function hasGuestToken() {
+  return Boolean(getCookie(GUEST_COOKIE_NAME));
+}
+
+export function getGuestLabel() {
+  const value = getCookie(GUEST_LABEL_COOKIE_NAME);
+  if (!value) {
+    return null;
+  }
+  try {
+    const normalized = value.replace(/\+/g, " ");
+    const decoded = decodeURIComponent(normalized);
+    const trimmed = decoded.trim();
+    return trimmed ? trimmed : null;
+  } catch (err) {
+    console.warn("[Utils] Failed to decode guest label cookie", err);
+    return value.replace(/\+/g, " ");
+  }
+}
+
 const LOCALIZE_NUMBERS = !!(
   typeof Intl === "object" &&
   Intl &&
@@ -303,6 +340,22 @@ function internalTranslateElement(root) {
         // Keep original text if translation fails
         console.warn(`Translation missing for key: ${key}`);
       }
+    }
+  });
+
+  const placeholderElements = root.querySelectorAll('[data-placeholder-id]');
+  placeholderElements.forEach((el) => {
+    const key = el.dataset.placeholderId;
+    if (!key) {
+      return;
+    }
+    try {
+      const translated = translate(key);
+      if (translated) {
+        el.placeholder = translated;
+      }
+    } catch (e) {
+      console.warn(`Translation missing for placeholder: ${key}`);
     }
   });
 }

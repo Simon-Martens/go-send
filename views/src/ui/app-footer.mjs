@@ -1,5 +1,6 @@
-import { translateElement } from "../utils.mjs";
+import { translateElement, hasGuestToken, getGuestLabel } from "../utils.mjs";
 import storage from "../storage.mjs";
+import { USER_ROLES } from "../userSecrets.mjs";
 
 function showElement(el) {
   if (el) {
@@ -157,10 +158,20 @@ class AppFooter extends HTMLElement {
     const authLabel = this.querySelector('[data-role="auth-label"]');
     const untrustedWarning = this.querySelector('[data-role="untrusted-warning"]');
     const user = storage.user;
+    const guestCookie = hasGuestToken();
+    const rawRole = user?.role;
+    const isGuestRole =
+      rawRole === USER_ROLES.GUEST ||
+      (typeof rawRole === "string" && rawRole.trim().toLowerCase() === "guest");
+    const hasGuest = guestCookie || (isGuestRole && !user);
+    const guestLabel = hasGuest ? getGuestLabel() : null;
 
     if (usernameSpan) {
       if (user && user.name) {
         usernameSpan.textContent = user.name;
+        showElement(usernameSpan);
+      } else if (guestLabel) {
+        usernameSpan.textContent = guestLabel;
         showElement(usernameSpan);
       } else {
         hideElement(usernameSpan);
@@ -177,12 +188,12 @@ class AppFooter extends HTMLElement {
       // Ensure target is NOT set to _blank (should open in same tab)
       authLink.removeAttribute("target");
 
-      if (user) {
+      if (user || hasGuest) {
         // User is logged in - show logout
         authLink.href = "/logout";
         authLabel.id = "footerLinkLogout";
-        authLabel.setAttribute("data-type", "lang");
-        authLabel.textContent = "Sign out"; // Will be translated
+        authLabel.removeAttribute("data-type");
+        authLabel.textContent = this._translate("footerLinkLogout", "Sign out");
 
         // Add click handler to clear localStorage before navigation
         authLink.addEventListener(
@@ -192,8 +203,43 @@ class AppFooter extends HTMLElement {
 
         // Show untrusted warning if computer is not trusted
         const isTrusted = storage.getTrustPreference();
+        const rawRole = user?.role;
+        const isGuestRole =
+          rawRole === USER_ROLES.GUEST ||
+          (typeof rawRole === "string" &&
+            rawRole.trim().toLowerCase() === "guest");
         if (untrustedWarning) {
-          if (!isTrusted) {
+          if (!isTrusted || hasGuest || isGuestRole) {
+            const warningText =
+              untrustedWarning.querySelector('[data-role="warning-text"]') ||
+              untrustedWarning;
+            const guestOnly = hasGuest && !user;
+            const key = guestOnly
+              ? "uploadGuestBannerMessageGuest"
+              : "uploadGuestBannerMessageEphemeral";
+            warningText.textContent = this._translate(
+              key,
+              guestOnly
+                ? "Remember to logout on untrusted devices!"
+                : "This computer isn't trusted! Remember to sign out!",
+            );
+
+            const baseClasses =
+              "absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 text-xs rounded-lg whitespace-nowrap shadow-lg";
+            const pointer =
+              untrustedWarning.querySelector("[data-role=\"warning-pointer\"]");
+            if (guestOnly) {
+              untrustedWarning.className = `${baseClasses} bg-primary text-white border border-primary`;
+              if (pointer) {
+                pointer.className = "absolute top-full left-1/2 -translate-x-1/2 -mt-px border-8 border-transparent border-t-primary";
+              }
+            } else {
+              untrustedWarning.className = `${baseClasses} bg-orange-500 text-white border border-orange-500`;
+              if (pointer) {
+                pointer.className = "absolute top-full left-1/2 -translate-x-1/2 -mt-px border-8 border-transparent border-t-orange-500";
+              }
+            }
+
             showElement(untrustedWarning);
           } else {
             hideElement(untrustedWarning);
@@ -203,8 +249,8 @@ class AppFooter extends HTMLElement {
         // User is not logged in - show login
         authLink.href = "/login";
         authLabel.id = "footerLinkLogin";
-        authLabel.setAttribute("data-type", "lang");
-        authLabel.textContent = "Sign in"; // Will be translated
+        authLabel.removeAttribute("data-type");
+        authLabel.textContent = this._translate("footerLinkLogin", "Sign in");
 
         // Hide untrusted warning when not logged in
         if (untrustedWarning) {
@@ -230,6 +276,17 @@ class AppFooter extends HTMLElement {
     // Clear all localStorage before navigating to logout endpoint
     storage.clearAll();
     // Let the browser continue with navigation to /logout
+  }
+
+  _translate(key, fallback) {
+    if (window.translate) {
+      try {
+        return window.translate(key);
+      } catch (err) {
+        console.warn("[AppFooter] Missing translation for", key, err);
+      }
+    }
+    return fallback;
   }
 }
 

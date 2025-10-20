@@ -1,11 +1,12 @@
 import {
   syncOwnedFiles
-} from "./chunks/chunk-AZ3PCK2L.js";
+} from "./chunks/chunk-TQC4VBEF.js";
 import {
   APP_VERSION,
   Keychain,
   OWNER_SECRET_VERSION,
   OwnedFile,
+  USER_ROLES,
   blobStream,
   concatStream,
   downloadFile,
@@ -13,7 +14,7 @@ import {
   metadata,
   storage_default,
   uploadWs
-} from "./chunks/chunk-CZU3OPZQ.js";
+} from "./chunks/chunk-GIJL4XMM.js";
 import {
   arrayToB64,
   browserName,
@@ -21,12 +22,14 @@ import {
   copyToClipboard,
   delay,
   encryptedSize,
+  getGuestLabel,
+  hasGuestToken,
   locale,
   openLinksInNewTab,
   setTranslate,
   streamToArrayBuffer,
   translateElement
-} from "./chunks/chunk-6DFT5NXM.js";
+} from "./chunks/chunk-TXB3JAVG.js";
 import "./chunks/chunk-IFG75HHC.js";
 
 // node_modules/crc/mjs/calculators/crc32.js
@@ -1781,12 +1784,12 @@ var localeLoaders = {
   cs: () => import("./chunks/cs-4CHTXZSU.js"),
   cy: () => import("./chunks/cy-RP2L2OUK.js"),
   da: () => import("./chunks/da-DPZF5LGO.js"),
-  de: () => import("./chunks/de-TTYJZRC7.js"),
+  de: () => import("./chunks/de-6EKRBKH3.js"),
   dsb: () => import("./chunks/dsb-L7O73QFV.js"),
   el: () => import("./chunks/el-4RABOQBG.js"),
   "en-CA": () => import("./chunks/en-CA-DJ4OOLA4.js"),
   "en-GB": () => import("./chunks/en-GB-D7G7RTNJ.js"),
-  "en-US": () => import("./chunks/en-US-OR2B44TU.js"),
+  "en-US": () => import("./chunks/en-US-JOWE2PYS.js"),
   "es-AR": () => import("./chunks/es-AR-6PZGYKH3.js"),
   "es-CL": () => import("./chunks/es-CL-HE4SPZ7U.js"),
   "es-ES": () => import("./chunks/es-ES-XGWIURD2.js"),
@@ -1795,7 +1798,7 @@ var localeLoaders = {
   eu: () => import("./chunks/eu-Q6CLLOH3.js"),
   fa: () => import("./chunks/fa-AEOEUDQ4.js"),
   fi: () => import("./chunks/fi-SI2D7DPR.js"),
-  fr: () => import("./chunks/fr-KIKM2NRE.js"),
+  fr: () => import("./chunks/fr-RO7FD4ZC.js"),
   "fy-NL": () => import("./chunks/fy-NL-C7AQWS3X.js"),
   gn: () => import("./chunks/gn-6SZWZLYL.js"),
   gor: () => import("./chunks/gor-4LJ2LDF3.js"),
@@ -1855,7 +1858,7 @@ var localeLoaders = {
 };
 async function getTranslator(locale2) {
   const bundles = [];
-  const { default: en } = await import("./chunks/en-US-OR2B44TU.js");
+  const { default: en } = await import("./chunks/en-US-JOWE2PYS.js");
   if (locale2 !== "en-US" && localeLoaders[locale2]) {
     const { default: ftl } = await localeLoaders[locale2]();
     bundles.push(makeBundle(locale2, ftl));
@@ -2803,9 +2806,17 @@ var AppFooter = class extends HTMLElement {
     const authLabel = this.querySelector('[data-role="auth-label"]');
     const untrustedWarning = this.querySelector('[data-role="untrusted-warning"]');
     const user = storage_default.user;
+    const guestCookie = hasGuestToken();
+    const rawRole = user == null ? void 0 : user.role;
+    const isGuestRole = rawRole === USER_ROLES.GUEST || typeof rawRole === "string" && rawRole.trim().toLowerCase() === "guest";
+    const hasGuest = guestCookie || isGuestRole && !user;
+    const guestLabel = hasGuest ? getGuestLabel() : null;
     if (usernameSpan) {
       if (user && user.name) {
         usernameSpan.textContent = user.name;
+        showElement(usernameSpan);
+      } else if (guestLabel) {
+        usernameSpan.textContent = guestLabel;
         showElement(usernameSpan);
       } else {
         hideElement(usernameSpan);
@@ -2817,18 +2828,40 @@ var AppFooter = class extends HTMLElement {
         this._boundHandlers.handleLogoutClick
       );
       authLink.removeAttribute("target");
-      if (user) {
+      if (user || hasGuest) {
         authLink.href = "/logout";
         authLabel.id = "footerLinkLogout";
-        authLabel.setAttribute("data-type", "lang");
-        authLabel.textContent = "Sign out";
+        authLabel.removeAttribute("data-type");
+        authLabel.textContent = this._translate("footerLinkLogout", "Sign out");
         authLink.addEventListener(
           "click",
           this._boundHandlers.handleLogoutClick
         );
         const isTrusted = storage_default.getTrustPreference();
+        const rawRole2 = user == null ? void 0 : user.role;
+        const isGuestRole2 = rawRole2 === USER_ROLES.GUEST || typeof rawRole2 === "string" && rawRole2.trim().toLowerCase() === "guest";
         if (untrustedWarning) {
-          if (!isTrusted) {
+          if (!isTrusted || hasGuest || isGuestRole2) {
+            const warningText = untrustedWarning.querySelector('[data-role="warning-text"]') || untrustedWarning;
+            const guestOnly = hasGuest && !user;
+            const key = guestOnly ? "uploadGuestBannerMessageGuest" : "uploadGuestBannerMessageEphemeral";
+            warningText.textContent = this._translate(
+              key,
+              guestOnly ? "Remember to logout on untrusted devices!" : "This computer isn't trusted! Remember to sign out!"
+            );
+            const baseClasses = "absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 text-xs rounded-lg whitespace-nowrap shadow-lg";
+            const pointer = untrustedWarning.querySelector('[data-role="warning-pointer"]');
+            if (guestOnly) {
+              untrustedWarning.className = `${baseClasses} bg-primary text-white border border-primary`;
+              if (pointer) {
+                pointer.className = "absolute top-full left-1/2 -translate-x-1/2 -mt-px border-8 border-transparent border-t-primary";
+              }
+            } else {
+              untrustedWarning.className = `${baseClasses} bg-orange-500 text-white border border-orange-500`;
+              if (pointer) {
+                pointer.className = "absolute top-full left-1/2 -translate-x-1/2 -mt-px border-8 border-transparent border-t-orange-500";
+              }
+            }
             showElement(untrustedWarning);
           } else {
             hideElement(untrustedWarning);
@@ -2837,8 +2870,8 @@ var AppFooter = class extends HTMLElement {
       } else {
         authLink.href = "/login";
         authLabel.id = "footerLinkLogin";
-        authLabel.setAttribute("data-type", "lang");
-        authLabel.textContent = "Sign in";
+        authLabel.removeAttribute("data-type");
+        authLabel.textContent = this._translate("footerLinkLogin", "Sign in");
         if (untrustedWarning) {
           hideElement(untrustedWarning);
         }
@@ -2857,6 +2890,16 @@ var AppFooter = class extends HTMLElement {
   handleLogoutClick(event) {
     storage_default.clearAll();
   }
+  _translate(key, fallback) {
+    if (window.translate) {
+      try {
+        return window.translate(key);
+      } catch (err) {
+        console.warn("[AppFooter] Missing translation for", key, err);
+      }
+    }
+    return fallback;
+  }
 };
 customElements.define("app-footer", AppFooter);
 
@@ -2864,9 +2907,9 @@ customElements.define("app-footer", AppFooter);
 async function initUploadRoute(app) {
   console.log("[Route] Initializing upload page...");
   await Promise.all([
-    import("./chunks/upload-layout-TALE332G.js"),
-    import("./chunks/upload-area-V7J3ZTCA.js"),
-    import("./chunks/upload-right-A7KKMMXG.js"),
+    import("./chunks/upload-layout-DFS3ROWS.js"),
+    import("./chunks/upload-area-7MOKQ2DK.js"),
+    import("./chunks/upload-right-TKW3X77H.js"),
     app.controller.ready
   ]);
   app.showUploadLayout();
@@ -2875,12 +2918,12 @@ async function initUploadRoute(app) {
 async function initDownloadRoute(app) {
   console.log("[Route] Initializing download page...");
   await Promise.all([
-    import("./chunks/download-layout-O7NHW5PH.js"),
-    import("./chunks/file-password-ZGHDMKTF.js"),
-    import("./chunks/file-overview-WKKY5HIL.js"),
-    import("./chunks/file-downloading-CDWALU4Y.js"),
-    import("./chunks/file-finished-7RTHU3Z5.js"),
-    import("./chunks/file-error-KJPHPVVB.js"),
+    import("./chunks/download-layout-3LFQU4VZ.js"),
+    import("./chunks/file-password-IAMWH3LL.js"),
+    import("./chunks/file-overview-DPWK5SCW.js"),
+    import("./chunks/file-downloading-NYJFEL2T.js"),
+    import("./chunks/file-finished-KI5FWEUS.js"),
+    import("./chunks/file-error-DA3PZDO3.js"),
     app.controller.ready
   ]);
   app.showDownloadLayout();
@@ -2889,7 +2932,7 @@ async function initDownloadRoute(app) {
 async function initRegisterRoute(app) {
   console.log("[Route] Initializing register page...");
   await Promise.all([
-    import("./chunks/register-layout-MRSU3IUZ.js"),
+    import("./chunks/register-layout-DOIZIAV7.js"),
     app.controller.ready
   ]);
   app.showRegisterLayout();
@@ -2898,7 +2941,7 @@ async function initRegisterRoute(app) {
 async function initLoginRoute(app) {
   console.log("[Route] Initializing login page...");
   await Promise.all([
-    import("./chunks/login-layout-FDYPB6T4.js"),
+    import("./chunks/login-layout-ZOEEBUG2.js"),
     app.controller.ready
   ]);
   app.showLoginLayout();
@@ -2907,7 +2950,7 @@ async function initLoginRoute(app) {
 async function initSettingsRoute(app) {
   console.log("[Route] Initializing settings page...");
   await Promise.all([
-    import("./chunks/settings-layout-WAAWLM3I.js"),
+    import("./chunks/settings-layout-NJEUXXPI.js"),
     app.controller.ready
   ]);
   app.showSettingsLayout();
@@ -2940,10 +2983,15 @@ async function bootstrapApplication() {
   });
   console.log("[Router] Route initialized");
 })();
-function checkAuth() {
+var AUTH_STATE = {
+  NONE: "none",
+  GUEST: "guest",
+  USER: "user"
+};
+function getAuthState() {
   const user = storage_default.user;
   if (!user) {
-    return false;
+    return hasGuestToken() ? AUTH_STATE.GUEST : AUTH_STATE.NONE;
   }
   const isTrusted = storage_default.getTrustPreference();
   if (!isTrusted) {
@@ -2951,10 +2999,10 @@ function checkAuth() {
     if (!sessionValid) {
       console.log("[Auth] Ephemeral session expired (browser restart detected)");
       window.location.assign("/logout");
-      return false;
+      return AUTH_STATE.NONE;
     }
   }
-  return true;
+  return AUTH_STATE.USER;
 }
 async function navigate(path, app) {
   var _a;
@@ -2972,17 +3020,26 @@ async function navigate(path, app) {
   }
   const uploadGuardEnabled = ((_a = window.FEATURES) == null ? void 0 : _a.UploadGuard) ?? false;
   const isProtectedRoute = path === "/" || path.startsWith("/upload") || path === "/settings";
+  const authState = getAuthState();
   if (uploadGuardEnabled && isProtectedRoute) {
-    if (!checkAuth()) {
+    if (authState === AUTH_STATE.NONE) {
       console.log("[Auth] Protected route requires authentication, redirecting to /login");
       window.location.assign("/login");
+      return;
+    }
+    if (authState === AUTH_STATE.GUEST && path === "/settings") {
+      window.location.replace("/");
       return;
     }
   }
   if (path === "/" || path.startsWith("/upload")) {
     await initUploadRoute(app);
   } else if (path === "/settings") {
-    await initSettingsRoute(app);
+    if (authState === AUTH_STATE.USER) {
+      await initSettingsRoute(app);
+    } else {
+      window.location.replace("/");
+    }
   } else {
     console.warn(`[Router] Unknown route: ${path}, defaulting to upload`);
     await initUploadRoute(app);

@@ -1,9 +1,10 @@
+import "./chunk-GIJL4XMM.js";
 import {
   bytes,
   copyToClipboard,
   timeLeft,
   translateElement
-} from "./chunk-6DFT5NXM.js";
+} from "./chunk-TXB3JAVG.js";
 import "./chunk-IFG75HHC.js";
 
 // src/ui/upload-right.mjs
@@ -358,4 +359,4 @@ var UploadRightElement = class extends HTMLElement {
   }
 };
 customElements.define("upload-right", UploadRightElement);
-//# sourceMappingURL=upload-right-A7KKMMXG.js.map
+//# sourceMappingURL=upload-right-TKW3X77H.js.map

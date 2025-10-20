@@ -1,4 +1,6 @@
 import {
+  GUEST_COOKIE_NAME,
+  GUEST_LABEL_COOKIE_NAME,
   allowedCopy,
   arrayToB64,
   b64ToArray,
@@ -8,6 +10,9 @@ import {
   delay,
   encryptedSize,
   fadeOut,
+  getCookie,
+  getGuestLabel,
+  hasGuestToken,
   isFile,
   loadShim,
   locale,
@@ -21,9 +26,11 @@ import {
   timeLeft,
   translate,
   translateElement
-} from "./chunk-6DFT5NXM.js";
+} from "./chunk-TXB3JAVG.js";
 import "./chunk-IFG75HHC.js";
 export {
+  GUEST_COOKIE_NAME,
+  GUEST_LABEL_COOKIE_NAME,
   allowedCopy,
   arrayToB64,
   b64ToArray,
@@ -33,6 +40,9 @@ export {
   delay,
   encryptedSize,
   fadeOut,
+  getCookie,
+  getGuestLabel,
+  hasGuestToken,
   isFile,
   loadShim,
   locale,
@@ -47,4 +57,4 @@ export {
   translate,
   translateElement
 };
-//# sourceMappingURL=utils-374GK6XC.js.map
+//# sourceMappingURL=utils-5ZUSYSIM.js.map

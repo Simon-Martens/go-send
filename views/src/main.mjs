@@ -3,6 +3,7 @@ import "./ui/go-send.mjs";
 import "./ui/app-footer.mjs";
 import * as router from "./router.mjs";
 import storage from "./storage.mjs";
+import { hasGuestToken } from "./utils.mjs";
 
 (async function start() {
   await router.bootstrapApplication();
@@ -22,34 +23,35 @@ import storage from "./storage.mjs";
   console.log("[Router] Route initialized");
 })();
 
+const AUTH_STATE = {
+  NONE: "none",
+  GUEST: "guest",
+  USER: "user",
+};
+
 /**
- * Check if the user is authenticated and handle ephemeral session validation
- * @returns {boolean} true if authenticated, false otherwise
+ * Determine current authentication state and handle ephemeral session validation.
+ * Redirects to /logout if an ephemeral session is no longer valid.
+ * @returns {"none" | "guest" | "user"}
  */
-function checkAuth() {
+function getAuthState() {
   const user = storage.user;
 
-  // No user data means not authenticated
   if (!user) {
-    return false;
+    return hasGuestToken() ? AUTH_STATE.GUEST : AUTH_STATE.NONE;
   }
 
-  // Check if this is an ephemeral session (not trusting computer)
   const isTrusted = storage.getTrustPreference();
-
-  // For ephemeral sessions, verify the session_valid flag exists
-  // If missing, browser was restarted and session should be invalid
   if (!isTrusted) {
     const sessionValid = sessionStorage.getItem("session_valid");
     if (!sessionValid) {
       console.log("[Auth] Ephemeral session expired (browser restart detected)");
-      // Redirect to logout to clear everything
       window.location.assign("/logout");
-      return false;
+      return AUTH_STATE.NONE;
     }
   }
 
-  return true;
+  return AUTH_STATE.USER;
 }
 
 async function navigate(path, app) {
@@ -76,11 +78,16 @@ async function navigate(path, app) {
   // Protected routes: /upload (including "/") and /settings
   const isProtectedRoute = path === "/" || path.startsWith("/upload") || path === "/settings";
 
+  const authState = getAuthState();
+
   if (uploadGuardEnabled && isProtectedRoute) {
-    // Verify authentication before allowing access
-    if (!checkAuth()) {
+    if (authState === AUTH_STATE.NONE) {
       console.log("[Auth] Protected route requires authentication, redirecting to /login");
       window.location.assign("/login");
+      return;
+    }
+    if (authState === AUTH_STATE.GUEST && path === "/settings") {
+      window.location.replace("/");
       return;
     }
   }
@@ -89,7 +96,11 @@ async function navigate(path, app) {
   if (path === "/" || path.startsWith("/upload")) {
     await router.initUploadRoute(app);
   } else if (path === "/settings") {
-    await router.initSettingsRoute(app);
+    if (authState === AUTH_STATE.USER) {
+      await router.initSettingsRoute(app);
+    } else {
+      window.location.replace("/");
+    }
   } else {
     console.warn(`[Router] Unknown route: ${path}, defaulting to upload`);
     await router.initUploadRoute(app);

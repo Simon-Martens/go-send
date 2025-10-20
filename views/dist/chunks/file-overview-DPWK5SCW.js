@@ -2,7 +2,7 @@ import {
   bytes,
   timeLeft,
   translateElement
-} from "./chunk-6DFT5NXM.js";
+} from "./chunk-TXB3JAVG.js";
 import "./chunk-IFG75HHC.js";
 
 // src/ui/file-overview.mjs
@@ -190,4 +190,4 @@ var FileOverviewElement = class extends HTMLElement {
   }
 };
 customElements.define("file-overview-view", FileOverviewElement);
-//# sourceMappingURL=file-overview-WKKY5HIL.js.map
+//# sourceMappingURL=file-overview-DPWK5SCW.js.map

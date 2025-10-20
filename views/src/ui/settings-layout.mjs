@@ -85,6 +85,33 @@ class SettingsLayout extends HTMLElement {
     this._boundDetailCopy = this._handleDetailCopy.bind(this);
     this._boundDetailLinkFocus = this._handleDetailLinkFocus.bind(this);
     this._boundUserAction = this._handleUserAction.bind(this);
+    this._uploadLinksNavItem = null;
+    this._uploadLinksPanel = null;
+    this._uploadLinksAdminSection = null;
+    this._uploadLinksPlaceholder = null;
+    this._uploadLinksForm = null;
+    this._uploadLinksLabelInput = null;
+    this._uploadLinksDescriptionInput = null;
+    this._uploadLinksSubmitButton = null;
+    this._uploadLinksStatusEl = null;
+    this._uploadLinksStatusIcon = null;
+    this._uploadLinksStatusText = null;
+    this._uploadLinksDetail = null;
+    this._uploadLinksDetailLabel = null;
+    this._uploadLinksDetailInput = null;
+    this._uploadLinksDetailCopyButton = null;
+    this._uploadLinksDetailCopyIcon = null;
+    this._uploadLinksDetailStatus = null;
+    this._uploadLinksTableBody = null;
+    this._uploadLinksEmpty = null;
+    this._uploadLinks = [];
+    this._uploadLinksLoading = false;
+    this._uploadLinksSubmitting = false;
+    this._uploadLinksCopyResetTimeout = null;
+    this._uploadLinksDetailLinkId = null;
+    this._boundUploadLinksSubmit = this._handleUploadLinksSubmit.bind(this);
+    this._boundUploadLinksAction = this._handleUploadLinksAction.bind(this);
+    this._boundUploadLinksCopy = this._handleUploadLinksCopy.bind(this);
   }
 
   connectedCallback() {
@@ -112,6 +139,7 @@ class SettingsLayout extends HTMLElement {
 
     if (this._isAdmin) {
       this._loadSignupOverview();
+      this._loadUploadLinks();
     }
   }
 
@@ -167,6 +195,31 @@ class SettingsLayout extends HTMLElement {
     this._usersTableBody = null;
     this._usersData = [];
     this._usersLoading = false;
+    if (this._uploadLinksCopyResetTimeout) {
+      clearTimeout(this._uploadLinksCopyResetTimeout);
+    }
+    this._uploadLinksCopyResetTimeout = null;
+    this._uploadLinksNavItem = null;
+    this._uploadLinksPanel = null;
+    this._uploadLinksAdminSection = null;
+    this._uploadLinksPlaceholder = null;
+    this._uploadLinksForm = null;
+    this._uploadLinksLabelInput = null;
+    this._uploadLinksDescriptionInput = null;
+    this._uploadLinksSubmitButton = null;
+    this._uploadLinksStatusEl = null;
+    this._uploadLinksStatusIcon = null;
+    this._uploadLinksStatusText = null;
+    this._uploadLinksDetail = null;
+    this._uploadLinksDetailInput = null;
+    this._uploadLinksDetailCopyButton = null;
+    this._uploadLinksDetailCopyIcon = null;
+    this._uploadLinksDetailStatus = null;
+    this._uploadLinksTableBody = null;
+    this._uploadLinksEmpty = null;
+    this._uploadLinks = [];
+    this._uploadLinksLoading = false;
+    this._uploadLinksSubmitting = false;
   }
 
   _cacheElements() {
@@ -184,6 +237,27 @@ class SettingsLayout extends HTMLElement {
     });
 
     this._usersNavItem = this.querySelector("[data-role=\"users-nav\"]");
+    this._uploadLinksNavItem = this.querySelector("[data-role=\"upload-links-nav\"]");
+    this._uploadLinksPanel = this._panels.get("upload-links") || null;
+    if (this._uploadLinksPanel) {
+      this._uploadLinksAdminSection = this._uploadLinksPanel.querySelector('[data-role="upload-links-admin"]');
+      this._uploadLinksPlaceholder = this._uploadLinksPanel.querySelector('[data-role="upload-links-placeholder"]');
+      this._uploadLinksForm = this._uploadLinksPanel.querySelector('[data-role="upload-links-form"]');
+      this._uploadLinksLabelInput = this._uploadLinksPanel.querySelector('[data-role="upload-links-label"]');
+      this._uploadLinksDescriptionInput = this._uploadLinksPanel.querySelector('[data-role="upload-links-description"]');
+      this._uploadLinksSubmitButton = this._uploadLinksPanel.querySelector('[data-role="upload-links-submit"]');
+      this._uploadLinksStatusEl = this._uploadLinksPanel.querySelector('[data-role="upload-links-status"]');
+      this._uploadLinksStatusIcon = this._uploadLinksPanel.querySelector('[data-role="upload-links-status-icon"]');
+      this._uploadLinksStatusText = this._uploadLinksPanel.querySelector('[data-role="upload-links-status-text"]');
+      this._uploadLinksDetail = this._uploadLinksPanel.querySelector('[data-role="upload-links-detail"]');
+      this._uploadLinksDetailLabel = this._uploadLinksPanel.querySelector('[data-role="upload-links-detail-label"]');
+      this._uploadLinksDetailInput = this._uploadLinksPanel.querySelector('[data-role="upload-links-detail-input"]');
+      this._uploadLinksDetailCopyButton = this._uploadLinksPanel.querySelector('[data-role="upload-links-copy"]');
+      this._uploadLinksDetailCopyIcon = this._uploadLinksPanel.querySelector('[data-role="upload-links-copy-icon"]');
+      this._uploadLinksDetailStatus = this._uploadLinksPanel.querySelector('[data-role="upload-links-detail-status"]');
+      this._uploadLinksTableBody = this._uploadLinksPanel.querySelector('[data-role="upload-links-table"]');
+      this._uploadLinksEmpty = this._uploadLinksPanel.querySelector('[data-role="upload-links-empty"]');
+    }
     this._usersPanel = this._panels.get("users") || null;
     this._usersHeader = this.querySelector('[data-role="users-header"]');
 
@@ -273,6 +347,15 @@ class SettingsLayout extends HTMLElement {
       if (this._usersTableBody) {
         this._usersTableBody.addEventListener("click", this._boundUserAction);
       }
+      if (this._uploadLinksForm) {
+        this._uploadLinksForm.addEventListener("submit", this._boundUploadLinksSubmit);
+      }
+      if (this._uploadLinksTableBody) {
+        this._uploadLinksTableBody.addEventListener("click", this._boundUploadLinksAction);
+      }
+      if (this._uploadLinksDetailCopyButton) {
+        this._uploadLinksDetailCopyButton.addEventListener("click", this._boundUploadLinksCopy);
+      }
     }
   }
 
@@ -317,6 +400,15 @@ class SettingsLayout extends HTMLElement {
       if (this._usersTableBody) {
         this._usersTableBody.removeEventListener("click", this._boundUserAction);
       }
+      if (this._uploadLinksForm) {
+        this._uploadLinksForm.removeEventListener("submit", this._boundUploadLinksSubmit);
+      }
+      if (this._uploadLinksTableBody) {
+        this._uploadLinksTableBody.removeEventListener("click", this._boundUploadLinksAction);
+      }
+      if (this._uploadLinksDetailCopyButton) {
+        this._uploadLinksDetailCopyButton.removeEventListener("click", this._boundUploadLinksCopy);
+      }
     }
   }
 
@@ -344,6 +436,22 @@ class SettingsLayout extends HTMLElement {
   }
 
   _configureAccess() {
+    if (this._uploadLinksNavItem) {
+      this._uploadLinksNavItem.classList.toggle("hidden", !this._isAdmin);
+    }
+    if (this._uploadLinksAdminSection) {
+      if (this._isAdmin) {
+        this._uploadLinksAdminSection.classList.remove("hidden");
+        if (this._uploadLinksPlaceholder) {
+          this._uploadLinksPlaceholder.classList.add("hidden");
+        }
+      } else {
+        this._uploadLinksAdminSection.classList.add("hidden");
+        if (this._uploadLinksPlaceholder) {
+          this._uploadLinksPlaceholder.classList.remove("hidden");
+        }
+      }
+    }
     if (this._isAdmin) {
       if (this._usersNavItem) {
         this._usersNavItem.classList.remove("hidden");
@@ -677,6 +785,460 @@ class SettingsLayout extends HTMLElement {
 
     if (this._usersStatusIcon) {
       this._usersStatusIcon.className = iconClass;
+    }
+  }
+
+  async _handleUploadLinksSubmit(event) {
+    event.preventDefault();
+    if (!this._isAdmin || this._uploadLinksSubmitting) {
+      return;
+    }
+
+    const label = (this._uploadLinksLabelInput?.value || "").trim();
+    const description = (this._uploadLinksDescriptionInput?.value || "").trim();
+
+    if (!label) {
+      this._setUploadLinksStatus(translate("settingsUploadLinksStatusLabelRequired"), "error");
+      return;
+    }
+
+    this._uploadLinksSubmitting = true;
+    if (this._uploadLinksSubmitButton) {
+      this._uploadLinksSubmitButton.disabled = true;
+      this._uploadLinksSubmitButton.classList.add("opacity-60");
+    }
+    this._setUploadLinksStatus(translate("settingsUploadLinksStatusCreating"), "info");
+
+    try {
+      const response = await fetch("/api/admin/upload-links", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          label,
+          description,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`upload_link_create_failed_${response.status}`);
+      }
+
+      const payload = await response.json();
+      const linkURL = payload?.link || "";
+
+      if (this._uploadLinksLabelInput) {
+        this._uploadLinksLabelInput.value = "";
+      }
+      if (this._uploadLinksDescriptionInput) {
+        this._uploadLinksDescriptionInput.value = "";
+      }
+
+      const normalized = {
+        id: Number.parseInt(payload?.id, 10) || payload?.id || Date.now(),
+        label: payload?.label || label,
+        description: payload?.description || description,
+        preview: payload?.preview || "",
+        active: payload?.active !== undefined ? Boolean(payload.active) : true,
+        created: Number.parseInt(payload?.created, 10) || Math.floor(Date.now() / 1000),
+        created_by: Number.parseInt(payload?.created_by, 10) || payload?.created_by || null,
+      };
+
+      this._uploadLinks = [
+        normalized,
+        ...this._uploadLinks.filter((item) => item.id !== normalized.id),
+      ].sort((a, b) => (b.created || 0) - (a.created || 0));
+      this._renderUploadLinks();
+      this._showUploadLinkDetail(normalized, linkURL);
+      this._setUploadLinksStatus(translate("settingsUploadLinksStatusCreated"), "success");
+    } catch (error) {
+      console.error("[SettingsLayout] Failed to create upload link", error);
+      this._setUploadLinksStatus(translate("settingsUploadLinksStatusError"), "error");
+    } finally {
+      this._uploadLinksSubmitting = false;
+      if (this._uploadLinksSubmitButton) {
+        this._uploadLinksSubmitButton.disabled = false;
+        this._uploadLinksSubmitButton.classList.remove("opacity-60");
+      }
+    }
+  }
+
+  _handleUploadLinksAction(event) {
+    if (!this._isAdmin) {
+      return;
+    }
+    const button = event.target.closest("button[data-action]");
+    if (!button) {
+      return;
+    }
+    const action = button.dataset.action;
+    const tokenId = Number.parseInt(button.dataset.tokenId, 10);
+    if (!Number.isFinite(tokenId) || tokenId <= 0) {
+      return;
+    }
+
+    if (action === "revoke") {
+      this._revokeUploadLink(tokenId, button);
+    }
+  }
+
+  async _revokeUploadLink(tokenId, button) {
+    if (!this._isAdmin) {
+      return;
+    }
+    if (button) {
+      button.disabled = true;
+      button.classList.add("opacity-60");
+    }
+    this._setUploadLinksStatus(translate("settingsUploadLinksStatusRevoking"), "info");
+
+    try {
+      const response = await fetch(`/api/admin/upload-links/${tokenId}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        throw new Error(`upload_link_revoke_failed_${response.status}`);
+      }
+
+      this._uploadLinks = this._uploadLinks.map((item) =>
+        item.id === tokenId ? { ...item, active: false } : item,
+      );
+      this._renderUploadLinks();
+      this._setUploadLinksStatus(translate("settingsUploadLinksStatusRevoked"), "success");
+      if (this._uploadLinksDetailLinkId === tokenId) {
+        this._hideUploadLinkDetail();
+      }
+    } catch (error) {
+      console.error("[SettingsLayout] Failed to revoke upload link", error);
+      this._setUploadLinksStatus(translate("settingsUploadLinksStatusRevokeError"), "error");
+    } finally {
+      if (button && document.body.contains(button)) {
+        button.disabled = false;
+        button.classList.remove("opacity-60");
+      }
+    }
+  }
+
+  _showUploadLinkDetail(link, linkURL) {
+    if (!this._uploadLinksDetail || !this._uploadLinksDetailInput) {
+      return;
+    }
+    if (this._uploadLinksCopyResetTimeout) {
+      clearTimeout(this._uploadLinksCopyResetTimeout);
+      this._uploadLinksCopyResetTimeout = null;
+    }
+
+    const label = link?.label || translate("settingsUploadLinksLabelFallback");
+    if (this._uploadLinksDetailLabel) {
+      this._uploadLinksDetailLabel.textContent = label;
+    }
+
+    this._uploadLinksDetailInput.value = linkURL || "";
+    this._uploadLinksDetailLinkId = link?.id ?? null;
+    this._uploadLinksDetail.classList.remove("hidden");
+    if (this._uploadLinksDetailCopyIcon) {
+      const original = this._uploadLinksDetailCopyIcon.dataset.originalClass || this._uploadLinksDetailCopyIcon.className;
+      this._uploadLinksDetailCopyIcon.dataset.originalClass = original;
+      this._uploadLinksDetailCopyIcon.className = original;
+    }
+    this._setUploadLinkDetailStatus(
+      linkURL ? translate("settingsUploadLinksDetailHint") : "",
+      "info",
+    );
+  }
+
+  _hideUploadLinkDetail() {
+    if (!this._uploadLinksDetail) {
+      return;
+    }
+    this._uploadLinksDetail.classList.add("hidden");
+    this._uploadLinksDetailLinkId = null;
+    if (this._uploadLinksDetailInput) {
+      this._uploadLinksDetailInput.value = "";
+    }
+    if (this._uploadLinksDetailLabel) {
+      this._uploadLinksDetailLabel.textContent = "—";
+    }
+    this._setUploadLinkDetailStatus("", "info");
+    if (this._uploadLinksDetailCopyIcon && this._uploadLinksDetailCopyIcon.dataset.originalClass) {
+      this._uploadLinksDetailCopyIcon.className = this._uploadLinksDetailCopyIcon.dataset.originalClass;
+    }
+  }
+
+  _setUploadLinkDetailStatus(message, variant = "info") {
+    if (!this._uploadLinksDetailStatus) {
+      return;
+    }
+    const baseClass = "text-sm min-h-[1.25rem]";
+    this._uploadLinksDetailStatus.className = `${baseClass} text-grey-60 dark:text-grey-30`;
+    this._uploadLinksDetailStatus.textContent = message || "";
+
+    if (!message) {
+      return;
+    }
+
+    if (variant === "success") {
+      this._uploadLinksDetailStatus.className = `${baseClass} text-green-600 dark:text-green-400`;
+    } else if (variant === "error") {
+      this._uploadLinksDetailStatus.className = `${baseClass} text-red-600 dark:text-red-400`;
+    }
+  }
+
+  _handleUploadLinksCopy(event) {
+    event.preventDefault();
+    if (!this._uploadLinksDetailInput) {
+      return;
+    }
+    const value = this._uploadLinksDetailInput.value || "";
+    if (!value) {
+      this._setUploadLinkDetailStatus(translate("settingsUploadLinksCopyError"), "error");
+      return;
+    }
+
+    try {
+      const ok = copyToClipboard(value);
+      if (!ok) {
+        throw new Error("clipboard_failed");
+      }
+      this._setUploadLinkDetailStatus(translate("settingsUploadLinksCopySuccess"), "success");
+      if (this._uploadLinksDetailCopyIcon) {
+        const original = this._uploadLinksDetailCopyIcon.dataset.originalClass || this._uploadLinksDetailCopyIcon.className;
+        this._uploadLinksDetailCopyIcon.dataset.originalClass = original;
+        this._uploadLinksDetailCopyIcon.className = "ri-check-line text-base leading-4 text-green-600 dark:text-green-400";
+        if (this._uploadLinksCopyResetTimeout) {
+          clearTimeout(this._uploadLinksCopyResetTimeout);
+        }
+        this._uploadLinksCopyResetTimeout = setTimeout(() => {
+          if (this._uploadLinksDetailCopyIcon && this._uploadLinksDetailCopyIcon.dataset.originalClass) {
+            this._uploadLinksDetailCopyIcon.className = this._uploadLinksDetailCopyIcon.dataset.originalClass;
+          }
+        }, 2000);
+      }
+    } catch (error) {
+      console.error("[SettingsLayout] Failed to copy upload link", error);
+      this._setUploadLinkDetailStatus(translate("settingsUploadLinksCopyError"), "error");
+      if (this._uploadLinksDetailCopyIcon && this._uploadLinksDetailCopyIcon.dataset.originalClass) {
+        this._uploadLinksDetailCopyIcon.className = this._uploadLinksDetailCopyIcon.dataset.originalClass;
+      }
+    }
+  }
+
+  _setUploadLinksStatus(message, variant = "info") {
+    if (!this._uploadLinksStatusEl) {
+      return;
+    }
+    const baseClass = "text-sm min-h-[1.5rem] flex items-center gap-2";
+    this._uploadLinksStatusEl.className = `${baseClass} text-grey-60 dark:text-grey-40`;
+
+    if (this._uploadLinksStatusText) {
+      this._uploadLinksStatusText.textContent = message || "";
+    } else {
+      this._uploadLinksStatusEl.textContent = message || "";
+    }
+
+    if (this._uploadLinksStatusIcon) {
+      this._uploadLinksStatusIcon.className = "hidden";
+    }
+
+    if (!message) {
+      return;
+    }
+
+    let iconClass = "ri-information-line text-grey-60 dark:text-grey-40";
+    if (variant === "success") {
+      this._uploadLinksStatusEl.className = `${baseClass} text-green-600 dark:text-green-400`;
+      iconClass = "ri-check-line text-green-600 dark:text-green-400";
+    } else if (variant === "error") {
+      this._uploadLinksStatusEl.className = `${baseClass} text-red-600 dark:text-red-400`;
+      iconClass = "ri-error-warning-line text-red-600 dark:text-red-400";
+    }
+
+    if (this._uploadLinksStatusIcon) {
+      this._uploadLinksStatusIcon.className = iconClass;
+    }
+  }
+
+  async _loadUploadLinks() {
+    if (!this._isAdmin || this._uploadLinksLoading) {
+      return;
+    }
+    this._uploadLinksLoading = true;
+    this._setUploadLinksStatus(translate("settingsUploadLinksStatusLoading"), "info");
+
+    try {
+      const response = await fetch("/api/admin/upload-links", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`upload_link_list_failed_${response.status}`);
+      }
+
+      const payload = await response.json();
+      const list = Array.isArray(payload?.links) ? payload.links : [];
+      this._uploadLinks = list.map((item) => ({
+        id: Number.parseInt(item.id, 10) || item.id,
+        label: item.label || "",
+        description: item.description || "",
+        preview: item.preview || "",
+        active: Boolean(item.active),
+        created: Number.parseInt(item.created, 10) || 0,
+        created_by: Number.parseInt(item.created_by, 10) || item.created_by || null,
+      })).sort((a, b) => (b.created || 0) - (a.created || 0));
+      this._renderUploadLinks();
+      this._setUploadLinksStatus("", "info");
+    } catch (error) {
+      console.error("[SettingsLayout] Failed to load upload links", error);
+      this._setUploadLinksStatus(translate("settingsUploadLinksStatusLoadingError"), "error");
+    } finally {
+      this._uploadLinksLoading = false;
+    }
+  }
+
+  _renderUploadLinks() {
+    if (!this._uploadLinksTableBody) {
+      return;
+    }
+
+    if (!Array.isArray(this._uploadLinks) || this._uploadLinks.length === 0) {
+      this._uploadLinksTableBody.innerHTML = "";
+      if (this._uploadLinksEmpty) {
+        this._uploadLinksEmpty.classList.remove("hidden");
+      }
+      return;
+    }
+
+    if (this._uploadLinksEmpty) {
+      this._uploadLinksEmpty.classList.add("hidden");
+    }
+
+    this._uploadLinksTableBody.innerHTML = "";
+    this._uploadLinks.forEach((link) => {
+      const row = this._createUploadLinkRow(link);
+      if (row) {
+        this._uploadLinksTableBody.appendChild(row);
+      }
+    });
+
+    if (
+      this._uploadLinksDetailLinkId !== null &&
+      !this._uploadLinks.some(
+        (link) => link.id === this._uploadLinksDetailLinkId && link.active,
+      )
+    ) {
+      this._hideUploadLinkDetail();
+    }
+  }
+
+  _createUploadLinkRow(link) {
+    const template = document.getElementById("upload-links-row");
+    if (!template) {
+      console.error("Template #upload-links-row not found");
+      return null;
+    }
+
+    const fragment = template.content.cloneNode(true);
+    const row = fragment.querySelector('[data-role="upload-link-row"]');
+    if (!row) {
+      return null;
+    }
+
+    row.dataset.tokenId = String(link.id);
+
+    const labelEl = row.querySelector('[data-role="label"]');
+    if (labelEl) {
+      labelEl.textContent = link.label || translate("settingsUploadLinksLabelFallback");
+    }
+
+    const descriptionEl = row.querySelector('[data-role="description"]');
+    if (descriptionEl) {
+      const description = (link.description || "").trim();
+      if (description) {
+        descriptionEl.textContent = description;
+        descriptionEl.classList.remove("hidden");
+      } else {
+        descriptionEl.classList.add("hidden");
+      }
+    }
+
+    const previewEl = row.querySelector('[data-role="preview"]');
+    if (previewEl) {
+      const previewValue = (link.preview || "").trim();
+      previewEl.innerHTML = "";
+      if (previewValue) {
+        const previewBadge = document.createElement("span");
+        previewBadge.className = "font-mono text-xs bg-grey-10 dark:bg-grey-80/40 px-2 py-1 rounded";
+        previewBadge.textContent = previewValue;
+        previewEl.appendChild(previewBadge);
+      } else {
+        previewEl.textContent = translate("settingsUploadLinksNoPreview");
+      }
+    }
+
+    const statusWrapper = row.querySelector('[data-role="status"]');
+    const statusIcon = statusWrapper?.querySelector("i");
+    const statusText = statusWrapper?.querySelector('[data-role="status-text"]');
+    if (statusWrapper && statusIcon && statusText) {
+      const baseClass = "inline-flex items-center gap-2 text-xs font-medium";
+      if (link.active) {
+        statusWrapper.className = `${baseClass} text-green-600 dark:text-green-400`;
+        statusIcon.className = "ri-shield-check-line text-sm leading-4";
+        statusText.textContent = translate("settingsUploadLinksStatusActive");
+      } else {
+        statusWrapper.className = `${baseClass} text-grey-60 dark:text-grey-40`;
+        statusIcon.className = "ri-forbid-2-line text-sm leading-4";
+        statusText.textContent = translate("settingsUploadLinksStatusRevokedLabel");
+      }
+    }
+
+    const createdEl = row.querySelector('[data-role="created"]');
+    if (createdEl) {
+      createdEl.textContent = this._formatUploadLinkTimestamp(link.created);
+    }
+
+    const revokeButton = row.querySelector('[data-role="revoke-button"]');
+    const revokeLabel = revokeButton?.querySelector('[data-role="revoke-label"]');
+    const revokedBadge = row.querySelector('[data-role="revoked-indicator"]');
+    if (revokeButton) {
+      revokeButton.dataset.action = "revoke";
+      revokeButton.dataset.tokenId = String(link.id);
+      if (link.active) {
+        revokeButton.className = "inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded border border-red-200 dark:border-red-400/40 text-red-600 dark:text-red-400 bg-red-50/70 dark:bg-red-900/10 hover:bg-red-50 dark:hover:bg-red-900/20 transition cursor-pointer";
+        if (revokeLabel) {
+          revokeLabel.textContent = translate("settingsUploadLinksRevokeButton");
+        }
+        revokeButton.classList.remove("hidden");
+        if (revokedBadge) {
+          revokedBadge.classList.add("hidden");
+        }
+      } else {
+        revokeButton.remove();
+        if (revokedBadge) {
+          revokedBadge.textContent = translate("settingsUploadLinksRevokedBadge");
+          revokedBadge.classList.remove("hidden");
+        }
+      }
+    }
+
+    return row;
+  }
+
+  _formatUploadLinkTimestamp(timestamp) {
+    const value = Number(timestamp);
+    if (!Number.isFinite(value) || value <= 0) {
+      return translate("settingsUploadLinksCreatedUnknown");
+    }
+    try {
+      return new Date(value * 1000).toLocaleString(undefined, {
+        dateStyle: "medium",
+        timeStyle: "short",
+      });
+    } catch (err) {
+      return translate("settingsUploadLinksCreatedUnknown");
     }
   }
 

@@ -26,6 +26,8 @@ func NewLogoutHandler(app *core.App) http.HandlerFunc {
 
 			// Log the logout event
 			app.DBLogger.LogRequest(r, http.StatusFound, nil, "user logged out")
+		} else if guestCookie, guestErr := r.Cookie(core.GuestTokenCookieName); guestErr == nil && guestCookie.Value != "" {
+			app.DBLogger.LogRequest(r, http.StatusFound, nil, "guest logged out")
 		}
 
 		// Clear the session cookie by setting it to expire in the past
@@ -34,6 +36,28 @@ func NewLogoutHandler(app *core.App) http.HandlerFunc {
 			Value:    "",
 			Path:     "/",
 			HttpOnly: true,
+			Secure:   r.TLS != nil,
+			SameSite: http.SameSiteLaxMode,
+			MaxAge:   -1,
+			Expires:  time.Unix(0, 0),
+		})
+
+		// Clear guest cookie
+		http.SetCookie(w, &http.Cookie{
+			Name:     core.GuestTokenCookieName,
+			Value:    "",
+			Path:     "/",
+			HttpOnly: false,
+			Secure:   r.TLS != nil,
+			SameSite: http.SameSiteLaxMode,
+			MaxAge:   -1,
+			Expires:  time.Unix(0, 0),
+		})
+		http.SetCookie(w, &http.Cookie{
+			Name:     core.GuestLabelCookieName,
+			Value:    "",
+			Path:     "/",
+			HttpOnly: false,
 			Secure:   r.TLS != nil,
 			SameSite: http.SameSiteLaxMode,
 			MaxAge:   -1,

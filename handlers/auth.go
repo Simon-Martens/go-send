@@ -3,12 +3,16 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
+	"time"
 
 	"github.com/Simon-Martens/go-send/core"
 	"github.com/Simon-Martens/go-send/storage"
 	"github.com/Simon-Martens/go-send/utils"
 )
+
+const guestCookieTTL = 365 * 24 * time.Hour
 
 // NewClaimHandler creates a handler for claiming auth tokens
 // GET /auth/claim/[token] - validates token and redirects to appropriate registration page
@@ -49,21 +53,86 @@ func NewClaimHandler(app *core.App) http.HandlerFunc {
 		}
 
 		// Route based on token type
-		var redirectURL string
 		switch token.Type {
 		case storage.TokenTypeAdminSignup:
-			redirectURL = fmt.Sprintf("/register/admin/%s", rawToken)
+			redirectURL := fmt.Sprintf("/register/admin/%s", rawToken)
+			app.DBLogger.LogRequest(r, http.StatusFound, nil, "", "token_type", token.Type.String(), "redirect", redirectURL)
+			http.Redirect(w, r, redirectURL, http.StatusFound)
 		case storage.TokenTypeUserSignup:
-			redirectURL = fmt.Sprintf("/register/user/%s", rawToken)
+			redirectURL := fmt.Sprintf("/register/user/%s", rawToken)
+			app.DBLogger.LogRequest(r, http.StatusFound, nil, "", "token_type", token.Type.String(), "redirect", redirectURL)
+			http.Redirect(w, r, redirectURL, http.StatusFound)
+		case storage.TokenTypeGeneralGuestUpload:
+			handleGuestUploadClaim(app, w, r, token, rawToken)
 		default:
 			app.DBLogger.LogRequest(r, http.StatusBadRequest, nil, "unsupported token type", "type", token.Type)
 			http.Error(w, "Unsupported token type", http.StatusBadRequest)
-			return
 		}
-
-		app.DBLogger.LogRequest(r, http.StatusFound, nil, "", "token_type", token.Type.String(), "redirect", redirectURL)
-		http.Redirect(w, r, redirectURL, http.StatusFound)
 	}
+}
+
+func handleGuestUploadClaim(app *core.App, w http.ResponseWriter, r *http.Request, token *storage.AuthToken, rawToken string) {
+	// Check if user is already logged in with a valid session
+	session, err := app.GetAuthenticatedSession(r)
+	if err != nil {
+		app.Logger.Error("Error checking for authenticated session", "error", err)
+		app.DBLogger.LogRequest(r, http.StatusInternalServerError, nil, err.Error(), "operation", "check_session")
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	// If user has a valid session, redirect to upload page without setting guest cookie
+	if session != nil {
+		app.DBLogger.LogRequest(
+			r,
+			http.StatusFound,
+			session.UserID,
+			"logged_in_user_cannot_claim_guest_token",
+			"session_id", session.ID,
+			"auth_token_id", token.ID,
+		)
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
+	}
+
+	// No active session - proceed with guest cookie setup
+	label := strings.TrimSpace(token.Name)
+	if label == "" {
+		label = "Guest uploader"
+	}
+	// Issue a guest cookie that is readable from JavaScript so the frontend can
+	// recognise the guest session without persisting user data in storage.
+	http.SetCookie(w, &http.Cookie{
+		Name:     core.GuestTokenCookieName,
+		Value:    rawToken,
+		Path:     "/",
+		HttpOnly: false,
+		Secure:   r.TLS != nil,
+		SameSite: http.SameSiteLaxMode,
+		Expires:  time.Now().Add(guestCookieTTL),
+		MaxAge:   int(guestCookieTTL.Seconds()),
+	})
+	http.SetCookie(w, &http.Cookie{
+		Name:     core.GuestLabelCookieName,
+		Value:    url.QueryEscape(label),
+		Path:     "/",
+		HttpOnly: false,
+		Secure:   r.TLS != nil,
+		SameSite: http.SameSiteLaxMode,
+		Expires:  time.Now().Add(guestCookieTTL),
+		MaxAge:   int(guestCookieTTL.Seconds()),
+	})
+
+	app.DBLogger.LogRequest(
+		r,
+		http.StatusFound,
+		nil,
+		"guest_upload_claimed",
+		"auth_token_id", token.ID,
+		"label", label,
+	)
+
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 // NewRegisterPageHandler creates a handler for showing registration pages

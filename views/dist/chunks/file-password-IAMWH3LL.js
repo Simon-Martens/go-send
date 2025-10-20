@@ -1,6 +1,6 @@
 import {
   translateElement
-} from "./chunk-6DFT5NXM.js";
+} from "./chunk-TXB3JAVG.js";
 import "./chunk-IFG75HHC.js";
 
 // src/ui/file-password.mjs
@@ -174,4 +174,4 @@ var FilePasswordElement = class extends HTMLElement {
   }
 };
 customElements.define("file-password-view", FilePasswordElement);
-//# sourceMappingURL=file-password-ZGHDMKTF.js.map
+//# sourceMappingURL=file-password-IAMWH3LL.js.map

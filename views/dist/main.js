@@ -1,20 +1,23 @@
 import {
   syncOwnedFiles
-} from "./chunks/chunk-TQC4VBEF.js";
+} from "./chunks/chunk-VA7UHQJ2.js";
 import {
   APP_VERSION,
   Keychain,
   OWNER_SECRET_VERSION,
   OwnedFile,
   USER_ROLES,
+  UserSecrets,
+  storage_default
+} from "./chunks/chunk-TCL375PP.js";
+import {
   blobStream,
   concatStream,
   downloadFile,
   getApiUrl,
   metadata,
-  storage_default,
   uploadWs
-} from "./chunks/chunk-GIJL4XMM.js";
+} from "./chunks/chunk-PC246CWX.js";
 import {
   arrayToB64,
   browserName,
@@ -723,10 +726,13 @@ var FileSender = class extends EventTarget {
     const metadata2 = await this.keychain.encryptMetadata(archive);
     const authKeyB64 = await this.keychain.authKeyB64();
     let ownerSecretWrap = null;
+    let recipientSecretWrap = null;
     const userSecrets = storage_default.user;
     if (userSecrets) {
       try {
-        const wrapResult = await userSecrets.wrapSecret(this.keychain.rawSecret);
+        const wrapResult = await userSecrets.wrapSecret(
+          this.keychain.rawSecret
+        );
         ownerSecretWrap = {
           ciphertext: wrapResult.ciphertext,
           nonce: wrapResult.nonce,
@@ -740,6 +746,40 @@ var FileSender = class extends EventTarget {
         console.warn("[FileSender] Failed to wrap owner secret", err);
       }
     }
+    if (archive.recipientUserId && archive.recipientPublicKey) {
+      try {
+        const wrapResult = await UserSecrets.wrapSecretForRecipient(
+          this.keychain.rawSecret,
+          archive.recipientPublicKey
+        );
+        recipientSecretWrap = {
+          userId: archive.recipientUserId,
+          ciphertext: wrapResult.ciphertext,
+          nonce: wrapResult.nonce,
+          ephemeralPublicKey: wrapResult.ephemeralPublicKey,
+          version: wrapResult.version || OWNER_SECRET_VERSION
+        };
+      } catch (err) {
+        console.warn("[FileSender] Failed to wrap recipient secret", err);
+      }
+    }
+    if (archive.recipientUserId && archive.recipientPublicKey) {
+      try {
+        const wrapResult = await UserSecrets.wrapSecretForRecipient(
+          this.keychain.rawSecret,
+          archive.recipientPublicKey
+        );
+        recipientSecretWrap = {
+          userId: archive.recipientUserId,
+          ciphertext: wrapResult.ciphertext,
+          nonce: wrapResult.nonce,
+          ephemeralPublicKey: wrapResult.ephemeralPublicKey,
+          version: wrapResult.version || OWNER_SECRET_VERSION
+        };
+      } catch (err) {
+        console.warn("[FileSender] Failed to wrap recipient secret", err);
+      }
+    }
     this.uploadRequest = uploadWs(
       encStream,
       metadata2,
@@ -750,7 +790,8 @@ var FileSender = class extends EventTarget {
         this.progress = [p, totalSize];
         this.dispatchEvent(new Event("progress"));
       },
-      ownerSecretWrap
+      ownerSecretWrap,
+      recipientSecretWrap
     );
     if (this.cancelled) {
       throw new Error(0);
@@ -1789,7 +1830,7 @@ var localeLoaders = {
   el: () => import("./chunks/el-4RABOQBG.js"),
   "en-CA": () => import("./chunks/en-CA-DJ4OOLA4.js"),
   "en-GB": () => import("./chunks/en-GB-D7G7RTNJ.js"),
-  "en-US": () => import("./chunks/en-US-JOWE2PYS.js"),
+  "en-US": () => import("./chunks/en-US-XPGHHJVS.js"),
   "es-AR": () => import("./chunks/es-AR-6PZGYKH3.js"),
   "es-CL": () => import("./chunks/es-CL-HE4SPZ7U.js"),
   "es-ES": () => import("./chunks/es-ES-XGWIURD2.js"),
@@ -1858,7 +1899,7 @@ var localeLoaders = {
 };
 async function getTranslator(locale2) {
   const bundles = [];
-  const { default: en } = await import("./chunks/en-US-JOWE2PYS.js");
+  const { default: en } = await import("./chunks/en-US-XPGHHJVS.js");
   if (locale2 !== "en-US" && localeLoaders[locale2]) {
     const { default: ftl } = await localeLoaders[locale2]();
     bundles.push(makeBundle(locale2, ftl));
@@ -1891,6 +1932,8 @@ var Archive = class {
     this.dlimit = defaultDownloadLimit;
     this.password = null;
     this.customArchiveName = null;
+    this.recipientUserId = null;
+    this.recipientPublicKey = null;
   }
   get name() {
     if (this.files.length > 1) {
@@ -1951,6 +1994,16 @@ var Archive = class {
     this.timeLimit = this.defaultTimeLimit;
     this.password = null;
     this.customArchiveName = null;
+    this.recipientUserId = null;
+    this.recipientPublicKey = null;
+  }
+  setRecipient(userId, publicKey) {
+    this.recipientUserId = userId;
+    this.recipientPublicKey = publicKey;
+  }
+  clearRecipient() {
+    this.recipientUserId = null;
+    this.recipientPublicKey = null;
   }
 };
 
@@ -2114,9 +2167,7 @@ var Controller = class {
     this.root.addEventListener("updateoptions", this.handleUpdateOptions);
     this.root.addEventListener("metadata-request", this.handleMetadataRequest);
     this.root.addEventListener("download-start", this.handleDownloadStart);
-    this.intervals.push(
-      setInterval(() => this.checkFiles(), 2 * 60 * 1e3)
-    );
+    this.intervals.push(setInterval(() => this.checkFiles(), 2 * 60 * 1e3));
     this.intervals.push(
       setInterval(() => this.rerenderCountdowns(), 60 * 1e3)
     );
@@ -2135,7 +2186,10 @@ var Controller = class {
     this.root.removeEventListener("copy", this.handleCopy);
     this.root.removeEventListener("share", this.handleShare);
     this.root.removeEventListener("updateoptions", this.handleUpdateOptions);
-    this.root.removeEventListener("metadata-request", this.handleMetadataRequest);
+    this.root.removeEventListener(
+      "metadata-request",
+      this.handleMetadataRequest
+    );
     this.root.removeEventListener("download-start", this.handleDownloadStart);
     this.intervals.forEach((id) => clearInterval(id));
     this.intervals = [];
@@ -2179,7 +2233,14 @@ var Controller = class {
     }
   }
   handleUpdateOptions(event) {
-    const { timeLimit, downloadLimit, password, archiveName } = event.detail;
+    const {
+      timeLimit,
+      downloadLimit,
+      password,
+      archiveName,
+      recipientUserId,
+      recipientPublicKey
+    } = event.detail;
     const archive = this.state.archive;
     if (!archive) {
       return;
@@ -2195,6 +2256,13 @@ var Controller = class {
     }
     if (archiveName !== void 0) {
       archive.customArchiveName = archiveName ? archiveName : null;
+    }
+    if (recipientUserId !== void 0 || recipientPublicKey !== void 0) {
+      if (recipientUserId && recipientPublicKey) {
+        archive.setRecipient(recipientUserId, recipientPublicKey);
+      } else {
+        archive.clearRecipient();
+      }
     }
     console.log("[Controller] Updated archive options", {
       timeLimit: archive.timeLimit,
@@ -2227,7 +2295,10 @@ var Controller = class {
       this.progressIndicators.reset();
       this.state.storage.addFile(ownedFile);
       if (archive.password) {
-        await this.handlePassword({ password: archive.password, file: ownedFile });
+        await this.handlePassword({
+          password: archive.password,
+          file: ownedFile
+        });
       }
       console.log("[Controller] Upload complete:", ownedFile);
       this.state.uploading = false;
@@ -2471,7 +2542,9 @@ var Controller = class {
       } else {
         const layout = this.root.currentLayout;
         if (layout && typeof layout.showErrorView === "function") {
-          layout.showErrorView("An error occurred while fetching file information.");
+          layout.showErrorView(
+            "An error occurred while fetching file information."
+          );
         }
       }
     }
@@ -2908,8 +2981,8 @@ async function initUploadRoute(app) {
   console.log("[Route] Initializing upload page...");
   await Promise.all([
     import("./chunks/upload-layout-DFS3ROWS.js"),
-    import("./chunks/upload-area-7MOKQ2DK.js"),
-    import("./chunks/upload-right-TKW3X77H.js"),
+    import("./chunks/upload-area-T7VBNUII.js"),
+    import("./chunks/upload-right-5USDMGVM.js"),
     app.controller.ready
   ]);
   app.showUploadLayout();
@@ -2932,7 +3005,7 @@ async function initDownloadRoute(app) {
 async function initRegisterRoute(app) {
   console.log("[Route] Initializing register page...");
   await Promise.all([
-    import("./chunks/register-layout-DOIZIAV7.js"),
+    import("./chunks/register-layout-7Y5TSQRE.js"),
     app.controller.ready
   ]);
   app.showRegisterLayout();
@@ -2941,7 +3014,7 @@ async function initRegisterRoute(app) {
 async function initLoginRoute(app) {
   console.log("[Route] Initializing login page...");
   await Promise.all([
-    import("./chunks/login-layout-ZOEEBUG2.js"),
+    import("./chunks/login-layout-GLWGWKPQ.js"),
     app.controller.ready
   ]);
   app.showLoginLayout();
@@ -2950,7 +3023,7 @@ async function initLoginRoute(app) {
 async function initSettingsRoute(app) {
   console.log("[Route] Initializing settings page...");
   await Promise.all([
-    import("./chunks/settings-layout-NJEUXXPI.js"),
+    import("./chunks/settings-layout-DGAUM7Z6.js"),
     app.controller.ready
   ]);
   app.showSettingsLayout();

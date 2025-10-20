@@ -267,4 +267,48 @@ export default class UserSecrets {
 
     return new Uint8Array(plaintext);
   }
+
+  static async wrapSecretForRecipient(secretBytes, recipientPublicKeyB64) {
+    if (!(secretBytes instanceof Uint8Array)) {
+      throw new TypeError("secretBytes must be a Uint8Array");
+    }
+    if (!secretBytes.length) {
+      throw new Error("secretBytes cannot be empty");
+    }
+    if (!recipientPublicKeyB64) {
+      throw new Error("recipientPublicKeyB64 is required");
+    }
+
+    const recipientPublicKey = b64ToArray(recipientPublicKeyB64);
+    if (recipientPublicKey.length !== 32) {
+      throw new Error("invalid recipient public key length");
+    }
+
+    // Generate ephemeral keypair for ECDH
+    const ephemeralPrivate = randomX25519PrivateKey();
+    const ephemeralPublic = x25519.scalarMultBase(ephemeralPrivate);
+
+    // Compute shared secret: ephemeralPrivate * recipientPublic
+    const sharedSecret = x25519.scalarMult(
+      ephemeralPrivate,
+      recipientPublicKey,
+    );
+
+    // Encrypt the master key with the shared secret
+    const { ciphertext, nonce } = await encryptWithSharedSecret(
+      sharedSecret,
+      secretBytes,
+    );
+
+    // Clean up sensitive material
+    ephemeralPrivate.fill(0);
+    sharedSecret.fill(0);
+
+    return {
+      ciphertext: arrayToB64(ciphertext),
+      nonce: arrayToB64(nonce),
+      ephemeralPublicKey: arrayToB64(ephemeralPublic),
+      version: OWNER_SECRET_VERSION,
+    };
+  }
 }

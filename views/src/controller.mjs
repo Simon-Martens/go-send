@@ -4,7 +4,14 @@ import FileSender from "./fileSender";
 // import okDialog from "./ui/okDialog";
 // import shareDialog from "./ui/shareDialog";
 import { bytes } from "./utils";
-import { copyToClipboard, delay, openLinksInNewTab, percent, setTranslate, locale } from "./utils";
+import {
+  copyToClipboard,
+  delay,
+  openLinksInNewTab,
+  percent,
+  setTranslate,
+  locale,
+} from "./utils";
 import getCapabilities from "./capabilities.mjs";
 import storage from "./storage.mjs";
 import { getTranslator } from "./locale.mjs";
@@ -69,7 +76,10 @@ export class Controller {
 
     // Check capabilities
     const capabilities = await getCapabilities();
-    if (!capabilities.crypto && window.location.pathname !== "/unsupported/crypto") {
+    if (
+      !capabilities.crypto &&
+      window.location.pathname !== "/unsupported/crypto"
+    ) {
       window.location.assign("/unsupported/crypto");
       throw new Error("Crypto not supported");
     }
@@ -143,13 +153,11 @@ export class Controller {
     // Set up periodic tasks (like in old controller)
 
     // Poll for file info updates (download counts, expiration) every 2 minutes
-    this.intervals.push(
-      setInterval(() => this.checkFiles(), 2 * 60 * 1000)
-    );
+    this.intervals.push(setInterval(() => this.checkFiles(), 2 * 60 * 1000));
 
     // Re-render file list every minute to update countdown timers ("expires in X minutes")
     this.intervals.push(
-      setInterval(() => this.rerenderCountdowns(), 60 * 1000)
+      setInterval(() => this.rerenderCountdowns(), 60 * 1000),
     );
 
     console.log("[Controller] Event handlers attached");
@@ -170,11 +178,14 @@ export class Controller {
     this.root.removeEventListener("updateoptions", this.handleUpdateOptions);
 
     // Download handlers
-    this.root.removeEventListener("metadata-request", this.handleMetadataRequest);
+    this.root.removeEventListener(
+      "metadata-request",
+      this.handleMetadataRequest,
+    );
     this.root.removeEventListener("download-start", this.handleDownloadStart);
 
     // Clear intervals
-    this.intervals.forEach(id => clearInterval(id));
+    this.intervals.forEach((id) => clearInterval(id));
     this.intervals = [];
 
     console.log("[Controller] Event handlers destroyed");
@@ -236,7 +247,14 @@ export class Controller {
   }
 
   handleUpdateOptions(event) {
-    const { timeLimit, downloadLimit, password, archiveName } = event.detail;
+    const {
+      timeLimit,
+      downloadLimit,
+      password,
+      archiveName,
+      recipientUserId,
+      recipientPublicKey,
+    } = event.detail;
     const archive = this.state.archive;
 
     if (!archive) {
@@ -259,18 +277,27 @@ export class Controller {
       archive.customArchiveName = archiveName ? archiveName : null;
     }
 
+    // Handle recipient selection (encrypt for specific user)
+    if (recipientUserId !== undefined || recipientPublicKey !== undefined) {
+      if (recipientUserId && recipientPublicKey) {
+        archive.setRecipient(recipientUserId, recipientPublicKey);
+      } else {
+        archive.clearRecipient();
+      }
+    }
     console.log("[Controller] Updated archive options", {
       timeLimit: archive.timeLimit,
       downloadLimit: archive.dlimit,
       password: archive.password ? "***" : null,
     });
-
   }
 
   async handleUpload(event) {
     console.log("[Controller] Starting upload");
 
-    if (this.state.storage.files.length >= this.state.LIMITS.MAX_ARCHIVES_PER_USER) {
+    if (
+      this.state.storage.files.length >= this.state.LIMITS.MAX_ARCHIVES_PER_USER
+    ) {
       console.warn("[Controller] Too many archives");
       return;
     }
@@ -304,7 +331,10 @@ export class Controller {
       this.state.storage.addFile(ownedFile);
 
       if (archive.password) {
-        await this.handlePassword({ password: archive.password, file: ownedFile });
+        await this.handlePassword({
+          password: archive.password,
+          file: ownedFile,
+        });
       }
 
       console.log("[Controller] Upload complete:", ownedFile);
@@ -318,10 +348,12 @@ export class Controller {
       await this.state.storage.merge();
 
       // Update the layout to show complete view
-      if (this.root.currentLayout && this.root.currentLayout.setUploadComplete) {
+      if (
+        this.root.currentLayout &&
+        this.root.currentLayout.setUploadComplete
+      ) {
         this.root.currentLayout.setUploadComplete(ownedFile);
       }
-
     } catch (err) {
       if (err.message === "0") {
         // Cancelled, do nothing
@@ -406,10 +438,12 @@ export class Controller {
 
     // Use native share API if available
     if (navigator.share) {
-      navigator.share({
-        title: name,
-        url: url
-      }).catch(err => console.log("[Controller] Share cancelled:", err));
+      navigator
+        .share({
+          title: name,
+          url: url,
+        })
+        .catch((err) => console.log("[Controller] Share cancelled:", err));
     } else {
       // Fallback to copy
       this.handleCopy({ detail: { url } });
@@ -476,7 +510,9 @@ export class Controller {
     // 3. Haven't rendered in the last 30 seconds
     const now = Date.now();
     const hasFiles = this.state.storage && this.state.storage.files.length > 0;
-    const isUploadView = this.root.currentLayout && this.root.currentLayout.tagName === 'UPLOAD-LAYOUT';
+    const isUploadView =
+      this.root.currentLayout &&
+      this.root.currentLayout.tagName === "UPLOAD-LAYOUT";
     const needsUpdate = now - this.lastRender > 30000;
 
     if (hasFiles && isUploadView && needsUpdate) {
@@ -491,7 +527,11 @@ export class Controller {
 
     // Refresh upload list if on upload layout
     const layout = this.root.currentLayout;
-    if (layout && layout.tagName === 'UPLOAD-LAYOUT' && typeof layout.refreshUploadList === 'function') {
+    if (
+      layout &&
+      layout.tagName === "UPLOAD-LAYOUT" &&
+      typeof layout.refreshUploadList === "function"
+    ) {
       layout.refreshUploadList();
     }
 
@@ -624,7 +664,9 @@ export class Controller {
         const layout = this.root.currentLayout;
         if (layout && typeof layout.showPasswordView === "function") {
           const translate = this.state.translate || window.translate;
-          const errorMsg = translate ? translate("passwordTryAgain") : "Incorrect password. Please try again.";
+          const errorMsg = translate
+            ? translate("passwordTryAgain")
+            : "Incorrect password. Please try again.";
           layout.showPasswordView(errorMsg);
         }
       } else if (e.message === "404") {
@@ -632,14 +674,18 @@ export class Controller {
         const layout = this.root.currentLayout;
         if (layout && typeof layout.showErrorView === "function") {
           const translate = this.state.translate || window.translate;
-          const errorMsg = translate ? translate("notFoundDescription") : "File not found or expired.";
+          const errorMsg = translate
+            ? translate("notFoundDescription")
+            : "File not found or expired.";
           layout.showErrorView(errorMsg);
         }
       } else {
         // Other error
         const layout = this.root.currentLayout;
         if (layout && typeof layout.showErrorView === "function") {
-          layout.showErrorView("An error occurred while fetching file information.");
+          layout.showErrorView(
+            "An error occurred while fetching file information.",
+          );
         }
       }
     }
@@ -694,7 +740,9 @@ export class Controller {
         const layout = this.root.currentLayout;
         if (layout && typeof layout.showErrorView === "function") {
           const translate = this.state.translate || window.translate;
-          const errorMsg = translate ? translate("notFoundDescription") : "File not found or expired.";
+          const errorMsg = translate
+            ? translate("notFoundDescription")
+            : "File not found or expired.";
           layout.showErrorView(errorMsg);
         }
       } else {

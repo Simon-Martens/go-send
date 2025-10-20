@@ -1,4 +1,4 @@
-import { blobStream, concatStream } from './streams';
+import { blobStream, concatStream } from "./streams";
 
 function isDupe(newFile, array) {
   for (const file of array) {
@@ -22,14 +22,16 @@ export default class Archive {
     this.dlimit = defaultDownloadLimit;
     this.password = null;
     this.customArchiveName = null;
+    this.recipientUserId = null; // ID of user to encrypt for (optional)
+    this.recipientPublicKey = null; // X25519 public key of recipient (base64)
   }
 
   get name() {
     if (this.files.length > 1) {
       // Use custom name if set, otherwise default to 'Send-Archive'
-      const baseName = this.customArchiveName || 'Send-Archive';
+      const baseName = this.customArchiveName || "Send-Archive";
       // Ensure .zip extension
-      return baseName.endsWith('.zip') ? baseName : `${baseName}.zip`;
+      return baseName.endsWith(".zip") ? baseName : `${baseName}.zip`;
     }
     return this.files[0].name;
   }
@@ -42,7 +44,7 @@ export default class Archive {
   }
 
   get type() {
-    return this.files.length > 1 ? 'send-archive' : this.files[0].type;
+    return this.files.length > 1 ? "send-archive" : this.files[0].type;
   }
 
   get size() {
@@ -55,28 +57,28 @@ export default class Archive {
 
   get manifest() {
     return {
-      files: this.files.map(file => ({
+      files: this.files.map((file) => ({
         name: file.name,
         size: file.size,
-        type: file.type
-      }))
+        type: file.type,
+      })),
     };
   }
 
   get stream() {
-    return concatStream(this.files.map(file => blobStream(file)));
+    return concatStream(this.files.map((file) => blobStream(file)));
   }
 
   addFiles(files, maxSize, maxFiles) {
     if (this.files.length + files.length > maxFiles) {
-      throw new Error('tooManyFiles');
+      throw new Error("tooManyFiles");
     }
     const newFiles = files.filter(
-      file => file.size > 0 && !isDupe(file, this.files)
+      (file) => file.size > 0 && !isDupe(file, this.files),
     );
     const newSize = newFiles.reduce((total, file) => total + file.size, 0);
     if (this.size + newSize > maxSize) {
-      throw new Error('fileTooBig');
+      throw new Error("fileTooBig");
     }
     this.files = this.files.concat(newFiles);
     return true;
@@ -95,5 +97,17 @@ export default class Archive {
     this.timeLimit = this.defaultTimeLimit;
     this.password = null;
     this.customArchiveName = null;
+    this.recipientUserId = null;
+    this.recipientPublicKey = null;
+  }
+
+  setRecipient(userId, publicKey) {
+    this.recipientUserId = userId;
+    this.recipientPublicKey = publicKey;
+  }
+
+  clearRecipient() {
+    this.recipientUserId = null;
+    this.recipientPublicKey = null;
   }
 }

@@ -1,6 +1,14 @@
 import storage from "../storage.mjs";
-import UserSecrets, { OWNER_SECRET_VERSION, USER_ROLES } from "../userSecrets.mjs";
-import { arrayToB64, translate, translateElement, copyToClipboard } from "../utils.mjs";
+import UserSecrets, {
+  OWNER_SECRET_VERSION,
+  USER_ROLES,
+} from "../userSecrets.mjs";
+import {
+  arrayToB64,
+  translate,
+  translateElement,
+  copyToClipboard,
+} from "../utils.mjs";
 import {
   DEFAULT_KDF_SETTINGS,
   deriveKeyMaterial,
@@ -236,62 +244,136 @@ class SettingsLayout extends HTMLElement {
       this._panels.set(panel.getAttribute("data-panel"), panel);
     });
 
-    this._usersNavItem = this.querySelector("[data-role=\"users-nav\"]");
-    this._uploadLinksNavItem = this.querySelector("[data-role=\"upload-links-nav\"]");
+    this._usersNavItem = this.querySelector('[data-role="users-nav"]');
+    this._uploadLinksNavItem = this.querySelector(
+      '[data-role="upload-links-nav"]',
+    );
     this._uploadLinksPanel = this._panels.get("upload-links") || null;
     if (this._uploadLinksPanel) {
-      this._uploadLinksAdminSection = this._uploadLinksPanel.querySelector('[data-role="upload-links-admin"]');
-      this._uploadLinksPlaceholder = this._uploadLinksPanel.querySelector('[data-role="upload-links-placeholder"]');
-      this._uploadLinksForm = this._uploadLinksPanel.querySelector('[data-role="upload-links-form"]');
-      this._uploadLinksLabelInput = this._uploadLinksPanel.querySelector('[data-role="upload-links-label"]');
-      this._uploadLinksDescriptionInput = this._uploadLinksPanel.querySelector('[data-role="upload-links-description"]');
-      this._uploadLinksSubmitButton = this._uploadLinksPanel.querySelector('[data-role="upload-links-submit"]');
-      this._uploadLinksStatusEl = this._uploadLinksPanel.querySelector('[data-role="upload-links-status"]');
-      this._uploadLinksStatusIcon = this._uploadLinksPanel.querySelector('[data-role="upload-links-status-icon"]');
-      this._uploadLinksStatusText = this._uploadLinksPanel.querySelector('[data-role="upload-links-status-text"]');
-      this._uploadLinksDetail = this._uploadLinksPanel.querySelector('[data-role="upload-links-detail"]');
-      this._uploadLinksDetailLabel = this._uploadLinksPanel.querySelector('[data-role="upload-links-detail-label"]');
-      this._uploadLinksDetailInput = this._uploadLinksPanel.querySelector('[data-role="upload-links-detail-input"]');
-      this._uploadLinksDetailCopyButton = this._uploadLinksPanel.querySelector('[data-role="upload-links-copy"]');
-      this._uploadLinksDetailCopyIcon = this._uploadLinksPanel.querySelector('[data-role="upload-links-copy-icon"]');
-      this._uploadLinksDetailStatus = this._uploadLinksPanel.querySelector('[data-role="upload-links-detail-status"]');
-      this._uploadLinksTableBody = this._uploadLinksPanel.querySelector('[data-role="upload-links-table"]');
-      this._uploadLinksEmpty = this._uploadLinksPanel.querySelector('[data-role="upload-links-empty"]');
+      this._uploadLinksAdminSection = this._uploadLinksPanel.querySelector(
+        '[data-role="upload-links-admin"]',
+      );
+      this._uploadLinksPlaceholder = this._uploadLinksPanel.querySelector(
+        '[data-role="upload-links-placeholder"]',
+      );
+      this._uploadLinksForm = this._uploadLinksPanel.querySelector(
+        '[data-role="upload-links-form"]',
+      );
+      this._uploadLinksLabelInput = this._uploadLinksPanel.querySelector(
+        '[data-role="upload-links-label"]',
+      );
+      this._uploadLinksDescriptionInput = this._uploadLinksPanel.querySelector(
+        '[data-role="upload-links-description"]',
+      );
+      this._uploadLinksSubmitButton = this._uploadLinksPanel.querySelector(
+        '[data-role="upload-links-submit"]',
+      );
+      this._uploadLinksStatusEl = this._uploadLinksPanel.querySelector(
+        '[data-role="upload-links-status"]',
+      );
+      this._uploadLinksStatusIcon = this._uploadLinksPanel.querySelector(
+        '[data-role="upload-links-status-icon"]',
+      );
+      this._uploadLinksStatusText = this._uploadLinksPanel.querySelector(
+        '[data-role="upload-links-status-text"]',
+      );
+      this._uploadLinksDetail = this._uploadLinksPanel.querySelector(
+        '[data-role="upload-links-detail"]',
+      );
+      this._uploadLinksDetailLabel = this._uploadLinksPanel.querySelector(
+        '[data-role="upload-links-detail-label"]',
+      );
+      this._uploadLinksDetailInput = this._uploadLinksPanel.querySelector(
+        '[data-role="upload-links-detail-input"]',
+      );
+      this._uploadLinksDetailCopyButton = this._uploadLinksPanel.querySelector(
+        '[data-role="upload-links-copy"]',
+      );
+      this._uploadLinksDetailCopyIcon = this._uploadLinksPanel.querySelector(
+        '[data-role="upload-links-copy-icon"]',
+      );
+      this._uploadLinksDetailStatus = this._uploadLinksPanel.querySelector(
+        '[data-role="upload-links-detail-status"]',
+      );
+      this._uploadLinksTableBody = this._uploadLinksPanel.querySelector(
+        '[data-role="upload-links-table"]',
+      );
+      this._uploadLinksEmpty = this._uploadLinksPanel.querySelector(
+        '[data-role="upload-links-empty"]',
+      );
     }
     this._usersPanel = this._panels.get("users") || null;
     this._usersHeader = this.querySelector('[data-role="users-header"]');
 
     this._profileForm = this.querySelector('[data-role="profile-form"]');
-    this._profileSubmitButton = this.querySelector('[data-role="profile-submit"]');
+    this._profileSubmitButton = this.querySelector(
+      '[data-role="profile-submit"]',
+    );
     this._profileStatus = this.querySelector('[data-role="profile-status"]');
-    this._profileStatusIcon = this.querySelector('[data-role="profile-status-icon"]');
-    this._profileStatusText = this.querySelector('[data-role="profile-status-text"]');
+    this._profileStatusIcon = this.querySelector(
+      '[data-role="profile-status-icon"]',
+    );
+    this._profileStatusText = this.querySelector(
+      '[data-role="profile-status-text"]',
+    );
 
     this._passwordForm = this.querySelector('[data-role="password-form"]');
-    this._passwordSubmitButton = this.querySelector('[data-role="password-submit"]');
+    this._passwordSubmitButton = this.querySelector(
+      '[data-role="password-submit"]',
+    );
     this._passwordStatus = this.querySelector('[data-role="password-status"]');
-    this._passwordStatusIcon = this.querySelector('[data-role="password-status-icon"]');
-    this._passwordStatusText = this.querySelector('[data-role="password-status-text"]');
+    this._passwordStatusIcon = this.querySelector(
+      '[data-role="password-status-icon"]',
+    );
+    this._passwordStatusText = this.querySelector(
+      '[data-role="password-status-text"]',
+    );
 
     this._accountStatus = this.querySelector('[data-role="account-status"]');
-    this._accountStatusIcon = this.querySelector('[data-role="account-status-icon"]');
-    this._accountStatusText = this.querySelector('[data-role="account-status-text"]');
-    this._clearSessionsButton = this.querySelector('[data-role="account-clear-sessions"]');
-    this._deactivateAccountButton = this.querySelector('[data-role="account-deactivate"]');
-    this._accountKeyValue = this.querySelector('[data-role="account-key-value"]');
-    this._accountKeyCopyButton = this.querySelector('[data-role="account-key-copy"]');
-    this._accountKeyStatus = this.querySelector('[data-role="account-key-status"]');
-    this._accountKeyStatusIcon = this.querySelector('[data-role="account-key-status-icon"]');
-    this._accountKeyStatusText = this.querySelector('[data-role="account-key-status-text"]');
+    this._accountStatusIcon = this.querySelector(
+      '[data-role="account-status-icon"]',
+    );
+    this._accountStatusText = this.querySelector(
+      '[data-role="account-status-text"]',
+    );
+    this._clearSessionsButton = this.querySelector(
+      '[data-role="account-clear-sessions"]',
+    );
+    this._deactivateAccountButton = this.querySelector(
+      '[data-role="account-deactivate"]',
+    );
+    this._accountKeyValue = this.querySelector(
+      '[data-role="account-key-value"]',
+    );
+    this._accountKeyCopyButton = this.querySelector(
+      '[data-role="account-key-copy"]',
+    );
+    this._accountKeyStatus = this.querySelector(
+      '[data-role="account-key-status"]',
+    );
+    this._accountKeyStatusIcon = this.querySelector(
+      '[data-role="account-key-status-icon"]',
+    );
+    this._accountKeyStatusText = this.querySelector(
+      '[data-role="account-key-status-text"]',
+    );
 
     this._signupOverview = this.querySelector('[data-role="signup-overview"]');
     this._signupDetail = this.querySelector('[data-role="signup-detail"]');
     this._detailHeading = this.querySelector('[data-role="detail-heading"]');
-    this._detailDescription = this.querySelector('[data-role="detail-description"]');
-    this._detailActiveCount = this.querySelector('[data-role="detail-active-count"]');
+    this._detailDescription = this.querySelector(
+      '[data-role="detail-description"]',
+    );
+    this._detailActiveCount = this.querySelector(
+      '[data-role="detail-active-count"]',
+    );
     this._detailStatusEl = this.querySelector('[data-role="detail-status"]');
-    this._detailStatusIcon = this.querySelector('[data-role="detail-status-icon"]');
-    this._detailStatusText = this.querySelector('[data-role="detail-status-text"]');
+    this._detailStatusIcon = this.querySelector(
+      '[data-role="detail-status-icon"]',
+    );
+    this._detailStatusText = this.querySelector(
+      '[data-role="detail-status-text"]',
+    );
     this._detailQrContainer = this.querySelector('[data-role="detail-qr"]');
     this._detailLinkInput = this.querySelector('[data-role="detail-link"]');
     this._detailCopyButton = this.querySelector('[data-role="detail-copy"]');
@@ -299,11 +381,24 @@ class SettingsLayout extends HTMLElement {
     this._detailBackButton = this.querySelector('[data-role="detail-back"]');
     this._detailFootnote = this.querySelector('[data-role="detail-footnote"]');
     this._usersListSection = this.querySelector('[data-role="users-list"]');
-    this._usersListStatus = this._usersListSection?.querySelector('[data-role="users-list-status"]') || null;
-    this._usersStatusIcon = this._usersListSection?.querySelector('[data-role="users-list-status-icon"]') || null;
-    this._usersStatusText = this._usersListSection?.querySelector('[data-role="users-list-status-text"]') || null;
-    this._usersListEmpty = this._usersListSection?.querySelector('[data-role="users-list-empty"]') || null;
-    this._usersTableBody = this._usersListSection?.querySelector('[data-role="users-table-body"]') || null;
+    this._usersListStatus =
+      this._usersListSection?.querySelector(
+        '[data-role="users-list-status"]',
+      ) || null;
+    this._usersStatusIcon =
+      this._usersListSection?.querySelector(
+        '[data-role="users-list-status-icon"]',
+      ) || null;
+    this._usersStatusText =
+      this._usersListSection?.querySelector(
+        '[data-role="users-list-status-text"]',
+      ) || null;
+    this._usersListEmpty =
+      this._usersListSection?.querySelector('[data-role="users-list-empty"]') ||
+      null;
+    this._usersTableBody =
+      this._usersListSection?.querySelector('[data-role="users-table-body"]') ||
+      null;
   }
 
   _attachListeners() {
@@ -311,16 +406,28 @@ class SettingsLayout extends HTMLElement {
       button.addEventListener("click", this._boundCategoryClick);
     });
     if (this._profileSubmitButton) {
-      this._profileSubmitButton.addEventListener("click", this._boundProfileSubmit);
+      this._profileSubmitButton.addEventListener(
+        "click",
+        this._boundProfileSubmit,
+      );
     }
     if (this._passwordSubmitButton) {
-      this._passwordSubmitButton.addEventListener("click", this._boundPasswordSubmit);
+      this._passwordSubmitButton.addEventListener(
+        "click",
+        this._boundPasswordSubmit,
+      );
     }
     if (this._clearSessionsButton) {
-      this._clearSessionsButton.addEventListener("click", this._boundClearSessions);
+      this._clearSessionsButton.addEventListener(
+        "click",
+        this._boundClearSessions,
+      );
     }
     if (this._deactivateAccountButton) {
-      this._deactivateAccountButton.addEventListener("click", this._boundDeactivateAccount);
+      this._deactivateAccountButton.addEventListener(
+        "click",
+        this._boundDeactivateAccount,
+      );
     }
     if (this._accountKeyCopyButton) {
       this._accountKeyCopyButton.addEventListener("click", this._boundKeyCopy);
@@ -328,18 +435,30 @@ class SettingsLayout extends HTMLElement {
     if (this._isAdmin) {
       this._signupSections.forEach((section) => {
         if (section.generateButton) {
-          section.generateButton.addEventListener("click", this._boundGenerateClick);
+          section.generateButton.addEventListener(
+            "click",
+            this._boundGenerateClick,
+          );
         }
         if (section.revokeButton) {
-          section.revokeButton.addEventListener("click", this._boundRevokeClick);
+          section.revokeButton.addEventListener(
+            "click",
+            this._boundRevokeClick,
+          );
         }
       });
       if (this._detailCopyButton) {
         this._detailCopyButton.addEventListener("click", this._boundDetailCopy);
       }
       if (this._detailLinkInput) {
-        this._detailLinkInput.addEventListener("focus", this._boundDetailLinkFocus);
-        this._detailLinkInput.addEventListener("click", this._boundDetailLinkFocus);
+        this._detailLinkInput.addEventListener(
+          "focus",
+          this._boundDetailLinkFocus,
+        );
+        this._detailLinkInput.addEventListener(
+          "click",
+          this._boundDetailLinkFocus,
+        );
       }
       if (this._detailBackButton) {
         this._detailBackButton.addEventListener("click", this._boundDetailBack);
@@ -348,13 +467,22 @@ class SettingsLayout extends HTMLElement {
         this._usersTableBody.addEventListener("click", this._boundUserAction);
       }
       if (this._uploadLinksForm) {
-        this._uploadLinksForm.addEventListener("submit", this._boundUploadLinksSubmit);
+        this._uploadLinksForm.addEventListener(
+          "submit",
+          this._boundUploadLinksSubmit,
+        );
       }
       if (this._uploadLinksTableBody) {
-        this._uploadLinksTableBody.addEventListener("click", this._boundUploadLinksAction);
+        this._uploadLinksTableBody.addEventListener(
+          "click",
+          this._boundUploadLinksAction,
+        );
       }
       if (this._uploadLinksDetailCopyButton) {
-        this._uploadLinksDetailCopyButton.addEventListener("click", this._boundUploadLinksCopy);
+        this._uploadLinksDetailCopyButton.addEventListener(
+          "click",
+          this._boundUploadLinksCopy,
+        );
       }
     }
   }
@@ -364,50 +492,95 @@ class SettingsLayout extends HTMLElement {
       button.removeEventListener("click", this._boundCategoryClick);
     });
     if (this._profileSubmitButton) {
-      this._profileSubmitButton.removeEventListener("click", this._boundProfileSubmit);
+      this._profileSubmitButton.removeEventListener(
+        "click",
+        this._boundProfileSubmit,
+      );
     }
     if (this._passwordSubmitButton) {
-      this._passwordSubmitButton.removeEventListener("click", this._boundPasswordSubmit);
+      this._passwordSubmitButton.removeEventListener(
+        "click",
+        this._boundPasswordSubmit,
+      );
     }
     if (this._clearSessionsButton) {
-      this._clearSessionsButton.removeEventListener("click", this._boundClearSessions);
+      this._clearSessionsButton.removeEventListener(
+        "click",
+        this._boundClearSessions,
+      );
     }
     if (this._deactivateAccountButton) {
-      this._deactivateAccountButton.removeEventListener("click", this._boundDeactivateAccount);
+      this._deactivateAccountButton.removeEventListener(
+        "click",
+        this._boundDeactivateAccount,
+      );
     }
     if (this._accountKeyCopyButton) {
-      this._accountKeyCopyButton.removeEventListener("click", this._boundKeyCopy);
+      this._accountKeyCopyButton.removeEventListener(
+        "click",
+        this._boundKeyCopy,
+      );
     }
     if (this._isAdmin) {
       this._signupSections.forEach((section) => {
         if (section.generateButton) {
-          section.generateButton.removeEventListener("click", this._boundGenerateClick);
+          section.generateButton.removeEventListener(
+            "click",
+            this._boundGenerateClick,
+          );
         }
         if (section.revokeButton) {
-          section.revokeButton.removeEventListener("click", this._boundRevokeClick);
+          section.revokeButton.removeEventListener(
+            "click",
+            this._boundRevokeClick,
+          );
         }
       });
       if (this._detailCopyButton) {
-        this._detailCopyButton.removeEventListener("click", this._boundDetailCopy);
+        this._detailCopyButton.removeEventListener(
+          "click",
+          this._boundDetailCopy,
+        );
       }
       if (this._detailLinkInput) {
-        this._detailLinkInput.removeEventListener("focus", this._boundDetailLinkFocus);
-        this._detailLinkInput.removeEventListener("click", this._boundDetailLinkFocus);
+        this._detailLinkInput.removeEventListener(
+          "focus",
+          this._boundDetailLinkFocus,
+        );
+        this._detailLinkInput.removeEventListener(
+          "click",
+          this._boundDetailLinkFocus,
+        );
       }
       if (this._detailBackButton) {
-        this._detailBackButton.removeEventListener("click", this._boundDetailBack);
+        this._detailBackButton.removeEventListener(
+          "click",
+          this._boundDetailBack,
+        );
       }
       if (this._usersTableBody) {
-        this._usersTableBody.removeEventListener("click", this._boundUserAction);
+        this._usersTableBody.removeEventListener(
+          "click",
+          this._boundUserAction,
+        );
       }
       if (this._uploadLinksForm) {
-        this._uploadLinksForm.removeEventListener("submit", this._boundUploadLinksSubmit);
+        this._uploadLinksForm.removeEventListener(
+          "submit",
+          this._boundUploadLinksSubmit,
+        );
       }
       if (this._uploadLinksTableBody) {
-        this._uploadLinksTableBody.removeEventListener("click", this._boundUploadLinksAction);
+        this._uploadLinksTableBody.removeEventListener(
+          "click",
+          this._boundUploadLinksAction,
+        );
       }
       if (this._uploadLinksDetailCopyButton) {
-        this._uploadLinksDetailCopyButton.removeEventListener("click", this._boundUploadLinksCopy);
+        this._uploadLinksDetailCopyButton.removeEventListener(
+          "click",
+          this._boundUploadLinksCopy,
+        );
       }
     }
   }
@@ -482,11 +655,15 @@ class SettingsLayout extends HTMLElement {
     if (!userSecrets) {
       return;
     }
-    const nameInput = this._profileForm?.querySelector("#settings-account-name");
+    const nameInput = this._profileForm?.querySelector(
+      "#settings-account-name",
+    );
     if (nameInput) {
       nameInput.value = userSecrets.name || "";
     }
-    const emailInput = this._profileForm?.querySelector("#settings-account-email");
+    const emailInput = this._profileForm?.querySelector(
+      "#settings-account-email",
+    );
     if (emailInput) {
       emailInput.value = userSecrets.email || "";
     }
@@ -499,14 +676,17 @@ class SettingsLayout extends HTMLElement {
     }
     const raw = userSecrets?.x25519PrivateKey || "";
     if (!raw) {
-      this._accountKeyValue.textContent = translate("settingsAccountKeyUnavailable");
+      this._accountKeyValue.textContent = translate(
+        "settingsAccountKeyUnavailable",
+      );
       if (this._accountKeyCopyButton) {
         this._accountKeyCopyButton.disabled = true;
       }
       this._setKeyStatus("", "");
       return;
     }
-    const preview = raw.length <= 20 ? raw : `${raw.slice(0, 12)}…${raw.slice(-6)}`;
+    const preview =
+      raw.length <= 20 ? raw : `${raw.slice(0, 12)}…${raw.slice(-6)}`;
     this._accountKeyValue.textContent = preview;
     if (this._accountKeyCopyButton) {
       this._accountKeyCopyButton.disabled = false;
@@ -654,19 +834,26 @@ class SettingsLayout extends HTMLElement {
 
     const expiresText = this._formatExpiry(expiresAtSeconds);
     if (this._detailDescription) {
-      this._detailDescription.textContent = translate("settingsUsersDetailDescription", {
-        date: expiresText,
-      });
+      this._detailDescription.textContent = translate(
+        "settingsUsersDetailDescription",
+        {
+          date: expiresText,
+        },
+      );
     }
 
     if (this._detailActiveCount) {
       const section = this._getSignupSection(type);
-      const count = section?.countEl ? Number(section.countEl.textContent || 0) : 0;
+      const count = section?.countEl
+        ? Number(section.countEl.textContent || 0)
+        : 0;
       this._detailActiveCount.textContent = String(count);
     }
 
     if (this._detailFootnote) {
-      this._detailFootnote.textContent = translate("settingsUsersDetailFootnote");
+      this._detailFootnote.textContent = translate(
+        "settingsUsersDetailFootnote",
+      );
     }
 
     this._setDetailStatus("");
@@ -684,7 +871,9 @@ class SettingsLayout extends HTMLElement {
     }
 
     if (this._detailCopyIcon) {
-      const original = this._detailCopyIcon.dataset.originalClass || this._detailCopyIcon.className;
+      const original =
+        this._detailCopyIcon.dataset.originalClass ||
+        this._detailCopyIcon.className;
       this._detailCopyIcon.dataset.originalClass = original;
       this._detailCopyIcon.className = original;
     }
@@ -712,7 +901,8 @@ class SettingsLayout extends HTMLElement {
       this._detailQrContainer.innerHTML = "";
     }
     if (this._detailCopyIcon && this._detailCopyIcon.dataset.originalClass) {
-      this._detailCopyIcon.className = this._detailCopyIcon.dataset.originalClass;
+      this._detailCopyIcon.className =
+        this._detailCopyIcon.dataset.originalClass;
     }
     this._setDetailStatus("");
     this._signupDetail.classList.add("hidden");
@@ -798,7 +988,10 @@ class SettingsLayout extends HTMLElement {
     const description = (this._uploadLinksDescriptionInput?.value || "").trim();
 
     if (!label) {
-      this._setUploadLinksStatus(translate("settingsUploadLinksStatusLabelRequired"), "error");
+      this._setUploadLinksStatus(
+        translate("settingsUploadLinksStatusLabelRequired"),
+        "error",
+      );
       return;
     }
 
@@ -807,7 +1000,10 @@ class SettingsLayout extends HTMLElement {
       this._uploadLinksSubmitButton.disabled = true;
       this._uploadLinksSubmitButton.classList.add("opacity-60");
     }
-    this._setUploadLinksStatus(translate("settingsUploadLinksStatusCreating"), "info");
+    this._setUploadLinksStatus(
+      translate("settingsUploadLinksStatusCreating"),
+      "info",
+    );
 
     try {
       const response = await fetch("/api/admin/upload-links", {
@@ -841,8 +1037,13 @@ class SettingsLayout extends HTMLElement {
         description: payload?.description || description,
         preview: payload?.preview || "",
         active: payload?.active !== undefined ? Boolean(payload.active) : true,
-        created: Number.parseInt(payload?.created, 10) || Math.floor(Date.now() / 1000),
-        created_by: Number.parseInt(payload?.created_by, 10) || payload?.created_by || null,
+        created:
+          Number.parseInt(payload?.created, 10) ||
+          Math.floor(Date.now() / 1000),
+        created_by:
+          Number.parseInt(payload?.created_by, 10) ||
+          payload?.created_by ||
+          null,
       };
 
       this._uploadLinks = [
@@ -851,10 +1052,16 @@ class SettingsLayout extends HTMLElement {
       ].sort((a, b) => (b.created || 0) - (a.created || 0));
       this._renderUploadLinks();
       this._showUploadLinkDetail(normalized, linkURL);
-      this._setUploadLinksStatus(translate("settingsUploadLinksStatusCreated"), "success");
+      this._setUploadLinksStatus(
+        translate("settingsUploadLinksStatusCreated"),
+        "success",
+      );
     } catch (error) {
       console.error("[SettingsLayout] Failed to create upload link", error);
-      this._setUploadLinksStatus(translate("settingsUploadLinksStatusError"), "error");
+      this._setUploadLinksStatus(
+        translate("settingsUploadLinksStatusError"),
+        "error",
+      );
     } finally {
       this._uploadLinksSubmitting = false;
       if (this._uploadLinksSubmitButton) {
@@ -891,7 +1098,10 @@ class SettingsLayout extends HTMLElement {
       button.disabled = true;
       button.classList.add("opacity-60");
     }
-    this._setUploadLinksStatus(translate("settingsUploadLinksStatusRevoking"), "info");
+    this._setUploadLinksStatus(
+      translate("settingsUploadLinksStatusRevoking"),
+      "info",
+    );
 
     try {
       const response = await fetch(`/api/admin/upload-links/${tokenId}`, {
@@ -905,13 +1115,19 @@ class SettingsLayout extends HTMLElement {
         item.id === tokenId ? { ...item, active: false } : item,
       );
       this._renderUploadLinks();
-      this._setUploadLinksStatus(translate("settingsUploadLinksStatusRevoked"), "success");
+      this._setUploadLinksStatus(
+        translate("settingsUploadLinksStatusRevoked"),
+        "success",
+      );
       if (this._uploadLinksDetailLinkId === tokenId) {
         this._hideUploadLinkDetail();
       }
     } catch (error) {
       console.error("[SettingsLayout] Failed to revoke upload link", error);
-      this._setUploadLinksStatus(translate("settingsUploadLinksStatusRevokeError"), "error");
+      this._setUploadLinksStatus(
+        translate("settingsUploadLinksStatusRevokeError"),
+        "error",
+      );
     } finally {
       if (button && document.body.contains(button)) {
         button.disabled = false;
@@ -938,7 +1154,9 @@ class SettingsLayout extends HTMLElement {
     this._uploadLinksDetailLinkId = link?.id ?? null;
     this._uploadLinksDetail.classList.remove("hidden");
     if (this._uploadLinksDetailCopyIcon) {
-      const original = this._uploadLinksDetailCopyIcon.dataset.originalClass || this._uploadLinksDetailCopyIcon.className;
+      const original =
+        this._uploadLinksDetailCopyIcon.dataset.originalClass ||
+        this._uploadLinksDetailCopyIcon.className;
       this._uploadLinksDetailCopyIcon.dataset.originalClass = original;
       this._uploadLinksDetailCopyIcon.className = original;
     }
@@ -961,8 +1179,12 @@ class SettingsLayout extends HTMLElement {
       this._uploadLinksDetailLabel.textContent = "—";
     }
     this._setUploadLinkDetailStatus("", "info");
-    if (this._uploadLinksDetailCopyIcon && this._uploadLinksDetailCopyIcon.dataset.originalClass) {
-      this._uploadLinksDetailCopyIcon.className = this._uploadLinksDetailCopyIcon.dataset.originalClass;
+    if (
+      this._uploadLinksDetailCopyIcon &&
+      this._uploadLinksDetailCopyIcon.dataset.originalClass
+    ) {
+      this._uploadLinksDetailCopyIcon.className =
+        this._uploadLinksDetailCopyIcon.dataset.originalClass;
     }
   }
 
@@ -992,7 +1214,10 @@ class SettingsLayout extends HTMLElement {
     }
     const value = this._uploadLinksDetailInput.value || "";
     if (!value) {
-      this._setUploadLinkDetailStatus(translate("settingsUploadLinksCopyError"), "error");
+      this._setUploadLinkDetailStatus(
+        translate("settingsUploadLinksCopyError"),
+        "error",
+      );
       return;
     }
 
@@ -1001,25 +1226,42 @@ class SettingsLayout extends HTMLElement {
       if (!ok) {
         throw new Error("clipboard_failed");
       }
-      this._setUploadLinkDetailStatus(translate("settingsUploadLinksCopySuccess"), "success");
+      this._setUploadLinkDetailStatus(
+        translate("settingsUploadLinksCopySuccess"),
+        "success",
+      );
       if (this._uploadLinksDetailCopyIcon) {
-        const original = this._uploadLinksDetailCopyIcon.dataset.originalClass || this._uploadLinksDetailCopyIcon.className;
+        const original =
+          this._uploadLinksDetailCopyIcon.dataset.originalClass ||
+          this._uploadLinksDetailCopyIcon.className;
         this._uploadLinksDetailCopyIcon.dataset.originalClass = original;
-        this._uploadLinksDetailCopyIcon.className = "ri-check-line text-base leading-4 text-green-600 dark:text-green-400";
+        this._uploadLinksDetailCopyIcon.className =
+          "ri-check-line text-base leading-4 text-green-600 dark:text-green-400";
         if (this._uploadLinksCopyResetTimeout) {
           clearTimeout(this._uploadLinksCopyResetTimeout);
         }
         this._uploadLinksCopyResetTimeout = setTimeout(() => {
-          if (this._uploadLinksDetailCopyIcon && this._uploadLinksDetailCopyIcon.dataset.originalClass) {
-            this._uploadLinksDetailCopyIcon.className = this._uploadLinksDetailCopyIcon.dataset.originalClass;
+          if (
+            this._uploadLinksDetailCopyIcon &&
+            this._uploadLinksDetailCopyIcon.dataset.originalClass
+          ) {
+            this._uploadLinksDetailCopyIcon.className =
+              this._uploadLinksDetailCopyIcon.dataset.originalClass;
           }
         }, 2000);
       }
     } catch (error) {
       console.error("[SettingsLayout] Failed to copy upload link", error);
-      this._setUploadLinkDetailStatus(translate("settingsUploadLinksCopyError"), "error");
-      if (this._uploadLinksDetailCopyIcon && this._uploadLinksDetailCopyIcon.dataset.originalClass) {
-        this._uploadLinksDetailCopyIcon.className = this._uploadLinksDetailCopyIcon.dataset.originalClass;
+      this._setUploadLinkDetailStatus(
+        translate("settingsUploadLinksCopyError"),
+        "error",
+      );
+      if (
+        this._uploadLinksDetailCopyIcon &&
+        this._uploadLinksDetailCopyIcon.dataset.originalClass
+      ) {
+        this._uploadLinksDetailCopyIcon.className =
+          this._uploadLinksDetailCopyIcon.dataset.originalClass;
       }
     }
   }
@@ -1064,7 +1306,10 @@ class SettingsLayout extends HTMLElement {
       return;
     }
     this._uploadLinksLoading = true;
-    this._setUploadLinksStatus(translate("settingsUploadLinksStatusLoading"), "info");
+    this._setUploadLinksStatus(
+      translate("settingsUploadLinksStatusLoading"),
+      "info",
+    );
 
     try {
       const response = await fetch("/api/admin/upload-links", {
@@ -1080,20 +1325,26 @@ class SettingsLayout extends HTMLElement {
 
       const payload = await response.json();
       const list = Array.isArray(payload?.links) ? payload.links : [];
-      this._uploadLinks = list.map((item) => ({
-        id: Number.parseInt(item.id, 10) || item.id,
-        label: item.label || "",
-        description: item.description || "",
-        preview: item.preview || "",
-        active: Boolean(item.active),
-        created: Number.parseInt(item.created, 10) || 0,
-        created_by: Number.parseInt(item.created_by, 10) || item.created_by || null,
-      })).sort((a, b) => (b.created || 0) - (a.created || 0));
+      this._uploadLinks = list
+        .map((item) => ({
+          id: Number.parseInt(item.id, 10) || item.id,
+          label: item.label || "",
+          description: item.description || "",
+          preview: item.preview || "",
+          active: Boolean(item.active),
+          created: Number.parseInt(item.created, 10) || 0,
+          created_by:
+            Number.parseInt(item.created_by, 10) || item.created_by || null,
+        }))
+        .sort((a, b) => (b.created || 0) - (a.created || 0));
       this._renderUploadLinks();
       this._setUploadLinksStatus("", "info");
     } catch (error) {
       console.error("[SettingsLayout] Failed to load upload links", error);
-      this._setUploadLinksStatus(translate("settingsUploadLinksStatusLoadingError"), "error");
+      this._setUploadLinksStatus(
+        translate("settingsUploadLinksStatusLoadingError"),
+        "error",
+      );
     } finally {
       this._uploadLinksLoading = false;
     }
@@ -1151,7 +1402,8 @@ class SettingsLayout extends HTMLElement {
 
     const labelEl = row.querySelector('[data-role="label"]');
     if (labelEl) {
-      labelEl.textContent = link.label || translate("settingsUploadLinksLabelFallback");
+      labelEl.textContent =
+        link.label || translate("settingsUploadLinksLabelFallback");
     }
 
     const descriptionEl = row.querySelector('[data-role="description"]');
@@ -1171,7 +1423,8 @@ class SettingsLayout extends HTMLElement {
       previewEl.innerHTML = "";
       if (previewValue) {
         const previewBadge = document.createElement("span");
-        previewBadge.className = "font-mono text-xs bg-grey-10 dark:bg-grey-80/40 px-2 py-1 rounded";
+        previewBadge.className =
+          "font-mono text-xs bg-grey-10 dark:bg-grey-80/40 px-2 py-1 rounded";
         previewBadge.textContent = previewValue;
         previewEl.appendChild(previewBadge);
       } else {
@@ -1181,7 +1434,9 @@ class SettingsLayout extends HTMLElement {
 
     const statusWrapper = row.querySelector('[data-role="status"]');
     const statusIcon = statusWrapper?.querySelector("i");
-    const statusText = statusWrapper?.querySelector('[data-role="status-text"]');
+    const statusText = statusWrapper?.querySelector(
+      '[data-role="status-text"]',
+    );
     if (statusWrapper && statusIcon && statusText) {
       const baseClass = "inline-flex items-center gap-2 text-xs font-medium";
       if (link.active) {
@@ -1191,7 +1446,9 @@ class SettingsLayout extends HTMLElement {
       } else {
         statusWrapper.className = `${baseClass} text-grey-60 dark:text-grey-40`;
         statusIcon.className = "ri-forbid-2-line text-sm leading-4";
-        statusText.textContent = translate("settingsUploadLinksStatusRevokedLabel");
+        statusText.textContent = translate(
+          "settingsUploadLinksStatusRevokedLabel",
+        );
       }
     }
 
@@ -1201,15 +1458,20 @@ class SettingsLayout extends HTMLElement {
     }
 
     const revokeButton = row.querySelector('[data-role="revoke-button"]');
-    const revokeLabel = revokeButton?.querySelector('[data-role="revoke-label"]');
+    const revokeLabel = revokeButton?.querySelector(
+      '[data-role="revoke-label"]',
+    );
     const revokedBadge = row.querySelector('[data-role="revoked-indicator"]');
     if (revokeButton) {
       revokeButton.dataset.action = "revoke";
       revokeButton.dataset.tokenId = String(link.id);
       if (link.active) {
-        revokeButton.className = "inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded border border-red-200 dark:border-red-400/40 text-red-600 dark:text-red-400 bg-red-50/70 dark:bg-red-900/10 hover:bg-red-50 dark:hover:bg-red-900/20 transition cursor-pointer";
+        revokeButton.className =
+          "inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded border border-red-200 dark:border-red-400/40 text-red-600 dark:text-red-400 bg-red-50/70 dark:bg-red-900/10 hover:bg-red-50 dark:hover:bg-red-900/20 transition cursor-pointer";
         if (revokeLabel) {
-          revokeLabel.textContent = translate("settingsUploadLinksRevokeButton");
+          revokeLabel.textContent = translate(
+            "settingsUploadLinksRevokeButton",
+          );
         }
         revokeButton.classList.remove("hidden");
         if (revokedBadge) {
@@ -1218,7 +1480,9 @@ class SettingsLayout extends HTMLElement {
       } else {
         revokeButton.remove();
         if (revokedBadge) {
-          revokedBadge.textContent = translate("settingsUploadLinksRevokedBadge");
+          revokedBadge.textContent = translate(
+            "settingsUploadLinksRevokedBadge",
+          );
           revokedBadge.classList.remove("hidden");
         }
       }
@@ -1275,7 +1539,9 @@ class SettingsLayout extends HTMLElement {
         active: Boolean(user.active),
         public_key: user.public_key || "",
         encryption_public_key: user.encryption_public_key || "",
-        active_sessions: Number.isFinite(user.active_sessions) ? user.active_sessions : Number.parseInt(user.active_sessions ?? 0, 10) || 0,
+        active_sessions: Number.isFinite(user.active_sessions)
+          ? user.active_sessions
+          : Number.parseInt(user.active_sessions ?? 0, 10) || 0,
         is_current_user: Boolean(user.is_current_user),
         created: user.created || 0,
         updated: user.updated || 0,
@@ -1308,7 +1574,9 @@ class SettingsLayout extends HTMLElement {
       this._usersListEmpty.classList.add("hidden");
     }
 
-    const rows = this._usersData.map((user) => this._renderUserRow(user)).join("");
+    const rows = this._usersData
+      .map((user) => this._renderUserRow(user))
+      .join("");
     this._usersTableBody.innerHTML = rows;
   }
 
@@ -1316,7 +1584,9 @@ class SettingsLayout extends HTMLElement {
     const displayName = this._getDisplayName(user);
     const roleLabel = this._formatUserRole(user.role);
     const statusLabel = this._formatUserStatus(user.active);
-    const statusClass = user.active ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400";
+    const statusClass = user.active
+      ? "text-green-600 dark:text-green-400"
+      : "text-red-600 dark:text-red-400";
     const emailText = user.email?.trim() || "";
     const signingKeyTitle = (user.public_key || "").trim();
     const encryptionKeyTitle = (user.encryption_public_key || "").trim();
@@ -1328,7 +1598,8 @@ class SettingsLayout extends HTMLElement {
     const deleteButtonLabel = translate("settingsUsersActionDelete");
     const signingLabel = translate("settingsUsersKeySigning");
     const encryptionLabel = translate("settingsUsersKeyEncryption");
-    const baseButtonClass = "inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded border transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed";
+    const baseButtonClass =
+      "inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded border transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed";
     const clearButtonClass = `${baseButtonClass} text-grey-80 dark:text-grey-20 border-grey-30 dark:border-grey-60 bg-grey-5 dark:bg-grey-80/40 hover:bg-grey-10 dark:hover:bg-grey-70`;
     const deleteButtonClass = `${baseButtonClass} text-red-600 dark:text-red-400 border-red-200 dark:border-red-400/40 bg-red-50/60 dark:bg-red-900/20 hover:bg-red-50 dark:hover:bg-red-900/30`;
     const deactivateButtonClass = `${baseButtonClass} text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-400/40 bg-yellow-50/60 dark:bg-yellow-900/20 hover:bg-yellow-50 dark:hover:bg-yellow-900/30`;
@@ -1337,25 +1608,40 @@ class SettingsLayout extends HTMLElement {
     const toggleButtonLabel = user.active
       ? translate("settingsUsersActionDeactivate")
       : translate("settingsUsersActionActivate");
-    const toggleIcon = user.active ? "ri-user-unfollow-line" : "ri-user-follow-line";
+    const toggleIcon = user.active
+      ? "ri-user-unfollow-line"
+      : "ri-user-follow-line";
     const toggleDisabled = user.active && user.is_current_user;
-    const toggleDisabledTitle = toggleDisabled ? ` title="${this._escapeHTML(translate("settingsUsersActionDeactivateSelfError"))}"` : "";
+    const toggleDisabledTitle = toggleDisabled
+      ? ` title="${this._escapeHTML(translate("settingsUsersActionDeactivateSelfError"))}"`
+      : "";
     const detailTags = [];
     if (roleLabel) {
       detailTags.push(`<span>${this._escapeHTML(roleLabel)}</span>`);
     }
     if (statusLabel) {
-      detailTags.push(`<span class=\"${statusClass}\">${this._escapeHTML(statusLabel)}</span>`);
+      detailTags.push(
+        `<span class=\"${statusClass}\">${this._escapeHTML(statusLabel)}</span>`,
+      );
     }
+    let you;
     if (user.is_current_user) {
       const youLabel = translate("settingsUsersCurrentUserLabel");
-      detailTags.push(`<span class=\"inline-flex items-center px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium\">${this._escapeHTML(youLabel)}</span>`);
+      you = `<span class=\"ml-1.5 inline-flex items-center px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium\">${this._escapeHTML(youLabel)}</span>`;
     }
     const metaParts = detailTags.filter(Boolean).join(" · ");
-    const signingTitleAttr = signingKeyTitle ? ` title="${this._escapeHTML(signingKeyTitle)}"` : "";
-    const encryptionTitleAttr = encryptionKeyTitle ? ` title="${this._escapeHTML(encryptionKeyTitle)}"` : "";
-    const clearDisabledTitle = clearDisabled ? ` title="${this._escapeHTML(translate("settingsUsersActionClearDisabledTooltip"))}"` : "";
-    const deleteDisabledTitle = deleteDisabled ? ` title="${this._escapeHTML(translate("settingsUsersActionDeleteSelfTooltip"))}"` : "";
+    const signingTitleAttr = signingKeyTitle
+      ? ` title="${this._escapeHTML(signingKeyTitle)}"`
+      : "";
+    const encryptionTitleAttr = encryptionKeyTitle
+      ? ` title="${this._escapeHTML(encryptionKeyTitle)}"`
+      : "";
+    const clearDisabledTitle = clearDisabled
+      ? ` title="${this._escapeHTML(translate("settingsUsersActionClearDisabledTooltip"))}"`
+      : "";
+    const deleteDisabledTitle = deleteDisabled
+      ? ` title="${this._escapeHTML(translate("settingsUsersActionDeleteSelfTooltip"))}"`
+      : "";
     const toggleAriaAttr = ` aria-label="${this._escapeHTML(toggleButtonLabel)}"`;
     const clearAriaAttr = ` aria-label="${this._escapeHTML(clearButtonLabel)}"`;
     const deleteAriaAttr = ` aria-label="${this._escapeHTML(deleteButtonLabel)}"`;
@@ -1365,7 +1651,8 @@ class SettingsLayout extends HTMLElement {
     const clearButtonContent = `<i class="ri-refresh-line text-base leading-4" aria-hidden="true"></i>`;
     const deleteButtonContent = `<i class="ri-delete-bin-6-line text-base leading-4" aria-hidden="true"></i>`;
     const toggleButtonContent = `<i class="${toggleIcon} text-base leading-4" aria-hidden="true"></i>`;
-    const copyButtonClass = "inline-flex h-7 w-7 shrink-0 items-center justify-center rounded border border-grey-30 dark:border-grey-60 bg-white dark:bg-grey-80 text-grey-60 dark:text-grey-30 hover:text-primary hover:bg-grey-10 dark:hover:bg-grey-70 focus:outline focus:outline-2 focus:outline-primary transition cursor-pointer";
+    const copyButtonClass =
+      "inline-flex h-7 w-7 shrink-0 items-center justify-center rounded border border-grey-30 dark:border-grey-60 bg-white dark:bg-grey-80 text-grey-60 dark:text-grey-30 hover:text-primary hover:bg-grey-10 dark:hover:bg-grey-70 focus:outline focus:outline-2 focus:outline-primary transition cursor-pointer";
     const copyButtonIconClass = "ri-file-copy-2-line text-base leading-4";
     const copyActionLabel = translate("copyLinkButton");
     const signingCopyLabel = `${copyActionLabel} – ${translate("settingsUsersKeySigning")}`;
@@ -1376,12 +1663,14 @@ class SettingsLayout extends HTMLElement {
     const encryptionCopyButton = encryptionKeyTitle
       ? `<button type="button" class="${copyButtonClass}" data-user-action="copy-key" data-user-id="${user.id}" data-key-value="${this._escapeHTML(encryptionKeyTitle)}" aria-label="${this._escapeHTML(encryptionCopyLabel)}" title="${this._escapeHTML(encryptionCopyLabel)}"><i class="${copyButtonIconClass}" aria-hidden="true"></i><span class="sr-only">${this._escapeHTML(encryptionCopyLabel)}</span></button>`
       : "";
-    const toggleButtonClass = user.active ? deactivateButtonClass : activateButtonClass;
+    const toggleButtonClass = user.active
+      ? deactivateButtonClass
+      : activateButtonClass;
 
     return `
       <tr class="align-top">
         <td class="px-4 py-4">
-          <div class="font-medium text-grey-90 dark:text-grey-10">${this._escapeHTML(displayName)}</div>
+          <div class="font-medium text-grey-90 dark:text-grey-10">${this._escapeHTML(displayName)}${you || ""}</div>
           <div class="text-xs text-grey-60 dark:text-grey-40 mt-1">${metaParts || ""}</div>
         </td>
         <td class="px-4 py-4 text-sm text-grey-80 dark:text-grey-20">${emailText ? this._escapeHTML(emailText) : "—"}</td>
@@ -1445,7 +1734,9 @@ class SettingsLayout extends HTMLElement {
   }
 
   _formatUserStatus(active) {
-    return active ? translate("settingsUsersStatusActive") : translate("settingsUsersStatusInactive");
+    return active
+      ? translate("settingsUsersStatusActive")
+      : translate("settingsUsersStatusInactive");
   }
 
   _formatKey(key) {
@@ -1531,13 +1822,23 @@ class SettingsLayout extends HTMLElement {
 
     if (action === "deactivate") {
       if (user.is_current_user) {
-        this._setUsersStatus(translate("settingsUsersActionDeactivateSelfError"), "error");
+        this._setUsersStatus(
+          translate("settingsUsersActionDeactivateSelfError"),
+          "error",
+        );
         return;
       }
 
-      this._setUsersStatus(translate("settingsUsersActionDeactivateWorking"), "info");
+      this._setUsersStatus(
+        translate("settingsUsersActionDeactivateWorking"),
+        "info",
+      );
       let succeeded = false;
-      this._setButtonLoading(button, "ri-loader-4-line", translate("settingsUsersActionDeactivateWorking"));
+      this._setButtonLoading(
+        button,
+        "ri-loader-4-line",
+        translate("settingsUsersActionDeactivateWorking"),
+      );
 
       try {
         const response = await fetch(`/api/admin/users/${userID}/deactivate`, {
@@ -1553,10 +1854,18 @@ class SettingsLayout extends HTMLElement {
 
         succeeded = true;
         await this._loadUsers();
-        this._setUsersStatus(translate("settingsUsersActionDeactivateSuccess", { name: displayName }), "success");
+        this._setUsersStatus(
+          translate("settingsUsersActionDeactivateSuccess", {
+            name: displayName,
+          }),
+          "success",
+        );
       } catch (error) {
         console.error("[SettingsLayout] Failed to deactivate user", error);
-        this._setUsersStatus(translate("settingsUsersActionDeactivateError"), "error");
+        this._setUsersStatus(
+          translate("settingsUsersActionDeactivateError"),
+          "error",
+        );
       } finally {
         if (!succeeded) {
           this._restoreButton(button);
@@ -1567,9 +1876,16 @@ class SettingsLayout extends HTMLElement {
     }
 
     if (action === "activate") {
-      this._setUsersStatus(translate("settingsUsersActionActivateWorking"), "info");
+      this._setUsersStatus(
+        translate("settingsUsersActionActivateWorking"),
+        "info",
+      );
       let succeeded = false;
-      this._setButtonLoading(button, "ri-loader-4-line", translate("settingsUsersActionActivateWorking"));
+      this._setButtonLoading(
+        button,
+        "ri-loader-4-line",
+        translate("settingsUsersActionActivateWorking"),
+      );
 
       try {
         const response = await fetch(`/api/admin/users/${userID}/activate`, {
@@ -1585,10 +1901,18 @@ class SettingsLayout extends HTMLElement {
 
         succeeded = true;
         await this._loadUsers();
-        this._setUsersStatus(translate("settingsUsersActionActivateSuccess", { name: displayName }), "success");
+        this._setUsersStatus(
+          translate("settingsUsersActionActivateSuccess", {
+            name: displayName,
+          }),
+          "success",
+        );
       } catch (error) {
         console.error("[SettingsLayout] Failed to activate user", error);
-        this._setUsersStatus(translate("settingsUsersActionActivateError"), "error");
+        this._setUsersStatus(
+          translate("settingsUsersActionActivateError"),
+          "error",
+        );
       } finally {
         if (!succeeded) {
           this._restoreButton(button);
@@ -1603,17 +1927,27 @@ class SettingsLayout extends HTMLElement {
         return;
       }
 
-      this._setUsersStatus(translate("settingsUsersActionClearWorking"), "info");
+      this._setUsersStatus(
+        translate("settingsUsersActionClearWorking"),
+        "info",
+      );
       let succeeded = false;
-      this._setButtonLoading(button, "ri-loader-4-line", translate("settingsUsersActionClearWorking"));
+      this._setButtonLoading(
+        button,
+        "ri-loader-4-line",
+        translate("settingsUsersActionClearWorking"),
+      );
 
       try {
-        const response = await fetch(`/api/admin/users/${userID}/clear-sessions`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
+        const response = await fetch(
+          `/api/admin/users/${userID}/clear-sessions`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
           },
-        });
+        );
 
         if (!response.ok) {
           throw new Error(`clear_sessions_failed_${response.status}`);
@@ -1626,10 +1960,16 @@ class SettingsLayout extends HTMLElement {
           window.location.assign("/login");
           return;
         }
-        this._setUsersStatus(translate("settingsUsersActionClearSuccess", { name: displayName }), "success");
+        this._setUsersStatus(
+          translate("settingsUsersActionClearSuccess", { name: displayName }),
+          "success",
+        );
       } catch (error) {
         console.error("[SettingsLayout] Failed to clear sessions", error);
-        this._setUsersStatus(translate("settingsUsersActionClearError"), "error");
+        this._setUsersStatus(
+          translate("settingsUsersActionClearError"),
+          "error",
+        );
       } finally {
         if (!succeeded) {
           this._restoreButton(button);
@@ -1641,18 +1981,30 @@ class SettingsLayout extends HTMLElement {
 
     if (action === "delete") {
       if (user.is_current_user) {
-        this._setUsersStatus(translate("settingsUsersActionDeleteSelfError"), "error");
+        this._setUsersStatus(
+          translate("settingsUsersActionDeleteSelfError"),
+          "error",
+        );
         return;
       }
 
-      const confirmed = window.confirm(translate("settingsUsersActionDeleteConfirm", { name: displayName }));
+      const confirmed = window.confirm(
+        translate("settingsUsersActionDeleteConfirm", { name: displayName }),
+      );
       if (!confirmed) {
         return;
       }
 
-      this._setUsersStatus(translate("settingsUsersActionDeleteWorking"), "info");
+      this._setUsersStatus(
+        translate("settingsUsersActionDeleteWorking"),
+        "info",
+      );
       let succeeded = false;
-      this._setButtonLoading(button, "ri-loader-4-line", translate("settingsUsersActionDeleteWorking"));
+      this._setButtonLoading(
+        button,
+        "ri-loader-4-line",
+        translate("settingsUsersActionDeleteWorking"),
+      );
 
       try {
         const response = await fetch(`/api/admin/users/${userID}`, {
@@ -1668,10 +2020,16 @@ class SettingsLayout extends HTMLElement {
 
         succeeded = true;
         await this._loadUsers();
-        this._setUsersStatus(translate("settingsUsersActionDeleteSuccess", { name: displayName }), "success");
+        this._setUsersStatus(
+          translate("settingsUsersActionDeleteSuccess", { name: displayName }),
+          "success",
+        );
       } catch (error) {
         console.error("[SettingsLayout] Failed to delete user", error);
-        this._setUsersStatus(translate("settingsUsersActionDeleteError"), "error");
+        this._setUsersStatus(
+          translate("settingsUsersActionDeleteError"),
+          "error",
+        );
       } finally {
         if (!succeeded) {
           this._restoreButton(button);
@@ -1688,9 +2046,12 @@ class SettingsLayout extends HTMLElement {
       button.dataset.originalContent = button.innerHTML;
     }
     if (!button.dataset.originalAriaLabel) {
-      button.dataset.originalAriaLabel = button.getAttribute("aria-label") || "";
+      button.dataset.originalAriaLabel =
+        button.getAttribute("aria-label") || "";
     }
-    const icon = iconClass ? `<i class="${iconClass} text-base leading-4 animate-spin" aria-hidden="true"></i>` : "";
+    const icon = iconClass
+      ? `<i class="${iconClass} text-base leading-4 animate-spin" aria-hidden="true"></i>`
+      : "";
     button.innerHTML = icon || "";
     if (text) {
       button.setAttribute("aria-label", text);
@@ -1719,11 +2080,11 @@ class SettingsLayout extends HTMLElement {
     delete button.dataset.originalContent;
   }
 
-
   async _handleGenerateClick(event) {
     event.preventDefault();
     const button = event.currentTarget;
-    const type = button?.getAttribute("data-token-type")?.toLowerCase() || "admin";
+    const type =
+      button?.getAttribute("data-token-type")?.toLowerCase() || "admin";
     const section = this._getSignupSection(type);
     if (!section) {
       return;
@@ -1749,15 +2110,29 @@ class SettingsLayout extends HTMLElement {
       if (typeof data.active_count === "number") {
         this._setSignupCount(type, data.active_count);
       }
-      const expiresAt = typeof data.expires_at === "number" ? data.expires_at : Number(data.expires_at || 0);
+      const expiresAt =
+        typeof data.expires_at === "number"
+          ? data.expires_at
+          : Number(data.expires_at || 0);
       if (typeof data.link === "string") {
         this._showSignupDetail(type, data.link, expiresAt);
-        this._setDetailStatus(translate("settingsUsersGenerateSuccess"), "success");
+        this._setDetailStatus(
+          translate("settingsUsersGenerateSuccess"),
+          "success",
+        );
       }
-      this._setSectionStatus(type, translate("settingsUsersGenerateSuccess"), "success");
+      this._setSectionStatus(
+        type,
+        translate("settingsUsersGenerateSuccess"),
+        "success",
+      );
     } catch (error) {
       console.error("[SettingsLayout] Failed to create signup link", error);
-      this._setSectionStatus(type, translate("settingsUsersGenerateError"), "error");
+      this._setSectionStatus(
+        type,
+        translate("settingsUsersGenerateError"),
+        "error",
+      );
       if (this._activeDetailType === type) {
         this._setDetailStatus(translate("settingsUsersGenerateError"), "error");
       }
@@ -1769,7 +2144,8 @@ class SettingsLayout extends HTMLElement {
   async _handleRevokeClick(event) {
     event.preventDefault();
     const button = event.currentTarget;
-    const type = button?.getAttribute("data-token-type")?.toLowerCase() || "admin";
+    const type =
+      button?.getAttribute("data-token-type")?.toLowerCase() || "admin";
     const section = this._getSignupSection(type);
     if (!section) {
       return;
@@ -1779,12 +2155,15 @@ class SettingsLayout extends HTMLElement {
     this._setSectionLoading(section, true);
 
     try {
-      const response = await fetch(`/api/admin/signup-links?type=${encodeURIComponent(type)}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `/api/admin/signup-links?type=${encodeURIComponent(type)}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
         },
-      });
+      );
 
       if (!response.ok) {
         throw new Error(`revoke_failed_${response.status}`);
@@ -1799,10 +2178,18 @@ class SettingsLayout extends HTMLElement {
       if (this._activeDetailType === type) {
         this._clearSignupDetail();
       }
-      this._setSectionStatus(type, translate("settingsUsersRevokeSuccess"), "success");
+      this._setSectionStatus(
+        type,
+        translate("settingsUsersRevokeSuccess"),
+        "success",
+      );
     } catch (error) {
       console.error("[SettingsLayout] Failed to revoke signup links", error);
-      this._setSectionStatus(type, translate("settingsUsersRevokeError"), "error");
+      this._setSectionStatus(
+        type,
+        translate("settingsUsersRevokeError"),
+        "error",
+      );
       if (this._activeDetailType === type) {
         this._setDetailStatus(translate("settingsUsersRevokeError"), "error");
       }
@@ -1828,14 +2215,20 @@ class SettingsLayout extends HTMLElement {
 
     const success = copyToClipboard(value);
     if (success) {
-      this._setDetailStatus(translate("settingsUsersDetailCopySuccess"), "success");
+      this._setDetailStatus(
+        translate("settingsUsersDetailCopySuccess"),
+        "success",
+      );
       if (this._detailCopyIcon) {
-        const original = this._detailCopyIcon.dataset.originalClass || this._detailCopyIcon.className;
+        const original =
+          this._detailCopyIcon.dataset.originalClass ||
+          this._detailCopyIcon.className;
         this._detailCopyIcon.dataset.originalClass = original;
         this._detailCopyIcon.className = "ri-check-line text-lg leading-4";
         setTimeout(() => {
           if (this._detailCopyIcon) {
-            this._detailCopyIcon.className = this._detailCopyIcon.dataset.originalClass || original;
+            this._detailCopyIcon.className =
+              this._detailCopyIcon.dataset.originalClass || original;
           }
         }, 2000);
       }
@@ -1893,15 +2286,25 @@ class SettingsLayout extends HTMLElement {
       this._setSectionStatus("user", "");
       if (this._activeDetailType && this._detailActiveCount) {
         const section = this._getSignupSection(this._activeDetailType);
-        const countText = section?.countEl ? section.countEl.textContent || "0" : "0";
+        const countText = section?.countEl
+          ? section.countEl.textContent || "0"
+          : "0";
         this._detailActiveCount.textContent = countText;
       }
     } catch (error) {
       console.error("[SettingsLayout] Failed to load signup overview", error);
       this._setSignupCount("admin", 0);
       this._setSignupCount("user", 0);
-      this._setSectionStatus("admin", translate("settingsUsersOverviewError"), "error");
-      this._setSectionStatus("user", translate("settingsUsersOverviewError"), "error");
+      this._setSectionStatus(
+        "admin",
+        translate("settingsUsersOverviewError"),
+        "error",
+      );
+      this._setSectionStatus(
+        "user",
+        translate("settingsUsersOverviewError"),
+        "error",
+      );
       if (this._activeDetailType) {
         this._setDetailStatus(translate("settingsUsersOverviewError"), "error");
       }
@@ -1952,7 +2355,8 @@ class SettingsLayout extends HTMLElement {
     if (this._profileStatusText) {
       this._profileStatusText.textContent = message || "";
     }
-    this._profileStatus.className = "text-sm flex items-center gap-2 min-h-[1.25rem]";
+    this._profileStatus.className =
+      "text-sm flex items-center gap-2 min-h-[1.25rem]";
     if (this._profileStatusIcon) {
       this._profileStatusIcon.className = "hidden";
     }
@@ -1963,19 +2367,34 @@ class SettingsLayout extends HTMLElement {
       this._profileStatus.classList.add("text-red-600", "dark:text-red-400");
       if (this._profileStatusIcon) {
         this._profileStatusIcon.classList.remove("hidden");
-        this._profileStatusIcon.classList.add("ri-close-circle-fill", "text-red-600", "dark:text-red-400");
+        this._profileStatusIcon.classList.add(
+          "ri-close-circle-fill",
+          "text-red-600",
+          "dark:text-red-400",
+        );
       }
     } else if (type === "success") {
-      this._profileStatus.classList.add("text-green-600", "dark:text-green-400");
+      this._profileStatus.classList.add(
+        "text-green-600",
+        "dark:text-green-400",
+      );
       if (this._profileStatusIcon) {
         this._profileStatusIcon.classList.remove("hidden");
-        this._profileStatusIcon.classList.add("ri-check-line", "text-green-600", "dark:text-green-400");
+        this._profileStatusIcon.classList.add(
+          "ri-check-line",
+          "text-green-600",
+          "dark:text-green-400",
+        );
       }
     } else {
       this._profileStatus.classList.add("text-grey-70", "dark:text-grey-40");
       if (this._profileStatusIcon) {
         this._profileStatusIcon.classList.remove("hidden");
-        this._profileStatusIcon.classList.add("ri-information-line", "text-grey-60", "dark:text-grey-40");
+        this._profileStatusIcon.classList.add(
+          "ri-information-line",
+          "text-grey-60",
+          "dark:text-grey-40",
+        );
       }
     }
   }
@@ -1987,7 +2406,8 @@ class SettingsLayout extends HTMLElement {
     if (this._accountKeyStatusText) {
       this._accountKeyStatusText.textContent = message || "";
     }
-    this._accountKeyStatus.className = "text-xs flex items-center gap-2 min-h-[1.25rem] text-amber-900/80 dark:text-amber-200/80";
+    this._accountKeyStatus.className =
+      "text-xs flex items-center gap-2 min-h-[1.25rem] text-amber-900/80 dark:text-amber-200/80";
     if (this._accountKeyStatusIcon) {
       this._accountKeyStatusIcon.className = "hidden";
     }
@@ -1995,21 +2415,26 @@ class SettingsLayout extends HTMLElement {
       return;
     }
     if (type === "error") {
-      this._accountKeyStatus.className = "text-xs flex items-center gap-2 min-h-[1.25rem] text-red-600 dark:text-red-300";
+      this._accountKeyStatus.className =
+        "text-xs flex items-center gap-2 min-h-[1.25rem] text-red-600 dark:text-red-300";
       if (this._accountKeyStatusIcon) {
         this._accountKeyStatusIcon.classList.remove("hidden");
-        this._accountKeyStatusIcon.className = "ri-close-circle-fill text-red-600 dark:text-red-300";
+        this._accountKeyStatusIcon.className =
+          "ri-close-circle-fill text-red-600 dark:text-red-300";
       }
     } else if (type === "success") {
-      this._accountKeyStatus.className = "text-xs flex items-center gap-2 min-h-[1.25rem] text-green-700 dark:text-green-300";
+      this._accountKeyStatus.className =
+        "text-xs flex items-center gap-2 min-h-[1.25rem] text-green-700 dark:text-green-300";
       if (this._accountKeyStatusIcon) {
         this._accountKeyStatusIcon.classList.remove("hidden");
-        this._accountKeyStatusIcon.className = "ri-check-line text-green-700 dark:text-green-300";
+        this._accountKeyStatusIcon.className =
+          "ri-check-line text-green-700 dark:text-green-300";
       }
     } else {
       if (this._accountKeyStatusIcon) {
         this._accountKeyStatusIcon.classList.remove("hidden");
-        this._accountKeyStatusIcon.className = "ri-information-line text-amber-700 dark:text-amber-200";
+        this._accountKeyStatusIcon.className =
+          "ri-information-line text-amber-700 dark:text-amber-200";
       }
     }
   }
@@ -2021,7 +2446,8 @@ class SettingsLayout extends HTMLElement {
     if (this._accountStatusText) {
       this._accountStatusText.textContent = message || "";
     }
-    this._accountStatus.className = "text-xs flex items-center gap-2 min-h-[1.25rem]";
+    this._accountStatus.className =
+      "text-xs flex items-center gap-2 min-h-[1.25rem]";
     if (this._accountStatusIcon) {
       this._accountStatusIcon.className = "hidden";
     }
@@ -2032,19 +2458,34 @@ class SettingsLayout extends HTMLElement {
       this._accountStatus.classList.add("text-red-600", "dark:text-red-400");
       if (this._accountStatusIcon) {
         this._accountStatusIcon.classList.remove("hidden");
-        this._accountStatusIcon.classList.add("ri-close-circle-fill", "text-red-600", "dark:text-red-400");
+        this._accountStatusIcon.classList.add(
+          "ri-close-circle-fill",
+          "text-red-600",
+          "dark:text-red-400",
+        );
       }
     } else if (type === "success") {
-      this._accountStatus.classList.add("text-green-600", "dark:text-green-400");
+      this._accountStatus.classList.add(
+        "text-green-600",
+        "dark:text-green-400",
+      );
       if (this._accountStatusIcon) {
         this._accountStatusIcon.classList.remove("hidden");
-        this._accountStatusIcon.classList.add("ri-check-line", "text-green-600", "dark:text-green-400");
+        this._accountStatusIcon.classList.add(
+          "ri-check-line",
+          "text-green-600",
+          "dark:text-green-400",
+        );
       }
     } else {
       this._accountStatus.classList.add("text-grey-70", "dark:text-grey-40");
       if (this._accountStatusIcon) {
         this._accountStatusIcon.classList.remove("hidden");
-        this._accountStatusIcon.classList.add("ri-information-line", "text-grey-60", "dark:text-grey-40");
+        this._accountStatusIcon.classList.add(
+          "ri-information-line",
+          "text-grey-60",
+          "dark:text-grey-40",
+        );
       }
     }
   }
@@ -2054,14 +2495,21 @@ class SettingsLayout extends HTMLElement {
     if (!this._accountKeyCopyButton) {
       return;
     }
-    const value = this._accountKeyCopyButton.getAttribute("data-key-value") || "";
+    const value =
+      this._accountKeyCopyButton.getAttribute("data-key-value") || "";
     if (!value) {
-      this._setKeyStatus("error", translate("settingsAccountKeyStatusUnavailable"));
+      this._setKeyStatus(
+        "error",
+        translate("settingsAccountKeyStatusUnavailable"),
+      );
       return;
     }
     const success = copyToClipboard(value);
     if (success) {
-      this._setKeyStatus("success", translate("settingsAccountKeyStatusCopied"));
+      this._setKeyStatus(
+        "success",
+        translate("settingsAccountKeyStatusCopied"),
+      );
       const icon = this._accountKeyCopyButton.querySelector("i");
       if (icon) {
         const original = icon.dataset.originalClass || icon.className;
@@ -2096,19 +2544,34 @@ class SettingsLayout extends HTMLElement {
       this._passwordStatus.classList.add("text-red-600", "dark:text-red-400");
       if (this._passwordStatusIcon) {
         this._passwordStatusIcon.classList.remove("hidden");
-        this._passwordStatusIcon.classList.add("ri-close-circle-fill", "text-red-600", "dark:text-red-400");
+        this._passwordStatusIcon.classList.add(
+          "ri-close-circle-fill",
+          "text-red-600",
+          "dark:text-red-400",
+        );
       }
     } else if (type === "success") {
-      this._passwordStatus.classList.add("text-green-600", "dark:text-green-400");
+      this._passwordStatus.classList.add(
+        "text-green-600",
+        "dark:text-green-400",
+      );
       if (this._passwordStatusIcon) {
         this._passwordStatusIcon.classList.remove("hidden");
-        this._passwordStatusIcon.classList.add("ri-check-line", "text-green-600", "dark:text-green-400");
+        this._passwordStatusIcon.classList.add(
+          "ri-check-line",
+          "text-green-600",
+          "dark:text-green-400",
+        );
       }
     } else {
       this._passwordStatus.classList.add("text-grey-70", "dark:text-grey-40");
       if (this._passwordStatusIcon) {
         this._passwordStatusIcon.classList.remove("hidden");
-        this._passwordStatusIcon.classList.add("ri-information-line", "text-grey-60", "dark:text-grey-40");
+        this._passwordStatusIcon.classList.add(
+          "ri-information-line",
+          "text-grey-60",
+          "dark:text-grey-40",
+        );
       }
     }
   }
@@ -2163,24 +2626,38 @@ class SettingsLayout extends HTMLElement {
     }
 
     const nameInput = this._profileForm.querySelector("#settings-account-name");
-    const emailInput = this._profileForm.querySelector("#settings-account-email");
+    const emailInput = this._profileForm.querySelector(
+      "#settings-account-email",
+    );
     const name = nameInput?.value.trim() || "";
     const email = emailInput?.value.trim() || "";
 
     if (!name) {
-      this._setProfileStatus("error", translate("settingsAccountProfileStatusNameRequired"));
+      this._setProfileStatus(
+        "error",
+        translate("settingsAccountProfileStatusNameRequired"),
+      );
       return;
     }
     if (!email) {
-      this._setProfileStatus("error", translate("settingsAccountProfileStatusEmailRequired"));
+      this._setProfileStatus(
+        "error",
+        translate("settingsAccountProfileStatusEmailRequired"),
+      );
       return;
     }
     if (!this._isValidEmail(email)) {
-      this._setProfileStatus("error", translate("settingsAccountProfileStatusEmailInvalid"));
+      this._setProfileStatus(
+        "error",
+        translate("settingsAccountProfileStatusEmailInvalid"),
+      );
       return;
     }
 
-    this._setProfileStatus("info", translate("settingsAccountProfileStatusSaving"));
+    this._setProfileStatus(
+      "info",
+      translate("settingsAccountProfileStatusSaving"),
+    );
     if (this._profileSubmitButton) {
       this._profileSubmitButton.disabled = true;
     }
@@ -2224,9 +2701,13 @@ class SettingsLayout extends HTMLElement {
         storage.setUser(userSecrets);
       }
       this._populateAccountForms();
-      this._setProfileStatus("success", translate("settingsAccountProfileStatusSuccess"));
+      this._setProfileStatus(
+        "success",
+        translate("settingsAccountProfileStatusSuccess"),
+      );
     } catch (error) {
-      const message = error?.message || translate("settingsAccountProfileStatusError");
+      const message =
+        error?.message || translate("settingsAccountProfileStatusError");
       this._setProfileStatus("error", message);
     } finally {
       if (this._profileSubmitButton) {
@@ -2237,7 +2718,10 @@ class SettingsLayout extends HTMLElement {
 
   async _handleClearSessions(event) {
     event.preventDefault();
-    this._setAccountStatus("info", translate("settingsAccountDangerStatusClearing"));
+    this._setAccountStatus(
+      "info",
+      translate("settingsAccountDangerStatusClearing"),
+    );
     if (this._clearSessionsButton) {
       this._clearSessionsButton.disabled = true;
     }
@@ -2269,7 +2753,8 @@ class SettingsLayout extends HTMLElement {
 
       this._redirectToLogout();
     } catch (error) {
-      const message = error?.message || translate("settingsAccountDangerStatusError");
+      const message =
+        error?.message || translate("settingsAccountDangerStatusError");
       this._setAccountStatus("error", message);
       if (this._clearSessionsButton) {
         this._clearSessionsButton.disabled = false;
@@ -2282,11 +2767,16 @@ class SettingsLayout extends HTMLElement {
 
   async _handleDeactivateAccount(event) {
     event.preventDefault();
-    const confirmed = window.confirm(translate("settingsAccountDeactivateConfirm"));
+    const confirmed = window.confirm(
+      translate("settingsAccountDeactivateConfirm"),
+    );
     if (!confirmed) {
       return;
     }
-    this._setAccountStatus("info", translate("settingsAccountDangerStatusDeactivating"));
+    this._setAccountStatus(
+      "info",
+      translate("settingsAccountDangerStatusDeactivating"),
+    );
     if (this._deactivateAccountButton) {
       this._deactivateAccountButton.disabled = true;
     }
@@ -2318,7 +2808,8 @@ class SettingsLayout extends HTMLElement {
 
       this._redirectToLogout();
     } catch (error) {
-      const message = error?.message || translate("settingsAccountDangerStatusError");
+      const message =
+        error?.message || translate("settingsAccountDangerStatusError");
       this._setAccountStatus("error", message);
       if (this._deactivateAccountButton) {
         this._deactivateAccountButton.disabled = false;
@@ -2334,7 +2825,10 @@ class SettingsLayout extends HTMLElement {
       storage.clearUser();
       storage.clearLocalFiles();
     } catch (err) {
-      console.warn("[SettingsLayout] Failed to clear local storage on logout", err);
+      console.warn(
+        "[SettingsLayout] Failed to clear local storage on logout",
+        err,
+      );
     }
     window.location.href = "/logout";
   }
@@ -2345,68 +2839,112 @@ class SettingsLayout extends HTMLElement {
       return;
     }
 
-    const currentInput = this._passwordForm.querySelector("#settings-current-password");
+    const currentInput = this._passwordForm.querySelector(
+      "#settings-current-password",
+    );
     const newInput = this._passwordForm.querySelector("#settings-new-password");
-    const confirmInput = this._passwordForm.querySelector("#settings-confirm-password");
+    const confirmInput = this._passwordForm.querySelector(
+      "#settings-confirm-password",
+    );
 
     const currentPassword = currentInput?.value || "";
     const newPassword = newInput?.value || "";
     const confirmPassword = confirmInput?.value || "";
 
     if (currentPassword.length < 10) {
-      this._setPasswordStatus("error", translate("settingsPasswordStatusErrorCurrent"));
+      this._setPasswordStatus(
+        "error",
+        translate("settingsPasswordStatusErrorCurrent"),
+      );
       return;
     }
     if (newPassword.length < 10) {
-      this._setPasswordStatus("error", translate("settingsPasswordStatusErrorNewLength"));
+      this._setPasswordStatus(
+        "error",
+        translate("settingsPasswordStatusErrorNewLength"),
+      );
       return;
     }
     if (newPassword !== confirmPassword) {
-      this._setPasswordStatus("error", translate("settingsPasswordStatusErrorMismatch"));
+      this._setPasswordStatus(
+        "error",
+        translate("settingsPasswordStatusErrorMismatch"),
+      );
       return;
     }
 
     const userSecrets = storage.user;
     if (!userSecrets) {
-      this._setPasswordStatus("error", translate("settingsPasswordStatusErrorNoSession"));
+      this._setPasswordStatus(
+        "error",
+        translate("settingsPasswordStatusErrorNoSession"),
+      );
       return;
     }
 
     const saltBytes = userSecrets.getSaltBytes();
     if (!saltBytes || !saltBytes.length) {
-      this._setPasswordStatus("error", translate("settingsPasswordStatusErrorMissingKeys"));
+      this._setPasswordStatus(
+        "error",
+        translate("settingsPasswordStatusErrorMissingKeys"),
+      );
       return;
     }
 
     const storedSettings = userSecrets.settings || {};
-    const kdfInput = storedSettings.kdf || storedSettings || DEFAULT_KDF_SETTINGS;
+    const kdfInput =
+      storedSettings.kdf || storedSettings || DEFAULT_KDF_SETTINGS;
     const kdfSettings = normalizeKDFSettings(kdfInput);
 
     let derivedCurrent = null;
     let newMaterial = null;
-    const newSaltBytes = generateSalt(kdfSettings.saltLength || DEFAULT_KDF_SETTINGS.saltLength);
+    const newSaltBytes = generateSalt(
+      kdfSettings.saltLength || DEFAULT_KDF_SETTINGS.saltLength,
+    );
 
     try {
-      this._setPasswordStatus("info", translate("settingsPasswordStatusInfoDeriving"));
-      derivedCurrent = await deriveKeyMaterial(currentPassword, saltBytes, kdfSettings);
+      this._setPasswordStatus(
+        "info",
+        translate("settingsPasswordStatusInfoDeriving"),
+      );
+      derivedCurrent = await deriveKeyMaterial(
+        currentPassword,
+        saltBytes,
+        kdfSettings,
+      );
 
-      const derivedCurrentPublic = x25519.scalarMultBase(derivedCurrent.x25519Seed);
+      const derivedCurrentPublic = x25519.scalarMultBase(
+        derivedCurrent.x25519Seed,
+      );
       const storedPublic = userSecrets.getX25519PublicKey();
       if (
         storedPublic &&
         arrayToB64(derivedCurrentPublic) !== arrayToB64(storedPublic)
       ) {
-        this._setPasswordStatus("error", translate("settingsPasswordStatusErrorIncorrect"));
+        this._setPasswordStatus(
+          "error",
+          translate("settingsPasswordStatusErrorIncorrect"),
+        );
         derivedCurrent.edSeed.fill(0);
         derivedCurrent.x25519Seed.fill(0);
         return;
       }
 
-      this._setPasswordStatus("info", translate("settingsPasswordStatusInfoPreparing"));
-      newMaterial = await deriveKeyMaterial(newPassword, newSaltBytes, kdfSettings);
+      this._setPasswordStatus(
+        "info",
+        translate("settingsPasswordStatusInfoPreparing"),
+      );
+      newMaterial = await deriveKeyMaterial(
+        newPassword,
+        newSaltBytes,
+        kdfSettings,
+      );
     } catch (err) {
       console.error("[SettingsLayout] Failed to derive key material", err);
-      this._setPasswordStatus("error", translate("settingsPasswordStatusErrorDerive"));
+      this._setPasswordStatus(
+        "error",
+        translate("settingsPasswordStatusErrorDerive"),
+      );
       return;
     } finally {
       if (derivedCurrent?.edSeed) derivedCurrent.edSeed.fill(0);
@@ -2422,7 +2960,10 @@ class SettingsLayout extends HTMLElement {
       console.error("[SettingsLayout] Failed to compute public keys", err);
       if (newMaterial?.edSeed) newMaterial.edSeed.fill(0);
       if (newMaterial?.x25519Seed) newMaterial.x25519Seed.fill(0);
-      this._setPasswordStatus("error", translate("settingsPasswordStatusErrorPublicKeys"));
+      this._setPasswordStatus(
+        "error",
+        translate("settingsPasswordStatusErrorPublicKeys"),
+      );
       return;
     }
 
@@ -2442,7 +2983,10 @@ class SettingsLayout extends HTMLElement {
       console.error("[SettingsLayout] Failed to prepare new user secrets", err);
       if (newMaterial?.edSeed) newMaterial.edSeed.fill(0);
       if (newMaterial?.x25519Seed) newMaterial.x25519Seed.fill(0);
-      this._setPasswordStatus("error", translate("settingsPasswordStatusErrorUserSecrets"));
+      this._setPasswordStatus(
+        "error",
+        translate("settingsPasswordStatusErrorUserSecrets"),
+      );
       return;
     }
 
@@ -2453,7 +2997,9 @@ class SettingsLayout extends HTMLElement {
         if (!ownedFile?.id || !ownedFile.keychain?.rawSecret) {
           continue;
         }
-        const wrap = await newUserSecrets.wrapSecret(ownedFile.keychain.rawSecret);
+        const wrap = await newUserSecrets.wrapSecret(
+          ownedFile.keychain.rawSecret,
+        );
         fileUpdates.push({
           id: ownedFile.id,
           ciphertext: wrap.ciphertext,
@@ -2466,7 +3012,10 @@ class SettingsLayout extends HTMLElement {
       console.error("[SettingsLayout] Failed to re-wrap secrets", err);
       if (newMaterial?.edSeed) newMaterial.edSeed.fill(0);
       if (newMaterial?.x25519Seed) newMaterial.x25519Seed.fill(0);
-      this._setPasswordStatus("error", translate("settingsPasswordStatusErrorWrap"));
+      this._setPasswordStatus(
+        "error",
+        translate("settingsPasswordStatusErrorWrap"),
+      );
       return;
     }
 
@@ -2479,7 +3028,10 @@ class SettingsLayout extends HTMLElement {
       kdf: serializeKDFSettings(kdfSettings),
     };
 
-    this._setPasswordStatus("info", translate("settingsPasswordStatusInfoUpdating"));
+    this._setPasswordStatus(
+      "info",
+      translate("settingsPasswordStatusInfoUpdating"),
+    );
     if (this._passwordSubmitButton) {
       this._passwordSubmitButton.disabled = true;
     }
@@ -2500,13 +3052,21 @@ class SettingsLayout extends HTMLElement {
         } catch {
           // ignore parsing errors
         }
-        console.error("[SettingsLayout] Password reset failed", response.status, serverError);
-        const message = serverError || translate("settingsPasswordStatusErrorRequest");
+        console.error(
+          "[SettingsLayout] Password reset failed",
+          response.status,
+          serverError,
+        );
+        const message =
+          serverError || translate("settingsPasswordStatusErrorRequest");
         throw new Error(message);
       }
 
       storage.setUser(newUserSecrets);
-      this._setPasswordStatus("success", translate("settingsPasswordStatusSuccess"));
+      this._setPasswordStatus(
+        "success",
+        translate("settingsPasswordStatusSuccess"),
+      );
       if (currentInput) currentInput.value = "";
       if (newInput) newInput.value = "";
       if (confirmInput) confirmInput.value = "";

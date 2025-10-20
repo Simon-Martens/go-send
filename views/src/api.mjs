@@ -51,6 +51,17 @@ function post(obj) {
   };
 }
 
+export async function fetchUsers() {
+  const response = await fetch(getApiUrl("/api/users"));
+
+  if (response.ok) {
+    const data = await response.json();
+    return data.users || [];
+  }
+
+  throw new Error(response.status);
+}
+
 export function parseNonce(header) {
   header = header || "";
   return header.split(" ")[1];
@@ -210,6 +221,7 @@ async function upload(
   onprogress,
   canceller,
   ownerWrap,
+  recipientWrap,
 ) {
   let size = 0;
   const start = Date.now();
@@ -269,6 +281,23 @@ async function upload(
         fileMeta.ownerSecretVersion = ownerWrap.version;
       }
     }
+    // INFO: Same thing as above, basically
+    // Add recipient encryption data (optional - file encrypted FOR a specific user)
+    if (
+      recipientWrap &&
+      recipientWrap.userId &&
+      recipientWrap.ciphertext &&
+      recipientWrap.nonce &&
+      recipientWrap.ephemeralPublicKey
+    ) {
+      fileMeta.recipientUserId = recipientWrap.userId;
+      fileMeta.recipientSecretCiphertext = recipientWrap.ciphertext;
+      fileMeta.recipientSecretNonce = recipientWrap.nonce;
+      fileMeta.recipientSecretEphemeralPub = recipientWrap.ephemeralPublicKey;
+      if (recipientWrap.version != null) {
+        fileMeta.recipientSecretVersion = recipientWrap.version;
+      }
+    }
     const uploadInfoResponse = listenForResponse(ws, canceller);
     ws.send(JSON.stringify(fileMeta));
     const uploadInfo = await uploadInfoResponse;
@@ -323,6 +352,7 @@ export function uploadWs(
   dlimit,
   onprogress,
   ownerWrap = null,
+  recipientWrap = null,
 ) {
   const canceller = { cancelled: false };
 
@@ -340,6 +370,7 @@ export function uploadWs(
       onprogress,
       canceller,
       ownerWrap,
+      recipientWrap,
     ),
   };
 }

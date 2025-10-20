@@ -306,8 +306,8 @@ settingsAccountDeactivateConfirm = Are you sure you want to deactivate your acco
 settingsUploadLinksHeading = Upload links
 settingsUploadLinksDescription = Issue and manage guest upload links. These links allow uploads without signing in.
 settingsUploadLinksLabelLabel = Link label
-settingsUploadLinksLabelHint = Use a descriptive name so you can recognize the link later.
-settingsUploadLinksLabelPlaceholder = Partner workspace
+settingsUploadLinksLabelHint = Use a descriptive name so you can recognize the link later. The recipient will see the label.
+settingsUploadLinksLabelPlaceholder = Link name
 settingsUploadLinksDescriptionLabel = Internal note
 settingsUploadLinksDescriptionHint = Only administrators can see this note.
 settingsUploadLinksDescriptionPlaceholder = Optional details
@@ -378,4 +378,4 @@ loginErrorGeneric = Login failed. Please try again.
 export {
   en_US_default as default
 };
-//# sourceMappingURL=en-US-JOWE2PYS.js.map
+//# sourceMappingURL=en-US-XPGHHJVS.js.map

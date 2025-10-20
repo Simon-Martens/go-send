@@ -141,11 +141,11 @@
 
 					<section class="space-y-6 hidden" data-role="upload-links-admin">
 						<form class="space-y-4" data-role="upload-links-form">
-							<div class="grid gap-4 md:grid-cols-2">
+							<div class="grid gap-4 md:grid-cols-2 mt-4">
 								<div>
 									<label for="upload-link-label" class="block text-sm font-medium text-grey-80 dark:text-grey-30 mb-1"><span id="settingsUploadLinksLabelLabel" data-type="lang">Link label</span></label>
-								<input id="upload-link-label" type="text" class="w-full rounded border border-grey-40 dark:border-grey-70 bg-white dark:bg-grey-80 px-3 py-2 text-sm text-grey-90 dark:text-grey-10 focus:outline-none focus:ring-2 focus:ring-primary" maxlength="120" data-role="upload-links-label" data-placeholder-id="settingsUploadLinksLabelPlaceholder" placeholder="Partner workspace">
-									<p class="mt-1 text-xs text-grey-60 dark:text-grey-40"><span id="settingsUploadLinksLabelHint" data-type="lang">Use a descriptive name so you can recognize the link later.</span></p>
+								<input id="upload-link-label" type="text" class="w-full rounded border border-grey-40 dark:border-grey-70 bg-white dark:bg-grey-80 px-3 py-2 text-sm text-grey-90 dark:text-grey-10 focus:outline-none focus:ring-2 focus:ring-primary" maxlength="120" data-role="upload-links-label" data-placeholder-id="settingsUploadLinksLabelPlaceholder" placeholder="Link name">
+									<p class="mt-1 text-xs text-grey-60 dark:text-grey-40"><span id="settingsUploadLinksLabelHint" data-type="lang">Use a descriptive name so you can recognize the link later. The recipient will see the label.</span></p>
 								</div>
 								<div>
 									<label for="upload-link-description" class="block text-sm font-medium text-grey-80 dark:text-grey-30 mb-1"><span id="settingsUploadLinksDescriptionLabel" data-type="lang">Internal note</span></label>
@@ -254,7 +254,7 @@
 						<p class="text-sm text-grey-70 dark:text-grey-40 mt-1"><span id="settingsUsersIntro" data-type="lang">Issue invitation links for new administrators or standard users. Links expire after 7 days and can be used once.</span></p>
 					</header>
 					<div class="flex flex-col gap-6 xl:flex-row" data-role="signup-overview">
-						<section class="flex-1 rounded border border-grey-30 dark:border-grey-70 bg-grey-5 dark:bg-grey-80/40 px-5 py-6 space-y-4" data-role="signup-card" data-token-type="admin">
+						<section class="flex-1 rounded border border-grey-30 dark:border-grey-70 bg-grey-5 dark:bg-grey-80/40 px-5 py-4 space-y-4" data-role="signup-card" data-token-type="admin">
 							<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between md:gap-6">
 								<div class="space-y-2">
 									<h3 class="text-lg font-semibold text-grey-90 dark:text-grey-10"><span id="settingsUsersAdminTitle" data-type="lang">Administrator signup links</span></h3>
@@ -274,9 +274,8 @@
 									<span id="settingsUsersRevokeAdmin" data-type="lang">Revoke pending links</span>
 								</button>
 							</div>
-							<p class="text-sm text-grey-60 dark:text-grey-40 min-h-[1.5rem]" data-role="status"></p>
 						</section>
-						<section class="flex-1 rounded border border-grey-30 dark:border-grey-70 bg-grey-5 dark:bg-grey-80/40 px-5 py-6 space-y-4" data-role="signup-card" data-token-type="user">
+						<section class="flex-1 rounded border border-grey-30 dark:border-grey-70 bg-grey-5 dark:bg-grey-80/40 px-5 py-4 space-y-4" data-role="signup-card" data-token-type="user">
 							<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between md:gap-6">
 								<div class="space-y-2">
 									<h3 class="text-lg font-semibold text-grey-90 dark:text-grey-10"><span id="settingsUsersUserTitle" data-type="lang">User signup links</span></h3>
@@ -296,11 +295,10 @@
 									<span id="settingsUsersRevokeUser" data-type="lang">Revoke pending links</span>
 								</button>
 							</div>
-							<p class="text-sm text-grey-60 dark:text-grey-40 min-h-[1.5rem]" data-role="status"></p>
 						</section>
 					</div>
 					<div class="hidden flex-col gap-6" data-role="signup-detail">
-						<button type="button" class="inline-flex items-center gap-2 self-start px-2 py-1 text-sm font-medium text-grey-80 dark:text-grey-20 hover:text-primary dark:hover:text-primary transition cursor-pointer" data-role="detail-back">
+						<button type="button" class="inline-flex items-center gap-2 self-start px-2 py-1 text-sm font-medium text-grey-80 dark:text-grey-20 hover:text-primary dark:hover:text-primary transition cursor-pointer mb-4" data-role="detail-back">
 							<i class="ri-arrow-left-line text-base leading-4"></i>
 							<span id="settingsUsersDetailBack" data-type="lang">Back to invitations</span>
 						</button>
@@ -308,10 +306,6 @@
 							<div class="space-y-2">
 								<h3 class="text-xl font-semibold text-grey-90 dark:text-grey-10" data-role="detail-heading"></h3>
 								<p class="text-sm text-grey-70 dark:text-grey-40" data-role="detail-description"></p>
-								<p class="text-xs uppercase tracking-wide text-grey-60 dark:text-grey-50">
-									<span id="settingsUsersDetailActiveLabel" data-type="lang">Active links</span>
-									<span class="ml-2 text-base font-semibold text-grey-90 dark:text-grey-10" data-role="detail-active-count">0</span>
-								</p>
 								<p class="text-sm text-grey-60 dark:text-grey-40 min-h-[1.25rem] flex items-center gap-2" data-role="detail-status">
 									<i class="hidden" data-role="detail-status-icon"></i>
 									<span data-role="detail-status-text"></span>
@@ -324,7 +318,6 @@
 									<i class="ri-file-copy-line text-lg leading-4" data-role="detail-copy-icon"></i>
 								</button>
 							</div>
-							<p class="text-xs text-grey-60 dark:text-grey-50" data-role="detail-footnote"></p>
 						</div>
 					</div>
 					<div class="mt-10 space-y-4 hidden" data-role="users-list">

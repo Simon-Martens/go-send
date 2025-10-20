@@ -2,6 +2,9 @@ import {
   qrcode_default
 } from "./chunk-U2YGIKKI.js";
 import {
+  fetchUsers
+} from "./chunk-PC246CWX.js";
+import {
   bytes,
   copyToClipboard,
   secondsToL10nId,
@@ -225,9 +228,14 @@ var UploadListView = class extends HTMLElement {
       passwordVisibilityIcon: null,
       dropZone: null,
       archiveNameContainer: null,
-      archiveNameInput: null
+      archiveNameInput: null,
+      recipientSelect: null
     };
     this._afterFrame = null;
+    this._users = [];
+    this._recipientUserId = null;
+    this._recipientPublicKey = null;
+    this._recipientListenerAttached = false;
     this._files = [];
     this._limits = null;
     this._defaults = null;
@@ -251,6 +259,7 @@ var UploadListView = class extends HTMLElement {
     this._boundDragLeave = this.handleDragLeave.bind(this);
     this._boundDrop = this.handleDrop.bind(this);
     this._boundArchiveNameInput = this.handleArchiveNameInput.bind(this);
+    this._boundRecipientChange = this.handleRecipientChange.bind(this);
     this._archiveNameValid = true;
   }
   connectedCallback() {
@@ -342,6 +351,17 @@ var UploadListView = class extends HTMLElement {
         '[data-role="archive-name"]'
       );
     }
+    const recipientSlot = this.querySelector("#upload-recipient-slot");
+    if (recipientSlot) {
+      const recipientTemplate = document.getElementById("upload-view-recipient");
+      if (recipientTemplate && recipientSlot.childElementCount === 0) {
+        recipientSlot.appendChild(recipientTemplate.content.cloneNode(true));
+      }
+      this.elements.recipientSelect = recipientSlot.querySelector(
+        '[data-role="recipient-select"]'
+      );
+    }
+    this._loadUsers();
     this._attachBaseListeners();
     this._setupDragListeners();
     if (this._afterFrame !== null) {
@@ -717,6 +737,7 @@ var UploadListView = class extends HTMLElement {
         this._boundArchiveNameInput
       );
     }
+    this._detachRecipientListener();
     this._detachOptionListeners();
   }
   _formatExpireOption(seconds) {
@@ -1111,6 +1132,112 @@ var UploadListView = class extends HTMLElement {
       "bg-blue-10",
       "dark:bg-blue-90"
     );
+  }
+  async _loadUsers() {
+    if (!this.elements.recipientSelect) {
+      return;
+    }
+    try {
+      const users = await fetchUsers();
+      this._users = users || [];
+      this._populateRecipientSelect();
+    } catch (err) {
+      console.warn("[UploadListView] Failed to load users for recipient selection", err);
+      this._users = [];
+    }
+  }
+  _populateRecipientSelect() {
+    if (!this.elements.recipientSelect) {
+      return;
+    }
+    const unspecifiedOption = this.elements.recipientSelect.querySelector('[data-role="recipient-unspecified"]');
+    this.elements.recipientSelect.innerHTML = "";
+    if (unspecifiedOption) {
+      this.elements.recipientSelect.appendChild(unspecifiedOption.cloneNode(true));
+    }
+    this._users.forEach((user) => {
+      const option = document.createElement("option");
+      option.value = String(user.id);
+      option.textContent = user.name || user.email;
+      option.dataset.publicKey = user.encryption_public_key;
+      this.elements.recipientSelect.appendChild(option);
+    });
+    this._attachRecipientListener();
+  }
+  _attachRecipientListener() {
+    if (this.elements.recipientSelect && !this._recipientListenerAttached) {
+      this.elements.recipientSelect.addEventListener("change", this._boundRecipientChange);
+      this._recipientListenerAttached = true;
+    }
+  }
+  _detachRecipientListener() {
+    if (this.elements.recipientSelect && this._recipientListenerAttached) {
+      this.elements.recipientSelect.removeEventListener("change", this._boundRecipientChange);
+      this._recipientListenerAttached = false;
+    }
+  }
+  handleRecipientChange(event) {
+    const selectedValue = event.target.value;
+    if (!selectedValue) {
+      this._recipientUserId = null;
+      this._recipientPublicKey = null;
+      this._updateRecipientHint(false);
+      this.dispatchEvent(
+        new CustomEvent("updateoptions", {
+          bubbles: true,
+          detail: {
+            recipientUserId: null,
+            recipientPublicKey: null
+          }
+        })
+      );
+      return;
+    }
+    const userId = Number.parseInt(selectedValue, 10);
+    if (Number.isNaN(userId)) {
+      console.warn("[UploadListView] Invalid recipient user ID", selectedValue);
+      return;
+    }
+    const selectedOption = event.target.selectedOptions[0];
+    const publicKey = selectedOption == null ? void 0 : selectedOption.dataset.publicKey;
+    if (!publicKey) {
+      console.warn("[UploadListView] Selected user has no public key", userId);
+      return;
+    }
+    this._recipientUserId = userId;
+    this._recipientPublicKey = publicKey;
+    this._updateRecipientHint(true);
+    this.dispatchEvent(
+      new CustomEvent("updateoptions", {
+        bubbles: true,
+        detail: {
+          recipientUserId: userId,
+          recipientPublicKey: publicKey
+        }
+      })
+    );
+  }
+  _updateRecipientHint(hasRecipient) {
+    const recipientSlot = this.querySelector("#upload-recipient-slot");
+    if (!recipientSlot) {
+      return;
+    }
+    const hintElement = recipientSlot.querySelector("#recipientHint");
+    if (!hintElement) {
+      return;
+    }
+    if (hasRecipient) {
+      const hintTextSpan = hintElement.querySelector('[data-type="lang"]');
+      if (hintTextSpan) {
+        hintTextSpan.textContent = this._translateText(
+          "recipientHintSelected",
+          "The recipient can see, download and decrypt the file."
+        );
+      }
+      hintElement.classList.remove("hidden");
+    } else {
+      hintElement.classList.add("hidden");
+    }
   }
 };
 customElements.define("upload-list-view", UploadListView);
@@ -1762,4 +1889,4 @@ var UploadAreaElement = class extends HTMLElement {
   }
 };
 customElements.define("upload-area", UploadAreaElement);
-//# sourceMappingURL=upload-area-7MOKQ2DK.js.map
+//# sourceMappingURL=upload-area-T7VBNUII.js.map

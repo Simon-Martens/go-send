@@ -7,7 +7,7 @@ import {
   getPublicKey,
   normalizeKDFSettings,
   serializeKDFSettings
-} from "./chunk-P4PWNP7K.js";
+} from "./chunk-2SBEPK26.js";
 import {
   qrcode_default
 } from "./chunk-U2YGIKKI.js";
@@ -17,7 +17,8 @@ import {
   UserSecrets,
   storage_default,
   x25519
-} from "./chunk-GIJL4XMM.js";
+} from "./chunk-TCL375PP.js";
+import "./chunk-PC246CWX.js";
 import {
   arrayToB64,
   copyToClipboard,
@@ -243,57 +244,131 @@ var SettingsLayout = class extends HTMLElement {
       this._panels.set(panel.getAttribute("data-panel"), panel);
     });
     this._usersNavItem = this.querySelector('[data-role="users-nav"]');
-    this._uploadLinksNavItem = this.querySelector('[data-role="upload-links-nav"]');
+    this._uploadLinksNavItem = this.querySelector(
+      '[data-role="upload-links-nav"]'
+    );
     this._uploadLinksPanel = this._panels.get("upload-links") || null;
     if (this._uploadLinksPanel) {
-      this._uploadLinksAdminSection = this._uploadLinksPanel.querySelector('[data-role="upload-links-admin"]');
-      this._uploadLinksPlaceholder = this._uploadLinksPanel.querySelector('[data-role="upload-links-placeholder"]');
-      this._uploadLinksForm = this._uploadLinksPanel.querySelector('[data-role="upload-links-form"]');
-      this._uploadLinksLabelInput = this._uploadLinksPanel.querySelector('[data-role="upload-links-label"]');
-      this._uploadLinksDescriptionInput = this._uploadLinksPanel.querySelector('[data-role="upload-links-description"]');
-      this._uploadLinksSubmitButton = this._uploadLinksPanel.querySelector('[data-role="upload-links-submit"]');
-      this._uploadLinksStatusEl = this._uploadLinksPanel.querySelector('[data-role="upload-links-status"]');
-      this._uploadLinksStatusIcon = this._uploadLinksPanel.querySelector('[data-role="upload-links-status-icon"]');
-      this._uploadLinksStatusText = this._uploadLinksPanel.querySelector('[data-role="upload-links-status-text"]');
-      this._uploadLinksDetail = this._uploadLinksPanel.querySelector('[data-role="upload-links-detail"]');
-      this._uploadLinksDetailLabel = this._uploadLinksPanel.querySelector('[data-role="upload-links-detail-label"]');
-      this._uploadLinksDetailInput = this._uploadLinksPanel.querySelector('[data-role="upload-links-detail-input"]');
-      this._uploadLinksDetailCopyButton = this._uploadLinksPanel.querySelector('[data-role="upload-links-copy"]');
-      this._uploadLinksDetailCopyIcon = this._uploadLinksPanel.querySelector('[data-role="upload-links-copy-icon"]');
-      this._uploadLinksDetailStatus = this._uploadLinksPanel.querySelector('[data-role="upload-links-detail-status"]');
-      this._uploadLinksTableBody = this._uploadLinksPanel.querySelector('[data-role="upload-links-table"]');
-      this._uploadLinksEmpty = this._uploadLinksPanel.querySelector('[data-role="upload-links-empty"]');
+      this._uploadLinksAdminSection = this._uploadLinksPanel.querySelector(
+        '[data-role="upload-links-admin"]'
+      );
+      this._uploadLinksPlaceholder = this._uploadLinksPanel.querySelector(
+        '[data-role="upload-links-placeholder"]'
+      );
+      this._uploadLinksForm = this._uploadLinksPanel.querySelector(
+        '[data-role="upload-links-form"]'
+      );
+      this._uploadLinksLabelInput = this._uploadLinksPanel.querySelector(
+        '[data-role="upload-links-label"]'
+      );
+      this._uploadLinksDescriptionInput = this._uploadLinksPanel.querySelector(
+        '[data-role="upload-links-description"]'
+      );
+      this._uploadLinksSubmitButton = this._uploadLinksPanel.querySelector(
+        '[data-role="upload-links-submit"]'
+      );
+      this._uploadLinksStatusEl = this._uploadLinksPanel.querySelector(
+        '[data-role="upload-links-status"]'
+      );
+      this._uploadLinksStatusIcon = this._uploadLinksPanel.querySelector(
+        '[data-role="upload-links-status-icon"]'
+      );
+      this._uploadLinksStatusText = this._uploadLinksPanel.querySelector(
+        '[data-role="upload-links-status-text"]'
+      );
+      this._uploadLinksDetail = this._uploadLinksPanel.querySelector(
+        '[data-role="upload-links-detail"]'
+      );
+      this._uploadLinksDetailLabel = this._uploadLinksPanel.querySelector(
+        '[data-role="upload-links-detail-label"]'
+      );
+      this._uploadLinksDetailInput = this._uploadLinksPanel.querySelector(
+        '[data-role="upload-links-detail-input"]'
+      );
+      this._uploadLinksDetailCopyButton = this._uploadLinksPanel.querySelector(
+        '[data-role="upload-links-copy"]'
+      );
+      this._uploadLinksDetailCopyIcon = this._uploadLinksPanel.querySelector(
+        '[data-role="upload-links-copy-icon"]'
+      );
+      this._uploadLinksDetailStatus = this._uploadLinksPanel.querySelector(
+        '[data-role="upload-links-detail-status"]'
+      );
+      this._uploadLinksTableBody = this._uploadLinksPanel.querySelector(
+        '[data-role="upload-links-table"]'
+      );
+      this._uploadLinksEmpty = this._uploadLinksPanel.querySelector(
+        '[data-role="upload-links-empty"]'
+      );
     }
     this._usersPanel = this._panels.get("users") || null;
     this._usersHeader = this.querySelector('[data-role="users-header"]');
     this._profileForm = this.querySelector('[data-role="profile-form"]');
-    this._profileSubmitButton = this.querySelector('[data-role="profile-submit"]');
+    this._profileSubmitButton = this.querySelector(
+      '[data-role="profile-submit"]'
+    );
     this._profileStatus = this.querySelector('[data-role="profile-status"]');
-    this._profileStatusIcon = this.querySelector('[data-role="profile-status-icon"]');
-    this._profileStatusText = this.querySelector('[data-role="profile-status-text"]');
+    this._profileStatusIcon = this.querySelector(
+      '[data-role="profile-status-icon"]'
+    );
+    this._profileStatusText = this.querySelector(
+      '[data-role="profile-status-text"]'
+    );
     this._passwordForm = this.querySelector('[data-role="password-form"]');
-    this._passwordSubmitButton = this.querySelector('[data-role="password-submit"]');
+    this._passwordSubmitButton = this.querySelector(
+      '[data-role="password-submit"]'
+    );
     this._passwordStatus = this.querySelector('[data-role="password-status"]');
-    this._passwordStatusIcon = this.querySelector('[data-role="password-status-icon"]');
-    this._passwordStatusText = this.querySelector('[data-role="password-status-text"]');
+    this._passwordStatusIcon = this.querySelector(
+      '[data-role="password-status-icon"]'
+    );
+    this._passwordStatusText = this.querySelector(
+      '[data-role="password-status-text"]'
+    );
     this._accountStatus = this.querySelector('[data-role="account-status"]');
-    this._accountStatusIcon = this.querySelector('[data-role="account-status-icon"]');
-    this._accountStatusText = this.querySelector('[data-role="account-status-text"]');
-    this._clearSessionsButton = this.querySelector('[data-role="account-clear-sessions"]');
-    this._deactivateAccountButton = this.querySelector('[data-role="account-deactivate"]');
-    this._accountKeyValue = this.querySelector('[data-role="account-key-value"]');
-    this._accountKeyCopyButton = this.querySelector('[data-role="account-key-copy"]');
-    this._accountKeyStatus = this.querySelector('[data-role="account-key-status"]');
-    this._accountKeyStatusIcon = this.querySelector('[data-role="account-key-status-icon"]');
-    this._accountKeyStatusText = this.querySelector('[data-role="account-key-status-text"]');
+    this._accountStatusIcon = this.querySelector(
+      '[data-role="account-status-icon"]'
+    );
+    this._accountStatusText = this.querySelector(
+      '[data-role="account-status-text"]'
+    );
+    this._clearSessionsButton = this.querySelector(
+      '[data-role="account-clear-sessions"]'
+    );
+    this._deactivateAccountButton = this.querySelector(
+      '[data-role="account-deactivate"]'
+    );
+    this._accountKeyValue = this.querySelector(
+      '[data-role="account-key-value"]'
+    );
+    this._accountKeyCopyButton = this.querySelector(
+      '[data-role="account-key-copy"]'
+    );
+    this._accountKeyStatus = this.querySelector(
+      '[data-role="account-key-status"]'
+    );
+    this._accountKeyStatusIcon = this.querySelector(
+      '[data-role="account-key-status-icon"]'
+    );
+    this._accountKeyStatusText = this.querySelector(
+      '[data-role="account-key-status-text"]'
+    );
     this._signupOverview = this.querySelector('[data-role="signup-overview"]');
     this._signupDetail = this.querySelector('[data-role="signup-detail"]');
     this._detailHeading = this.querySelector('[data-role="detail-heading"]');
-    this._detailDescription = this.querySelector('[data-role="detail-description"]');
-    this._detailActiveCount = this.querySelector('[data-role="detail-active-count"]');
+    this._detailDescription = this.querySelector(
+      '[data-role="detail-description"]'
+    );
+    this._detailActiveCount = this.querySelector(
+      '[data-role="detail-active-count"]'
+    );
     this._detailStatusEl = this.querySelector('[data-role="detail-status"]');
-    this._detailStatusIcon = this.querySelector('[data-role="detail-status-icon"]');
-    this._detailStatusText = this.querySelector('[data-role="detail-status-text"]');
+    this._detailStatusIcon = this.querySelector(
+      '[data-role="detail-status-icon"]'
+    );
+    this._detailStatusText = this.querySelector(
+      '[data-role="detail-status-text"]'
+    );
     this._detailQrContainer = this.querySelector('[data-role="detail-qr"]');
     this._detailLinkInput = this.querySelector('[data-role="detail-link"]');
     this._detailCopyButton = this.querySelector('[data-role="detail-copy"]');
@@ -301,9 +376,15 @@ var SettingsLayout = class extends HTMLElement {
     this._detailBackButton = this.querySelector('[data-role="detail-back"]');
     this._detailFootnote = this.querySelector('[data-role="detail-footnote"]');
     this._usersListSection = this.querySelector('[data-role="users-list"]');
-    this._usersListStatus = ((_a = this._usersListSection) == null ? void 0 : _a.querySelector('[data-role="users-list-status"]')) || null;
-    this._usersStatusIcon = ((_b = this._usersListSection) == null ? void 0 : _b.querySelector('[data-role="users-list-status-icon"]')) || null;
-    this._usersStatusText = ((_c = this._usersListSection) == null ? void 0 : _c.querySelector('[data-role="users-list-status-text"]')) || null;
+    this._usersListStatus = ((_a = this._usersListSection) == null ? void 0 : _a.querySelector(
+      '[data-role="users-list-status"]'
+    )) || null;
+    this._usersStatusIcon = ((_b = this._usersListSection) == null ? void 0 : _b.querySelector(
+      '[data-role="users-list-status-icon"]'
+    )) || null;
+    this._usersStatusText = ((_c = this._usersListSection) == null ? void 0 : _c.querySelector(
+      '[data-role="users-list-status-text"]'
+    )) || null;
     this._usersListEmpty = ((_d = this._usersListSection) == null ? void 0 : _d.querySelector('[data-role="users-list-empty"]')) || null;
     this._usersTableBody = ((_e = this._usersListSection) == null ? void 0 : _e.querySelector('[data-role="users-table-body"]')) || null;
   }
@@ -312,16 +393,28 @@ var SettingsLayout = class extends HTMLElement {
       button.addEventListener("click", this._boundCategoryClick);
     });
     if (this._profileSubmitButton) {
-      this._profileSubmitButton.addEventListener("click", this._boundProfileSubmit);
+      this._profileSubmitButton.addEventListener(
+        "click",
+        this._boundProfileSubmit
+      );
     }
     if (this._passwordSubmitButton) {
-      this._passwordSubmitButton.addEventListener("click", this._boundPasswordSubmit);
+      this._passwordSubmitButton.addEventListener(
+        "click",
+        this._boundPasswordSubmit
+      );
     }
     if (this._clearSessionsButton) {
-      this._clearSessionsButton.addEventListener("click", this._boundClearSessions);
+      this._clearSessionsButton.addEventListener(
+        "click",
+        this._boundClearSessions
+      );
     }
     if (this._deactivateAccountButton) {
-      this._deactivateAccountButton.addEventListener("click", this._boundDeactivateAccount);
+      this._deactivateAccountButton.addEventListener(
+        "click",
+        this._boundDeactivateAccount
+      );
     }
     if (this._accountKeyCopyButton) {
       this._accountKeyCopyButton.addEventListener("click", this._boundKeyCopy);
@@ -329,18 +422,30 @@ var SettingsLayout = class extends HTMLElement {
     if (this._isAdmin) {
       this._signupSections.forEach((section) => {
         if (section.generateButton) {
-          section.generateButton.addEventListener("click", this._boundGenerateClick);
+          section.generateButton.addEventListener(
+            "click",
+            this._boundGenerateClick
+          );
         }
         if (section.revokeButton) {
-          section.revokeButton.addEventListener("click", this._boundRevokeClick);
+          section.revokeButton.addEventListener(
+            "click",
+            this._boundRevokeClick
+          );
         }
       });
       if (this._detailCopyButton) {
         this._detailCopyButton.addEventListener("click", this._boundDetailCopy);
       }
       if (this._detailLinkInput) {
-        this._detailLinkInput.addEventListener("focus", this._boundDetailLinkFocus);
-        this._detailLinkInput.addEventListener("click", this._boundDetailLinkFocus);
+        this._detailLinkInput.addEventListener(
+          "focus",
+          this._boundDetailLinkFocus
+        );
+        this._detailLinkInput.addEventListener(
+          "click",
+          this._boundDetailLinkFocus
+        );
       }
       if (this._detailBackButton) {
         this._detailBackButton.addEventListener("click", this._boundDetailBack);
@@ -349,13 +454,22 @@ var SettingsLayout = class extends HTMLElement {
         this._usersTableBody.addEventListener("click", this._boundUserAction);
       }
       if (this._uploadLinksForm) {
-        this._uploadLinksForm.addEventListener("submit", this._boundUploadLinksSubmit);
+        this._uploadLinksForm.addEventListener(
+          "submit",
+          this._boundUploadLinksSubmit
+        );
       }
       if (this._uploadLinksTableBody) {
-        this._uploadLinksTableBody.addEventListener("click", this._boundUploadLinksAction);
+        this._uploadLinksTableBody.addEventListener(
+          "click",
+          this._boundUploadLinksAction
+        );
       }
       if (this._uploadLinksDetailCopyButton) {
-        this._uploadLinksDetailCopyButton.addEventListener("click", this._boundUploadLinksCopy);
+        this._uploadLinksDetailCopyButton.addEventListener(
+          "click",
+          this._boundUploadLinksCopy
+        );
       }
     }
   }
@@ -364,50 +478,95 @@ var SettingsLayout = class extends HTMLElement {
       button.removeEventListener("click", this._boundCategoryClick);
     });
     if (this._profileSubmitButton) {
-      this._profileSubmitButton.removeEventListener("click", this._boundProfileSubmit);
+      this._profileSubmitButton.removeEventListener(
+        "click",
+        this._boundProfileSubmit
+      );
     }
     if (this._passwordSubmitButton) {
-      this._passwordSubmitButton.removeEventListener("click", this._boundPasswordSubmit);
+      this._passwordSubmitButton.removeEventListener(
+        "click",
+        this._boundPasswordSubmit
+      );
     }
     if (this._clearSessionsButton) {
-      this._clearSessionsButton.removeEventListener("click", this._boundClearSessions);
+      this._clearSessionsButton.removeEventListener(
+        "click",
+        this._boundClearSessions
+      );
     }
     if (this._deactivateAccountButton) {
-      this._deactivateAccountButton.removeEventListener("click", this._boundDeactivateAccount);
+      this._deactivateAccountButton.removeEventListener(
+        "click",
+        this._boundDeactivateAccount
+      );
     }
     if (this._accountKeyCopyButton) {
-      this._accountKeyCopyButton.removeEventListener("click", this._boundKeyCopy);
+      this._accountKeyCopyButton.removeEventListener(
+        "click",
+        this._boundKeyCopy
+      );
     }
     if (this._isAdmin) {
       this._signupSections.forEach((section) => {
         if (section.generateButton) {
-          section.generateButton.removeEventListener("click", this._boundGenerateClick);
+          section.generateButton.removeEventListener(
+            "click",
+            this._boundGenerateClick
+          );
         }
         if (section.revokeButton) {
-          section.revokeButton.removeEventListener("click", this._boundRevokeClick);
+          section.revokeButton.removeEventListener(
+            "click",
+            this._boundRevokeClick
+          );
         }
       });
       if (this._detailCopyButton) {
-        this._detailCopyButton.removeEventListener("click", this._boundDetailCopy);
+        this._detailCopyButton.removeEventListener(
+          "click",
+          this._boundDetailCopy
+        );
       }
       if (this._detailLinkInput) {
-        this._detailLinkInput.removeEventListener("focus", this._boundDetailLinkFocus);
-        this._detailLinkInput.removeEventListener("click", this._boundDetailLinkFocus);
+        this._detailLinkInput.removeEventListener(
+          "focus",
+          this._boundDetailLinkFocus
+        );
+        this._detailLinkInput.removeEventListener(
+          "click",
+          this._boundDetailLinkFocus
+        );
       }
       if (this._detailBackButton) {
-        this._detailBackButton.removeEventListener("click", this._boundDetailBack);
+        this._detailBackButton.removeEventListener(
+          "click",
+          this._boundDetailBack
+        );
       }
       if (this._usersTableBody) {
-        this._usersTableBody.removeEventListener("click", this._boundUserAction);
+        this._usersTableBody.removeEventListener(
+          "click",
+          this._boundUserAction
+        );
       }
       if (this._uploadLinksForm) {
-        this._uploadLinksForm.removeEventListener("submit", this._boundUploadLinksSubmit);
+        this._uploadLinksForm.removeEventListener(
+          "submit",
+          this._boundUploadLinksSubmit
+        );
       }
       if (this._uploadLinksTableBody) {
-        this._uploadLinksTableBody.removeEventListener("click", this._boundUploadLinksAction);
+        this._uploadLinksTableBody.removeEventListener(
+          "click",
+          this._boundUploadLinksAction
+        );
       }
       if (this._uploadLinksDetailCopyButton) {
-        this._uploadLinksDetailCopyButton.removeEventListener("click", this._boundUploadLinksCopy);
+        this._uploadLinksDetailCopyButton.removeEventListener(
+          "click",
+          this._boundUploadLinksCopy
+        );
       }
     }
   }
@@ -480,11 +639,15 @@ var SettingsLayout = class extends HTMLElement {
     if (!userSecrets) {
       return;
     }
-    const nameInput = (_a = this._profileForm) == null ? void 0 : _a.querySelector("#settings-account-name");
+    const nameInput = (_a = this._profileForm) == null ? void 0 : _a.querySelector(
+      "#settings-account-name"
+    );
     if (nameInput) {
       nameInput.value = userSecrets.name || "";
     }
-    const emailInput = (_b = this._profileForm) == null ? void 0 : _b.querySelector("#settings-account-email");
+    const emailInput = (_b = this._profileForm) == null ? void 0 : _b.querySelector(
+      "#settings-account-email"
+    );
     if (emailInput) {
       emailInput.value = userSecrets.email || "";
     }
@@ -496,7 +659,9 @@ var SettingsLayout = class extends HTMLElement {
     }
     const raw = (userSecrets == null ? void 0 : userSecrets.x25519PrivateKey) || "";
     if (!raw) {
-      this._accountKeyValue.textContent = translate("settingsAccountKeyUnavailable");
+      this._accountKeyValue.textContent = translate(
+        "settingsAccountKeyUnavailable"
+      );
       if (this._accountKeyCopyButton) {
         this._accountKeyCopyButton.disabled = true;
       }
@@ -631,9 +796,12 @@ var SettingsLayout = class extends HTMLElement {
     }
     const expiresText = this._formatExpiry(expiresAtSeconds);
     if (this._detailDescription) {
-      this._detailDescription.textContent = translate("settingsUsersDetailDescription", {
-        date: expiresText
-      });
+      this._detailDescription.textContent = translate(
+        "settingsUsersDetailDescription",
+        {
+          date: expiresText
+        }
+      );
     }
     if (this._detailActiveCount) {
       const section = this._getSignupSection(type);
@@ -641,7 +809,9 @@ var SettingsLayout = class extends HTMLElement {
       this._detailActiveCount.textContent = String(count);
     }
     if (this._detailFootnote) {
-      this._detailFootnote.textContent = translate("settingsUsersDetailFootnote");
+      this._detailFootnote.textContent = translate(
+        "settingsUsersDetailFootnote"
+      );
     }
     this._setDetailStatus("");
     if (this._detailLinkInput) {
@@ -758,7 +928,10 @@ var SettingsLayout = class extends HTMLElement {
     const label = (((_a = this._uploadLinksLabelInput) == null ? void 0 : _a.value) || "").trim();
     const description = (((_b = this._uploadLinksDescriptionInput) == null ? void 0 : _b.value) || "").trim();
     if (!label) {
-      this._setUploadLinksStatus(translate("settingsUploadLinksStatusLabelRequired"), "error");
+      this._setUploadLinksStatus(
+        translate("settingsUploadLinksStatusLabelRequired"),
+        "error"
+      );
       return;
     }
     this._uploadLinksSubmitting = true;
@@ -766,7 +939,10 @@ var SettingsLayout = class extends HTMLElement {
       this._uploadLinksSubmitButton.disabled = true;
       this._uploadLinksSubmitButton.classList.add("opacity-60");
     }
-    this._setUploadLinksStatus(translate("settingsUploadLinksStatusCreating"), "info");
+    this._setUploadLinksStatus(
+      translate("settingsUploadLinksStatusCreating"),
+      "info"
+    );
     try {
       const response = await fetch("/api/admin/upload-links", {
         method: "POST",
@@ -804,10 +980,16 @@ var SettingsLayout = class extends HTMLElement {
       ].sort((a, b) => (b.created || 0) - (a.created || 0));
       this._renderUploadLinks();
       this._showUploadLinkDetail(normalized, linkURL);
-      this._setUploadLinksStatus(translate("settingsUploadLinksStatusCreated"), "success");
+      this._setUploadLinksStatus(
+        translate("settingsUploadLinksStatusCreated"),
+        "success"
+      );
     } catch (error) {
       console.error("[SettingsLayout] Failed to create upload link", error);
-      this._setUploadLinksStatus(translate("settingsUploadLinksStatusError"), "error");
+      this._setUploadLinksStatus(
+        translate("settingsUploadLinksStatusError"),
+        "error"
+      );
     } finally {
       this._uploadLinksSubmitting = false;
       if (this._uploadLinksSubmitButton) {
@@ -841,7 +1023,10 @@ var SettingsLayout = class extends HTMLElement {
       button.disabled = true;
       button.classList.add("opacity-60");
     }
-    this._setUploadLinksStatus(translate("settingsUploadLinksStatusRevoking"), "info");
+    this._setUploadLinksStatus(
+      translate("settingsUploadLinksStatusRevoking"),
+      "info"
+    );
     try {
       const response = await fetch(`/api/admin/upload-links/${tokenId}`, {
         method: "DELETE"
@@ -853,13 +1038,19 @@ var SettingsLayout = class extends HTMLElement {
         (item) => item.id === tokenId ? { ...item, active: false } : item
       );
       this._renderUploadLinks();
-      this._setUploadLinksStatus(translate("settingsUploadLinksStatusRevoked"), "success");
+      this._setUploadLinksStatus(
+        translate("settingsUploadLinksStatusRevoked"),
+        "success"
+      );
       if (this._uploadLinksDetailLinkId === tokenId) {
         this._hideUploadLinkDetail();
       }
     } catch (error) {
       console.error("[SettingsLayout] Failed to revoke upload link", error);
-      this._setUploadLinksStatus(translate("settingsUploadLinksStatusRevokeError"), "error");
+      this._setUploadLinksStatus(
+        translate("settingsUploadLinksStatusRevokeError"),
+        "error"
+      );
     } finally {
       if (button && document.body.contains(button)) {
         button.disabled = false;
@@ -932,7 +1123,10 @@ var SettingsLayout = class extends HTMLElement {
     }
     const value = this._uploadLinksDetailInput.value || "";
     if (!value) {
-      this._setUploadLinkDetailStatus(translate("settingsUploadLinksCopyError"), "error");
+      this._setUploadLinkDetailStatus(
+        translate("settingsUploadLinksCopyError"),
+        "error"
+      );
       return;
     }
     try {
@@ -940,7 +1134,10 @@ var SettingsLayout = class extends HTMLElement {
       if (!ok) {
         throw new Error("clipboard_failed");
       }
-      this._setUploadLinkDetailStatus(translate("settingsUploadLinksCopySuccess"), "success");
+      this._setUploadLinkDetailStatus(
+        translate("settingsUploadLinksCopySuccess"),
+        "success"
+      );
       if (this._uploadLinksDetailCopyIcon) {
         const original = this._uploadLinksDetailCopyIcon.dataset.originalClass || this._uploadLinksDetailCopyIcon.className;
         this._uploadLinksDetailCopyIcon.dataset.originalClass = original;
@@ -956,7 +1153,10 @@ var SettingsLayout = class extends HTMLElement {
       }
     } catch (error) {
       console.error("[SettingsLayout] Failed to copy upload link", error);
-      this._setUploadLinkDetailStatus(translate("settingsUploadLinksCopyError"), "error");
+      this._setUploadLinkDetailStatus(
+        translate("settingsUploadLinksCopyError"),
+        "error"
+      );
       if (this._uploadLinksDetailCopyIcon && this._uploadLinksDetailCopyIcon.dataset.originalClass) {
         this._uploadLinksDetailCopyIcon.className = this._uploadLinksDetailCopyIcon.dataset.originalClass;
       }
@@ -996,7 +1196,10 @@ var SettingsLayout = class extends HTMLElement {
       return;
     }
     this._uploadLinksLoading = true;
-    this._setUploadLinksStatus(translate("settingsUploadLinksStatusLoading"), "info");
+    this._setUploadLinksStatus(
+      translate("settingsUploadLinksStatusLoading"),
+      "info"
+    );
     try {
       const response = await fetch("/api/admin/upload-links", {
         method: "GET",
@@ -1022,7 +1225,10 @@ var SettingsLayout = class extends HTMLElement {
       this._setUploadLinksStatus("", "info");
     } catch (error) {
       console.error("[SettingsLayout] Failed to load upload links", error);
-      this._setUploadLinksStatus(translate("settingsUploadLinksStatusLoadingError"), "error");
+      this._setUploadLinksStatus(
+        translate("settingsUploadLinksStatusLoadingError"),
+        "error"
+      );
     } finally {
       this._uploadLinksLoading = false;
     }
@@ -1095,7 +1301,9 @@ var SettingsLayout = class extends HTMLElement {
     }
     const statusWrapper = row.querySelector('[data-role="status"]');
     const statusIcon = statusWrapper == null ? void 0 : statusWrapper.querySelector("i");
-    const statusText = statusWrapper == null ? void 0 : statusWrapper.querySelector('[data-role="status-text"]');
+    const statusText = statusWrapper == null ? void 0 : statusWrapper.querySelector(
+      '[data-role="status-text"]'
+    );
     if (statusWrapper && statusIcon && statusText) {
       const baseClass = "inline-flex items-center gap-2 text-xs font-medium";
       if (link.active) {
@@ -1105,7 +1313,9 @@ var SettingsLayout = class extends HTMLElement {
       } else {
         statusWrapper.className = `${baseClass} text-grey-60 dark:text-grey-40`;
         statusIcon.className = "ri-forbid-2-line text-sm leading-4";
-        statusText.textContent = translate("settingsUploadLinksStatusRevokedLabel");
+        statusText.textContent = translate(
+          "settingsUploadLinksStatusRevokedLabel"
+        );
       }
     }
     const createdEl = row.querySelector('[data-role="created"]');
@@ -1113,7 +1323,9 @@ var SettingsLayout = class extends HTMLElement {
       createdEl.textContent = this._formatUploadLinkTimestamp(link.created);
     }
     const revokeButton = row.querySelector('[data-role="revoke-button"]');
-    const revokeLabel = revokeButton == null ? void 0 : revokeButton.querySelector('[data-role="revoke-label"]');
+    const revokeLabel = revokeButton == null ? void 0 : revokeButton.querySelector(
+      '[data-role="revoke-label"]'
+    );
     const revokedBadge = row.querySelector('[data-role="revoked-indicator"]');
     if (revokeButton) {
       revokeButton.dataset.action = "revoke";
@@ -1121,7 +1333,9 @@ var SettingsLayout = class extends HTMLElement {
       if (link.active) {
         revokeButton.className = "inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded border border-red-200 dark:border-red-400/40 text-red-600 dark:text-red-400 bg-red-50/70 dark:bg-red-900/10 hover:bg-red-50 dark:hover:bg-red-900/20 transition cursor-pointer";
         if (revokeLabel) {
-          revokeLabel.textContent = translate("settingsUploadLinksRevokeButton");
+          revokeLabel.textContent = translate(
+            "settingsUploadLinksRevokeButton"
+          );
         }
         revokeButton.classList.remove("hidden");
         if (revokedBadge) {
@@ -1130,7 +1344,9 @@ var SettingsLayout = class extends HTMLElement {
       } else {
         revokeButton.remove();
         if (revokedBadge) {
-          revokedBadge.textContent = translate("settingsUploadLinksRevokedBadge");
+          revokedBadge.textContent = translate(
+            "settingsUploadLinksRevokedBadge"
+          );
           revokedBadge.classList.remove("hidden");
         }
       }
@@ -1243,11 +1459,14 @@ var SettingsLayout = class extends HTMLElement {
       detailTags.push(`<span>${this._escapeHTML(roleLabel)}</span>`);
     }
     if (statusLabel) {
-      detailTags.push(`<span class="${statusClass}">${this._escapeHTML(statusLabel)}</span>`);
+      detailTags.push(
+        `<span class="${statusClass}">${this._escapeHTML(statusLabel)}</span>`
+      );
     }
+    let you;
     if (user.is_current_user) {
       const youLabel = translate("settingsUsersCurrentUserLabel");
-      detailTags.push(`<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium">${this._escapeHTML(youLabel)}</span>`);
+      you = `<span class="ml-1.5 inline-flex items-center px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium">${this._escapeHTML(youLabel)}</span>`;
     }
     const metaParts = detailTags.filter(Boolean).join(" \xB7 ");
     const signingTitleAttr = signingKeyTitle ? ` title="${this._escapeHTML(signingKeyTitle)}"` : "";
@@ -1274,7 +1493,7 @@ var SettingsLayout = class extends HTMLElement {
     return `
       <tr class="align-top">
         <td class="px-4 py-4">
-          <div class="font-medium text-grey-90 dark:text-grey-10">${this._escapeHTML(displayName)}</div>
+          <div class="font-medium text-grey-90 dark:text-grey-10">${this._escapeHTML(displayName)}${you || ""}</div>
           <div class="text-xs text-grey-60 dark:text-grey-40 mt-1">${metaParts || ""}</div>
         </td>
         <td class="px-4 py-4 text-sm text-grey-80 dark:text-grey-20">${emailText ? this._escapeHTML(emailText) : "\u2014"}</td>
@@ -1413,12 +1632,22 @@ var SettingsLayout = class extends HTMLElement {
     const displayName = this._getDisplayName(user);
     if (action === "deactivate") {
       if (user.is_current_user) {
-        this._setUsersStatus(translate("settingsUsersActionDeactivateSelfError"), "error");
+        this._setUsersStatus(
+          translate("settingsUsersActionDeactivateSelfError"),
+          "error"
+        );
         return;
       }
-      this._setUsersStatus(translate("settingsUsersActionDeactivateWorking"), "info");
+      this._setUsersStatus(
+        translate("settingsUsersActionDeactivateWorking"),
+        "info"
+      );
       let succeeded = false;
-      this._setButtonLoading(button, "ri-loader-4-line", translate("settingsUsersActionDeactivateWorking"));
+      this._setButtonLoading(
+        button,
+        "ri-loader-4-line",
+        translate("settingsUsersActionDeactivateWorking")
+      );
       try {
         const response = await fetch(`/api/admin/users/${userID}/deactivate`, {
           method: "POST",
@@ -1431,10 +1660,18 @@ var SettingsLayout = class extends HTMLElement {
         }
         succeeded = true;
         await this._loadUsers();
-        this._setUsersStatus(translate("settingsUsersActionDeactivateSuccess", { name: displayName }), "success");
+        this._setUsersStatus(
+          translate("settingsUsersActionDeactivateSuccess", {
+            name: displayName
+          }),
+          "success"
+        );
       } catch (error) {
         console.error("[SettingsLayout] Failed to deactivate user", error);
-        this._setUsersStatus(translate("settingsUsersActionDeactivateError"), "error");
+        this._setUsersStatus(
+          translate("settingsUsersActionDeactivateError"),
+          "error"
+        );
       } finally {
         if (!succeeded) {
           this._restoreButton(button);
@@ -1443,9 +1680,16 @@ var SettingsLayout = class extends HTMLElement {
       return;
     }
     if (action === "activate") {
-      this._setUsersStatus(translate("settingsUsersActionActivateWorking"), "info");
+      this._setUsersStatus(
+        translate("settingsUsersActionActivateWorking"),
+        "info"
+      );
       let succeeded = false;
-      this._setButtonLoading(button, "ri-loader-4-line", translate("settingsUsersActionActivateWorking"));
+      this._setButtonLoading(
+        button,
+        "ri-loader-4-line",
+        translate("settingsUsersActionActivateWorking")
+      );
       try {
         const response = await fetch(`/api/admin/users/${userID}/activate`, {
           method: "POST",
@@ -1458,10 +1702,18 @@ var SettingsLayout = class extends HTMLElement {
         }
         succeeded = true;
         await this._loadUsers();
-        this._setUsersStatus(translate("settingsUsersActionActivateSuccess", { name: displayName }), "success");
+        this._setUsersStatus(
+          translate("settingsUsersActionActivateSuccess", {
+            name: displayName
+          }),
+          "success"
+        );
       } catch (error) {
         console.error("[SettingsLayout] Failed to activate user", error);
-        this._setUsersStatus(translate("settingsUsersActionActivateError"), "error");
+        this._setUsersStatus(
+          translate("settingsUsersActionActivateError"),
+          "error"
+        );
       } finally {
         if (!succeeded) {
           this._restoreButton(button);
@@ -1473,16 +1725,26 @@ var SettingsLayout = class extends HTMLElement {
       if (user.active_sessions === 0) {
         return;
       }
-      this._setUsersStatus(translate("settingsUsersActionClearWorking"), "info");
+      this._setUsersStatus(
+        translate("settingsUsersActionClearWorking"),
+        "info"
+      );
       let succeeded = false;
-      this._setButtonLoading(button, "ri-loader-4-line", translate("settingsUsersActionClearWorking"));
+      this._setButtonLoading(
+        button,
+        "ri-loader-4-line",
+        translate("settingsUsersActionClearWorking")
+      );
       try {
-        const response = await fetch(`/api/admin/users/${userID}/clear-sessions`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
+        const response = await fetch(
+          `/api/admin/users/${userID}/clear-sessions`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            }
           }
-        });
+        );
         if (!response.ok) {
           throw new Error(`clear_sessions_failed_${response.status}`);
         }
@@ -1493,10 +1755,16 @@ var SettingsLayout = class extends HTMLElement {
           window.location.assign("/login");
           return;
         }
-        this._setUsersStatus(translate("settingsUsersActionClearSuccess", { name: displayName }), "success");
+        this._setUsersStatus(
+          translate("settingsUsersActionClearSuccess", { name: displayName }),
+          "success"
+        );
       } catch (error) {
         console.error("[SettingsLayout] Failed to clear sessions", error);
-        this._setUsersStatus(translate("settingsUsersActionClearError"), "error");
+        this._setUsersStatus(
+          translate("settingsUsersActionClearError"),
+          "error"
+        );
       } finally {
         if (!succeeded) {
           this._restoreButton(button);
@@ -1506,16 +1774,28 @@ var SettingsLayout = class extends HTMLElement {
     }
     if (action === "delete") {
       if (user.is_current_user) {
-        this._setUsersStatus(translate("settingsUsersActionDeleteSelfError"), "error");
+        this._setUsersStatus(
+          translate("settingsUsersActionDeleteSelfError"),
+          "error"
+        );
         return;
       }
-      const confirmed = window.confirm(translate("settingsUsersActionDeleteConfirm", { name: displayName }));
+      const confirmed = window.confirm(
+        translate("settingsUsersActionDeleteConfirm", { name: displayName })
+      );
       if (!confirmed) {
         return;
       }
-      this._setUsersStatus(translate("settingsUsersActionDeleteWorking"), "info");
+      this._setUsersStatus(
+        translate("settingsUsersActionDeleteWorking"),
+        "info"
+      );
       let succeeded = false;
-      this._setButtonLoading(button, "ri-loader-4-line", translate("settingsUsersActionDeleteWorking"));
+      this._setButtonLoading(
+        button,
+        "ri-loader-4-line",
+        translate("settingsUsersActionDeleteWorking")
+      );
       try {
         const response = await fetch(`/api/admin/users/${userID}`, {
           method: "DELETE",
@@ -1528,10 +1808,16 @@ var SettingsLayout = class extends HTMLElement {
         }
         succeeded = true;
         await this._loadUsers();
-        this._setUsersStatus(translate("settingsUsersActionDeleteSuccess", { name: displayName }), "success");
+        this._setUsersStatus(
+          translate("settingsUsersActionDeleteSuccess", { name: displayName }),
+          "success"
+        );
       } catch (error) {
         console.error("[SettingsLayout] Failed to delete user", error);
-        this._setUsersStatus(translate("settingsUsersActionDeleteError"), "error");
+        this._setUsersStatus(
+          translate("settingsUsersActionDeleteError"),
+          "error"
+        );
       } finally {
         if (!succeeded) {
           this._restoreButton(button);
@@ -1605,12 +1891,23 @@ var SettingsLayout = class extends HTMLElement {
       const expiresAt = typeof data.expires_at === "number" ? data.expires_at : Number(data.expires_at || 0);
       if (typeof data.link === "string") {
         this._showSignupDetail(type, data.link, expiresAt);
-        this._setDetailStatus(translate("settingsUsersGenerateSuccess"), "success");
+        this._setDetailStatus(
+          translate("settingsUsersGenerateSuccess"),
+          "success"
+        );
       }
-      this._setSectionStatus(type, translate("settingsUsersGenerateSuccess"), "success");
+      this._setSectionStatus(
+        type,
+        translate("settingsUsersGenerateSuccess"),
+        "success"
+      );
     } catch (error) {
       console.error("[SettingsLayout] Failed to create signup link", error);
-      this._setSectionStatus(type, translate("settingsUsersGenerateError"), "error");
+      this._setSectionStatus(
+        type,
+        translate("settingsUsersGenerateError"),
+        "error"
+      );
       if (this._activeDetailType === type) {
         this._setDetailStatus(translate("settingsUsersGenerateError"), "error");
       }
@@ -1630,12 +1927,15 @@ var SettingsLayout = class extends HTMLElement {
     this._setSectionStatus(type, translate("settingsUsersRevoking"), "info");
     this._setSectionLoading(section, true);
     try {
-      const response = await fetch(`/api/admin/signup-links?type=${encodeURIComponent(type)}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json"
+      const response = await fetch(
+        `/api/admin/signup-links?type=${encodeURIComponent(type)}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json"
+          }
         }
-      });
+      );
       if (!response.ok) {
         throw new Error(`revoke_failed_${response.status}`);
       }
@@ -1648,10 +1948,18 @@ var SettingsLayout = class extends HTMLElement {
       if (this._activeDetailType === type) {
         this._clearSignupDetail();
       }
-      this._setSectionStatus(type, translate("settingsUsersRevokeSuccess"), "success");
+      this._setSectionStatus(
+        type,
+        translate("settingsUsersRevokeSuccess"),
+        "success"
+      );
     } catch (error) {
       console.error("[SettingsLayout] Failed to revoke signup links", error);
-      this._setSectionStatus(type, translate("settingsUsersRevokeError"), "error");
+      this._setSectionStatus(
+        type,
+        translate("settingsUsersRevokeError"),
+        "error"
+      );
       if (this._activeDetailType === type) {
         this._setDetailStatus(translate("settingsUsersRevokeError"), "error");
       }
@@ -1674,7 +1982,10 @@ var SettingsLayout = class extends HTMLElement {
     }
     const success = copyToClipboard(value);
     if (success) {
-      this._setDetailStatus(translate("settingsUsersDetailCopySuccess"), "success");
+      this._setDetailStatus(
+        translate("settingsUsersDetailCopySuccess"),
+        "success"
+      );
       if (this._detailCopyIcon) {
         const original = this._detailCopyIcon.dataset.originalClass || this._detailCopyIcon.className;
         this._detailCopyIcon.dataset.originalClass = original;
@@ -1739,8 +2050,16 @@ var SettingsLayout = class extends HTMLElement {
       console.error("[SettingsLayout] Failed to load signup overview", error);
       this._setSignupCount("admin", 0);
       this._setSignupCount("user", 0);
-      this._setSectionStatus("admin", translate("settingsUsersOverviewError"), "error");
-      this._setSectionStatus("user", translate("settingsUsersOverviewError"), "error");
+      this._setSectionStatus(
+        "admin",
+        translate("settingsUsersOverviewError"),
+        "error"
+      );
+      this._setSectionStatus(
+        "user",
+        translate("settingsUsersOverviewError"),
+        "error"
+      );
       if (this._activeDetailType) {
         this._setDetailStatus(translate("settingsUsersOverviewError"), "error");
       }
@@ -1795,19 +2114,34 @@ var SettingsLayout = class extends HTMLElement {
       this._profileStatus.classList.add("text-red-600", "dark:text-red-400");
       if (this._profileStatusIcon) {
         this._profileStatusIcon.classList.remove("hidden");
-        this._profileStatusIcon.classList.add("ri-close-circle-fill", "text-red-600", "dark:text-red-400");
+        this._profileStatusIcon.classList.add(
+          "ri-close-circle-fill",
+          "text-red-600",
+          "dark:text-red-400"
+        );
       }
     } else if (type === "success") {
-      this._profileStatus.classList.add("text-green-600", "dark:text-green-400");
+      this._profileStatus.classList.add(
+        "text-green-600",
+        "dark:text-green-400"
+      );
       if (this._profileStatusIcon) {
         this._profileStatusIcon.classList.remove("hidden");
-        this._profileStatusIcon.classList.add("ri-check-line", "text-green-600", "dark:text-green-400");
+        this._profileStatusIcon.classList.add(
+          "ri-check-line",
+          "text-green-600",
+          "dark:text-green-400"
+        );
       }
     } else {
       this._profileStatus.classList.add("text-grey-70", "dark:text-grey-40");
       if (this._profileStatusIcon) {
         this._profileStatusIcon.classList.remove("hidden");
-        this._profileStatusIcon.classList.add("ri-information-line", "text-grey-60", "dark:text-grey-40");
+        this._profileStatusIcon.classList.add(
+          "ri-information-line",
+          "text-grey-60",
+          "dark:text-grey-40"
+        );
       }
     }
   }
@@ -1862,19 +2196,34 @@ var SettingsLayout = class extends HTMLElement {
       this._accountStatus.classList.add("text-red-600", "dark:text-red-400");
       if (this._accountStatusIcon) {
         this._accountStatusIcon.classList.remove("hidden");
-        this._accountStatusIcon.classList.add("ri-close-circle-fill", "text-red-600", "dark:text-red-400");
+        this._accountStatusIcon.classList.add(
+          "ri-close-circle-fill",
+          "text-red-600",
+          "dark:text-red-400"
+        );
       }
     } else if (type === "success") {
-      this._accountStatus.classList.add("text-green-600", "dark:text-green-400");
+      this._accountStatus.classList.add(
+        "text-green-600",
+        "dark:text-green-400"
+      );
       if (this._accountStatusIcon) {
         this._accountStatusIcon.classList.remove("hidden");
-        this._accountStatusIcon.classList.add("ri-check-line", "text-green-600", "dark:text-green-400");
+        this._accountStatusIcon.classList.add(
+          "ri-check-line",
+          "text-green-600",
+          "dark:text-green-400"
+        );
       }
     } else {
       this._accountStatus.classList.add("text-grey-70", "dark:text-grey-40");
       if (this._accountStatusIcon) {
         this._accountStatusIcon.classList.remove("hidden");
-        this._accountStatusIcon.classList.add("ri-information-line", "text-grey-60", "dark:text-grey-40");
+        this._accountStatusIcon.classList.add(
+          "ri-information-line",
+          "text-grey-60",
+          "dark:text-grey-40"
+        );
       }
     }
   }
@@ -1885,12 +2234,18 @@ var SettingsLayout = class extends HTMLElement {
     }
     const value = this._accountKeyCopyButton.getAttribute("data-key-value") || "";
     if (!value) {
-      this._setKeyStatus("error", translate("settingsAccountKeyStatusUnavailable"));
+      this._setKeyStatus(
+        "error",
+        translate("settingsAccountKeyStatusUnavailable")
+      );
       return;
     }
     const success = copyToClipboard(value);
     if (success) {
-      this._setKeyStatus("success", translate("settingsAccountKeyStatusCopied"));
+      this._setKeyStatus(
+        "success",
+        translate("settingsAccountKeyStatusCopied")
+      );
       const icon = this._accountKeyCopyButton.querySelector("i");
       if (icon) {
         const original = icon.dataset.originalClass || icon.className;
@@ -1924,19 +2279,34 @@ var SettingsLayout = class extends HTMLElement {
       this._passwordStatus.classList.add("text-red-600", "dark:text-red-400");
       if (this._passwordStatusIcon) {
         this._passwordStatusIcon.classList.remove("hidden");
-        this._passwordStatusIcon.classList.add("ri-close-circle-fill", "text-red-600", "dark:text-red-400");
+        this._passwordStatusIcon.classList.add(
+          "ri-close-circle-fill",
+          "text-red-600",
+          "dark:text-red-400"
+        );
       }
     } else if (type === "success") {
-      this._passwordStatus.classList.add("text-green-600", "dark:text-green-400");
+      this._passwordStatus.classList.add(
+        "text-green-600",
+        "dark:text-green-400"
+      );
       if (this._passwordStatusIcon) {
         this._passwordStatusIcon.classList.remove("hidden");
-        this._passwordStatusIcon.classList.add("ri-check-line", "text-green-600", "dark:text-green-400");
+        this._passwordStatusIcon.classList.add(
+          "ri-check-line",
+          "text-green-600",
+          "dark:text-green-400"
+        );
       }
     } else {
       this._passwordStatus.classList.add("text-grey-70", "dark:text-grey-40");
       if (this._passwordStatusIcon) {
         this._passwordStatusIcon.classList.remove("hidden");
-        this._passwordStatusIcon.classList.add("ri-information-line", "text-grey-60", "dark:text-grey-40");
+        this._passwordStatusIcon.classList.add(
+          "ri-information-line",
+          "text-grey-60",
+          "dark:text-grey-40"
+        );
       }
     }
   }
@@ -1986,22 +2356,36 @@ var SettingsLayout = class extends HTMLElement {
       return;
     }
     const nameInput = this._profileForm.querySelector("#settings-account-name");
-    const emailInput = this._profileForm.querySelector("#settings-account-email");
+    const emailInput = this._profileForm.querySelector(
+      "#settings-account-email"
+    );
     const name = (nameInput == null ? void 0 : nameInput.value.trim()) || "";
     const email = (emailInput == null ? void 0 : emailInput.value.trim()) || "";
     if (!name) {
-      this._setProfileStatus("error", translate("settingsAccountProfileStatusNameRequired"));
+      this._setProfileStatus(
+        "error",
+        translate("settingsAccountProfileStatusNameRequired")
+      );
       return;
     }
     if (!email) {
-      this._setProfileStatus("error", translate("settingsAccountProfileStatusEmailRequired"));
+      this._setProfileStatus(
+        "error",
+        translate("settingsAccountProfileStatusEmailRequired")
+      );
       return;
     }
     if (!this._isValidEmail(email)) {
-      this._setProfileStatus("error", translate("settingsAccountProfileStatusEmailInvalid"));
+      this._setProfileStatus(
+        "error",
+        translate("settingsAccountProfileStatusEmailInvalid")
+      );
       return;
     }
-    this._setProfileStatus("info", translate("settingsAccountProfileStatusSaving"));
+    this._setProfileStatus(
+      "info",
+      translate("settingsAccountProfileStatusSaving")
+    );
     if (this._profileSubmitButton) {
       this._profileSubmitButton.disabled = true;
     }
@@ -2040,7 +2424,10 @@ var SettingsLayout = class extends HTMLElement {
         storage_default.setUser(userSecrets);
       }
       this._populateAccountForms();
-      this._setProfileStatus("success", translate("settingsAccountProfileStatusSuccess"));
+      this._setProfileStatus(
+        "success",
+        translate("settingsAccountProfileStatusSuccess")
+      );
     } catch (error) {
       const message = (error == null ? void 0 : error.message) || translate("settingsAccountProfileStatusError");
       this._setProfileStatus("error", message);
@@ -2052,7 +2439,10 @@ var SettingsLayout = class extends HTMLElement {
   }
   async _handleClearSessions(event) {
     event.preventDefault();
-    this._setAccountStatus("info", translate("settingsAccountDangerStatusClearing"));
+    this._setAccountStatus(
+      "info",
+      translate("settingsAccountDangerStatusClearing")
+    );
     if (this._clearSessionsButton) {
       this._clearSessionsButton.disabled = true;
     }
@@ -2092,11 +2482,16 @@ var SettingsLayout = class extends HTMLElement {
   }
   async _handleDeactivateAccount(event) {
     event.preventDefault();
-    const confirmed = window.confirm(translate("settingsAccountDeactivateConfirm"));
+    const confirmed = window.confirm(
+      translate("settingsAccountDeactivateConfirm")
+    );
     if (!confirmed) {
       return;
     }
-    this._setAccountStatus("info", translate("settingsAccountDangerStatusDeactivating"));
+    this._setAccountStatus(
+      "info",
+      translate("settingsAccountDangerStatusDeactivating")
+    );
     if (this._deactivateAccountButton) {
       this._deactivateAccountButton.disabled = true;
     }
@@ -2139,7 +2534,10 @@ var SettingsLayout = class extends HTMLElement {
       storage_default.clearUser();
       storage_default.clearLocalFiles();
     } catch (err) {
-      console.warn("[SettingsLayout] Failed to clear local storage on logout", err);
+      console.warn(
+        "[SettingsLayout] Failed to clear local storage on logout",
+        err
+      );
     }
     window.location.href = "/logout";
   }
@@ -2149,32 +2547,51 @@ var SettingsLayout = class extends HTMLElement {
     if (!this._passwordForm) {
       return;
     }
-    const currentInput = this._passwordForm.querySelector("#settings-current-password");
+    const currentInput = this._passwordForm.querySelector(
+      "#settings-current-password"
+    );
     const newInput = this._passwordForm.querySelector("#settings-new-password");
-    const confirmInput = this._passwordForm.querySelector("#settings-confirm-password");
+    const confirmInput = this._passwordForm.querySelector(
+      "#settings-confirm-password"
+    );
     const currentPassword = (currentInput == null ? void 0 : currentInput.value) || "";
     const newPassword = (newInput == null ? void 0 : newInput.value) || "";
     const confirmPassword = (confirmInput == null ? void 0 : confirmInput.value) || "";
     if (currentPassword.length < 10) {
-      this._setPasswordStatus("error", translate("settingsPasswordStatusErrorCurrent"));
+      this._setPasswordStatus(
+        "error",
+        translate("settingsPasswordStatusErrorCurrent")
+      );
       return;
     }
     if (newPassword.length < 10) {
-      this._setPasswordStatus("error", translate("settingsPasswordStatusErrorNewLength"));
+      this._setPasswordStatus(
+        "error",
+        translate("settingsPasswordStatusErrorNewLength")
+      );
       return;
     }
     if (newPassword !== confirmPassword) {
-      this._setPasswordStatus("error", translate("settingsPasswordStatusErrorMismatch"));
+      this._setPasswordStatus(
+        "error",
+        translate("settingsPasswordStatusErrorMismatch")
+      );
       return;
     }
     const userSecrets = storage_default.user;
     if (!userSecrets) {
-      this._setPasswordStatus("error", translate("settingsPasswordStatusErrorNoSession"));
+      this._setPasswordStatus(
+        "error",
+        translate("settingsPasswordStatusErrorNoSession")
+      );
       return;
     }
     const saltBytes = userSecrets.getSaltBytes();
     if (!saltBytes || !saltBytes.length) {
-      this._setPasswordStatus("error", translate("settingsPasswordStatusErrorMissingKeys"));
+      this._setPasswordStatus(
+        "error",
+        translate("settingsPasswordStatusErrorMissingKeys")
+      );
       return;
     }
     const storedSettings = userSecrets.settings || {};
@@ -2182,23 +2599,47 @@ var SettingsLayout = class extends HTMLElement {
     const kdfSettings = normalizeKDFSettings(kdfInput);
     let derivedCurrent = null;
     let newMaterial = null;
-    const newSaltBytes = generateSalt(kdfSettings.saltLength || DEFAULT_KDF_SETTINGS.saltLength);
+    const newSaltBytes = generateSalt(
+      kdfSettings.saltLength || DEFAULT_KDF_SETTINGS.saltLength
+    );
     try {
-      this._setPasswordStatus("info", translate("settingsPasswordStatusInfoDeriving"));
-      derivedCurrent = await deriveKeyMaterial(currentPassword, saltBytes, kdfSettings);
-      const derivedCurrentPublic = x25519.scalarMultBase(derivedCurrent.x25519Seed);
+      this._setPasswordStatus(
+        "info",
+        translate("settingsPasswordStatusInfoDeriving")
+      );
+      derivedCurrent = await deriveKeyMaterial(
+        currentPassword,
+        saltBytes,
+        kdfSettings
+      );
+      const derivedCurrentPublic = x25519.scalarMultBase(
+        derivedCurrent.x25519Seed
+      );
       const storedPublic = userSecrets.getX25519PublicKey();
       if (storedPublic && arrayToB64(derivedCurrentPublic) !== arrayToB64(storedPublic)) {
-        this._setPasswordStatus("error", translate("settingsPasswordStatusErrorIncorrect"));
+        this._setPasswordStatus(
+          "error",
+          translate("settingsPasswordStatusErrorIncorrect")
+        );
         derivedCurrent.edSeed.fill(0);
         derivedCurrent.x25519Seed.fill(0);
         return;
       }
-      this._setPasswordStatus("info", translate("settingsPasswordStatusInfoPreparing"));
-      newMaterial = await deriveKeyMaterial(newPassword, newSaltBytes, kdfSettings);
+      this._setPasswordStatus(
+        "info",
+        translate("settingsPasswordStatusInfoPreparing")
+      );
+      newMaterial = await deriveKeyMaterial(
+        newPassword,
+        newSaltBytes,
+        kdfSettings
+      );
     } catch (err) {
       console.error("[SettingsLayout] Failed to derive key material", err);
-      this._setPasswordStatus("error", translate("settingsPasswordStatusErrorDerive"));
+      this._setPasswordStatus(
+        "error",
+        translate("settingsPasswordStatusErrorDerive")
+      );
       return;
     } finally {
       if (derivedCurrent == null ? void 0 : derivedCurrent.edSeed) derivedCurrent.edSeed.fill(0);
@@ -2213,7 +2654,10 @@ var SettingsLayout = class extends HTMLElement {
       console.error("[SettingsLayout] Failed to compute public keys", err);
       if (newMaterial == null ? void 0 : newMaterial.edSeed) newMaterial.edSeed.fill(0);
       if (newMaterial == null ? void 0 : newMaterial.x25519Seed) newMaterial.x25519Seed.fill(0);
-      this._setPasswordStatus("error", translate("settingsPasswordStatusErrorPublicKeys"));
+      this._setPasswordStatus(
+        "error",
+        translate("settingsPasswordStatusErrorPublicKeys")
+      );
       return;
     }
     let newUserSecrets;
@@ -2232,7 +2676,10 @@ var SettingsLayout = class extends HTMLElement {
       console.error("[SettingsLayout] Failed to prepare new user secrets", err);
       if (newMaterial == null ? void 0 : newMaterial.edSeed) newMaterial.edSeed.fill(0);
       if (newMaterial == null ? void 0 : newMaterial.x25519Seed) newMaterial.x25519Seed.fill(0);
-      this._setPasswordStatus("error", translate("settingsPasswordStatusErrorUserSecrets"));
+      this._setPasswordStatus(
+        "error",
+        translate("settingsPasswordStatusErrorUserSecrets")
+      );
       return;
     }
     const fileUpdates = [];
@@ -2242,7 +2689,9 @@ var SettingsLayout = class extends HTMLElement {
         if (!(ownedFile == null ? void 0 : ownedFile.id) || !((_a = ownedFile.keychain) == null ? void 0 : _a.rawSecret)) {
           continue;
         }
-        const wrap = await newUserSecrets.wrapSecret(ownedFile.keychain.rawSecret);
+        const wrap = await newUserSecrets.wrapSecret(
+          ownedFile.keychain.rawSecret
+        );
         fileUpdates.push({
           id: ownedFile.id,
           ciphertext: wrap.ciphertext,
@@ -2255,7 +2704,10 @@ var SettingsLayout = class extends HTMLElement {
       console.error("[SettingsLayout] Failed to re-wrap secrets", err);
       if (newMaterial == null ? void 0 : newMaterial.edSeed) newMaterial.edSeed.fill(0);
       if (newMaterial == null ? void 0 : newMaterial.x25519Seed) newMaterial.x25519Seed.fill(0);
-      this._setPasswordStatus("error", translate("settingsPasswordStatusErrorWrap"));
+      this._setPasswordStatus(
+        "error",
+        translate("settingsPasswordStatusErrorWrap")
+      );
       return;
     }
     const payload = {
@@ -2266,7 +2718,10 @@ var SettingsLayout = class extends HTMLElement {
       files: fileUpdates,
       kdf: serializeKDFSettings(kdfSettings)
     };
-    this._setPasswordStatus("info", translate("settingsPasswordStatusInfoUpdating"));
+    this._setPasswordStatus(
+      "info",
+      translate("settingsPasswordStatusInfoUpdating")
+    );
     if (this._passwordSubmitButton) {
       this._passwordSubmitButton.disabled = true;
     }
@@ -2284,12 +2739,19 @@ var SettingsLayout = class extends HTMLElement {
           serverError = await response.text();
         } catch {
         }
-        console.error("[SettingsLayout] Password reset failed", response.status, serverError);
+        console.error(
+          "[SettingsLayout] Password reset failed",
+          response.status,
+          serverError
+        );
         const message = serverError || translate("settingsPasswordStatusErrorRequest");
         throw new Error(message);
       }
       storage_default.setUser(newUserSecrets);
-      this._setPasswordStatus("success", translate("settingsPasswordStatusSuccess"));
+      this._setPasswordStatus(
+        "success",
+        translate("settingsPasswordStatusSuccess")
+      );
       if (currentInput) currentInput.value = "";
       if (newInput) newInput.value = "";
       if (confirmInput) confirmInput.value = "";
@@ -2307,4 +2769,4 @@ var SettingsLayout = class extends HTMLElement {
   }
 };
 customElements.define("settings-layout", SettingsLayout);
-//# sourceMappingURL=settings-layout-NJEUXXPI.js.map
+//# sourceMappingURL=settings-layout-DGAUM7Z6.js.map

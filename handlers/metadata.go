@@ -55,6 +55,23 @@ func NewMetadataHandler(app *core.App) http.HandlerFunc {
 			"ttl":           ttl,
 		}
 
+		// Include owner encryption fields if present (allows owner to decrypt master key)
+		if meta.SecretCiphertext != "" {
+			response["ownerSecretCiphertext"] = meta.SecretCiphertext
+			response["ownerSecretEphemeralPub"] = meta.SecretEphemeralPub
+			response["ownerSecretNonce"] = meta.SecretNonce
+			response["ownerSecretVersion"] = meta.SecretVersion
+		}
+
+		// Include recipient encryption fields if present (allows recipient to decrypt master key)
+		if meta.RecipientUserID != nil && meta.RecipientSecretCiphertext != "" {
+			response["recipientUserId"] = *meta.RecipientUserID
+			response["recipientSecretCiphertext"] = meta.RecipientSecretCiphertext
+			response["recipientSecretEphemeralPub"] = meta.RecipientSecretEphemeralPub
+			response["recipientSecretNonce"] = meta.RecipientSecretNonce
+			response["recipientSecretVersion"] = meta.RecipientSecretVersion
+		}
+
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(response)
 	}

@@ -1,4 +1,5 @@
 import { bytes, secondsToL10nId, translateElement } from "../utils.mjs";
+import { fetchUsers } from "../api.mjs";
 
 class UploadListView extends HTMLElement {
   constructor() {
@@ -27,9 +28,14 @@ class UploadListView extends HTMLElement {
       dropZone: null,
       archiveNameContainer: null,
       archiveNameInput: null,
+      recipientSelect: null,
     };
 
     this._afterFrame = null;
+    this._users = []; // Available users for recipient selection
+    this._recipientUserId = null;
+    this._recipientPublicKey = null;
+    this._recipientListenerAttached = false;
     this._files = [];
     this._limits = null;
     this._defaults = null;
@@ -54,6 +60,7 @@ class UploadListView extends HTMLElement {
     this._boundDragLeave = this.handleDragLeave.bind(this);
     this._boundDrop = this.handleDrop.bind(this);
     this._boundArchiveNameInput = this.handleArchiveNameInput.bind(this);
+    this._boundRecipientChange = this.handleRecipientChange.bind(this);
     this._archiveNameValid = true;
   }
 
@@ -152,6 +159,21 @@ class UploadListView extends HTMLElement {
         '[data-role="archive-name"]',
       );
     }
+
+    // Mount recipient selector template in the slot above file list
+    const recipientSlot = this.querySelector("#upload-recipient-slot");
+    if (recipientSlot) {
+      const recipientTemplate = document.getElementById("upload-view-recipient");
+      if (recipientTemplate && recipientSlot.childElementCount === 0) {
+        recipientSlot.appendChild(recipientTemplate.content.cloneNode(true));
+      }
+      this.elements.recipientSelect = recipientSlot.querySelector(
+        '[data-role="recipient-select"]',
+      );
+    }
+
+    // Fetch users for recipient selection
+    this._loadUsers();
 
     this._attachBaseListeners();
     this._setupDragListeners();
@@ -612,6 +634,7 @@ class UploadListView extends HTMLElement {
         this._boundArchiveNameInput,
       );
     }
+    this._detachRecipientListener();
     this._detachOptionListeners();
   }
 
@@ -1100,6 +1123,141 @@ class UploadListView extends HTMLElement {
       "bg-blue-10",
       "dark:bg-blue-90",
     );
+  }
+
+  async _loadUsers() {
+    if (!this.elements.recipientSelect) {
+      return;
+    }
+
+    try {
+      const users = await fetchUsers();
+      this._users = users || [];
+      this._populateRecipientSelect();
+    } catch (err) {
+      console.warn("[UploadListView] Failed to load users for recipient selection", err);
+      // Keep the unspecified option, but don't show any users
+      this._users = [];
+    }
+  }
+
+  _populateRecipientSelect() {
+    if (!this.elements.recipientSelect) {
+      return;
+    }
+
+    // Keep the first "Unspecified" option
+    const unspecifiedOption = this.elements.recipientSelect.querySelector('[data-role="recipient-unspecified"]');
+
+    // Clear all options except the unspecified one
+    this.elements.recipientSelect.innerHTML = "";
+    if (unspecifiedOption) {
+      this.elements.recipientSelect.appendChild(unspecifiedOption.cloneNode(true));
+    }
+
+    // Add user options
+    this._users.forEach((user) => {
+      const option = document.createElement("option");
+      option.value = String(user.id);
+      option.textContent = user.name || user.email;
+      option.dataset.publicKey = user.encryption_public_key;
+      this.elements.recipientSelect.appendChild(option);
+    });
+
+    // Attach the change listener after populating
+    this._attachRecipientListener();
+  }
+
+  _attachRecipientListener() {
+    if (this.elements.recipientSelect && !this._recipientListenerAttached) {
+      this.elements.recipientSelect.addEventListener("change", this._boundRecipientChange);
+      this._recipientListenerAttached = true;
+    }
+  }
+
+  _detachRecipientListener() {
+    if (this.elements.recipientSelect && this._recipientListenerAttached) {
+      this.elements.recipientSelect.removeEventListener("change", this._boundRecipientChange);
+      this._recipientListenerAttached = false;
+    }
+  }
+
+  handleRecipientChange(event) {
+    const selectedValue = event.target.value;
+
+    if (!selectedValue) {
+      // Unspecified - clear recipient
+      this._recipientUserId = null;
+      this._recipientPublicKey = null;
+      this._updateRecipientHint(false);
+      this.dispatchEvent(
+        new CustomEvent("updateoptions", {
+          bubbles: true,
+          detail: {
+            recipientUserId: null,
+            recipientPublicKey: null
+          },
+        }),
+      );
+      return;
+    }
+
+    // Find the selected user
+    const userId = Number.parseInt(selectedValue, 10);
+    if (Number.isNaN(userId)) {
+      console.warn("[UploadListView] Invalid recipient user ID", selectedValue);
+      return;
+    }
+
+    const selectedOption = event.target.selectedOptions[0];
+    const publicKey = selectedOption?.dataset.publicKey;
+
+    if (!publicKey) {
+      console.warn("[UploadListView] Selected user has no public key", userId);
+      return;
+    }
+
+    this._recipientUserId = userId;
+    this._recipientPublicKey = publicKey;
+    this._updateRecipientHint(true);
+
+    this.dispatchEvent(
+      new CustomEvent("updateoptions", {
+        bubbles: true,
+        detail: {
+          recipientUserId: userId,
+          recipientPublicKey: publicKey
+        },
+      }),
+    );
+  }
+
+  _updateRecipientHint(hasRecipient) {
+    const recipientSlot = this.querySelector("#upload-recipient-slot");
+    if (!recipientSlot) {
+      return;
+    }
+
+    const hintElement = recipientSlot.querySelector("#recipientHint");
+    if (!hintElement) {
+      return;
+    }
+
+    if (hasRecipient) {
+      // Show hint for specific recipient
+      // Select the span inside the hint content area (not the invisible spacer)
+      const hintTextSpan = hintElement.querySelector('[data-type="lang"]');
+      if (hintTextSpan) {
+        hintTextSpan.textContent = this._translateText(
+          "recipientHintSelected",
+          "The recipient can see, download and decrypt the file.",
+        );
+      }
+      hintElement.classList.remove("hidden");
+    } else {
+      // Hide hint when "Anyone with the link"
+      hintElement.classList.add("hidden");
+    }
   }
 }
 

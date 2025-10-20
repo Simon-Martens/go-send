@@ -27,16 +27,24 @@ var upgrader = websocket.Upgrader{
 }
 
 const ownerSecretVersion = 1
+const recipientSecretVersion = 1
 
 type UploadRequest struct {
 	FileMetadata            string `json:"fileMetadata"`
 	Authorization           string `json:"authorization"`
 	TimeLimit               int    `json:"timeLimit"`
 	Dlimit                  int    `json:"dlimit"`
+	// Owner encryption (for uploader who is a user)
 	OwnerSecretCiphertext   string `json:"ownerSecretCiphertext,omitempty"`
 	OwnerSecretNonce        string `json:"ownerSecretNonce,omitempty"`
 	OwnerSecretEphemeralPub string `json:"ownerSecretEphemeralPub,omitempty"`
 	OwnerSecretVersion      int    `json:"ownerSecretVersion,omitempty"`
+	// Recipient fields (optional - who file is encrypted FOR)
+	RecipientUserID             *int64 `json:"recipientUserId,omitempty"`
+	RecipientSecretCiphertext   string `json:"recipientSecretCiphertext,omitempty"`
+	RecipientSecretNonce        string `json:"recipientSecretNonce,omitempty"`
+	RecipientSecretEphemeralPub string `json:"recipientSecretEphemeralPub,omitempty"`
+	RecipientSecretVersion      int    `json:"recipientSecretVersion,omitempty"`
 }
 
 type UploadResponse struct {
@@ -225,6 +233,93 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 			ownerWrapVersion = version
 		}
 
+		// Validate recipient encryption (optional - file encrypted FOR a specific user)
+		hasRecipientSecret := false
+		recipientWrapVersion := 0
+		if req.RecipientUserID != nil || req.RecipientSecretCiphertext != "" || req.RecipientSecretNonce != "" || req.RecipientSecretEphemeralPub != "" || req.RecipientSecretVersion != 0 {
+			hasRecipientSecret = true
+
+			// Recipient must be a valid user ID
+			if req.RecipientUserID == nil {
+				app.Logger.Warn("Upload provided recipient secret without user ID", "remote_addr", r.RemoteAddr)
+				app.DBLogger.LogFileOp(r, "upload", "", http.StatusBadRequest,
+					time.Since(startTime).Milliseconds(), "Recipient secret provided without user ID", "operation", "validate_recipient_secret")
+				sendError(conn, 400)
+				return
+			}
+
+			// Verify recipient user exists
+			exists, err := app.DB.UserExists(*req.RecipientUserID)
+			if err != nil {
+				app.Logger.Error("Error checking recipient user existence", "error", err, "user_id", *req.RecipientUserID)
+				app.DBLogger.LogFileOp(r, "upload", "", http.StatusInternalServerError,
+					time.Since(startTime).Milliseconds(), err.Error(), "operation", "validate_recipient_user")
+				sendError(conn, 500)
+				return
+			}
+			if !exists {
+				app.Logger.Warn("Upload specified non-existent recipient user", "user_id", *req.RecipientUserID, "remote_addr", r.RemoteAddr)
+				app.DBLogger.LogFileOp(r, "upload", "", http.StatusBadRequest,
+					time.Since(startTime).Milliseconds(), "Recipient user does not exist", "operation", "validate_recipient_user", "user_id", *req.RecipientUserID)
+				sendError(conn, 400)
+				return
+			}
+
+			// All recipient encryption fields must be present
+			if req.RecipientSecretCiphertext == "" || req.RecipientSecretNonce == "" || req.RecipientSecretEphemeralPub == "" {
+				app.Logger.Warn("Incomplete recipient secret payload", "remote_addr", r.RemoteAddr)
+				app.DBLogger.LogFileOp(r, "upload", "", http.StatusBadRequest,
+					time.Since(startTime).Milliseconds(), "Incomplete recipient secret payload", "operation", "validate_recipient_secret")
+				sendError(conn, 400)
+				return
+			}
+
+			// Validate ciphertext
+			recipCipherBytes, err := base64.RawURLEncoding.DecodeString(req.RecipientSecretCiphertext)
+			if err != nil || len(recipCipherBytes) == 0 {
+				app.Logger.Warn("Invalid recipient secret ciphertext", "error", err)
+				app.DBLogger.LogFileOp(r, "upload", "", http.StatusBadRequest,
+					time.Since(startTime).Milliseconds(), "Invalid recipient secret ciphertext", "operation", "validate_recipient_secret")
+				sendError(conn, 400)
+				return
+			}
+
+			// Validate nonce (must be exactly 12 bytes)
+			recipNonceBytes, err := base64.RawURLEncoding.DecodeString(req.RecipientSecretNonce)
+			if err != nil || len(recipNonceBytes) != 12 {
+				app.Logger.Warn("Invalid recipient secret nonce", "error", err, "length", len(recipNonceBytes))
+				app.DBLogger.LogFileOp(r, "upload", "", http.StatusBadRequest,
+					time.Since(startTime).Milliseconds(), "Invalid recipient secret nonce", "operation", "validate_recipient_secret")
+				sendError(conn, 400)
+				return
+			}
+
+			// Validate ephemeral public key (must be exactly 32 bytes for X25519)
+			recipEphemeralBytes, err := base64.RawURLEncoding.DecodeString(req.RecipientSecretEphemeralPub)
+			if err != nil || len(recipEphemeralBytes) != 32 {
+				app.Logger.Warn("Invalid recipient secret ephemeral pub", "error", err, "length", len(recipEphemeralBytes))
+				app.DBLogger.LogFileOp(r, "upload", "", http.StatusBadRequest,
+					time.Since(startTime).Milliseconds(), "Invalid recipient secret ephemeral pub", "operation", "validate_recipient_secret")
+				sendError(conn, 400)
+				return
+			}
+
+			// Validate version
+			version := req.RecipientSecretVersion
+			if version == 0 {
+				version = recipientSecretVersion
+			}
+			if version != recipientSecretVersion {
+				app.Logger.Warn("Unsupported recipient secret version", "version", version)
+				app.DBLogger.LogFileOp(r, "upload", "", http.StatusBadRequest,
+					time.Since(startTime).Milliseconds(), "Unsupported recipient secret version", "operation", "validate_recipient_secret")
+				sendError(conn, 400)
+				return
+			}
+
+			recipientWrapVersion = version
+		}
+
 		// Generate ID and tokens
 		id := generateRandomHex(8)
 		ownerToken := generateRandomHex(10)
@@ -380,14 +475,33 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 			Password:   false,
 			CreatedAt:  now,
 			ExpiresAt:  now + int64(req.TimeLimit),
-			UserID:     uploaderUserID,
 		}
+
+		// Set owner from session (server-side, never client-reported)
+		// Owner = who uploaded the file (has metadata access via owner token or session)
+		if uploaderUserID != nil {
+			// Logged-in user upload
+			meta.OwnerUserID = uploaderUserID
+		} else if guestToken != nil {
+			// Guest upload via auth link
+			meta.OwnerAuthTokenID = &guestToken.ID
+		}
+		// If neither, owner fields remain nil (public upload, no upload guard active)
 
 		if hasOwnerSecret {
 			meta.SecretCiphertext = req.OwnerSecretCiphertext
 			meta.SecretEphemeralPub = req.OwnerSecretEphemeralPub
 			meta.SecretNonce = req.OwnerSecretNonce
 			meta.SecretVersion = ownerWrapVersion
+		}
+
+		// Save recipient encryption data (optional - file encrypted FOR a user)
+		if hasRecipientSecret {
+			meta.RecipientUserID = req.RecipientUserID
+			meta.RecipientSecretCiphertext = req.RecipientSecretCiphertext
+			meta.RecipientSecretEphemeralPub = req.RecipientSecretEphemeralPub
+			meta.RecipientSecretNonce = req.RecipientSecretNonce
+			meta.RecipientSecretVersion = recipientWrapVersion
 		}
 
 		if err := app.DB.CreateFile(meta); err != nil {

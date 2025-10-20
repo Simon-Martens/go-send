@@ -363,6 +363,31 @@ func (d *DB) UpdateUserSettings(id int64, settings json.RawMessage) error {
 	return nil
 }
 
+// UpdateUserProfile updates the name and email for a user
+func (d *DB) UpdateUserProfile(id int64, name, email string) error {
+	query := `
+		UPDATE users
+		SET name = ?, email = ?, updated = ?
+		WHERE id = ?
+	`
+
+	result, err := d.db.Exec(query, name, email, time.Now().Unix(), id)
+	if err != nil {
+		return err
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rows == 0 {
+		return sql.ErrNoRows
+	}
+
+	return nil
+}
+
 // UpdateUserRole updates only the role of a user
 func (d *DB) UpdateUserRole(id int64, role UserRole) error {
 	if !role.IsValid() {

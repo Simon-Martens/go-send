@@ -37,6 +37,9 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 
 	if app.Config.UseUserManagement {
 		mux.HandleFunc("/api/me/files", handlers.NewUserFilesHandler(app))
+		mux.HandleFunc("/api/me/profile", handlers.NewAccountProfileHandler(app))
+		mux.HandleFunc("/api/me/clear-sessions", handlers.NewAccountClearSessionsHandler(app))
+		mux.HandleFunc("/api/me/deactivate", handlers.NewAccountDeactivateHandler(app))
 		mux.HandleFunc("/api/passwordreset", handlers.NewPasswordResetHandler(app))
 		mux.HandleFunc("/api/admin/signup-links", handlers.NewSignupLinksHandler(app))
 		mux.HandleFunc("/api/admin/users", handlers.NewAdminUsersHandler(app))

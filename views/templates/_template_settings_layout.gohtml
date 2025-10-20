@@ -16,8 +16,8 @@
 			<nav class="w-56 flex-shrink-0">
 				<ul class="flex flex-col gap-2" data-role="category-list">
 					<li>
-						<button type="button" class="w-full text-left px-4 py-3 rounded border border-transparent text-sm font-medium text-grey-70 dark:text-grey-30 hover:border-primary/40 transition cursor-pointer" data-category="password">
-							<span id="settingsNavPassword" data-type="lang">Change password</span>
+						<button type="button" class="w-full text-left px-4 py-3 rounded border border-transparent text-sm font-medium text-grey-70 dark:text-grey-30 hover:border-primary/40 transition cursor-pointer" data-category="account">
+							<span id="settingsNavAccount" data-type="lang">Account</span>
 						</button>
 					</li>
 					<li class="hidden" data-role="users-nav" data-admin-only>
@@ -29,33 +29,103 @@
 			</nav>
 
 			<section class="flex-1 overflow-y-auto px-4" data-role="content-area">
-				<div data-panel="password" class="space-y-6">
-					<header>
-						<h2 class="text-xl font-semibold text-grey-90 dark:text-grey-10"><span id="settingsPasswordHeading" data-type="lang">Change password</span></h2>
-						<p class="text-sm text-grey-70 dark:text-grey-40 mt-1"><span id="settingsPasswordSubheading" data-type="lang">Update the administrator password. Your changes apply immediately.</span></p>
-					</header>
-					<form class="space-y-4 max-w-xl">
-						<div>
-							<label for="settings-current-password" class="block text-sm font-medium text-grey-80 dark:text-grey-30 mb-1" id="settingsPasswordCurrentLabel" data-type="lang">Current password</label>
-							<input id="settings-current-password" type="password" class="w-full rounded border border-grey-40 dark:border-grey-70 bg-white dark:bg-grey-80 px-3 py-2 text-sm text-grey-90 dark:text-grey-10 focus:outline-none focus:ring-2 focus:ring-primary" autocomplete="current-password">
+					<div data-panel="account" class="space-y-8">
+						<header>
+							<h2 class="text-xl font-semibold text-grey-90 dark:text-grey-10"><span id="settingsAccountHeading" data-type="lang">Account</span></h2>
+							<p class="text-sm text-grey-70 dark:text-grey-40 mt-1"><span id="settingsAccountSubheading" data-type="lang">Manage your profile information, password, and sign-in sessions.</span></p>
+						</header>
+						<div class="grid gap-8 max-w-5xl lg:grid-cols-2">
+							<section class="space-y-4">
+								<div>
+									<h3 class="text-lg font-semibold text-grey-90 dark:text-grey-10"><span id="settingsAccountProfileHeading" data-type="lang">Profile</span></h3>
+									<p class="text-sm text-grey-70 dark:text-grey-40"><span id="settingsAccountProfileDescription" data-type="lang">Update the name and email associated with your account.</span></p>
+								</div>
+								<form class="space-y-4" data-role="profile-form">
+									<div>
+										<label for="settings-account-name" class="block text-sm font-medium text-grey-80 dark:text-grey-30 mb-1"><span id="settingsAccountNameLabel" data-type="lang">Name</span></label>
+										<input id="settings-account-name" type="text" class="w-full rounded border border-grey-40 dark:border-grey-70 bg-white dark:bg-grey-80 px-3 py-2 text-sm text-grey-90 dark:text-grey-10 focus:outline-none focus:ring-2 focus:ring-primary" autocomplete="name">
+									</div>
+									<div>
+										<label for="settings-account-email" class="block text-sm font-medium text-grey-80 dark:text-grey-30 mb-1"><span id="settingsAccountEmailLabel" data-type="lang">Email</span></label>
+										<input id="settings-account-email" type="email" class="w-full rounded border border-grey-40 dark:border-grey-70 bg-white dark:bg-grey-80 px-3 py-2 text-sm text-grey-90 dark:text-grey-10 focus:outline-none focus:ring-2 focus:ring-primary" autocomplete="email">
+									</div>
+									<div class="flex items-center gap-3 pt-1">
+										<button type="button" data-role="profile-submit" class="btn cursor-pointer"><span id="settingsAccountProfileSave" data-type="lang">Save profile</span></button>
+									</div>
+								</form>
+								<div class="text-sm flex items-center gap-2 min-h-[1.25rem]" data-role="profile-status">
+									<i class="hidden" data-role="profile-status-icon"></i>
+									<span data-role="profile-status-text"></span>
+								</div>
+							</section>
+							<section class="space-y-4">
+								<div>
+									<h3 class="text-lg font-semibold text-grey-90 dark:text-grey-10"><span id="settingsAccountPasswordHeading" data-type="lang">Password</span></h3>
+									<p class="text-sm text-grey-70 dark:text-grey-40"><span id="settingsAccountPasswordDescription" data-type="lang">Set a new password for your account. Changes take effect immediately.</span></p>
+								</div>
+								<form class="space-y-4" data-role="password-form">
+									<div>
+										<label for="settings-current-password" class="block text-sm font-medium text-grey-80 dark:text-grey-30 mb-1" id="settingsAccountPasswordCurrentLabel" data-type="lang">Current password</label>
+										<input id="settings-current-password" type="password" class="w-full rounded border border-grey-40 dark:border-grey-70 bg-white dark:bg-grey-80 px-3 py-2 text-sm text-grey-90 dark:text-grey-10 focus:outline-none focus:ring-2 focus:ring-primary" autocomplete="current-password">
+									</div>
+									<div>
+										<label for="settings-new-password" class="block text-sm font-medium text-grey-80 dark:text-grey-30 mb-1" id="settingsAccountPasswordNewLabel" data-type="lang">New password</label>
+										<input id="settings-new-password" type="password" class="w-full rounded border border-grey-40 dark:border-grey-70 bg-white dark:bg-grey-80 px-3 py-2 text-sm text-grey-90 dark:text-grey-10 focus:outline-none focus:ring-2 focus:ring-primary" autocomplete="new-password">
+									</div>
+									<div>
+										<label for="settings-confirm-password" class="block text-sm font-medium text-grey-80 dark:text-grey-30 mb-1" id="settingsAccountPasswordConfirmLabel" data-type="lang">Confirm new password</label>
+										<input id="settings-confirm-password" type="password" class="w-full rounded border border-grey-40 dark:border-grey-70 bg-white dark:bg-grey-80 px-3 py-2 text-sm text-grey-90 dark:text-grey-10 focus:outline-none focus:ring-2 focus:ring-primary" autocomplete="new-password">
+									</div>
+									<p class="text-xs text-grey-60 dark:text-grey-50 flex flex-row justify-end mt-1.5"><span id="settingsAccountPasswordHint" data-type="lang">Passwords must be at least 10 characters long.</span></p>
+									<div class="flex items-center gap-3 pt-2">
+										<button type="button" data-role="password-submit" class="btn cursor-pointer"><span id="settingsAccountPasswordSave" data-type="lang">Update password</span></button>
+									</div>
+								</form>
+								<div class="text-sm flex items-center gap-2 min-h-[1.25rem]" data-role="password-status">
+									<i class="hidden" data-role="password-status-icon"></i>
+									<span data-role="password-status-text"></span>
+								</div>
+							</section>
 						</div>
-						<div>
-							<label for="settings-new-password" class="block text-sm font-medium text-grey-80 dark:text-grey-30 mb-1" id="settingsPasswordNewLabel" data-type="lang">New password</label>
-							<input id="settings-new-password" type="password" class="w-full rounded border border-grey-40 dark:border-grey-70 bg-white dark:bg-grey-80 px-3 py-2 text-sm text-grey-90 dark:text-grey-10 focus:outline-none focus:ring-2 focus:ring-primary" autocomplete="new-password">
+						<div class="grid gap-6 max-w-5xl lg:grid-cols-2">
+							<section class="border border-amber-300 dark:border-amber-400/60 rounded-xs bg-amber-50/70 dark:bg-amber-900/20 px-4 py-4 space-y-3 h-full" data-role="account-key-card">
+								<div class="space-y-1">
+									<h3 class="text-lg font-semibold text-amber-900 dark:text-amber-200"><span id="settingsAccountKeyHeading" data-type="lang">Private key backup</span></h3>
+									<p class="text-sm text-amber-900/80 dark:text-amber-200/80"><span id="settingsAccountKeyDescription" data-type="lang">Copy your private encryption key and store it somewhere safe. Losing this key means losing access to encrypted data. Keep it secret.</span></p>
+								</div>
+								<div class="flex items-center gap-2">
+									<code class="flex-1 min-w-0 font-mono text-sm text-amber-900 dark:text-amber-50 whitespace-nowrap overflow-hidden text-ellipsis" data-role="account-key-value">—</code>
+									<button type="button" class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded border border-amber-400 dark:border-amber-300 bg-white dark:bg-amber-950/40 text-amber-700 dark:text-amber-100 hover:bg-amber-100 dark:hover:bg-amber-800 focus:outline focus:outline-2 focus:outline-amber-400 transition cursor-pointer" data-role="account-key-copy">
+										<i class="ri-file-copy-2-line text-base leading-4" aria-hidden="true"></i>
+										<span class="sr-only"><span id="settingsAccountKeyCopyLabel" data-type="lang">Copy private key</span></span>
+									</button>
+								</div>
+								<div class="text-xs flex items-center gap-2 min-h-[1.25rem] text-amber-900/80 dark:text-amber-200/80" data-role="account-key-status">
+									<i class="hidden" data-role="account-key-status-icon"></i>
+									<span data-role="account-key-status-text"></span>
+								</div>
+							</section>
+							<section class="border border-red-200 dark:border-red-400/40 rounded-xs bg-red-50/60 dark:bg-red-900/10 px-4 py-4 space-y-3 h-full">
+								<div class="space-y-1">
+									<h3 class="text-lg font-semibold text-red-700 dark:text-red-300"><span id="settingsAccountDangerHeading" data-type="lang">Session & access</span></h3>
+									<p class="text-sm text-red-700/80 dark:text-red-300/80"><span id="settingsAccountDangerDescription" data-type="lang">Clear your current sign-in or deactivate the account entirely. Both actions log you out.</span></p>
+								</div>
+								<div class="flex flex-col gap-3 sm:flex-row">
+									<button type="button" class="inline-flex items-center justify-center gap-2 rounded border border-grey-40 dark:border-grey-70 bg-white dark:bg-grey-90 px-4 py-2 text-sm font-medium text-grey-90 dark:text-grey-10 hover:bg-grey-10 dark:hover:bg-grey-80 transition cursor-pointer" data-role="account-clear-sessions">
+										<i class="ri-logout-box-r-line text-base leading-4"></i>
+										<span id="settingsAccountClearSessions" data-type="lang">Clear session</span>
+									</button>
+									<button type="button" class="inline-flex items-center justify-center gap-2 rounded border border-red-300 dark:border-red-500 bg-red-600 text-white px-4 py-2 text-sm font-medium hover:bg-red-700 dark:hover:bg-red-500 transition cursor-pointer" data-role="account-deactivate">
+										<i class="ri-user-unfollow-line text-base leading-4"></i>
+										<span id="settingsAccountDeactivate" data-type="lang">Deactivate account</span>
+									</button>
+								</div>
+								<div class="text-xs flex items-center gap-2 min-h-[1.25rem]" data-role="account-status">
+									<i class="hidden" data-role="account-status-icon"></i>
+									<span data-role="account-status-text"></span>
+								</div>
+							</section>
 						</div>
-						<div>
-							<label for="settings-confirm-password" class="block text-sm font-medium text-grey-80 dark:text-grey-30 mb-1" id="settingsPasswordConfirmLabel" data-type="lang">Confirm new password</label>
-							<input id="settings-confirm-password" type="password" class="w-full rounded border border-grey-40 dark:border-grey-70 bg-white dark:bg-grey-80 px-3 py-2 text-sm text-grey-90 dark:text-grey-10 focus:outline-none focus:ring-2 focus:ring-primary" autocomplete="new-password">
-						</div>
-							<p class="text-xs text-grey-60 dark:text-grey-50 flex flex-row justify-end mt-1.5"><span id="settingsPasswordHint" data-type="lang">Passwords must be at least 10 characters long.</span></p>
-						<div class="flex items-center gap-3 pt-2">
-							<button type="button" data-role="password-submit" class="btn cursor-pointer"><span id="settingsPasswordSave" data-type="lang">Save changes</span></button>
-						</div>
-					</form>
-					<div class="text-sm mt-4 flex items-center gap-2" data-role="password-status">
-						<i class="hidden" data-role="password-status-icon"></i>
-						<span data-role="password-status-text"></span>
-					</div>
 				</div>
 
 				<div data-panel="users" class="hidden" data-admin-only>

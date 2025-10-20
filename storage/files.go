@@ -193,6 +193,42 @@ func (d *DB) GetFilesByUserID(userID int64) ([]*FileMetadata, error) {
 	return files, rows.Err()
 }
 
+// ClearUserOwnership removes the user association from all files owned by the given user.
+func (d *DB) ClearUserOwnership(userID int64) error {
+	query := `UPDATE files SET user_id = NULL WHERE user_id = ?`
+	_, err := d.db.Exec(query, userID)
+	return err
+}
+
+// DeleteFilesByUser removes all files owned by the specified user, including disk data.
+func (d *DB) DeleteFilesByUser(userID int64) error {
+	rows, err := d.db.Query(`SELECT id FROM files WHERE user_id = ?`, userID)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	var ids []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return err
+		}
+		ids = append(ids, id)
+	}
+
+	if err := rows.Err(); err != nil {
+		return err
+	}
+
+	for _, id := range ids {
+		DeleteFile(d.fileDir, id) // best effort
+	}
+
+	_, err = d.db.Exec(`DELETE FROM files WHERE user_id = ?`, userID)
+	return err
+}
+
 func (d *DB) UpdateNonce(id, nonce string) error {
 	query := `UPDATE files SET nonce = ? WHERE id = ?`
 	_, err := d.db.Exec(query, nonce, id)

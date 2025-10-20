@@ -1,0 +1,14 @@
+<!-- Upload view: list item -->
+<template id="upload-view-list-item">
+	<li class="flex items-start rounded-xs border border-grey-20 dark:border-grey-70 px-3 py-3 mb-3 last:mb-0 bg-white dark:bg-grey-80">
+		<i class="ri-file-ai-line h-8 w-8 flex-shrink-0 text-primary mr-3 text-3xl leading-8" data-role="file-icon"></i>
+		<div class="flex-grow min-w-0 pr-3">
+			<p class="text-sm font-medium text-grey-90 dark:text-grey-10 break-words" data-role="file-name"></p>
+			<p class="text-xs text-grey-70 dark:text-grey-40 mt-1" data-role="file-meta"></p>
+		</div>
+		<button type="button" class="flex-shrink-0 p-1 hover:opacity-75 focus:outline cursor-pointer" data-action="remove" title="Remove file">
+			<i class="ri-close-line text-lg leading-4"></i>
+			<span class="sr-only" data-role="remove-label">Remove file</span>
+		</button>
+	</li>
+</template>

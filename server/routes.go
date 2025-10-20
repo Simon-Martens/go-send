@@ -38,6 +38,9 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 	if app.Config.UseUserManagement {
 		mux.HandleFunc("/api/me/files", handlers.NewUserFilesHandler(app))
 		mux.HandleFunc("/api/passwordreset", handlers.NewPasswordResetHandler(app))
+		mux.HandleFunc("/api/admin/signup-links", handlers.NewSignupLinksHandler(app))
+		mux.HandleFunc("/api/admin/users", handlers.NewAdminUsersHandler(app))
+		mux.HandleFunc("/api/admin/users/", handlers.NewAdminUserHandler(app))
 
 		// Auth and registration routes
 		mux.HandleFunc("/auth/challenge", handlers.NewLoginChallengeHandler(app))
@@ -76,12 +79,12 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 	}))
 
 	if app.Config.UploadGuard {
-        guardOpts := middleware.UserGuardOptions{
-            RedirectToLogin: true,
-            AllowPrefixes:   []string{"/download"},
-            AllowExact:      []string{"/login", "/login/", "/logout", "/error", "/settings"},
-            AllowStatic:     true,
-        }
+		guardOpts := middleware.UserGuardOptions{
+			RedirectToLogin: true,
+			AllowPrefixes:   []string{"/download"},
+			AllowExact:      []string{"/login", "/login/", "/logout", "/error", "/settings"},
+			AllowStatic:     true,
+		}
 		rootHandler = middleware.RequireUser(app, guardOpts)(rootHandler)
 	}
 

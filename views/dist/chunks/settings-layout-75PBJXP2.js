@@ -1,25 +1,38 @@
-import storage from "../storage.mjs";
-import UserSecrets, { OWNER_SECRET_VERSION, USER_ROLES } from "../userSecrets.mjs";
-import { arrayToB64, translate, translateElement, copyToClipboard } from "../utils.mjs";
 import {
   DEFAULT_KDF_SETTINGS,
   deriveKeyMaterial,
-  generateSalt,
-  normalizeKDFSettings,
-  serializeKDFSettings,
   encodePublicKey,
   encodeSalt,
+  generateSalt,
   getPublicKey,
-} from "../crypto/credentials.mjs";
-import { x25519 } from "@noble/curves/ed25519";
-import qrcode from "../qrcode.mjs";
+  normalizeKDFSettings,
+  serializeKDFSettings
+} from "./chunk-Q3KV7SOV.js";
+import {
+  qrcode_default
+} from "./chunk-U2YGIKKI.js";
+import {
+  OWNER_SECRET_VERSION,
+  USER_ROLES,
+  UserSecrets,
+  storage_default,
+  x25519
+} from "./chunk-3WB5XX6J.js";
+import {
+  arrayToB64,
+  copyToClipboard,
+  translate,
+  translateElement
+} from "./chunk-6DFT5NXM.js";
+import "./chunk-IFG75HHC.js";
 
-class SettingsLayout extends HTMLElement {
+// src/ui/settings-layout.mjs
+var SettingsLayout = class extends HTMLElement {
   constructor() {
     super();
     this._templateMounted = false;
     this._categoryButtons = [];
-    this._panels = new Map();
+    this._panels = /* @__PURE__ */ new Map();
     this._activeCategory = "password";
     this._boundCategoryClick = this._handleCategoryClick.bind(this);
     this._boundPasswordSubmit = this._handlePasswordSubmit.bind(this);
@@ -28,13 +41,12 @@ class SettingsLayout extends HTMLElement {
     this._passwordForm = null;
     this._passwordStatusIcon = null;
     this._passwordStatusText = null;
-
     this._usersNavItem = null;
     this._usersPanel = null;
     this._usersHeader = null;
     this._usersHeader = null;
     this._isAdmin = false;
-    this._signupSections = new Map();
+    this._signupSections = /* @__PURE__ */ new Map();
     this._signupOverview = null;
     this._signupDetail = null;
     this._detailHeading = null;
@@ -67,7 +79,6 @@ class SettingsLayout extends HTMLElement {
     this._boundDetailLinkFocus = this._handleDetailLinkFocus.bind(this);
     this._boundUserAction = this._handleUserAction.bind(this);
   }
-
   connectedCallback() {
     if (!this._templateMounted) {
       const template = document.getElementById("settings-layout");
@@ -79,7 +90,6 @@ class SettingsLayout extends HTMLElement {
       this.appendChild(content);
       this._templateMounted = true;
     }
-
     this._isAdmin = this._checkIsAdmin();
     this._cacheElements();
     this._configureAccess();
@@ -89,12 +99,10 @@ class SettingsLayout extends HTMLElement {
       this._activeCategory = "password";
     }
     this._selectCategory(this._activeCategory);
-
     if (this._isAdmin) {
       this._loadSignupOverview();
     }
   }
-
   disconnectedCallback() {
     this._detachListeners();
     this._categoryButtons = [];
@@ -128,31 +136,27 @@ class SettingsLayout extends HTMLElement {
     this._usersData = [];
     this._usersLoading = false;
   }
-
   _cacheElements() {
+    var _a, _b, _c, _d, _e;
     const categoryList = this.querySelector('[data-role="category-list"]');
     if (categoryList) {
       this._categoryButtons = Array.from(
-        categoryList.querySelectorAll("[data-category]"),
+        categoryList.querySelectorAll("[data-category]")
       );
     }
-
     const panels = this.querySelectorAll("[data-panel]");
-    this._panels = new Map();
+    this._panels = /* @__PURE__ */ new Map();
     panels.forEach((panel) => {
       this._panels.set(panel.getAttribute("data-panel"), panel);
     });
-
-    this._usersNavItem = this.querySelector("[data-role=\"users-nav\"]");
+    this._usersNavItem = this.querySelector('[data-role="users-nav"]');
     this._usersPanel = this._panels.get("users") || null;
     this._usersHeader = this.querySelector('[data-role="users-header"]');
-
     this._passwordForm = this.querySelector('[data-panel="password"] form');
     this._passwordSubmitButton = this.querySelector('[data-role="password-submit"]');
     this._passwordStatus = this.querySelector('[data-role="password-status"]');
     this._passwordStatusIcon = this.querySelector('[data-role="password-status-icon"]');
     this._passwordStatusText = this.querySelector('[data-role="password-status-text"]');
-
     this._signupOverview = this.querySelector('[data-role="signup-overview"]');
     this._signupDetail = this.querySelector('[data-role="signup-detail"]');
     this._detailHeading = this.querySelector('[data-role="detail-heading"]');
@@ -168,13 +172,12 @@ class SettingsLayout extends HTMLElement {
     this._detailBackButton = this.querySelector('[data-role="detail-back"]');
     this._detailFootnote = this.querySelector('[data-role="detail-footnote"]');
     this._usersListSection = this.querySelector('[data-role="users-list"]');
-    this._usersListStatus = this._usersListSection?.querySelector('[data-role="users-list-status"]') || null;
-    this._usersStatusIcon = this._usersListSection?.querySelector('[data-role="users-list-status-icon"]') || null;
-    this._usersStatusText = this._usersListSection?.querySelector('[data-role="users-list-status-text"]') || null;
-    this._usersListEmpty = this._usersListSection?.querySelector('[data-role="users-list-empty"]') || null;
-    this._usersTableBody = this._usersListSection?.querySelector('[data-role="users-table-body"]') || null;
+    this._usersListStatus = ((_a = this._usersListSection) == null ? void 0 : _a.querySelector('[data-role="users-list-status"]')) || null;
+    this._usersStatusIcon = ((_b = this._usersListSection) == null ? void 0 : _b.querySelector('[data-role="users-list-status-icon"]')) || null;
+    this._usersStatusText = ((_c = this._usersListSection) == null ? void 0 : _c.querySelector('[data-role="users-list-status-text"]')) || null;
+    this._usersListEmpty = ((_d = this._usersListSection) == null ? void 0 : _d.querySelector('[data-role="users-list-empty"]')) || null;
+    this._usersTableBody = ((_e = this._usersListSection) == null ? void 0 : _e.querySelector('[data-role="users-table-body"]')) || null;
   }
-
   _attachListeners() {
     this._categoryButtons.forEach((button) => {
       button.addEventListener("click", this._boundCategoryClick);
@@ -206,7 +209,6 @@ class SettingsLayout extends HTMLElement {
       }
     }
   }
-
   _detachListeners() {
     this._categoryButtons.forEach((button) => {
       button.removeEventListener("click", this._boundCategoryClick);
@@ -238,10 +240,9 @@ class SettingsLayout extends HTMLElement {
       }
     }
   }
-
   _checkIsAdmin() {
-    const user = storage.user;
-    if (!user || user.role === undefined || user.role === null) {
+    const user = storage_default.user;
+    if (!user || user.role === void 0 || user.role === null) {
       return false;
     }
     const role = user.role;
@@ -261,7 +262,6 @@ class SettingsLayout extends HTMLElement {
     }
     return false;
   }
-
   _configureAccess() {
     if (this._isAdmin) {
       if (this._usersNavItem) {
@@ -287,7 +287,6 @@ class SettingsLayout extends HTMLElement {
       this._renderUsers();
     }
   }
-
   _initSignupSections() {
     this._signupSections.clear();
     const cards = this.querySelectorAll('[data-role="signup-card"]');
@@ -302,20 +301,18 @@ class SettingsLayout extends HTMLElement {
         countEl: card.querySelector('[data-role="active-count"]'),
         generateButton: card.querySelector('[data-role="generate"]'),
         revokeButton: card.querySelector('[data-role="revoke"]'),
-        statusEl: card.querySelector('[data-role="status"]'),
+        statusEl: card.querySelector('[data-role="status"]')
       };
       this._signupSections.set(normalized, section);
       this._setSectionStatus(normalized, "");
     });
   }
-
   _getSignupSection(type) {
     if (!type) {
       return null;
     }
     return this._signupSections.get(type.toLowerCase()) || null;
   }
-
   _setSignupCount(type, count) {
     const section = this._getSignupSection(type);
     if (!section || !section.countEl) {
@@ -327,7 +324,6 @@ class SettingsLayout extends HTMLElement {
       this._detailActiveCount.textContent = String(value);
     }
   }
-
   _setSectionStatus(type, message, variant = "info") {
     const section = this._getSignupSection(type);
     if (!section || !section.statusEl) {
@@ -342,14 +338,12 @@ class SettingsLayout extends HTMLElement {
       "text-green-600",
       "dark:text-green-400",
       "text-red-600",
-      "dark:text-red-400",
+      "dark:text-red-400"
     );
-
     if (!text) {
       statusEl.classList.add("text-grey-60", "dark:text-grey-40");
       return;
     }
-
     if (variant === "success") {
       statusEl.classList.add("text-green-600", "dark:text-green-400");
     } else if (variant === "error") {
@@ -358,28 +352,23 @@ class SettingsLayout extends HTMLElement {
       statusEl.classList.add("text-grey-60", "dark:text-grey-40");
     }
   }
-
   _setDetailStatus(message, variant = "info") {
     if (!this._detailStatusEl) {
       return;
     }
     const baseClass = "text-sm flex items-center gap-2 min-h-[1.25rem]";
     this._detailStatusEl.className = `${baseClass} text-grey-60 dark:text-grey-40`;
-
     if (this._detailStatusText) {
       this._detailStatusText.textContent = message || "";
     } else {
       this._detailStatusEl.textContent = message || "";
     }
-
     if (this._detailStatusIcon) {
       this._detailStatusIcon.className = "hidden";
     }
-
     if (!message) {
       return;
     }
-
     let iconClass = "ri-information-line text-grey-60 dark:text-grey-40";
     if (variant === "success") {
       this._detailStatusEl.className = `${baseClass} text-green-600 dark:text-green-400`;
@@ -388,12 +377,10 @@ class SettingsLayout extends HTMLElement {
       this._detailStatusEl.className = `${baseClass} text-red-600 dark:text-red-400`;
       iconClass = "ri-error-warning-line text-red-600 dark:text-red-400";
     }
-
     if (this._detailStatusIcon) {
       this._detailStatusIcon.className = iconClass;
     }
   }
-
   _setSectionLoading(section, isLoading) {
     if (!section) {
       return;
@@ -408,42 +395,31 @@ class SettingsLayout extends HTMLElement {
       section.revokeButton.classList.toggle("opacity-60", disabled);
     }
   }
-
   _showSignupDetail(type, link, expiresAtSeconds) {
     if (!this._signupDetail || !this._signupOverview) {
       return;
     }
-
     this._activeDetailType = type;
     this._activeDetailExpiresAt = expiresAtSeconds || null;
-
-    const headingKey =
-      type === "admin"
-        ? "settingsUsersDetailHeadingAdmin"
-        : "settingsUsersDetailHeadingUser";
+    const headingKey = type === "admin" ? "settingsUsersDetailHeadingAdmin" : "settingsUsersDetailHeadingUser";
     if (this._detailHeading) {
       this._detailHeading.textContent = translate(headingKey);
     }
-
     const expiresText = this._formatExpiry(expiresAtSeconds);
     if (this._detailDescription) {
       this._detailDescription.textContent = translate("settingsUsersDetailDescription", {
-        date: expiresText,
+        date: expiresText
       });
     }
-
     if (this._detailActiveCount) {
       const section = this._getSignupSection(type);
-      const count = section?.countEl ? Number(section.countEl.textContent || 0) : 0;
+      const count = (section == null ? void 0 : section.countEl) ? Number(section.countEl.textContent || 0) : 0;
       this._detailActiveCount.textContent = String(count);
     }
-
     if (this._detailFootnote) {
       this._detailFootnote.textContent = translate("settingsUsersDetailFootnote");
     }
-
     this._setDetailStatus("");
-
     if (this._detailLinkInput) {
       this._detailLinkInput.value = link || "";
       requestAnimationFrame(() => {
@@ -451,24 +427,20 @@ class SettingsLayout extends HTMLElement {
         this._detailLinkInput.focus();
       });
     }
-
     if (this._detailQrContainer) {
       this._renderQRCode(this._detailQrContainer, link);
     }
-
     if (this._detailCopyIcon) {
       const original = this._detailCopyIcon.dataset.originalClass || this._detailCopyIcon.className;
       this._detailCopyIcon.dataset.originalClass = original;
       this._detailCopyIcon.className = original;
     }
-
     this._signupOverview.classList.add("hidden");
     this._signupDetail.classList.remove("hidden");
     if (this._usersHeader) {
       this._usersHeader.classList.add("hidden");
     }
   }
-
   _clearSignupDetail() {
     if (!this._signupDetail || !this._signupOverview) {
       return;
@@ -491,7 +463,6 @@ class SettingsLayout extends HTMLElement {
       this._usersHeader.classList.remove("hidden");
     }
   }
-
   _renderQRCode(container, value) {
     if (!container) {
       return;
@@ -501,13 +472,13 @@ class SettingsLayout extends HTMLElement {
       return;
     }
     try {
-      const qr = qrcode(0, "L");
+      const qr = qrcode_default(0, "L");
       qr.addData(value);
       qr.make();
       container.innerHTML = qr.createSvgTag({
         scalable: true,
         cellSize: 4,
-        margin: 4,
+        margin: 4
       });
       const svgEl = container.querySelector("svg");
       if (svgEl) {
@@ -519,28 +490,23 @@ class SettingsLayout extends HTMLElement {
       container.innerHTML = `<p class="text-sm text-grey-60 dark:text-grey-40 text-center">${translate("settingsUsersQrError")}</p>`;
     }
   }
-
   _setUsersStatus(message, variant = "info") {
     if (!this._usersListStatus) {
       return;
     }
     const baseClass = "text-sm flex items-center gap-2 min-h-[1.25rem]";
     this._usersListStatus.className = `${baseClass} text-grey-60 dark:text-grey-40`;
-
     if (this._usersStatusText) {
       this._usersStatusText.textContent = message || "";
     } else {
       this._usersListStatus.textContent = message || "";
     }
-
     if (this._usersStatusIcon) {
       this._usersStatusIcon.className = "hidden";
     }
-
     if (!message) {
       return;
     }
-
     let iconClass = "ri-information-line text-grey-60 dark:text-grey-40";
     if (variant === "success") {
       this._usersListStatus.className = `${baseClass} text-green-600 dark:text-green-400`;
@@ -549,12 +515,10 @@ class SettingsLayout extends HTMLElement {
       this._usersListStatus.className = `${baseClass} text-red-600 dark:text-red-400`;
       iconClass = "ri-error-warning-line text-red-600 dark:text-red-400";
     }
-
     if (this._usersStatusIcon) {
       this._usersStatusIcon.className = iconClass;
     }
   }
-
   async _loadUsers() {
     if (!this._isAdmin || !this._usersListSection) {
       return;
@@ -562,24 +526,20 @@ class SettingsLayout extends HTMLElement {
     if (this._usersLoading) {
       return;
     }
-
     this._usersLoading = true;
     this._setUsersStatus(translate("settingsUsersListLoading"), "info");
-
     try {
       const response = await fetch("/api/admin/users", {
         method: "GET",
         headers: {
-          "Content-Type": "application/json",
-        },
+          "Content-Type": "application/json"
+        }
       });
-
       if (!response.ok) {
         throw new Error(`users_list_failed_${response.status}`);
       }
-
       const payload = await response.json();
-      const list = Array.isArray(payload?.users) ? payload.users : [];
+      const list = Array.isArray(payload == null ? void 0 : payload.users) ? payload.users : [];
       this._usersData = list.map((user) => ({
         id: Number.parseInt(user.id, 10) || user.id,
         name: user.name || "",
@@ -591,9 +551,8 @@ class SettingsLayout extends HTMLElement {
         active_sessions: Number.isFinite(user.active_sessions) ? user.active_sessions : Number.parseInt(user.active_sessions ?? 0, 10) || 0,
         is_current_user: Boolean(user.is_current_user),
         created: user.created || 0,
-        updated: user.updated || 0,
+        updated: user.updated || 0
       }));
-
       this._renderUsers();
       this._setUsersStatus("", "info");
     } catch (error) {
@@ -603,12 +562,10 @@ class SettingsLayout extends HTMLElement {
       this._usersLoading = false;
     }
   }
-
   _renderUsers() {
     if (!this._usersTableBody) {
       return;
     }
-
     if (!Array.isArray(this._usersData) || !this._usersData.length) {
       this._usersTableBody.innerHTML = "";
       if (this._usersListEmpty) {
@@ -616,21 +573,19 @@ class SettingsLayout extends HTMLElement {
       }
       return;
     }
-
     if (this._usersListEmpty) {
       this._usersListEmpty.classList.add("hidden");
     }
-
     const rows = this._usersData.map((user) => this._renderUserRow(user)).join("");
     this._usersTableBody.innerHTML = rows;
   }
-
   _renderUserRow(user) {
+    var _a;
     const displayName = this._getDisplayName(user);
     const roleLabel = this._formatUserRole(user.role);
     const statusLabel = this._formatUserStatus(user.active);
     const statusClass = user.active ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400";
-    const emailText = user.email?.trim() || "";
+    const emailText = ((_a = user.email) == null ? void 0 : _a.trim()) || "";
     const signingKeyTitle = (user.public_key || "").trim();
     const encryptionKeyTitle = (user.encryption_public_key || "").trim();
     const signingKey = this._formatKey(signingKeyTitle);
@@ -647,9 +602,7 @@ class SettingsLayout extends HTMLElement {
     const deactivateButtonClass = `${baseButtonClass} text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-400/40 bg-yellow-50/60 dark:bg-yellow-900/20 hover:bg-yellow-50 dark:hover:bg-yellow-900/30`;
     const activateButtonClass = `${baseButtonClass} text-green-700 dark:text-green-300 border-green-200 dark:border-green-400/40 bg-green-50/60 dark:bg-green-900/20 hover:bg-green-50 dark:hover:bg-green-900/30`;
     const toggleAction = user.active ? "deactivate" : "activate";
-    const toggleButtonLabel = user.active
-      ? translate("settingsUsersActionDeactivate")
-      : translate("settingsUsersActionActivate");
+    const toggleButtonLabel = user.active ? translate("settingsUsersActionDeactivate") : translate("settingsUsersActionActivate");
     const toggleIcon = user.active ? "ri-user-unfollow-line" : "ri-user-follow-line";
     const toggleDisabled = user.active && user.is_current_user;
     const toggleDisabledTitle = toggleDisabled ? ` title="${this._escapeHTML(translate("settingsUsersActionDeactivateSelfError"))}"` : "";
@@ -658,29 +611,28 @@ class SettingsLayout extends HTMLElement {
       detailTags.push(`<span>${this._escapeHTML(roleLabel)}</span>`);
     }
     if (statusLabel) {
-      detailTags.push(`<span class=\"${statusClass}\">${this._escapeHTML(statusLabel)}</span>`);
+      detailTags.push(`<span class="${statusClass}">${this._escapeHTML(statusLabel)}</span>`);
     }
     if (user.is_current_user) {
       const youLabel = translate("settingsUsersCurrentUserLabel");
-      detailTags.push(`<span class=\"inline-flex items-center px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium\">${this._escapeHTML(youLabel)}</span>`);
+      detailTags.push(`<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium">${this._escapeHTML(youLabel)}</span>`);
     }
-    const metaParts = detailTags.filter(Boolean).join(" · ");
-    const signingTitleAttr = signingKeyTitle ? ` title=\"${this._escapeHTML(signingKeyTitle)}\"` : "";
-    const encryptionTitleAttr = encryptionKeyTitle ? ` title=\"${this._escapeHTML(encryptionKeyTitle)}\"` : "";
-    const clearDisabledTitle = clearDisabled ? ` title=\"${this._escapeHTML(translate("settingsUsersActionClearDisabledTooltip"))}\"` : "";
-    const deleteDisabledTitle = deleteDisabled ? ` title=\"${this._escapeHTML(translate("settingsUsersActionDeleteSelfTooltip"))}\"` : "";
-    const clearButtonContent = `<i class=\"ri-refresh-line text-base leading-4\"></i><span>${this._escapeHTML(clearButtonLabel)}</span>`;
-    const deleteButtonContent = `<i class=\"ri-delete-bin-6-line text-base leading-4\"></i><span>${this._escapeHTML(deleteButtonLabel)}</span>`;
-    const toggleButtonContent = `<i class=\"${toggleIcon} text-base leading-4\"></i><span>${this._escapeHTML(toggleButtonLabel)}</span>`;
+    const metaParts = detailTags.filter(Boolean).join(" \xB7 ");
+    const signingTitleAttr = signingKeyTitle ? ` title="${this._escapeHTML(signingKeyTitle)}"` : "";
+    const encryptionTitleAttr = encryptionKeyTitle ? ` title="${this._escapeHTML(encryptionKeyTitle)}"` : "";
+    const clearDisabledTitle = clearDisabled ? ` title="${this._escapeHTML(translate("settingsUsersActionClearDisabledTooltip"))}"` : "";
+    const deleteDisabledTitle = deleteDisabled ? ` title="${this._escapeHTML(translate("settingsUsersActionDeleteSelfTooltip"))}"` : "";
+    const clearButtonContent = `<i class="ri-refresh-line text-base leading-4"></i><span>${this._escapeHTML(clearButtonLabel)}</span>`;
+    const deleteButtonContent = `<i class="ri-delete-bin-6-line text-base leading-4"></i><span>${this._escapeHTML(deleteButtonLabel)}</span>`;
+    const toggleButtonContent = `<i class="${toggleIcon} text-base leading-4"></i><span>${this._escapeHTML(toggleButtonLabel)}</span>`;
     const toggleButtonClass = user.active ? deactivateButtonClass : activateButtonClass;
-
     return `
       <tr class="align-top">
         <td class="px-4 py-4">
           <div class="font-medium text-grey-90 dark:text-grey-10">${this._escapeHTML(displayName)}</div>
           <div class="text-xs text-grey-60 dark:text-grey-40 mt-1">${metaParts || ""}</div>
         </td>
-        <td class="px-4 py-4 text-sm text-grey-80 dark:text-grey-20">${emailText ? this._escapeHTML(emailText) : "—"}</td>
+        <td class="px-4 py-4 text-sm text-grey-80 dark:text-grey-20">${emailText ? this._escapeHTML(emailText) : "\u2014"}</td>
         <td class="px-4 py-4 text-sm">
           <div class="space-y-3">
             <div class="flex flex-col gap-1">
@@ -704,22 +656,21 @@ class SettingsLayout extends HTMLElement {
       </tr>
     `;
   }
-
   _getDisplayName(user) {
+    var _a, _b;
     if (!user) {
       return translate("settingsUsersNameFallback");
     }
-    const name = user.name?.trim();
+    const name = (_a = user.name) == null ? void 0 : _a.trim();
     if (name) {
       return name;
     }
-    const email = user.email?.trim();
+    const email = (_b = user.email) == null ? void 0 : _b.trim();
     if (email) {
       return email;
     }
     return translate("settingsUsersNameFallback");
   }
-
   _formatUserRole(role) {
     const normalized = (role || "").toString().toLowerCase();
     if (normalized === "admin") {
@@ -733,11 +684,9 @@ class SettingsLayout extends HTMLElement {
     }
     return translate("settingsUsersRoleUnknown");
   }
-
   _formatUserStatus(active) {
     return active ? translate("settingsUsersStatusActive") : translate("settingsUsersStatusInactive");
   }
-
   _formatKey(key) {
     const value = (key || "").trim();
     if (!value) {
@@ -746,9 +695,8 @@ class SettingsLayout extends HTMLElement {
     if (value.length <= 36) {
       return value;
     }
-    return `${value.slice(0, 20)}…${value.slice(-10)}`;
+    return `${value.slice(0, 20)}\u2026${value.slice(-10)}`;
   }
-
   _escapeHTML(str) {
     if (str == null) {
       return "";
@@ -770,50 +718,40 @@ class SettingsLayout extends HTMLElement {
       }
     });
   }
-
   async _handleUserAction(event) {
     const button = event.target.closest("[data-user-action]");
     if (!button || button.disabled) {
       return;
     }
-
     const action = button.getAttribute("data-user-action");
     const idAttr = button.getAttribute("data-user-id");
     const userID = Number.parseInt(idAttr || "", 10);
-
     if (!Number.isFinite(userID)) {
       return;
     }
-
     const user = this._usersData.find((item) => item.id === userID);
     if (!user) {
       return;
     }
-
     const displayName = this._getDisplayName(user);
-
     if (action === "deactivate") {
       if (user.is_current_user) {
         this._setUsersStatus(translate("settingsUsersActionDeactivateSelfError"), "error");
         return;
       }
-
       this._setUsersStatus(translate("settingsUsersActionDeactivateWorking"), "info");
       let succeeded = false;
       this._setButtonLoading(button, "ri-loader-4-line", translate("settingsUsersActionDeactivateWorking"));
-
       try {
         const response = await fetch(`/api/admin/users/${userID}/deactivate`, {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
-          },
+            "Content-Type": "application/json"
+          }
         });
-
         if (!response.ok) {
           throw new Error(`deactivate_user_failed_${response.status}`);
         }
-
         succeeded = true;
         await this._loadUsers();
         this._setUsersStatus(translate("settingsUsersActionDeactivateSuccess", { name: displayName }), "success");
@@ -825,27 +763,22 @@ class SettingsLayout extends HTMLElement {
           this._restoreButton(button);
         }
       }
-
       return;
     }
-
     if (action === "activate") {
       this._setUsersStatus(translate("settingsUsersActionActivateWorking"), "info");
       let succeeded = false;
       this._setButtonLoading(button, "ri-loader-4-line", translate("settingsUsersActionActivateWorking"));
-
       try {
         const response = await fetch(`/api/admin/users/${userID}/activate`, {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
-          },
+            "Content-Type": "application/json"
+          }
         });
-
         if (!response.ok) {
           throw new Error(`activate_user_failed_${response.status}`);
         }
-
         succeeded = true;
         await this._loadUsers();
         this._setUsersStatus(translate("settingsUsersActionActivateSuccess", { name: displayName }), "success");
@@ -857,31 +790,25 @@ class SettingsLayout extends HTMLElement {
           this._restoreButton(button);
         }
       }
-
       return;
     }
-
     if (action === "clear-sessions") {
       if (user.active_sessions === 0) {
         return;
       }
-
       this._setUsersStatus(translate("settingsUsersActionClearWorking"), "info");
       let succeeded = false;
       this._setButtonLoading(button, "ri-loader-4-line", translate("settingsUsersActionClearWorking"));
-
       try {
         const response = await fetch(`/api/admin/users/${userID}/clear-sessions`, {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
-          },
+            "Content-Type": "application/json"
+          }
         });
-
         if (!response.ok) {
           throw new Error(`clear_sessions_failed_${response.status}`);
         }
-
         user.active_sessions = 0;
         succeeded = true;
         await this._loadUsers();
@@ -898,37 +825,30 @@ class SettingsLayout extends HTMLElement {
           this._restoreButton(button);
         }
       }
-
       return;
     }
-
     if (action === "delete") {
       if (user.is_current_user) {
         this._setUsersStatus(translate("settingsUsersActionDeleteSelfError"), "error");
         return;
       }
-
       const confirmed = window.confirm(translate("settingsUsersActionDeleteConfirm", { name: displayName }));
       if (!confirmed) {
         return;
       }
-
       this._setUsersStatus(translate("settingsUsersActionDeleteWorking"), "info");
       let succeeded = false;
       this._setButtonLoading(button, "ri-loader-4-line", translate("settingsUsersActionDeleteWorking"));
-
       try {
         const response = await fetch(`/api/admin/users/${userID}`, {
           method: "DELETE",
           headers: {
-            "Content-Type": "application/json",
-          },
+            "Content-Type": "application/json"
+          }
         });
-
         if (!response.ok) {
           throw new Error(`delete_user_failed_${response.status}`);
         }
-
         succeeded = true;
         await this._loadUsers();
         this._setUsersStatus(translate("settingsUsersActionDeleteSuccess", { name: displayName }), "success");
@@ -942,7 +862,6 @@ class SettingsLayout extends HTMLElement {
       }
     }
   }
-
   _setButtonLoading(button, iconClass, text) {
     if (!button) {
       return;
@@ -951,12 +870,11 @@ class SettingsLayout extends HTMLElement {
       button.dataset.originalContent = button.innerHTML;
     }
     const label = text ? `<span>${this._escapeHTML(text)}</span>` : "";
-    const icon = iconClass ? `<i class=\"${iconClass} text-base leading-4 animate-spin\"></i>` : "";
+    const icon = iconClass ? `<i class="${iconClass} text-base leading-4 animate-spin"></i>` : "";
     button.innerHTML = `${icon}${label}`;
     button.disabled = true;
     button.classList.add("opacity-60");
   }
-
   _restoreButton(button) {
     if (!button || !button.dataset.originalContent) {
       return;
@@ -966,33 +884,28 @@ class SettingsLayout extends HTMLElement {
     button.classList.remove("opacity-60");
     delete button.dataset.originalContent;
   }
-
-
   async _handleGenerateClick(event) {
+    var _a;
     event.preventDefault();
     const button = event.currentTarget;
-    const type = button?.getAttribute("data-token-type")?.toLowerCase() || "admin";
+    const type = ((_a = button == null ? void 0 : button.getAttribute("data-token-type")) == null ? void 0 : _a.toLowerCase()) || "admin";
     const section = this._getSignupSection(type);
     if (!section) {
       return;
     }
-
     this._setSectionStatus(type, translate("settingsUsersGenerating"), "info");
     this._setSectionLoading(section, true);
-
     try {
       const response = await fetch("/api/admin/signup-links", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify({ type }),
+        body: JSON.stringify({ type })
       });
-
       if (!response.ok) {
         throw new Error(`generate_failed_${response.status}`);
       }
-
       const data = await response.json();
       if (typeof data.active_count === "number") {
         this._setSignupCount(type, data.active_count);
@@ -1013,31 +926,27 @@ class SettingsLayout extends HTMLElement {
       this._setSectionLoading(section, false);
     }
   }
-
   async _handleRevokeClick(event) {
+    var _a;
     event.preventDefault();
     const button = event.currentTarget;
-    const type = button?.getAttribute("data-token-type")?.toLowerCase() || "admin";
+    const type = ((_a = button == null ? void 0 : button.getAttribute("data-token-type")) == null ? void 0 : _a.toLowerCase()) || "admin";
     const section = this._getSignupSection(type);
     if (!section) {
       return;
     }
-
     this._setSectionStatus(type, translate("settingsUsersRevoking"), "info");
     this._setSectionLoading(section, true);
-
     try {
       const response = await fetch(`/api/admin/signup-links?type=${encodeURIComponent(type)}`, {
         method: "DELETE",
         headers: {
-          "Content-Type": "application/json",
-        },
+          "Content-Type": "application/json"
+        }
       });
-
       if (!response.ok) {
         throw new Error(`revoke_failed_${response.status}`);
       }
-
       const data = await response.json();
       if (typeof data.active_count === "number") {
         this._setSignupCount(type, data.active_count);
@@ -1058,12 +967,10 @@ class SettingsLayout extends HTMLElement {
       this._setSectionLoading(section, false);
     }
   }
-
   _handleDetailBack(event) {
     event.preventDefault();
     this._clearSignupDetail();
   }
-
   _handleDetailCopy(event) {
     event.preventDefault();
     if (!this._detailLinkInput) {
@@ -1073,7 +980,6 @@ class SettingsLayout extends HTMLElement {
     if (!value) {
       return;
     }
-
     const success = copyToClipboard(value);
     if (success) {
       this._setDetailStatus(translate("settingsUsersDetailCopySuccess"), "success");
@@ -1085,63 +991,56 @@ class SettingsLayout extends HTMLElement {
           if (this._detailCopyIcon) {
             this._detailCopyIcon.className = this._detailCopyIcon.dataset.originalClass || original;
           }
-        }, 2000);
+        }, 2e3);
       }
     } else {
       this._setDetailStatus(translate("settingsUsersDetailCopyError"), "error");
     }
   }
-
   _handleDetailLinkFocus(event) {
     const input = event.currentTarget;
     if (input && typeof input.select === "function") {
       input.select();
     }
   }
-
   _formatExpiry(expiresAtSeconds) {
     if (!expiresAtSeconds) {
       return translate("settingsUsersDetailExpiresUnknown");
     }
-
-    const millis = Number(expiresAtSeconds) * 1000;
+    const millis = Number(expiresAtSeconds) * 1e3;
     const date = new Date(millis);
     if (Number.isNaN(date.getTime())) {
       return translate("settingsUsersDetailExpiresUnknown");
     }
-
     const locale = document.documentElement.lang || navigator.language || "en";
     return new Intl.DateTimeFormat(locale, {
       dateStyle: "medium",
-      timeStyle: "short",
+      timeStyle: "short"
     }).format(date);
   }
-
   async _loadSignupOverview() {
     try {
       const response = await fetch("/api/admin/signup-links", {
         method: "GET",
         headers: {
-          "Content-Type": "application/json",
-        },
+          "Content-Type": "application/json"
+        }
       });
-
       if (!response.ok) {
         throw new Error(`overview_failed_${response.status}`);
       }
-
       const data = await response.json();
-      if (data?.admin && typeof data.admin.active_count === "number") {
+      if ((data == null ? void 0 : data.admin) && typeof data.admin.active_count === "number") {
         this._setSignupCount("admin", data.admin.active_count);
       }
-      if (data?.user && typeof data.user.active_count === "number") {
+      if ((data == null ? void 0 : data.user) && typeof data.user.active_count === "number") {
         this._setSignupCount("user", data.user.active_count);
       }
       this._setSectionStatus("admin", "");
       this._setSectionStatus("user", "");
       if (this._activeDetailType && this._detailActiveCount) {
         const section = this._getSignupSection(this._activeDetailType);
-        const countText = section?.countEl ? section.countEl.textContent || "0" : "0";
+        const countText = (section == null ? void 0 : section.countEl) ? section.countEl.textContent || "0" : "0";
         this._detailActiveCount.textContent = countText;
       }
     } catch (error) {
@@ -1155,25 +1054,20 @@ class SettingsLayout extends HTMLElement {
       }
     }
   }
-
   _handleCategoryClick(event) {
     const category = event.currentTarget.getAttribute("data-category");
     if (category) {
       this._selectCategory(category);
     }
   }
-
   _selectCategory(category) {
     this._activeCategory = category;
     this._updateCategoryStyles();
     this._updatePanels();
   }
-
   _updateCategoryStyles() {
     this._categoryButtons.forEach((button) => {
-      const isActive =
-        button.getAttribute("data-category") === this._activeCategory;
-
+      const isActive = button.getAttribute("data-category") === this._activeCategory;
       button.classList.toggle("border-primary", isActive);
       button.classList.toggle("bg-primary/10", isActive);
       button.classList.toggle("text-primary", isActive);
@@ -1182,7 +1076,6 @@ class SettingsLayout extends HTMLElement {
       button.classList.toggle("border-transparent", !isActive);
     });
   }
-
   _updatePanels() {
     this._panels.forEach((panel, key) => {
       if (key === this._activeCategory) {
@@ -1192,7 +1085,6 @@ class SettingsLayout extends HTMLElement {
       }
     });
   }
-
   _setPasswordStatus(type, message) {
     if (!this._passwordStatus) {
       return;
@@ -1227,21 +1119,18 @@ class SettingsLayout extends HTMLElement {
       }
     }
   }
-
   async _handlePasswordSubmit(event) {
+    var _a;
     event.preventDefault();
     if (!this._passwordForm) {
       return;
     }
-
     const currentInput = this._passwordForm.querySelector("#settings-current-password");
     const newInput = this._passwordForm.querySelector("#settings-new-password");
     const confirmInput = this._passwordForm.querySelector("#settings-confirm-password");
-
-    const currentPassword = currentInput?.value || "";
-    const newPassword = newInput?.value || "";
-    const confirmPassword = confirmInput?.value || "";
-
+    const currentPassword = (currentInput == null ? void 0 : currentInput.value) || "";
+    const newPassword = (newInput == null ? void 0 : newInput.value) || "";
+    const confirmPassword = (confirmInput == null ? void 0 : confirmInput.value) || "";
     if (currentPassword.length < 10) {
       this._setPasswordStatus("error", translate("settingsPasswordStatusErrorCurrent"));
       return;
@@ -1254,43 +1143,33 @@ class SettingsLayout extends HTMLElement {
       this._setPasswordStatus("error", translate("settingsPasswordStatusErrorMismatch"));
       return;
     }
-
-    const userSecrets = storage.user;
+    const userSecrets = storage_default.user;
     if (!userSecrets) {
       this._setPasswordStatus("error", translate("settingsPasswordStatusErrorNoSession"));
       return;
     }
-
     const saltBytes = userSecrets.getSaltBytes();
     if (!saltBytes || !saltBytes.length) {
       this._setPasswordStatus("error", translate("settingsPasswordStatusErrorMissingKeys"));
       return;
     }
-
     const storedSettings = userSecrets.settings || {};
     const kdfInput = storedSettings.kdf || storedSettings || DEFAULT_KDF_SETTINGS;
     const kdfSettings = normalizeKDFSettings(kdfInput);
-
     let derivedCurrent = null;
     let newMaterial = null;
     const newSaltBytes = generateSalt(kdfSettings.saltLength || DEFAULT_KDF_SETTINGS.saltLength);
-
     try {
       this._setPasswordStatus("info", translate("settingsPasswordStatusInfoDeriving"));
       derivedCurrent = await deriveKeyMaterial(currentPassword, saltBytes, kdfSettings);
-
       const derivedCurrentPublic = x25519.scalarMultBase(derivedCurrent.x25519Seed);
       const storedPublic = userSecrets.getX25519PublicKey();
-      if (
-        storedPublic &&
-        arrayToB64(derivedCurrentPublic) !== arrayToB64(storedPublic)
-      ) {
+      if (storedPublic && arrayToB64(derivedCurrentPublic) !== arrayToB64(storedPublic)) {
         this._setPasswordStatus("error", translate("settingsPasswordStatusErrorIncorrect"));
         derivedCurrent.edSeed.fill(0);
         derivedCurrent.x25519Seed.fill(0);
         return;
       }
-
       this._setPasswordStatus("info", translate("settingsPasswordStatusInfoPreparing"));
       newMaterial = await deriveKeyMaterial(newPassword, newSaltBytes, kdfSettings);
     } catch (err) {
@@ -1298,10 +1177,9 @@ class SettingsLayout extends HTMLElement {
       this._setPasswordStatus("error", translate("settingsPasswordStatusErrorDerive"));
       return;
     } finally {
-      if (derivedCurrent?.edSeed) derivedCurrent.edSeed.fill(0);
-      if (derivedCurrent?.x25519Seed) derivedCurrent.x25519Seed.fill(0);
+      if (derivedCurrent == null ? void 0 : derivedCurrent.edSeed) derivedCurrent.edSeed.fill(0);
+      if (derivedCurrent == null ? void 0 : derivedCurrent.x25519Seed) derivedCurrent.x25519Seed.fill(0);
     }
-
     let newEdPublic;
     let newXPublic;
     try {
@@ -1309,12 +1187,11 @@ class SettingsLayout extends HTMLElement {
       newXPublic = x25519.scalarMultBase(newMaterial.x25519Seed);
     } catch (err) {
       console.error("[SettingsLayout] Failed to compute public keys", err);
-      if (newMaterial?.edSeed) newMaterial.edSeed.fill(0);
-      if (newMaterial?.x25519Seed) newMaterial.x25519Seed.fill(0);
+      if (newMaterial == null ? void 0 : newMaterial.edSeed) newMaterial.edSeed.fill(0);
+      if (newMaterial == null ? void 0 : newMaterial.x25519Seed) newMaterial.x25519Seed.fill(0);
       this._setPasswordStatus("error", translate("settingsPasswordStatusErrorPublicKeys"));
       return;
     }
-
     let newUserSecrets;
     try {
       newUserSecrets = UserSecrets.fromKeyMaterial({
@@ -1325,21 +1202,20 @@ class SettingsLayout extends HTMLElement {
         salt: encodeSalt(newSaltBytes),
         x25519Seed: newMaterial.x25519Seed,
         x25519PublicKey: newXPublic,
-        version: userSecrets.version,
+        version: userSecrets.version
       });
     } catch (err) {
       console.error("[SettingsLayout] Failed to prepare new user secrets", err);
-      if (newMaterial?.edSeed) newMaterial.edSeed.fill(0);
-      if (newMaterial?.x25519Seed) newMaterial.x25519Seed.fill(0);
+      if (newMaterial == null ? void 0 : newMaterial.edSeed) newMaterial.edSeed.fill(0);
+      if (newMaterial == null ? void 0 : newMaterial.x25519Seed) newMaterial.x25519Seed.fill(0);
       this._setPasswordStatus("error", translate("settingsPasswordStatusErrorUserSecrets"));
       return;
     }
-
     const fileUpdates = [];
     try {
-      const files = storage.files || [];
+      const files = storage_default.files || [];
       for (const ownedFile of files) {
-        if (!ownedFile?.id || !ownedFile.keychain?.rawSecret) {
+        if (!(ownedFile == null ? void 0 : ownedFile.id) || !((_a = ownedFile.keychain) == null ? void 0 : _a.rawSecret)) {
           continue;
         }
         const wrap = await newUserSecrets.wrapSecret(ownedFile.keychain.rawSecret);
@@ -1348,69 +1224,63 @@ class SettingsLayout extends HTMLElement {
           ciphertext: wrap.ciphertext,
           nonce: wrap.nonce,
           ephemeral_pub: wrap.ephemeralPublicKey,
-          version: wrap.version || OWNER_SECRET_VERSION,
+          version: wrap.version || OWNER_SECRET_VERSION
         });
       }
     } catch (err) {
       console.error("[SettingsLayout] Failed to re-wrap secrets", err);
-      if (newMaterial?.edSeed) newMaterial.edSeed.fill(0);
-      if (newMaterial?.x25519Seed) newMaterial.x25519Seed.fill(0);
+      if (newMaterial == null ? void 0 : newMaterial.edSeed) newMaterial.edSeed.fill(0);
+      if (newMaterial == null ? void 0 : newMaterial.x25519Seed) newMaterial.x25519Seed.fill(0);
       this._setPasswordStatus("error", translate("settingsPasswordStatusErrorWrap"));
       return;
     }
-
     const payload = {
       current_password: currentPassword,
       new_salt: encodeSalt(newSaltBytes),
       new_public_key: encodePublicKey(newEdPublic),
       new_encryption_public_key: arrayToB64(newXPublic),
       files: fileUpdates,
-      kdf: serializeKDFSettings(kdfSettings),
+      kdf: serializeKDFSettings(kdfSettings)
     };
-
     this._setPasswordStatus("info", translate("settingsPasswordStatusInfoUpdating"));
     if (this._passwordSubmitButton) {
       this._passwordSubmitButton.disabled = true;
     }
-
     try {
       const response = await fetch("/api/passwordreset", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(payload)
       });
-
       if (!response.ok) {
         let serverError = "";
         try {
           serverError = await response.text();
         } catch {
-          // ignore parsing errors
         }
         console.error("[SettingsLayout] Password reset failed", response.status, serverError);
         const message = serverError || translate("settingsPasswordStatusErrorRequest");
         throw new Error(message);
       }
-
-      storage.setUser(newUserSecrets);
+      storage_default.setUser(newUserSecrets);
       this._setPasswordStatus("success", translate("settingsPasswordStatusSuccess"));
       if (currentInput) currentInput.value = "";
       if (newInput) newInput.value = "";
       if (confirmInput) confirmInput.value = "";
     } catch (err) {
       const fallback = translate("settingsPasswordStatusErrorGeneric");
-      const message = err?.message || fallback;
+      const message = (err == null ? void 0 : err.message) || fallback;
       this._setPasswordStatus("error", message);
     } finally {
-      if (newMaterial?.edSeed) newMaterial.edSeed.fill(0);
-      if (newMaterial?.x25519Seed) newMaterial.x25519Seed.fill(0);
+      if (newMaterial == null ? void 0 : newMaterial.edSeed) newMaterial.edSeed.fill(0);
+      if (newMaterial == null ? void 0 : newMaterial.x25519Seed) newMaterial.x25519Seed.fill(0);
       if (this._passwordSubmitButton) {
         this._passwordSubmitButton.disabled = false;
       }
     }
   }
-}
-
+};
 customElements.define("settings-layout", SettingsLayout);
+//# sourceMappingURL=settings-layout-75PBJXP2.js.map

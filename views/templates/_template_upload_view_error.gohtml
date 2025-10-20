@@ -1,0 +1,28 @@
+<!-- Upload view: error (for errors during upload) -->
+<template id="upload-view-error">
+	<div class="flex flex-col items-center justify-center bg-white dark:bg-grey-90 rounded-xs shadow-light h-full w-full px-6 py-8">
+		<i class="ri-error-warning-fill text-red-600 dark:text-red-400 text-8xl leading-none mb-6"></i>
+		<h2 class="text-2xl font-bold text-grey-90 dark:text-grey-10 mb-4">
+			<span id="errorTitle" data-type="lang">Error</span>
+		</h2>
+		<p class="text-grey-70 dark:text-grey-40 text-center mb-6 max-w-md" data-role="error-message">
+			<span id="errorOccurred" data-type="lang">An error occurred</span>
+		</p>
+		<div class="flex gap-3 w-full max-w-xs">
+			<button
+				type="button"
+				data-action="ok"
+				class="btn flex-1"
+			>
+				<span id="okButton" data-type="lang">OK</span>
+			</button>
+			<button
+				type="button"
+				data-action="retry"
+				class="btn flex-1"
+			>
+				<span id="tryAgain" data-type="lang">Try again</span>
+			</button>
+		</div>
+	</div>
+</template>

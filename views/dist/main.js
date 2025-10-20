@@ -1,6 +1,6 @@
 import {
   syncOwnedFiles
-} from "./chunks/chunk-7PTR2SYB.js";
+} from "./chunks/chunk-JMDY67YH.js";
 import {
   APP_VERSION,
   Keychain,
@@ -13,7 +13,7 @@ import {
   metadata,
   storage_default,
   uploadWs
-} from "./chunks/chunk-H5HVRYHI.js";
+} from "./chunks/chunk-3WB5XX6J.js";
 import {
   arrayToB64,
   browserName,
@@ -1781,12 +1781,12 @@ var localeLoaders = {
   cs: () => import("./chunks/cs-4CHTXZSU.js"),
   cy: () => import("./chunks/cy-RP2L2OUK.js"),
   da: () => import("./chunks/da-DPZF5LGO.js"),
-  de: () => import("./chunks/de-43IMUXRW.js"),
+  de: () => import("./chunks/de-V4Q5XZPY.js"),
   dsb: () => import("./chunks/dsb-L7O73QFV.js"),
   el: () => import("./chunks/el-4RABOQBG.js"),
   "en-CA": () => import("./chunks/en-CA-DJ4OOLA4.js"),
   "en-GB": () => import("./chunks/en-GB-D7G7RTNJ.js"),
-  "en-US": () => import("./chunks/en-US-5ZWNZEYB.js"),
+  "en-US": () => import("./chunks/en-US-QUZE67E7.js"),
   "es-AR": () => import("./chunks/es-AR-6PZGYKH3.js"),
   "es-CL": () => import("./chunks/es-CL-HE4SPZ7U.js"),
   "es-ES": () => import("./chunks/es-ES-XGWIURD2.js"),
@@ -1795,7 +1795,7 @@ var localeLoaders = {
   eu: () => import("./chunks/eu-Q6CLLOH3.js"),
   fa: () => import("./chunks/fa-AEOEUDQ4.js"),
   fi: () => import("./chunks/fi-SI2D7DPR.js"),
-  fr: () => import("./chunks/fr-EGDDMNHJ.js"),
+  fr: () => import("./chunks/fr-XDH7CJJT.js"),
   "fy-NL": () => import("./chunks/fy-NL-C7AQWS3X.js"),
   gn: () => import("./chunks/gn-6SZWZLYL.js"),
   gor: () => import("./chunks/gor-4LJ2LDF3.js"),
@@ -1855,7 +1855,7 @@ var localeLoaders = {
 };
 async function getTranslator(locale2) {
   const bundles = [];
-  const { default: en } = await import("./chunks/en-US-5ZWNZEYB.js");
+  const { default: en } = await import("./chunks/en-US-QUZE67E7.js");
   if (locale2 !== "en-US" && localeLoaders[locale2]) {
     const { default: ftl } = await localeLoaders[locale2]();
     bundles.push(makeBundle(locale2, ftl));
@@ -2853,7 +2853,7 @@ async function initUploadRoute(app) {
   console.log("[Route] Initializing upload page...");
   await Promise.all([
     import("./chunks/upload-layout-TALE332G.js"),
-    import("./chunks/upload-area-KUUK5HPW.js"),
+    import("./chunks/upload-area-V7J3ZTCA.js"),
     import("./chunks/upload-right-A7KKMMXG.js"),
     app.controller.ready
   ]);
@@ -2877,7 +2877,7 @@ async function initDownloadRoute(app) {
 async function initRegisterRoute(app) {
   console.log("[Route] Initializing register page...");
   await Promise.all([
-    import("./chunks/register-layout-UEXLH6PD.js"),
+    import("./chunks/register-layout-HODAIXHR.js"),
     app.controller.ready
   ]);
   app.showRegisterLayout();
@@ -2886,7 +2886,7 @@ async function initRegisterRoute(app) {
 async function initLoginRoute(app) {
   console.log("[Route] Initializing login page...");
   await Promise.all([
-    import("./chunks/login-layout-M6KGGELY.js"),
+    import("./chunks/login-layout-OHDD36JK.js"),
     app.controller.ready
   ]);
   app.showLoginLayout();
@@ -2895,7 +2895,7 @@ async function initLoginRoute(app) {
 async function initSettingsRoute(app) {
   console.log("[Route] Initializing settings page...");
   await Promise.all([
-    import("./chunks/settings-layout-4V27SK73.js"),
+    import("./chunks/settings-layout-75PBJXP2.js"),
     app.controller.ready
   ]);
   app.showSettingsLayout();

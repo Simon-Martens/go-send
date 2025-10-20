@@ -13,9 +13,9 @@ import (
 type AuthTokenType int
 
 const (
-	TokenTypeAdminSignup        AuthTokenType = 0
-	TokenTypeUserSignup         AuthTokenType = 1
-	TokenTypeGeneralGuestUpload AuthTokenType = 2
+	TokenTypeAdminSignup         AuthTokenType = 0
+	TokenTypeUserSignup          AuthTokenType = 1
+	TokenTypeGeneralGuestUpload  AuthTokenType = 2
 	TokenTypeSpecificGuestUpload AuthTokenType = 3
 )
 
@@ -501,30 +501,48 @@ func (d *DB) DeleteTokensByType(tokenType AuthTokenType) (int64, error) {
 	return result.RowsAffected()
 }
 
+func generateReadableToken(length int) (raw string, hashed string, preview string, err error) {
+	if length <= 0 {
+		return "", "", "", fmt.Errorf("token length must be positive")
+	}
+
+	const charset = "abcdefghijklmnopqrstuvwxyz0123456789"
+	rawBytes := make([]byte, length)
+	if _, err := rand.Read(rawBytes); err != nil {
+		return "", "", "", err
+	}
+
+	tokenBytes := make([]byte, length)
+	for i := 0; i < length; i++ {
+		tokenBytes[i] = charset[int(rawBytes[i])%len(charset)]
+	}
+
+	raw = string(tokenBytes)
+	hashed = utils.HashToken(raw)
+
+	previewLength := 8
+	if length < previewLength {
+		previewLength = length
+	}
+	preview = raw[:previewLength]
+	if length > previewLength {
+		preview += "..."
+	}
+
+	return raw, hashed, preview, nil
+}
+
 // GenerateInitialAdminToken creates a one-time use admin signup token
 // Returns the raw token (to be shown once) and the database record
 func (d *DB) GenerateInitialAdminToken(creatorID int64) (string, *AuthToken, error) {
 	// Generate a user-friendly token using only lowercase letters and digits (a-z, 0-9)
 	// 40 characters = ~206 bits of entropy (log2(36^40))
 	const tokenLength = 40
-	const charset = "abcdefghijklmnopqrstuvwxyz0123456789"
 
-	rawBytes := make([]byte, tokenLength)
-	if _, err := rand.Read(rawBytes); err != nil {
+	rawToken, hashedToken, preview, err := generateReadableToken(tokenLength)
+	if err != nil {
 		return "", nil, fmt.Errorf("failed to generate random token: %w", err)
 	}
-
-	// Convert random bytes to charset characters
-	rawToken := make([]byte, tokenLength)
-	for i := 0; i < tokenLength; i++ {
-		rawToken[i] = charset[int(rawBytes[i])%len(charset)]
-	}
-
-	// Hash the token for storage
-	hashedToken := utils.HashToken(string(rawToken))
-
-	// Create preview (first 8 characters)
-	preview := string(rawToken[:8]) + "..."
 
 	// Create one-time use token
 	expiresIn := 1
@@ -545,5 +563,53 @@ func (d *DB) GenerateInitialAdminToken(creatorID int64) (string, *AuthToken, err
 		return "", nil, fmt.Errorf("failed to save token to database: %w", err)
 	}
 
-	return string(rawToken), token, nil
+	return rawToken, token, nil
+}
+
+// GenerateSignupToken creates a signup token for admins or users with the given ttl and usage limit.
+func (d *DB) GenerateSignupToken(creatorID int64, tokenType AuthTokenType, ttl time.Duration, maxUses int) (string, *AuthToken, error) {
+	if tokenType != TokenTypeAdminSignup && tokenType != TokenTypeUserSignup {
+		return "", nil, fmt.Errorf("unsupported signup token type: %d", tokenType)
+	}
+	if ttl <= 0 {
+		return "", nil, fmt.Errorf("token ttl must be positive")
+	}
+	if maxUses <= 0 {
+		return "", nil, fmt.Errorf("maxUses must be positive")
+	}
+
+	const tokenLength = 40
+	rawToken, hashedToken, preview, err := generateReadableToken(tokenLength)
+	if err != nil {
+		return "", nil, fmt.Errorf("failed to generate random token: %w", err)
+	}
+
+	expiresAt := time.Now().Add(ttl).Unix()
+	expiresIn := maxUses
+
+	token := &AuthToken{
+		Token:     hashedToken,
+		Expires:   true,
+		ExpiresAt: &expiresAt,
+		ExpiresIn: &expiresIn,
+		Preview:   preview,
+		Active:    true,
+		Type:      tokenType,
+		CreatedBy: creatorID,
+	}
+
+	switch tokenType {
+	case TokenTypeAdminSignup:
+		token.Name = "Admin signup link"
+		token.Description = "Invite link for creating administrator accounts"
+	case TokenTypeUserSignup:
+		token.Name = "User signup link"
+		token.Description = "Invite link for creating standard user accounts"
+	}
+
+	if err := d.CreateAuthToken(token); err != nil {
+		return "", nil, fmt.Errorf("failed to save token to database: %w", err)
+	}
+
+	return rawToken, token, nil
 }

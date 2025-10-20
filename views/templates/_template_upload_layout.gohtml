@@ -1,0 +1,14 @@
+<!--
+	Layout template: <upload-layout> uses this to create its two-column structure.
+	The layout custom element manages upload-area and upload-right children.
+-->
+<template id="upload-layout">
+	<section class="h-full w-full overflow-hidden md:flex md:flex-row">
+		<div class="px-2 w-full md:px-0 md:mr-8 md:w-1/2">
+			<upload-area></upload-area>
+		</div>
+		<div class="mt-6 w-full md:w-1/2 md:-m-2">
+			<upload-right></upload-right>
+		</div>
+	</section>
+</template>

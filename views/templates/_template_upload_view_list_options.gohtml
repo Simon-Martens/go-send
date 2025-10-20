@@ -1,0 +1,60 @@
+<!-- Upload view: list options -->
+<template id="upload-view-list-options">
+	<div class="space-y-6" data-role="options-form">
+		<div data-role="expiry-container" class="text-sm font-medium text-grey-80 dark:text-grey-30">
+			<div class="font-medium mb-1.5 px-2" data-role="expiry-label-top">Expires after</div>
+			<div class="flex items-center gap-3">
+				<select data-role="download-limit" class="w-full rounded-xs border border-grey-30 bg-white px-2 py-2 text-sm dark:bg-grey-80 dark:border-grey-60"></select>
+				<span class="text-sm tracking-wide text-grey-80 dark:text-grey-30 font-medium px-2" data-role="or-label">or</span>
+				<select data-role="time-limit" class="w-full rounded-xs border border-grey-30 bg-white px-2 py-2 text-sm dark:bg-grey-80 dark:border-grey-60"></select>
+			</div>
+			<!-- Some languages have a different wording for this sentence -->
+			<div class="font-medium mt-1.5 text-right px-2" data-role="expiry-label-bottom"></div>
+		</div>
+		<div data-role="archive-name-container" class="hidden">
+			<label for="archive-name-input" class="px-2 block text-sm font-medium text-grey-80 dark:text-grey-20 mb-1.5 flex flex-row justify-between items-end">
+				<span id="archiveNameLabel" data-type="lang">Archive name</span>
+			</label>
+			<div class="relative">
+				<input
+					id="archive-name-input"
+					type="text"
+					data-role="archive-name"
+					class="w-full rounded-xs border border-grey-30 bg-white px-2 py-2 text-sm dark:bg-grey-80 dark:border-grey-60"
+					placeholder="Send-Archive"
+					maxlength="255"
+				/>
+				<span class="absolute inset-y-0 right-0 flex items-center pr-3 text-sm text-grey-60 dark:text-grey-40 pointer-events-none">
+					.zip
+				</span>
+			</div>
+			<div class="flex flex-row justify-end">
+				<div class="text-xs text-grey-60 dark:text-grey-40 align-baseline align-right mt-1.5" id="archiveNameHint" data-type="lang">The name recipients will see when downloading</div>
+			</div>
+			<div class="mt-1 text-xs text-red-600 dark:text-red-400 hidden" data-role="archive-name-error"></div>
+		</div>
+		<div>
+			<button type="button" class="flex items-center text-sm font-medium text-grey-80 dark:text-grey-20 cursor-pointer" data-role="password-toggle">
+				<span class="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-xs border border-grey-40 text-grey-70 dark:border-grey-60 dark:text-grey-30" data-role="password-toggle-icon">
+					<img src="/lock.svg" alt="" class="h-4 w-4" data-role="lock-icon" />
+				</span>
+				<span id="addPassword" data-type="lang">Add a password (optional)</span>
+			</button>
+			<div class="relative mt-2" data-role="password-field" hidden>
+				<input
+					id="password-input"
+					type="password"
+					autocomplete="off"
+					class="w-full rounded-xs border border-grey-30 bg-white px-3 py-2 text-sm dark:bg-grey-80 dark:border-grey-60"
+					placeholder="Enter password"
+					data-role="password"
+					maxlength="4096"
+				/>
+				<button type="button" class="absolute inset-y-0 right-0 flex w-10 items-center justify-center" data-role="password-visibility">
+					<img src="/eye.svg" alt="" class="h-5 w-5" data-role="password-visibility-icon" />
+				</button>
+			</div>
+			<div class="mt-1 text-xs text-grey-60" data-role="password-hint"></div>
+		</div>
+	</div>
+</template>

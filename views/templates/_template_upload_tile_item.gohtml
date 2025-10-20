@@ -1,0 +1,56 @@
+<!-- Upload view: list item -->
+<template id="upload-tile-item">
+	<li class="rounded-xs shadow-light bg-white p-4 dark:bg-grey-90 dark:border dark:border-grey-70" data-upload-id="">
+		<!-- Header: Icon, Name, Size, Delete -->
+		<div class="flex items-start w-full mb-2">
+			<i class="ri-file-line h-8 w-8 flex-shrink-0 text-primary text-3xl leading-8" data-role="file-icon"></i>
+			<div class="ml-4 flex-grow min-w-0">
+				<h3 class="text-base font-medium break-words" data-role="file-name"></h3>
+				<div class="text-sm opacity-75 pt-1" data-role="file-size"></div>
+			</div>
+			<button
+				type="button"
+				class="flex-shrink-0 ml-2 p-1 hover:text-red-500 focus:outline cursor-pointer"
+				data-action="delete"
+				data-type="lang"
+				title="Delete"
+			>
+				<i class="ri-delete-bin-line text-lg leading-4"></i>
+			</button>
+		</div>
+
+		<!-- Date and Expiry Info -->
+		<div class="text-sm opacity-75 w-full mb-2">
+			<span data-role="upload-date"></span><span data-role="date-separator" class="mx-1">·</span><span data-role="expiry-info"></span>
+		</div>
+
+		<!-- File Details (for multi-file uploads) -->
+		<div data-role="file-details"></div>
+
+		<!-- Divider -->
+		<hr class="w-full border-t my-4 dark:border-grey-70"/>
+
+		<!-- Actions -->
+		<div class="flex justify-between items-center w-full">
+			<a
+				class="flex items-baseline link-primary text-sm"
+				href=""
+				data-role="download-link"
+				data-type="lang"
+				title="Download"
+				tabindex="0"
+			>
+				<i class="ri-download-2-line h-4 w-4 mr-2 text-base leading-4"></i>
+				<span id="downloadButtonLabel" data-type="lang">Download</span>
+			</a>
+			<button
+				type="button"
+				class="link-primary text-sm flex items-center focus:outline cursor-pointer"
+				data-action="copy"
+			>
+				<i class="ri-file-copy-line h-4 w-4 mr-2 text-base leading-4" data-role="copy-icon"></i>
+				<span id="copyLinkButton" data-type="lang">Copy link</span>
+			</button>
+		</div>
+	</li>
+</template>

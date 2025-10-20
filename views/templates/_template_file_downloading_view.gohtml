@@ -1,0 +1,21 @@
+<!-- Download view: Progress indicator -->
+<template id="file-downloading-view">
+	<div class="w-full max-w-[82rem] px-4 md:px-8 flex justify-center">
+		<div class="flex flex-col bg-white dark:bg-grey-90 rounded-xs shadow-light p-6 w-full max-w-md md:max-w-3xl">
+			<!-- Archive info -->
+			<div class="w-full flex items-center mb-4">
+				<i class="ri-file-line h-10 w-10 flex-shrink-0 text-primary mr-4 text-4xl leading-10" data-role="file-icon"></i>
+				<div class="flex-grow min-w-0">
+					<h3 class="text-base font-medium text-grey-90 dark:text-grey-10 break-words" data-role="file-name"></h3>
+					<div class="text-sm text-grey-70 dark:text-grey-40 pt-1" data-role="file-size"></div>
+				</div>
+			</div>
+
+			<!-- Progress percentage -->
+			<div class="link-primary text-sm font-medium mt-2" data-role="progress-percent">0%</div>
+
+			<!-- Progress bar -->
+			<progress class="my-3" value="0" max="1" data-role="progress-bar">0%</progress>
+		</div>
+	</div>
+</template>

@@ -1,0 +1,43 @@
+<!-- Footer: <app-footer> displays site footer with branding, links, and auth state -->
+<template id="app-footer">
+	<footer class="flex flex-col md:flex-row items-start w-full flex-none self-start px-6 mb-12 font-medium text-xs md:items-center justify-between">
+		<ul class="flex flex-col md:flex-row items-start md:items-center md:justify-start">
+			<li class="m-2 flex items-center gap-4 text-xs md:text-sm">
+				<a href="/"><span data-role="brand" class="italic font-bold">Go Send</span></a>
+				<div data-role="status-dot" class="status-dot status-dot-green"></div>
+				<span data-role="username" class="font-bold hidden"></span>
+				<span data-role="auth-separator" class="text-grey-50 dark:text-grey-50">|</span>
+				<a href="/login" data-role="auth-link" data-no-new-tab class="text-grey-70 dark:text-grey-40 hover:text-grey-90 dark:hover:text-grey-10 cursor-pointer">
+					<span id="footerLinkLogin" data-role="auth-label" data-type="lang">Sign in</span>
+				</a>
+			</li>
+		</ul>
+		<ul class="flex flex-col md:flex-row items-start md:items-center md:justify-end">
+            <li class="m-2 hidden" data-if-settings>
+                <a href="/settings" data-role="settings-link" data-no-new-tab class="text-grey-70 dark:text-grey-40 hover:text-grey-90 dark:hover:text-grey-10 cursor-pointer">
+                    <span id="footerLinkSettings" data-type="lang">Settings</span>
+                </a>
+            </li>
+			<li class="m-2 hidden" data-if-cli>
+				<a href="" data-role="cli-link" target="_blank">
+					<span id="footerLinkCli" data-type="lang">CLI</span>
+				</a>
+			</li>
+			<li class="m-2 hidden" data-if-dmca>
+				<a href="" data-role="dmca-link" target="_blank">
+					<span id="footerLinkDmca" data-type="lang">DMCA</span>
+				</a>
+			</li>
+			<li class="m-2 hidden" data-if-source>
+				<a href="" data-role="source-link-footer" target="_blank">
+					<span id="footerLinkSource" data-type="lang">Source</span>
+				</a>
+			</li>
+			<li class="m-2 max-w-[80ch] hyphens-auto hidden" data-if-custom>
+				<a href="" data-role="custom-link" target="_blank">
+					<span data-role="custom-text"></span>
+				</a>
+			</li>
+		</ul>
+	</footer>
+</template>

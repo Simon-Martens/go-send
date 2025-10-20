@@ -1,0 +1,47 @@
+<!-- Upload view: success -->
+<template id="upload-view-complete">
+	<div class="flex flex-col items-center justify-center bg-white dark:bg-grey-90 rounded-xs shadow-light h-full w-full px-6 py-8">
+		<div class="w-full max-w-md space-y-6">
+			<div class="text-center space-y-2">
+				<h2 class="text-xl font-bold text-grey-90 dark:text-grey-10 flex items-center justify-center gap-2">
+					<i class="ri-checkbox-circle-fill text-green-600 dark:text-green-400 text-2xl leading-6"></i>
+					<span id="notifyUploadEncryptDone" data-type="lang">Your file is encrypted and ready to send</span>
+				</h2>
+			</div>
+
+			<div class="text-center">
+				<p class="text-base font-medium text-grey-90 dark:text-grey-10 break-words" data-role="filename"></p>
+			</div>
+
+			<div class="flex justify-center" data-role="qr-container">
+				<!-- QR code will be injected here by JavaScript -->
+			</div>
+
+			<div class="space-y-3">
+				<div class="flex gap-2">
+					<input
+						type="text"
+						readonly
+						class="flex-1 rounded-xs border border-grey-30 bg-white px-3 py-2 text-sm dark:bg-grey-80 dark:border-grey-60 font-mono"
+						data-role="download-link"
+					/>
+					<button
+						type="button"
+						class="rounded-xs border border-grey-30 bg-white dark:bg-grey-80 dark:border-grey-60 px-3 py-2 flex items-center justify-center hover:bg-grey-10 dark:hover:bg-grey-70 focus:outline focus:outline-2 focus:outline-primary cursor-pointer"
+						data-action="copy"
+					>
+						<i class="ri-file-copy-line text-lg leading-4" data-role="copy-icon"></i>
+					</button>
+				</div>
+
+				<button
+					type="button"
+					class="btn w-full"
+					data-action="ok"
+				>
+					<span id="okButton" data-type="lang">OK</span>
+				</button>
+			</div>
+		</div>
+	</div>
+</template>

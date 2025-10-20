@@ -8,15 +8,15 @@ import (
 
 // Session represents a session record in the database
 type Session struct {
-	ID          int64   `json:"id"`
-	Token       string  `json:"-"` // Never expose in JSON
-	LastSeen    int64   `json:"last_seen"`
-	LastIP      string  `json:"last_ip"`
-	ExpiresAt   int64   `json:"expires_at"`
-	CreatedAt   int64   `json:"created_at"`
-	UpdatedAt   int64   `json:"updated_at"`
-	UserID      *int64  `json:"user_id,omitempty"`
-	AuthTokenID *int64  `json:"auth_token_id,omitempty"`
+	ID          int64  `json:"id"`
+	Token       string `json:"-"` // Never expose in JSON
+	LastSeen    int64  `json:"last_seen"`
+	LastIP      string `json:"last_ip"`
+	ExpiresAt   int64  `json:"expires_at"`
+	CreatedAt   int64  `json:"created_at"`
+	UpdatedAt   int64  `json:"updated_at"`
+	UserID      *int64 `json:"user_id,omitempty"`
+	AuthTokenID *int64 `json:"auth_token_id,omitempty"`
 }
 
 // IsUserSession returns true if this session is associated with a user account
@@ -377,6 +377,18 @@ func (d *DB) DeleteSessionsByAuthToken(authTokenID int64) error {
 	query := `DELETE FROM sessions WHERE auth_token_id = ?`
 	_, err := d.db.Exec(query, authTokenID)
 	return err
+}
+
+// CountActiveSessionsByUser returns the number of active (non-expired) sessions for a user.
+func (d *DB) CountActiveSessionsByUser(userID int64) (int, error) {
+	query := `
+		SELECT COUNT(*)
+		FROM sessions
+		WHERE user_id = ? AND expires_at > ?
+	`
+	var count int
+	err := d.db.QueryRow(query, userID, time.Now().Unix()).Scan(&count)
+	return count, err
 }
 
 // CleanupExpiredSessions removes all expired sessions

@@ -4,6 +4,12 @@ import { arrayToB64, b64ToArray } from "./utils.mjs";
 export const OWNER_SECRET_VERSION = 1;
 export const APP_VERSION = "1.0.0";
 
+export const USER_ROLES = {
+  ADMIN: 0,
+  USER: 1,
+  GUEST: 2,
+};
+
 const USER_STORAGE_KEY = "user_state";
 const WRAP_NONCE_LENGTH = 12;
 const encoder = new TextEncoder();

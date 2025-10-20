@@ -3003,6 +3003,11 @@ var hash_to_ristretto255 = /* @__PURE__ */ (() => ristretto255_hasher.hashToCurv
 // src/userSecrets.mjs
 var OWNER_SECRET_VERSION = 1;
 var APP_VERSION = "1.0.0";
+var USER_ROLES = {
+  ADMIN: 0,
+  USER: 1,
+  GUEST: 2
+};
 var USER_STORAGE_KEY = "user_state";
 var WRAP_NONCE_LENGTH = 12;
 var encoder = new TextEncoder();
@@ -4510,6 +4515,7 @@ export {
   x25519,
   OWNER_SECRET_VERSION,
   APP_VERSION,
+  USER_ROLES,
   UserSecrets,
   storage_default
 };
@@ -4526,4 +4532,4 @@ export {
 @noble/curves/esm/ed25519.js:
   (*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
 */
-//# sourceMappingURL=chunk-H5HVRYHI.js.map
+//# sourceMappingURL=chunk-3WB5XX6J.js.map

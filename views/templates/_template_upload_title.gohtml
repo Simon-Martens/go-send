@@ -1,0 +1,18 @@
+<!-- Upload view: right side title -->
+<template id="upload-title">
+	<div class="flex flex-col items-center justify-center px-6 md:py-0 py-6 mb-0 h-full w-full">
+		<div class="mt-12 flex flex-col h-full w-full">
+			<slot name="custom-notice"></slot>
+			<h1 class="text-3xl font-bold md:pb-2">
+				<span id="introTitle" data-type="lang">
+					Simple, private file sharing
+				</span>
+			</h1>
+			<p class="max-w-sm text-base/7 mt-6 md:mt-2 max-w-[80xh] hyphens-auto">
+				<span id="introDescription" data-type="lang">
+					Go Send lets you share files with end-to-end encryption and a link that automatically expires. So you can keep what you share private and make sure your stuff doesn't stay online forever.
+				</span>
+			</p>
+		</div>
+	</div>
+</template>

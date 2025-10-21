@@ -10,7 +10,7 @@
 				<div class="relative">
 					<!-- Untrusted computer warning bubble -->
 					<div data-role="untrusted-warning" class="hidden absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-orange-500 text-white text-xs rounded-lg whitespace-nowrap shadow-lg">
-						<span id="footerUntrustedWarning" data-role="warning-text">This computer isn't trusted! Remember to sign out!</span>
+						<span id="uploadGuestBannerMessageEphemeral" data-type="lang" data-role="warning-text">This computer isn't trusted! Remember to sign out!</span>
 						<!-- Triangle pointer -->
 						<div data-role="warning-pointer" class="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-8 border-transparent border-t-orange-500"></div>
 					</div>
@@ -26,11 +26,6 @@
                     <span id="footerLinkSettings" data-type="lang">Settings</span>
                 </a>
             </li>
-			<li class="m-2 hidden" data-if-cli>
-				<a href="" data-role="cli-link" target="_blank">
-					<span id="footerLinkCli" data-type="lang">CLI</span>
-				</a>
-			</li>
 			<li class="m-2 hidden" data-if-dmca>
 				<a href="" data-role="dmca-link" target="_blank">
 					<span id="footerLinkDmca" data-type="lang">DMCA</span>

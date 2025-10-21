@@ -2,7 +2,7 @@ import {
   Keychain,
   OwnedFile,
   storage_default
-} from "./chunk-BXQMQ3VC.js";
+} from "./chunk-DP6HAB66.js";
 import {
   arrayToB64,
   b64ToArray
@@ -100,4 +100,4 @@ async function syncOwnedFiles(userSecrets, options = {}) {
 export {
   syncOwnedFiles
 };
-//# sourceMappingURL=chunk-RQ7QWOKL.js.map
+//# sourceMappingURL=chunk-25OO5UXV.js.map

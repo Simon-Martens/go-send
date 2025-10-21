@@ -15,7 +15,7 @@
 							<input id="upload-link-label" type="text" class="w-full rounded border border-grey-40 dark:border-grey-70 bg-white dark:bg-grey-80 px-3 py-2 text-sm text-grey-90 dark:text-grey-10 focus:outline-none focus:ring-2 focus:ring-primary" maxlength="120" data-role="upload-links-label" data-placeholder-id="settingsUploadLinksLabelPlaceholder" placeholder="Link name">
 							<p class="mt-1 text-xs text-grey-60 dark:text-grey-40"><span id="settingsUploadLinksLabelHint" data-type="lang">Use a descriptive name so you can recognize the link later. The recipient will see the label.</span></p>
 						</div>
-						<div class="flex flex-col gap-1">
+						<div class="flex flex-col gap-1" data-role="general-option" data-admin-only>
 							<div class="flex items-center gap-2">
 								<input type="checkbox" id="upload-link-general" class="w-4 h-4 rounded border-grey-40 dark:border-grey-70 text-primary focus:ring-2 focus:ring-primary cursor-pointer" data-role="upload-links-general">
 								<label for="upload-link-general" class="text-sm font-medium text-grey-80 dark:text-grey-30 cursor-pointer"><span id="settingsUploadLinksGeneralLabel" data-type="lang">General upload link</span></label>
@@ -67,10 +67,9 @@
 				<div class="flex items-center justify-between px-5 py-4 border-b border-grey-30 dark:border-grey-70">
 					<div>
 						<h3 class="text-lg font-semibold text-grey-90 dark:text-grey-10"><span id="settingsUploadLinksTableHeading" data-type="lang">Issued links</span></h3>
-						<p class="text-xs uppercase tracking-wide text-grey-60 dark:text-grey-40"><span id="settingsUploadLinksTableSubheading" data-type="lang">Active guest upload tokens</span></p>
 					</div>
 				</div>
-				<div class="overflow-x-auto">
+				<div class="overflow-auto">
 						<table class="min-w-full divide-y divide-grey-30 dark:divide-grey-70 text-left text-sm">
 							<thead class="bg-grey-10/80 dark:bg-grey-80/50 text-xs uppercase tracking-wide text-grey-60 dark:text-grey-40">
 								<tr>

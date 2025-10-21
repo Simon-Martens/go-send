@@ -1,6 +1,6 @@
 import {
   syncOwnedFiles
-} from "./chunks/chunk-RQ7QWOKL.js";
+} from "./chunks/chunk-25OO5UXV.js";
 import {
   APP_VERSION,
   Keychain,
@@ -9,7 +9,7 @@ import {
   USER_ROLES,
   UserSecrets,
   storage_default
-} from "./chunks/chunk-BXQMQ3VC.js";
+} from "./chunks/chunk-DP6HAB66.js";
 import {
   blobStream,
   concatStream,
@@ -1822,12 +1822,12 @@ var localeLoaders = {
   cs: () => import("./chunks/cs-4CHTXZSU.js"),
   cy: () => import("./chunks/cy-RP2L2OUK.js"),
   da: () => import("./chunks/da-DPZF5LGO.js"),
-  de: () => import("./chunks/de-OJJM42WX.js"),
+  de: () => import("./chunks/de-IE7N4RHW.js"),
   dsb: () => import("./chunks/dsb-L7O73QFV.js"),
   el: () => import("./chunks/el-4RABOQBG.js"),
   "en-CA": () => import("./chunks/en-CA-DJ4OOLA4.js"),
   "en-GB": () => import("./chunks/en-GB-D7G7RTNJ.js"),
-  "en-US": () => import("./chunks/en-US-G4AD5BIX.js"),
+  "en-US": () => import("./chunks/en-US-N7S6AT2C.js"),
   "es-AR": () => import("./chunks/es-AR-6PZGYKH3.js"),
   "es-CL": () => import("./chunks/es-CL-HE4SPZ7U.js"),
   "es-ES": () => import("./chunks/es-ES-XGWIURD2.js"),
@@ -1836,7 +1836,7 @@ var localeLoaders = {
   eu: () => import("./chunks/eu-Q6CLLOH3.js"),
   fa: () => import("./chunks/fa-AEOEUDQ4.js"),
   fi: () => import("./chunks/fi-SI2D7DPR.js"),
-  fr: () => import("./chunks/fr-6IGR37R5.js"),
+  fr: () => import("./chunks/fr-REVADZYQ.js"),
   "fy-NL": () => import("./chunks/fy-NL-C7AQWS3X.js"),
   gn: () => import("./chunks/gn-6SZWZLYL.js"),
   gor: () => import("./chunks/gor-4LJ2LDF3.js"),
@@ -1896,7 +1896,7 @@ var localeLoaders = {
 };
 async function getTranslator(locale2) {
   const bundles = [];
-  const { default: en } = await import("./chunks/en-US-G4AD5BIX.js");
+  const { default: en } = await import("./chunks/en-US-N7S6AT2C.js");
   if (locale2 !== "en-US" && localeLoaders[locale2]) {
     const { default: ftl } = await localeLoaders[locale2]();
     bundles.push(makeBundle(locale2, ftl));
@@ -2167,7 +2167,7 @@ var Controller = class {
     this.root.addEventListener("updateoptions", this.handleUpdateOptions);
     this.root.addEventListener("metadata-request", this.handleMetadataRequest);
     this.root.addEventListener("download-start", this.handleDownloadStart);
-    this.intervals.push(setInterval(() => this.checkFiles(), 2 * 60 * 1e3));
+    this.intervals.push(setInterval(() => this.checkFiles(), 60 * 1e3));
     this.intervals.push(
       setInterval(() => this.rerenderCountdowns(), 60 * 1e3)
     );
@@ -2408,8 +2408,21 @@ var Controller = class {
    * Called periodically and on initial load
    */
   async checkFiles() {
+    let needsRender = false;
+    if (this.state.storage.user) {
+      try {
+        const fileCountBefore = this.state.storage.files.length;
+        await syncOwnedFiles(this.state.storage.user);
+        const fileCountAfter = this.state.storage.files.length;
+        if (fileCountAfter > fileCountBefore) {
+          needsRender = true;
+        }
+      } catch (err) {
+        console.warn("[Controller] Failed to sync file list from server", err);
+      }
+    }
     const changes = await this.state.storage.merge();
-    if (changes.downloadCount || changes.outgoing) {
+    if (changes.downloadCount || changes.outgoing || changes.incoming || needsRender) {
       this.render();
     }
   }
@@ -2845,17 +2858,6 @@ var AppFooter = class extends HTMLElement {
     } else {
       if (customLi) hideElement(customLi);
     }
-    const cliLi = this.querySelector("[data-if-cli]");
-    const cliLink = this.querySelector('[data-role="cli-link"]');
-    if (this.config.CLIURL) {
-      if (cliLink) {
-        cliLink.href = this.config.CLIURL;
-        cliLink.target = "_blank";
-      }
-      if (cliLi) showElement(cliLi);
-    } else {
-      if (cliLi) hideElement(cliLi);
-    }
     const dmcaLi = this.querySelector("[data-if-dmca]");
     const dmcaLink = this.querySelector('[data-role="dmca-link"]');
     if (this.config.DMCAURL) {
@@ -2924,10 +2926,7 @@ var AppFooter = class extends HTMLElement {
             const warningText = untrustedWarning.querySelector('[data-role="warning-text"]') || untrustedWarning;
             const guestOnly = hasGuest && !user;
             const key = guestOnly ? "uploadGuestBannerMessageGuest" : "uploadGuestBannerMessageEphemeral";
-            warningText.textContent = this._translate(
-              key,
-              guestOnly ? "Remember to logout on untrusted devices!" : "This computer isn't trusted! Remember to sign out!"
-            );
+            warningText.id = key;
             const baseClasses = "absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 text-xs rounded-lg whitespace-nowrap shadow-lg";
             const pointer = untrustedWarning.querySelector('[data-role="warning-pointer"]');
             if (guestOnly) {
@@ -2987,8 +2986,8 @@ async function initUploadRoute(app) {
   console.log("[Route] Initializing upload page...");
   await Promise.all([
     import("./chunks/upload-layout-DFS3ROWS.js"),
-    import("./chunks/upload-area-PAJRVA5T.js"),
-    import("./chunks/upload-right-Q42GQV7H.js"),
+    import("./chunks/upload-area-SFX4UWWK.js"),
+    import("./chunks/upload-right-YQSJADFZ.js"),
     app.controller.ready
   ]);
   app.showUploadLayout();
@@ -3011,7 +3010,7 @@ async function initDownloadRoute(app) {
 async function initRegisterRoute(app) {
   console.log("[Route] Initializing register page...");
   await Promise.all([
-    import("./chunks/register-layout-4MBGLU4V.js"),
+    import("./chunks/register-layout-W6KBX4OX.js"),
     app.controller.ready
   ]);
   app.showRegisterLayout();
@@ -3020,7 +3019,7 @@ async function initRegisterRoute(app) {
 async function initLoginRoute(app) {
   console.log("[Route] Initializing login page...");
   await Promise.all([
-    import("./chunks/login-layout-JOA4D65O.js"),
+    import("./chunks/login-layout-YJFRVD74.js"),
     app.controller.ready
   ]);
   app.showLoginLayout();
@@ -3029,10 +3028,10 @@ async function initLoginRoute(app) {
 async function initSettingsRoute(app) {
   console.log("[Route] Initializing settings page...");
   await Promise.all([
-    import("./chunks/settings-layout-GF66JEEO.js"),
-    import("./chunks/settings-account-panel-CHEFSIKW.js"),
-    import("./chunks/settings-upload-links-panel-ZZDHCNVQ.js"),
-    import("./chunks/settings-users-panel-4Q7BRS4M.js"),
+    import("./chunks/settings-layout-FPMRWELA.js"),
+    import("./chunks/settings-account-panel-C3MYSXGV.js"),
+    import("./chunks/settings-upload-links-panel-4DGLXSVV.js"),
+    import("./chunks/settings-users-panel-EEEV7WS4.js"),
     app.controller.ready
   ]);
   app.showSettingsLayout();

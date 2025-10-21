@@ -895,6 +895,9 @@ class SettingsUsersPanel extends HTMLElement {
       }
     }
 
+    // Translate the row elements
+    translateElement(row);
+
     return row;
   }
 

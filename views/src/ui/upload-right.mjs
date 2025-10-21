@@ -209,6 +209,23 @@ class UploadRightElement extends HTMLElement {
       );
     }
 
+    // Hide copy button and show recipient notice for files with recipients
+    const recipientNotice = item.querySelector('[data-role="recipient-notice"]');
+    if (ownedFile.recipients && ownedFile.recipients.length > 0) {
+      // File has recipients - hide copy button, show notice
+      if (copyBtn) {
+        copyBtn.classList.add("hidden");
+      }
+      if (recipientNotice) {
+        recipientNotice.classList.remove("hidden");
+      }
+    } else {
+      // No recipients - keep copy button visible (default behavior)
+      if (recipientNotice) {
+        recipientNotice.classList.add("hidden");
+      }
+    }
+
     // Prepend to list (newest first)
     this.elements.uploadList.prepend(li);
 

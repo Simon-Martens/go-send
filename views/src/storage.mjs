@@ -170,10 +170,7 @@ class Storage {
       throw new Error("Expected UserSecrets instance");
     }
     this._user = user;
-    this.engine.setItem(
-      getUserStorageKey(),
-      JSON.stringify(user.toJSON()),
-    );
+    this.engine.setItem(getUserStorageKey(), JSON.stringify(user.toJSON()));
   }
 
   clearUser() {
@@ -201,7 +198,7 @@ class Storage {
       for (let i = 0; i < this.engine.length; i++) {
         keys.push(this.engine.key(i));
       }
-      keys.forEach(k => this.engine.removeItem(k));
+      keys.forEach((k) => this.engine.removeItem(k));
     }
   }
 
@@ -256,7 +253,10 @@ class Storage {
       return; // Can't persist preference without localStorage
     }
     try {
-      this._trustStorage.setItem("trust_this_computer", trusted ? "true" : "false");
+      this._trustStorage.setItem(
+        "trust_this_computer",
+        trusted ? "true" : "false",
+      );
     } catch (e) {
       console.warn("[Storage] Failed to persist trust preference", e);
     }

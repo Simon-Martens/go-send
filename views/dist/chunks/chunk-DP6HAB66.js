@@ -3662,10 +3662,7 @@ var Storage = class {
       throw new Error("Expected UserSecrets instance");
     }
     this._user = user;
-    this.engine.setItem(
-      getUserStorageKey(),
-      JSON.stringify(user.toJSON())
-    );
+    this.engine.setItem(getUserStorageKey(), JSON.stringify(user.toJSON()));
   }
   clearUser() {
     this._user = null;
@@ -3737,7 +3734,10 @@ var Storage = class {
       return;
     }
     try {
-      this._trustStorage.setItem("trust_this_computer", trusted ? "true" : "false");
+      this._trustStorage.setItem(
+        "trust_this_computer",
+        trusted ? "true" : "false"
+      );
     } catch (e) {
       console.warn("[Storage] Failed to persist trust preference", e);
     }
@@ -3811,4 +3811,4 @@ export {
 @noble/curves/esm/ed25519.js:
   (*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
 */
-//# sourceMappingURL=chunk-BXQMQ3VC.js.map
+//# sourceMappingURL=chunk-DP6HAB66.js.map

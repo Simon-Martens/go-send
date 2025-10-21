@@ -53,54 +53,48 @@ type uploadLinkRevokeResponse struct {
 	Message string `json:"message,omitempty"`
 }
 
-func NewAdminUploadLinksHandler(app *core.App) http.HandlerFunc {
+func NewUploadLinksHandler(app *core.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		session, ok := requireAdminUser(app, w, r)
+		session, user, ok := requireNonGuestUser(app, w, r)
 		if !ok {
 			return
 		}
 
 		switch r.Method {
-		case http.MethodGet:
-			handleUploadLinksList(app, w, r)
 		case http.MethodPost:
-			handleUploadLinksCreate(app, w, r, session)
+			handleUploadLinksCreate(app, w, r, session, user)
+		case http.MethodGet:
+			handleUploadLinksList(app, w, r, user)
+		case http.MethodDelete:
+			// Support both old and new paths during migration
+			path := strings.TrimPrefix(r.URL.Path, "/api/upload-links/")
+			if path == r.URL.Path {
+				path = strings.TrimPrefix(r.URL.Path, "/api/admin/upload-links/")
+			}
+			if path == "" || path == r.URL.Path {
+				http.Error(w, "Not Found", http.StatusNotFound)
+				return
+			}
+			id, err := strconv.ParseInt(path, 10, 64)
+			if err != nil || id <= 0 {
+				http.Error(w, "Invalid link ID", http.StatusBadRequest)
+				return
+			}
+			handleUploadLinkRevoke(app, w, r, id, session, user)
 		default:
 			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		}
 	}
 }
 
-func NewAdminUploadLinkHandler(app *core.App) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodDelete {
-			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
-			return
-		}
-
-		session, ok := requireAdminUser(app, w, r)
-		if !ok {
-			return
-		}
-
-		path := strings.TrimPrefix(r.URL.Path, "/api/admin/upload-links/")
-		if path == "" {
-			http.Error(w, "Not Found", http.StatusNotFound)
-			return
-		}
-
-		id, err := strconv.ParseInt(path, 10, 64)
-		if err != nil || id <= 0 {
-			http.Error(w, "Invalid link ID", http.StatusBadRequest)
-			return
-		}
-
-		handleUploadLinkRevoke(app, w, r, id, session)
+func handleUploadLinksList(app *core.App, w http.ResponseWriter, r *http.Request, user *storage.User) {
+	// Admins see all upload links, regular users only see their own
+	var createdBy *int64
+	if user.Role != storage.RoleAdmin {
+		createdBy = &user.ID
 	}
-}
 
-func handleUploadLinksList(app *core.App, w http.ResponseWriter, r *http.Request) {
-	links, err := app.DB.ListUploadLinksWithUsers()
+	links, err := app.DB.ListUploadLinksWithUsers(createdBy)
 	if err != nil {
 		app.Logger.Error("Upload links: failed to list tokens", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -132,7 +126,8 @@ func handleUploadLinksList(app *core.App, w http.ResponseWriter, r *http.Request
 	}
 }
 
-func handleUploadLinksCreate(app *core.App, w http.ResponseWriter, r *http.Request, session *storage.Session) {
+func handleUploadLinksCreate(app *core.App, w http.ResponseWriter, r *http.Request, session *storage.Session, user *storage.User) {
+	app.Logger.Debug("Upload links: create request", "user_id", user.ID, "session_id", session.ID)
 	var req uploadLinkCreateRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
@@ -148,6 +143,12 @@ func handleUploadLinksCreate(app *core.App, w http.ResponseWriter, r *http.Reque
 	tokenType := storage.AuthTokenType(req.Type)
 	if tokenType != storage.TokenTypeGeneralGuestUpload && tokenType != storage.TokenTypeSpecificGuestUpload {
 		http.Error(w, "Invalid type: must be 2 (general) or 3 (user-specific)", http.StatusBadRequest)
+		return
+	}
+
+	// Only admins can create general (Type 2) upload links
+	if tokenType == storage.TokenTypeGeneralGuestUpload && user.Role != storage.RoleAdmin {
+		http.Error(w, "Forbidden: only administrators can create general upload links", http.StatusForbidden)
 		return
 	}
 
@@ -194,7 +195,7 @@ func handleUploadLinksCreate(app *core.App, w http.ResponseWriter, r *http.Reque
 	}
 }
 
-func handleUploadLinkRevoke(app *core.App, w http.ResponseWriter, r *http.Request, tokenID int64, session *storage.Session) {
+func handleUploadLinkRevoke(app *core.App, w http.ResponseWriter, r *http.Request, tokenID int64, session *storage.Session, user *storage.User) {
 	token, err := app.DB.GetAuthTokenByID(tokenID)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -209,6 +210,12 @@ func handleUploadLinkRevoke(app *core.App, w http.ResponseWriter, r *http.Reques
 	// Allow revoking both general (type 2) and user-specific (type 3) upload links
 	if token.Type != storage.TokenTypeGeneralGuestUpload && token.Type != storage.TokenTypeSpecificGuestUpload {
 		http.Error(w, "Invalid token type", http.StatusBadRequest)
+		return
+	}
+
+	// Non-admin users can only revoke their own upload links
+	if user.Role != storage.RoleAdmin && token.CreatedBy != user.ID {
+		http.Error(w, "Forbidden: you can only revoke upload links you created", http.StatusForbidden)
 		return
 	}
 

@@ -4,7 +4,7 @@ import {
 import {
   USER_ROLES,
   storage_default
-} from "./chunk-BXQMQ3VC.js";
+} from "./chunk-DP6HAB66.js";
 import "./chunk-PC246CWX.js";
 import {
   copyToClipboard,
@@ -761,6 +761,7 @@ var SettingsUsersPanel = class extends HTMLElement {
         deleteButton.title = translate("settingsUsersActionDeleteSelfTooltip");
       }
     }
+    translateElement(row);
     return row;
   }
   _getDisplayName(user) {
@@ -1080,4 +1081,4 @@ var SettingsUsersPanel = class extends HTMLElement {
   }
 };
 customElements.define("settings-users-panel", SettingsUsersPanel);
-//# sourceMappingURL=settings-users-panel-4Q7BRS4M.js.map
+//# sourceMappingURL=settings-users-panel-EEEV7WS4.js.map

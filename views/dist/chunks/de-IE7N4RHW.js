@@ -52,24 +52,24 @@ passwordSetError = Dieses Passwort konnte nicht eingerichtet werden
 -mozilla = Mozilla
 introTitle = Einfach und privat Dateien versenden
 introDescription = Mit { -send-brand } k\xF6nnen Sie Dateien sicher mit anderen teilen \u2013 mit Ende-zu-Ende-Verschl\xFCsselung und einem Freigabe-Link, der automatisch abl\xE4uft. So bleiben Ihre geteilten Daten privat und Sie k\xF6nnen sicherstellen, dass Ihre Daten nicht f\xFCr immer im Web herumschwirren.
-uploadGuestBannerMessageGuest = Denken Sie daran, sich auf unvertrauensw\xFCrdigen Ger\xE4ten abzumelden!
-uploadGuestBannerMessageEphemeral = Dieser Computer ist nicht vertrauensw\xFCrdig! Bitte melden Sie sich ab!
+uploadGuestBannerMessageGuest = Bitte denken Sie an \xF6ffentlichen Ger\xE4ten daran, sich abzumelden!
+uploadGuestBannerMessageEphemeral = Dieses Ger\xE4t ist nicht vertrauensw\xFCrdig. Bitte denken Sie daran, sich abzumelden!
 notifyUploadEncryptDone = Ihre Datei wurde verschl\xFCsselt
 # downloadCount is from the downloadCount string and timespan is a timespanMinutes string. ex. 'Expires after 2 downloads or 25 minutes'
 archiveExpiryInfo = L\xE4uft nach { $downloadCount } oder { $timespan } ab
 timespanMinutes =
     { $num ->
-        [one] 1 Minute
+        [one] einer Minute
        *[other] { $num } Minuten
     }
 timespanDays =
     { $num ->
-        [one] 1 Tag
-       *[other] { $num } Tage
+        [one] einem Tag
+       *[other] { $num } Tagen
     }
 timespanWeeks =
     { $num ->
-        [one] 1 Woche
+        [one] einer Woche
        *[other] { $num } Wochen
     }
 fileCount =
@@ -114,7 +114,7 @@ legalTitle = Datenschutzerkl\xE4rung zu { -send-short-brand }
 legalDateStamp = Version 1.0, Stand 12. M\xE4rz 2019
 # A short representation of a countdown timer containing the number of days, hours, and minutes remaining as digits, example "2d 11h 56m"
 expiresDaysHoursMinutes = { $days }d { $hours }h { $minutes }m
-addFilesButton = Dateien zum Hochladen ausw\xE4hlen
+addFilesButton = Dateien ausw\xE4hlen
 uploadButton = Hochladen
 # the first part of the string 'Drag and drop files or click to send up to 1GB'
 dragAndDropFiles = Dateien per Drag & Drop einf\xFCgen
@@ -194,7 +194,7 @@ settingsDialogTitle = Einstellungen
 settingsDialogDescription = Verwalten Sie Ihre Kontoeinstellungen und Teammitglieder.
 settingsBackButton = Upload
 settingsNavAccount = Konto
-settingsNavUploadLinks = Upload-Links
+settingsNavUploadLinks = Upload-Tickets
 settingsNavUsers = Benutzer
 settingsAccountHeading = Konto
 settingsAccountSubheading = Verwalten Sie Ihre Profildaten, Ihr Passwort und Ihre Anmeldesitzungen.
@@ -215,16 +215,16 @@ settingsAccountDangerDescription = L\xF6schen Sie Ihre aktuelle Sitzung oder dea
 settingsAccountClearSessions = Sitzung l\xF6schen
 settingsAccountDeactivate = Konto deaktivieren
 settingsUsersHeading = Benutzer
-settingsUsersIntro = Stellen Sie Einladungslinks f\xFCr neue Administratoren oder Standardbenutzer aus. Die Links laufen nach 7\xA0Tagen ab und k\xF6nnen nur einmal verwendet werden.
+settingsUsersIntro = Ihr Server ist derzeit nicht \xF6ffentlich zug\xE4nglich. Unter diesen Links k\xF6nnen neue Administratoren und Benutzer erstellt werden. Ausschlie\xDFlich Administratoren k\xF6nnen neue Benutzer einladen. Die Links sind sieben Tage g\xFCltig und k\xF6nnen nur einmal verwendet werden.
 settingsUsersAdminTitle = Administrator-Anmeldelinks
-settingsUsersAdminDescription = Erstellen Sie einmalige Einladungen f\xFCr Administrator-Konten.
+settingsUsersAdminDescription = Erstellen Sie Einladungen f\xFCr Administrator-Konten.
 settingsUsersUserTitle = Benutzer-Anmeldelinks
-settingsUsersUserDescription = Erstellen Sie einmalige Einladungen f\xFCr Standardbenutzer.
+settingsUsersUserDescription = Erstellen Sie Einladungen f\xFCr Standardbenutzer.
 settingsUsersActiveLinksLabel = Aktive Links
-settingsUsersGenerateAdmin = Admin-Link erstellen
-settingsUsersGenerateUser = Benutzer-Link erstellen
-settingsUsersRevokeAdmin = Admin-Links widerrufen
-settingsUsersRevokeUser = Benutzer-Links widerrufen
+settingsUsersGenerateAdmin = Link erstellen
+settingsUsersGenerateUser = Link erstellen
+settingsUsersRevokeAdmin = Links widerrufen
+settingsUsersRevokeUser = Links widerrufen
 settingsUsersGenerating = Anmeldelink wird erstellt \u2026
 settingsUsersGenerateSuccess = Anmeldelink erstellt.
 settingsUsersGenerateError = Anmeldelink konnte nicht erstellt werden. Bitte versuchen Sie es erneut.
@@ -238,7 +238,7 @@ settingsUsersQrError = QR-Code nicht verf\xFCgbar
 settingsUsersDetailBack = Zur\xFCck zu den Einladungen
 settingsUsersDetailHeadingAdmin = Admin-Anmeldelink
 settingsUsersDetailHeadingUser = Benutzer-Anmeldelink
-settingsUsersDetailDescription = Teilen Sie diesen Link. Er l\xE4uft am { $date } ab und kann nur einmal verwendet werden.
+settingsUsersDetailDescription = Teilen Sie diesen Link. Er l\xE4uft am { $date } Uhr ab und kann nur einmal verwendet werden.
 settingsUsersDetailActiveLabel = Aktive Links
 settingsUsersDetailFootnote = Jeder Einladungslink funktioniert nur einmal und l\xE4uft nach sieben Tagen automatisch ab.
 settingsUsersDetailCopySuccess = Link in die Zwischenablage kopiert.
@@ -280,8 +280,8 @@ settingsUsersRoleGuest = Gast
 settingsUsersRoleUnknown = Unbekannte Rolle
 settingsUsersStatusActive = Aktiv
 settingsUsersStatusInactive = Deaktiviert
-settingsUsersKeySigning = Signaturschl\xFCssel
-settingsUsersKeyEncryption = Verschl\xFCsselungsschl\xFCssel
+settingsUsersKeySigning = Signing Key
+settingsUsersKeyEncryption = Encryption Key
 settingsUsersKeyMissing = Nicht verf\xFCgbar
 settingsUsersNameFallback = Benutzer
 settingsUsersCurrentUserLabel = Sie
@@ -296,11 +296,11 @@ settingsAccountDangerStatusNotActive = Ihr Konto ist bereits deaktiviert.
 settingsAccountDangerStatusClearing = Sitzung wird gel\xF6scht \u2026
 settingsAccountDangerStatusDeactivating = Konto wird deaktiviert \u2026
 settingsAccountDangerStatusError = Anfrage konnte nicht abgeschlossen werden. Bitte versuchen Sie es erneut.
-settingsUploadLinksHeading = Upload-Links
-settingsUploadLinksDescription = G\xE4stelinks zum Hochladen erstellen und verwalten. Diese Links erm\xF6glichen Uploads ohne Anmeldung.
-settingsUploadLinksLabelLabel = Linkbezeichnung
-settingsUploadLinksLabelHint = Verwenden Sie einen aussagekr\xE4ftigen Namen, damit Sie den Link sp\xE4ter wiedererkennen.
-settingsUploadLinksLabelPlaceholder = Partnerbereich
+settingsUploadLinksHeading = Upload-Tickets
+settingsUploadLinksDescription = Erstellen Sie Zug\xE4nge f\xFCr G\xE4ste, die Ihnen Dateien schicken k\xF6nnen.
+settingsUploadLinksLabelLabel = Bezeichnung
+settingsUploadLinksLabelHint = Verwenden Sie eine aussagekr\xE4ftige Bezeichnung, wie etwa den Namen des Gastes, damit Sie den Link sp\xE4ter wiedererkennen. Diese Bezeichnung ist f\xFCr den Benutzer sichtbar.
+settingsUploadLinksLabelPlaceholder = Name
 settingsUploadLinksDescriptionLabel = Interne Notiz
 settingsUploadLinksDescriptionHint = Nur Administratoren k\xF6nnen diese Notiz sehen.
 settingsUploadLinksDescriptionPlaceholder = Optionale Details
@@ -339,11 +339,14 @@ settingsUploadLinksCreatedUnknown = Nicht verf\xFCgbar
 settingsUploadLinksPlaceholderTitle = Gast-Uploads
 settingsUploadLinksPlaceholderDescription = Administratoren k\xF6nnen Gast-Upload-Links f\xFCr gemeinsame Postf\xE4cher ausgeben. Sobald ein Link mit Ihnen geteilt wird, erscheint er hier.
 settingsUploadLinksGeneralLabel = Allgemeiner Upload-Link
-settingsUploadLinksGeneralHint = Erlaubt Uploads f\xFCr jeden Benutzer (allgemeiner Eingang)
+settingsUploadLinksGeneralHint = Erlaubt Uploads auch f\xFCr alle anderen Benutzer
 settingsUploadLinksTableType = Typ/Benutzer
 settingsUploadLinksTypeGeneral = Allgemein
 settingsUploadLinksTypeUserFallback = Benutzerspezifisch
 recipientLockedHint = Dieser Upload-Link ist auf Uploads f\xFCr { $userName } beschr\xE4nkt
+recipientHintSelected = Der Empf\xE4nger kann die Datei sehen, herunterladen und entschl\xFCsseln.
+encryptForLabel = An
+recipientUnspecified = Jeder mit dem Link
 settingsAccountDeactivateConfirm = M\xF6chten Sie Ihr Konto wirklich deaktivieren? Sie werden sofort abgemeldet.
 settingsAccountKeyHeading = Sicherung des privaten Schl\xFCssels
 settingsAccountKeyDescription = Kopieren Sie Ihren privaten Verschl\xFCsselungsschl\xFCssel und bewahren Sie ihn sicher auf. Ohne diesen Schl\xFCssel verlieren Sie den Zugriff auf verschl\xFCsselte Daten. Halten Sie ihn geheim.
@@ -375,7 +378,7 @@ loginTitle = Upload
 loginDescription = Geben Sie Ihre Zugangsdaten ein, um fortzufahren
 loginEmailLabel = E-Mail
 loginPasswordLabel = Passwort
-loginTrustComputerLabel = Diesem Computer vertrauen
+loginTrustComputerLabel = Diesem Ger\xE4t vertrauen
 loginTrustComputerHint = 30 Tage angemeldet bleiben
 loginSubmitButton = Anmelden
 loginSubmitting = Anmeldung l\xE4uft\u2026
@@ -387,6 +390,7 @@ loginErrorGeneric = Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.
 fileTileFrom = VON
 fileTileTo = AN
 fileTileGuest = Gast
+fileTileRecipientNotice = Der Empf\xE4nger meldet sich zum Download der Datei an
 
 footerLinkCli = CLI
 footerLinkDmca = DMCA
@@ -398,4 +402,4 @@ footerUntrustedWarning = Diesem Computer wird nicht vertraut! Denken Sie daran, 
 export {
   de_default as default
 };
-//# sourceMappingURL=de-OJJM42WX.js.map
+//# sourceMappingURL=de-IE7N4RHW.js.map

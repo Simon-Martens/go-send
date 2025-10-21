@@ -1,6 +1,6 @@
 import {
   storage_default
-} from "./chunk-BXQMQ3VC.js";
+} from "./chunk-DP6HAB66.js";
 import "./chunk-PC246CWX.js";
 import {
   bytes,
@@ -152,6 +152,19 @@ var UploadRightElement = class extends HTMLElement {
         "click",
         (e) => this._handleCopyClick(e, ownedFile.url)
       );
+    }
+    const recipientNotice = item.querySelector('[data-role="recipient-notice"]');
+    if (ownedFile.recipients && ownedFile.recipients.length > 0) {
+      if (copyBtn) {
+        copyBtn.classList.add("hidden");
+      }
+      if (recipientNotice) {
+        recipientNotice.classList.remove("hidden");
+      }
+    } else {
+      if (recipientNotice) {
+        recipientNotice.classList.add("hidden");
+      }
     }
     this.elements.uploadList.prepend(li);
     requestAnimationFrame(() => {
@@ -401,4 +414,4 @@ var UploadRightElement = class extends HTMLElement {
   }
 };
 customElements.define("upload-right", UploadRightElement);
-//# sourceMappingURL=upload-right-Q42GQV7H.js.map
+//# sourceMappingURL=upload-right-YQSJADFZ.js.map

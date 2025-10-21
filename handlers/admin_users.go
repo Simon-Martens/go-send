@@ -120,21 +120,21 @@ func NewAdminUserHandler(app *core.App) http.HandlerFunc {
 					http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 					return
 				}
-				handleAdminClearSessions(app, w, userID)
+				handleAdminClearSessions(app, w, r, userID)
 				return
 			case "deactivate":
 				if r.Method != http.MethodPost {
 					http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 					return
 				}
-				handleAdminDeactivateUser(app, w, userID, session)
+				handleAdminDeactivateUser(app, w, r, userID, session)
 				return
 			case "activate":
 				if r.Method != http.MethodPost {
 					http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 					return
 				}
-				handleAdminActivateUser(app, w, userID)
+				handleAdminActivateUser(app, w, r, userID)
 				return
 			}
 		}
@@ -168,6 +168,35 @@ func requireAdminUser(app *core.App, w http.ResponseWriter, r *http.Request) (*s
 
 	app.TouchSession(session, r)
 	return session, true
+}
+
+// requireNonGuestUser checks if the user is authenticated and not a guest (allows both admin and regular user roles)
+// Returns the session and user for further authorization checks
+func requireNonGuestUser(app *core.App, w http.ResponseWriter, r *http.Request) (*storage.Session, *storage.User, bool) {
+	session, err := app.GetAuthenticatedSession(r)
+	if err != nil {
+		app.Logger.Warn("Auth: failed to resolve session", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return nil, nil, false
+	}
+	if session == nil || session.UserID == nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return nil, nil, false
+	}
+
+	user, err := app.DB.GetUser(*session.UserID)
+	if err != nil {
+		app.Logger.Error("Auth: failed to load user", "error", err, "user_id", *session.UserID)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return nil, nil, false
+	}
+	if user.Role == storage.RoleGuest {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return nil, nil, false
+	}
+
+	app.TouchSession(session, r)
+	return session, user, true
 }
 
 func handleAdminDeleteUser(app *core.App, w http.ResponseWriter, r *http.Request, targetUserID int64, session *storage.Session) {
@@ -209,7 +238,7 @@ func handleAdminDeleteUser(app *core.App, w http.ResponseWriter, r *http.Request
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func handleAdminClearSessions(app *core.App, w http.ResponseWriter, userID int64) {
+func handleAdminClearSessions(app *core.App, w http.ResponseWriter, r *http.Request, userID int64) {
 	exists, err := app.DB.UserExists(userID)
 	if err != nil {
 		app.Logger.Error("Admin users: failed to verify user for session clear", "error", err, "user_id", userID)
@@ -227,10 +256,14 @@ func handleAdminClearSessions(app *core.App, w http.ResponseWriter, userID int64
 		return
 	}
 
+	app.DBLogger.LogRequest(r, http.StatusNoContent, nil, "",
+		"action", "admin_clear_user_sessions",
+		"target_user_id", userID)
+
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func handleAdminDeactivateUser(app *core.App, w http.ResponseWriter, userID int64, session *storage.Session) {
+func handleAdminDeactivateUser(app *core.App, w http.ResponseWriter, r *http.Request, userID int64, session *storage.Session) {
 	if session.UserID != nil && *session.UserID == userID {
 		http.Error(w, "Cannot deactivate your own account", http.StatusBadRequest)
 		return
@@ -259,10 +292,14 @@ func handleAdminDeactivateUser(app *core.App, w http.ResponseWriter, userID int6
 		return
 	}
 
+	app.DBLogger.LogRequest(r, http.StatusNoContent, session.UserID, "",
+		"action", "admin_deactivate_user",
+		"target_user_id", userID)
+
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func handleAdminActivateUser(app *core.App, w http.ResponseWriter, userID int64) {
+func handleAdminActivateUser(app *core.App, w http.ResponseWriter, r *http.Request, userID int64) {
 	exists, err := app.DB.UserExists(userID)
 	if err != nil {
 		app.Logger.Error("Admin users: failed to verify user for activate", "error", err, "user_id", userID)
@@ -279,6 +316,10 @@ func handleAdminActivateUser(app *core.App, w http.ResponseWriter, userID int64)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
+
+	app.DBLogger.LogRequest(r, http.StatusNoContent, nil, "",
+		"action", "admin_activate_user",
+		"target_user_id", userID)
 
 	w.WriteHeader(http.StatusNoContent)
 }

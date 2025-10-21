@@ -1,7 +1,7 @@
 import {
   USER_ROLES,
   storage_default
-} from "./chunk-BXQMQ3VC.js";
+} from "./chunk-DP6HAB66.js";
 import "./chunk-PC246CWX.js";
 import {
   translateElement
@@ -16,6 +16,7 @@ var SettingsLayout = class extends HTMLElement {
     this._activeCategory = null;
     this._currentPanel = null;
     this._isAdmin = false;
+    this._isNonGuest = false;
     this._categoryButtons = [];
     this._contentArea = null;
     this._uploadLinksNavItem = null;
@@ -34,6 +35,7 @@ var SettingsLayout = class extends HTMLElement {
       this._templateMounted = true;
     }
     this._isAdmin = this._checkIsAdmin();
+    this._isNonGuest = this._checkIsNonGuest();
     this._cacheElements();
     this._configureAccess();
     translateElement(this);
@@ -70,6 +72,29 @@ var SettingsLayout = class extends HTMLElement {
     }
     return false;
   }
+  _checkIsNonGuest() {
+    const user = storage_default.user;
+    if (!user || user.role === void 0 || user.role === null) {
+      return false;
+    }
+    const role = user.role;
+    if (typeof role === "number") {
+      return role === USER_ROLES.ADMIN || role === USER_ROLES.USER;
+    }
+    if (typeof role === "string") {
+      const trimmed = role.trim();
+      if (!trimmed) {
+        return false;
+      }
+      const asNumber = Number.parseInt(trimmed, 10);
+      if (!Number.isNaN(asNumber)) {
+        return asNumber === USER_ROLES.ADMIN || asNumber === USER_ROLES.USER;
+      }
+      const lower = trimmed.toLowerCase();
+      return lower === "admin" || lower === "user";
+    }
+    return false;
+  }
   _cacheElements() {
     this._contentArea = this.querySelector('[data-role="content-area"]');
     this._uploadLinksNavItem = this.querySelector('[data-role="upload-links-nav"]');
@@ -83,7 +108,7 @@ var SettingsLayout = class extends HTMLElement {
   }
   _configureAccess() {
     if (this._uploadLinksNavItem) {
-      this._uploadLinksNavItem.classList.toggle("hidden", !this._isAdmin);
+      this._uploadLinksNavItem.classList.toggle("hidden", !this._isNonGuest);
     }
     if (this._usersNavItem) {
       this._usersNavItem.classList.toggle("hidden", !this._isAdmin);
@@ -111,8 +136,12 @@ var SettingsLayout = class extends HTMLElement {
     if (this._activeCategory === category) {
       return;
     }
-    if (!this._isAdmin && (category === "users" || category === "upload-links")) {
-      console.warn(`[SettingsLayout] Non-admin attempted to access ${category}`);
+    if (category === "users" && !this._isAdmin) {
+      console.warn("[SettingsLayout] Non-admin attempted to access users panel");
+      return;
+    }
+    if (category === "upload-links" && !this._isNonGuest) {
+      console.warn("[SettingsLayout] Guest attempted to access upload-links panel");
       return;
     }
     this._activeCategory = category;
@@ -144,7 +173,7 @@ var SettingsLayout = class extends HTMLElement {
         panelElement = document.createElement("settings-account-panel");
         break;
       case "upload-links":
-        if (!this._isAdmin) return;
+        if (!this._isNonGuest) return;
         panelElement = document.createElement("settings-upload-links-panel");
         break;
       case "users":
@@ -169,4 +198,4 @@ var SettingsLayout = class extends HTMLElement {
   }
 };
 customElements.define("settings-layout", SettingsLayout);
-//# sourceMappingURL=settings-layout-GF66JEEO.js.map
+//# sourceMappingURL=settings-layout-FPMRWELA.js.map

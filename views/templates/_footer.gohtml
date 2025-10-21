@@ -23,9 +23,6 @@
 			{{ end }}
 		</li>
 		{{ end }}
-		{{ if .ClientConfig.FOOTER.CLIURL }}
-		<li class="m-2"><a href="{{ .ClientConfig.FOOTER.CLIURL }}" target="_blank">{{ call .Translate "footer.cli" }}</a></li>
-		{{ end }}
 		{{ if .ClientConfig.FOOTER.DMCAURL }}
 		<li class="m-2"><a href="{{ .ClientConfig.FOOTER.DMCAURL }}" target="_blank">{{ call .Translate "footer.dmca" }}</a></li>
 		{{ end }}

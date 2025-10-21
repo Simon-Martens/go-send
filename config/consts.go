@@ -52,7 +52,6 @@ const (
 	DEFAULT_CUSTOM_FOOTER_TEXT = ""
 	DEFAULT_CUSTOM_FOOTER_URL  = ""
 	DEFAULT_FOOTER_DMCA_URL    = ""
-	DEFAULT_FOOTER_CLI_URL     = "https://github.com/timvisee/ffsend"
 	DEFAULT_FOOTER_SOURCE_URL  = "https://github.com/Simon-Martens/go-send"
 
 	DEFAULT_CUSTOM_LOCALE = ""

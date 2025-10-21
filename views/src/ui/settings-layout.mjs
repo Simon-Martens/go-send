@@ -22,6 +22,7 @@ class SettingsLayout extends HTMLElement {
     this._activeCategory = null; // Set to null initially, will be set on first mount
     this._currentPanel = null;
     this._isAdmin = false;
+    this._isNonGuest = false; // True for both admin and regular user roles
 
     // Element refs
     this._categoryButtons = [];
@@ -46,6 +47,7 @@ class SettingsLayout extends HTMLElement {
     }
 
     this._isAdmin = this._checkIsAdmin();
+    this._isNonGuest = this._checkIsNonGuest();
     this._cacheElements();
     this._configureAccess();
     translateElement(this);
@@ -87,6 +89,30 @@ class SettingsLayout extends HTMLElement {
     return false;
   }
 
+  _checkIsNonGuest() {
+    const user = storage.user;
+    if (!user || user.role === undefined || user.role === null) {
+      return false;
+    }
+    const role = user.role;
+    if (typeof role === "number") {
+      return role === USER_ROLES.ADMIN || role === USER_ROLES.USER;
+    }
+    if (typeof role === "string") {
+      const trimmed = role.trim();
+      if (!trimmed) {
+        return false;
+      }
+      const asNumber = Number.parseInt(trimmed, 10);
+      if (!Number.isNaN(asNumber)) {
+        return asNumber === USER_ROLES.ADMIN || asNumber === USER_ROLES.USER;
+      }
+      const lower = trimmed.toLowerCase();
+      return lower === "admin" || lower === "user";
+    }
+    return false;
+  }
+
   _cacheElements() {
     this._contentArea = this.querySelector('[data-role="content-area"]');
     this._uploadLinksNavItem = this.querySelector('[data-role="upload-links-nav"]');
@@ -102,12 +128,12 @@ class SettingsLayout extends HTMLElement {
   }
 
   _configureAccess() {
-    // Show/hide upload links nav for admins
+    // Show/hide upload links nav for non-guest users (both admin and regular users)
     if (this._uploadLinksNavItem) {
-      this._uploadLinksNavItem.classList.toggle("hidden", !this._isAdmin);
+      this._uploadLinksNavItem.classList.toggle("hidden", !this._isNonGuest);
     }
 
-    // Show/hide users nav for admins
+    // Show/hide users nav for admins only
     if (this._usersNavItem) {
       this._usersNavItem.classList.toggle("hidden", !this._isAdmin);
     }
@@ -139,9 +165,13 @@ class SettingsLayout extends HTMLElement {
       return; // Already on this category
     }
 
-    // Check admin access for protected categories
-    if (!this._isAdmin && (category === "users" || category === "upload-links")) {
-      console.warn(`[SettingsLayout] Non-admin attempted to access ${category}`);
+    // Check access for protected categories
+    if (category === "users" && !this._isAdmin) {
+      console.warn("[SettingsLayout] Non-admin attempted to access users panel");
+      return;
+    }
+    if (category === "upload-links" && !this._isNonGuest) {
+      console.warn("[SettingsLayout] Guest attempted to access upload-links panel");
       return;
     }
 
@@ -182,7 +212,7 @@ class SettingsLayout extends HTMLElement {
         panelElement = document.createElement("settings-account-panel");
         break;
       case "upload-links":
-        if (!this._isAdmin) return;
+        if (!this._isNonGuest) return;
         panelElement = document.createElement("settings-upload-links-panel");
         break;
       case "users":

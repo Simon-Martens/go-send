@@ -17,6 +17,7 @@ import storage from "./storage.mjs";
 import { getTranslator } from "./locale.mjs";
 import Archive from "./archive.mjs";
 import { setupProgressIndicators } from "./faviconProgress.mjs";
+import { syncOwnedFiles } from "./syncFiles.mjs";
 
 /**
  * Controller - Handles business logic for the application
@@ -152,8 +153,8 @@ export class Controller {
 
     // Set up periodic tasks (like in old controller)
 
-    // Poll for file info updates (download counts, expiration) every 2 minutes
-    this.intervals.push(setInterval(() => this.checkFiles(), 2 * 60 * 1000));
+    // Poll for file list sync and file info updates (new files, download counts, expiration) every minute
+    this.intervals.push(setInterval(() => this.checkFiles(), 60 * 1000));
 
     // Re-render file list every minute to update countdown timers ("expires in X minutes")
     this.intervals.push(
@@ -498,10 +499,30 @@ export class Controller {
    * Called periodically and on initial load
    */
   async checkFiles() {
+    let needsRender = false;
+
+    // First, sync file list from server if user is logged in
+    // This fetches any new files uploaded from other devices/sessions
+    if (this.state.storage.user) {
+      try {
+        const fileCountBefore = this.state.storage.files.length;
+        await syncOwnedFiles(this.state.storage.user);
+        const fileCountAfter = this.state.storage.files.length;
+
+        // Check if new files were added
+        if (fileCountAfter > fileCountBefore) {
+          needsRender = true;
+        }
+      } catch (err) {
+        console.warn("[Controller] Failed to sync file list from server", err);
+      }
+    }
+
+    // Then update download counts and check for expired files
     const changes = await this.state.storage.merge();
 
-    // Re-render if download counts changed OR files expired/removed
-    if (changes.downloadCount || changes.outgoing) {
+    // Re-render if download counts changed OR files expired/removed OR new files added
+    if (changes.downloadCount || changes.outgoing || changes.incoming || needsRender) {
       this.render();
     }
   }

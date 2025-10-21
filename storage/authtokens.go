@@ -508,8 +508,9 @@ type UploadLinkWithUser struct {
 	UserName string `json:"user_name,omitempty"`
 }
 
-// ListUploadLinksWithUsers retrieves all upload link tokens (types 2 and 3) with user names
-func (d *DB) ListUploadLinksWithUsers() ([]*UploadLinkWithUser, error) {
+// ListUploadLinksWithUsers retrieves upload link tokens (types 2 and 3) with user names
+// If createdBy is not nil, filters to only return links created by that user
+func (d *DB) ListUploadLinksWithUsers(createdBy *int64) ([]*UploadLinkWithUser, error) {
 	query := `
 		SELECT
 			a.id, a.token, a.expires, a.expires_at, a.expires_in,
@@ -522,10 +523,17 @@ func (d *DB) ListUploadLinksWithUsers() ([]*UploadLinkWithUser, error) {
 		FROM authtokens a
 		LEFT JOIN users u ON a.created_by = u.id AND a.type = 3
 		WHERE a.type IN (2, 3)
-		ORDER BY a.created DESC
 	`
+	var args []interface{}
 
-	rows, err := d.db.Query(query)
+	if createdBy != nil {
+		query += " AND a.created_by = ?"
+		args = append(args, *createdBy)
+	}
+
+	query += " ORDER BY a.created DESC"
+
+	rows, err := d.db.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}

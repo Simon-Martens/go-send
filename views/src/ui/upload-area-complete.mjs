@@ -111,6 +111,28 @@ class UploadCompleteView extends HTMLElement {
 
     // Generate QR code
     this.generateQRCode(ownedFile.url);
+
+    // Hide copy section and show recipient notice for files with recipients
+    const copySection = this.querySelector('[data-role="copy-section"]');
+    const recipientNotice = this.querySelector('[data-role="recipient-notice-complete"]');
+
+    if (ownedFile.recipients && ownedFile.recipients.length > 0) {
+      // File has recipients - hide copy section, show notice
+      if (copySection) {
+        copySection.classList.add("hidden");
+      }
+      if (recipientNotice) {
+        recipientNotice.classList.remove("hidden");
+      }
+    } else {
+      // No recipients - show copy section as normal, hide notice
+      if (copySection) {
+        copySection.classList.remove("hidden");
+      }
+      if (recipientNotice) {
+        recipientNotice.classList.add("hidden");
+      }
+    }
   }
 
   generateQRCode(url) {

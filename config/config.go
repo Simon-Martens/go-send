@@ -43,7 +43,6 @@ type Config struct {
 	CustomFooterText string
 	CustomFooterURL  string
 	FooterDMCAURL    string
-	FooterCLIURL     string
 	FooterSourceURL  string
 
 	CustomLocale string
@@ -101,7 +100,6 @@ type DefaultsConfig struct {
 type FooterConfig struct {
 	CustomText string `json:"CustomText"`
 	CustomURL  string `json:"CustomURL"`
-	CLIURL     string `json:"CLIURL"`
 	DMCAURL    string `json:"DMCAURL"`
 	SourceURL  string `json:"SourceURL"`
 }
@@ -152,7 +150,6 @@ func (c *Config) GetClientConfig() *ClientConfig {
 		FOOTER: FooterConfig{
 			CustomText: c.CustomFooterText,
 			CustomURL:  c.CustomFooterURL,
-			CLIURL:     c.FooterCLIURL,
 			DMCAURL:    c.FooterDMCAURL,
 			SourceURL:  c.FooterSourceURL,
 		},
@@ -208,7 +205,6 @@ func Load() *Config {
 		CustomFooterText: getEnv("CUSTOM_FOOTER_TEXT", DEFAULT_CUSTOM_FOOTER_TEXT),
 		CustomFooterURL:  getEnv("CUSTOM_FOOTER_URL", DEFAULT_CUSTOM_FOOTER_URL),
 		FooterDMCAURL:    getEnv("SEND_FOOTER_DMCA_URL", DEFAULT_FOOTER_DMCA_URL),
-		FooterCLIURL:     getEnv("FOOTER_CLI_URL", DEFAULT_FOOTER_CLI_URL),
 		FooterSourceURL:  getEnv("FOOTER_SOURCE_URL", DEFAULT_FOOTER_SOURCE_URL),
 
 		// Localization

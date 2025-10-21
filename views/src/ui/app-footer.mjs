@@ -19,7 +19,7 @@ function hideElement(el) {
  *
  * Responsibilities:
  * - Displays site branding with status indicator
- * - Shows configured footer links (CLI, DMCA, Source, Custom)
+ * - Shows configured footer links (DMCA, Source, Custom)
  * - Displays dynamic login/logout link based on authentication state
  * - Handles internationalization for all footer text
  *
@@ -109,19 +109,6 @@ class AppFooter extends HTMLElement {
       if (customLi) showElement(customLi);
     } else {
       if (customLi) hideElement(customLi);
-    }
-
-    // Set up CLI link
-    const cliLi = this.querySelector("[data-if-cli]");
-    const cliLink = this.querySelector('[data-role="cli-link"]');
-    if (this.config.CLIURL) {
-      if (cliLink) {
-        cliLink.href = this.config.CLIURL;
-        cliLink.target = "_blank";
-      }
-      if (cliLi) showElement(cliLi);
-    } else {
-      if (cliLi) hideElement(cliLi);
     }
 
     // Set up DMCA link
@@ -217,12 +204,9 @@ class AppFooter extends HTMLElement {
             const key = guestOnly
               ? "uploadGuestBannerMessageGuest"
               : "uploadGuestBannerMessageEphemeral";
-            warningText.textContent = this._translate(
-              key,
-              guestOnly
-                ? "Remember to logout on untrusted devices!"
-                : "This computer isn't trusted! Remember to sign out!",
-            );
+
+            // Update the id attribute to match the translation key
+            warningText.id = key;
 
             const baseClasses =
               "absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 text-xs rounded-lg whitespace-nowrap shadow-lg";

@@ -15,6 +15,7 @@ class SettingsUploadLinksPanel extends HTMLElement {
     this._uploadLinksLabelInput = null;
     this._uploadLinksDescriptionInput = null;
     this._uploadLinksGeneralCheckbox = null;
+    this._uploadLinksGeneralOption = null; // Container for general option (admin-only)
     this._uploadLinksSubmitButton = null;
     this._uploadLinksStatusEl = null;
     this._uploadLinksStatusIcon = null;
@@ -59,10 +60,8 @@ class SettingsUploadLinksPanel extends HTMLElement {
     translateElement(this);
     this._attachListeners();
 
-    // Load data if admin
-    if (this._isAdmin) {
-      this._loadUploadLinks();
-    }
+    // Load data (both admins and regular users can now access this)
+    this._loadUploadLinks();
   }
 
   disconnectedCallback() {
@@ -132,6 +131,9 @@ class SettingsUploadLinksPanel extends HTMLElement {
     this._uploadLinksGeneralCheckbox = this.querySelector(
       '[data-role="upload-links-general"]',
     );
+    this._uploadLinksGeneralOption = this.querySelector(
+      '[data-role="general-option"]',
+    );
     this._uploadLinksSubmitButton = this.querySelector(
       '[data-role="upload-links-submit"]',
     );
@@ -171,19 +173,20 @@ class SettingsUploadLinksPanel extends HTMLElement {
   }
 
   _configureAccess() {
-    if (this._isAdmin) {
-      if (this._uploadLinksAdminSection) {
-        this._uploadLinksAdminSection.classList.remove("hidden");
-      }
-      if (this._uploadLinksPlaceholder) {
-        this._uploadLinksPlaceholder.classList.add("hidden");
-      }
-    } else {
-      if (this._uploadLinksAdminSection) {
-        this._uploadLinksAdminSection.classList.add("hidden");
-      }
-      if (this._uploadLinksPlaceholder) {
-        this._uploadLinksPlaceholder.classList.remove("hidden");
+    // Always show the form section for non-guest users (both admins and regular users)
+    if (this._uploadLinksAdminSection) {
+      this._uploadLinksAdminSection.classList.remove("hidden");
+    }
+    if (this._uploadLinksPlaceholder) {
+      this._uploadLinksPlaceholder.classList.add("hidden");
+    }
+
+    // Only show the general upload link option for admins
+    if (this._uploadLinksGeneralOption) {
+      if (this._isAdmin) {
+        this._uploadLinksGeneralOption.classList.remove("hidden");
+      } else {
+        this._uploadLinksGeneralOption.classList.add("hidden");
       }
     }
   }
@@ -232,13 +235,14 @@ class SettingsUploadLinksPanel extends HTMLElement {
 
   async _handleUploadLinksSubmit(event) {
     event.preventDefault();
-    if (!this._isAdmin || this._uploadLinksSubmitting) {
+    if (this._uploadLinksSubmitting) {
       return;
     }
 
     const label = (this._uploadLinksLabelInput?.value || "").trim();
     const description = (this._uploadLinksDescriptionInput?.value || "").trim();
-    const isGeneral = this._uploadLinksGeneralCheckbox?.checked || false;
+    // Only admins can create general links, so if the checkbox is hidden (non-admin) always use type 3
+    const isGeneral = this._isAdmin && (this._uploadLinksGeneralCheckbox?.checked || false);
     const type = isGeneral ? 2 : 3; // Type 2 = general, Type 3 = user-specific
 
     if (!label) {
@@ -260,7 +264,7 @@ class SettingsUploadLinksPanel extends HTMLElement {
     );
 
     try {
-      const response = await fetch("/api/admin/upload-links", {
+      const response = await fetch("/api/upload-links", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -332,9 +336,6 @@ class SettingsUploadLinksPanel extends HTMLElement {
   }
 
   _handleUploadLinksAction(event) {
-    if (!this._isAdmin) {
-      return;
-    }
     const button = event.target.closest("button[data-action]");
     if (!button) {
       return;
@@ -351,9 +352,6 @@ class SettingsUploadLinksPanel extends HTMLElement {
   }
 
   async _revokeUploadLink(tokenId, button) {
-    if (!this._isAdmin) {
-      return;
-    }
     if (button) {
       button.disabled = true;
       button.classList.add("opacity-60");
@@ -364,7 +362,7 @@ class SettingsUploadLinksPanel extends HTMLElement {
     );
 
     try {
-      const response = await fetch(`/api/admin/upload-links/${tokenId}`, {
+      const response = await fetch(`/api/upload-links/${tokenId}`, {
         method: "DELETE",
       });
       if (!response.ok) {
@@ -562,7 +560,7 @@ class SettingsUploadLinksPanel extends HTMLElement {
   }
 
   async _loadUploadLinks() {
-    if (!this._isAdmin || this._uploadLinksLoading) {
+    if (this._uploadLinksLoading) {
       return;
     }
     this._uploadLinksLoading = true;
@@ -572,7 +570,7 @@ class SettingsUploadLinksPanel extends HTMLElement {
     );
 
     try {
-      const response = await fetch("/api/admin/upload-links", {
+      const response = await fetch("/api/upload-links", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -755,6 +753,9 @@ class SettingsUploadLinksPanel extends HTMLElement {
         revokedBadge.classList.remove("hidden");
       }
     }
+
+    // Translate the row elements
+    translateElement(row);
 
     return row;
   }

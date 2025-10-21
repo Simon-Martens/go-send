@@ -148,6 +148,11 @@ func handleSignupLinksPost(app *core.App, w http.ResponseWriter, r *http.Request
 		ActiveCount:      activeCount,
 	}
 
+	app.DBLogger.LogRequest(r, http.StatusOK, &userID, "",
+		"action", "signup_link_created",
+		"token_type", tokenType.String(),
+		"token_id", token.ID)
+
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(resp); err != nil {
 		app.Logger.Warn("Signup links: failed to encode issue response", "error", err)
@@ -187,6 +192,11 @@ func handleSignupLinksDelete(app *core.App, w http.ResponseWriter, r *http.Reque
 		Revoked:     revoked,
 		ActiveCount: activeCount,
 	}
+
+	app.DBLogger.LogRequest(r, http.StatusOK, nil, "",
+		"action", "signup_links_revoked",
+		"token_type", tokenType.String(),
+		"count", revoked)
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(resp); err != nil {

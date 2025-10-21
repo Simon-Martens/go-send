@@ -50,23 +50,23 @@ passwordSetError = Dieses Passwort konnte nicht eingerichtet werden
 introTitle = Einfach und privat Dateien versenden
 introDescription = Mit { -send-brand } können Sie Dateien sicher mit anderen teilen – mit Ende-zu-Ende-Verschlüsselung und einem Freigabe-Link, der automatisch abläuft. So bleiben Ihre geteilten Daten privat und Sie können sicherstellen, dass Ihre Daten nicht für immer im Web herumschwirren.
 uploadGuestBannerMessageGuest = Bitte denken Sie an öffentlichen Geräten daran, sich abzumelden!
-uploadGuestBannerMessageEphemeral = Dieses Gerät ist nicht vertrauenswürdig. Bitte denken Sie daran, sich abzumelden!
+uploadGuestBannerMessageEphemeral = Dieser Computer ist nicht vertrauenswürdig! Bitte melden Sie sich ab!
 notifyUploadEncryptDone = Ihre Datei wurde verschlüsselt
 # downloadCount is from the downloadCount string and timespan is a timespanMinutes string. ex. 'Expires after 2 downloads or 25 minutes'
 archiveExpiryInfo = Läuft nach { $downloadCount } oder { $timespan } ab
 timespanMinutes =
     { $num ->
-        [one] einer Minute
+        [one] 1 Minute
        *[other] { $num } Minuten
     }
 timespanDays =
     { $num ->
-        [one] einem Tag
-       *[other] { $num } Tagen
+        [one] 1 Tag
+       *[other] { $num } Tage
     }
 timespanWeeks =
     { $num ->
-        [one] einer Woche
+        [one] 1 Woche
        *[other] { $num } Wochen
     }
 fileCount =
@@ -191,7 +191,7 @@ settingsDialogTitle = Einstellungen
 settingsDialogDescription = Verwalten Sie Ihre Kontoeinstellungen und Teammitglieder.
 settingsBackButton = Upload
 settingsNavAccount = Konto
-settingsNavUploadLinks = Upload-Tickets
+settingsNavUploadLinks = Upload-Links
 settingsNavUsers = Benutzer
 settingsAccountHeading = Konto
 settingsAccountSubheading = Verwalten Sie Ihre Profildaten, Ihr Passwort und Ihre Anmeldesitzungen.
@@ -212,11 +212,11 @@ settingsAccountDangerDescription = Löschen Sie Ihre aktuelle Sitzung oder deakt
 settingsAccountClearSessions = Sitzung löschen
 settingsAccountDeactivate = Konto deaktivieren
 settingsUsersHeading = Benutzer
-settingsUsersIntro = Ihr Server ist derzeit nicht öffentlich zugänglich. Unter diesen Links können neue Administratoren und Benutzer erstellt werden. Ausschließlich Administratoren können neue Benutzer einladen. Die Links sind sieben Tage gültig und können nur einmal verwendet werden.
+settingsUsersIntro = Stellen Sie Einladungslinks für neue Administratoren oder Standardbenutzer aus. Die Links laufen nach 7 Tagen ab und können nur einmal verwendet werden.
 settingsUsersAdminTitle = Administrator-Anmeldelinks
-settingsUsersAdminDescription = Erstellen Sie Einladungen für Administrator-Konten.
+settingsUsersAdminDescription = Erstellen Sie einmalige Einladungen für Administrator-Konten.
 settingsUsersUserTitle = Benutzer-Anmeldelinks
-settingsUsersUserDescription = Erstellen Sie Einladungen für Standardbenutzer.
+settingsUsersUserDescription = Erstellen Sie einmalige Einladungen für Standardbenutzer.
 settingsUsersActiveLinksLabel = Aktive Links
 settingsUsersGenerateAdmin = Link erstellen
 settingsUsersGenerateUser = Link erstellen
@@ -235,7 +235,7 @@ settingsUsersQrError = QR-Code nicht verfügbar
 settingsUsersDetailBack = Zurück zu den Einladungen
 settingsUsersDetailHeadingAdmin = Admin-Anmeldelink
 settingsUsersDetailHeadingUser = Benutzer-Anmeldelink
-settingsUsersDetailDescription = Teilen Sie diesen Link. Er läuft am { $date } Uhr ab und kann nur einmal verwendet werden.
+settingsUsersDetailDescription = Teilen Sie diesen Link. Er läuft am { $date } ab und kann nur einmal verwendet werden.
 settingsUsersDetailActiveLabel = Aktive Links
 settingsUsersDetailFootnote = Jeder Einladungslink funktioniert nur einmal und läuft nach sieben Tagen automatisch ab.
 settingsUsersDetailCopySuccess = Link in die Zwischenablage kopiert.
@@ -277,8 +277,8 @@ settingsUsersRoleGuest = Gast
 settingsUsersRoleUnknown = Unbekannte Rolle
 settingsUsersStatusActive = Aktiv
 settingsUsersStatusInactive = Deaktiviert
-settingsUsersKeySigning = Signing Key
-settingsUsersKeyEncryption = Encryption Key
+settingsUsersKeySigning = Signaturschlüssel
+settingsUsersKeyEncryption = Verschlüsselungsschlüssel
 settingsUsersKeyMissing = Nicht verfügbar
 settingsUsersNameFallback = Benutzer
 settingsUsersCurrentUserLabel = Sie
@@ -296,8 +296,8 @@ settingsAccountDangerStatusError = Anfrage konnte nicht abgeschlossen werden. Bi
 settingsUploadLinksHeading = Upload-Tickets
 settingsUploadLinksDescription = Erstellen Sie Zugänge für Gäste, die Ihnen Dateien schicken können.
 settingsUploadLinksLabelLabel = Bezeichnung
-settingsUploadLinksLabelHint = Verwenden Sie eine aussagekräftige Bezeichnung, wie etwa den Namen des Gastes, damit Sie den Link später wiedererkennen. Diese Bezeichnung ist für den Benutzer sichtbar.
-settingsUploadLinksLabelPlaceholder = Name
+settingsUploadLinksLabelHint = Verwenden Sie einen aussagekräftigen Namen, damit Sie den Link später wiedererkennen.
+settingsUploadLinksLabelPlaceholder = Partnerbereich
 settingsUploadLinksDescriptionLabel = Interne Notiz
 settingsUploadLinksDescriptionHint = Nur Administratoren können diese Notiz sehen.
 settingsUploadLinksDescriptionPlaceholder = Optionale Details
@@ -336,12 +336,11 @@ settingsUploadLinksCreatedUnknown = Nicht verfügbar
 settingsUploadLinksPlaceholderTitle = Gast-Uploads
 settingsUploadLinksPlaceholderDescription = Administratoren können Gast-Upload-Links für gemeinsame Postfächer ausgeben. Sobald ein Link mit Ihnen geteilt wird, erscheint er hier.
 settingsUploadLinksGeneralLabel = Allgemeiner Upload-Link
-settingsUploadLinksGeneralHint = Erlaubt Uploads auch für alle anderen Benutzer
+settingsUploadLinksGeneralHint = Erlaubt Uploads für jeden Benutzer (allgemeiner Eingang)
 settingsUploadLinksTableType = Typ/Benutzer
 settingsUploadLinksTypeGeneral = Allgemein
 settingsUploadLinksTypeUserFallback = Benutzerspezifisch
 recipientLockedHint = Dieser Upload-Link ist auf Uploads für { $userName } beschränkt
-recipientHintSelected = Der Empfänger kann die Datei sehen, herunterladen und entschlüsseln.
 encryptForLabel = An
 recipientUnspecified = Jeder mit dem Link
 settingsAccountDeactivateConfirm = Möchten Sie Ihr Konto wirklich deaktivieren? Sie werden sofort abgemeldet.
@@ -375,7 +374,7 @@ loginTitle = Upload
 loginDescription = Geben Sie Ihre Zugangsdaten ein, um fortzufahren
 loginEmailLabel = E-Mail
 loginPasswordLabel = Passwort
-loginTrustComputerLabel = Diesem Gerät vertrauen
+loginTrustComputerLabel = Diesem Computer vertrauen
 loginTrustComputerHint = 30 Tage angemeldet bleiben
 loginSubmitButton = Anmelden
 loginSubmitting = Anmeldung läuft…

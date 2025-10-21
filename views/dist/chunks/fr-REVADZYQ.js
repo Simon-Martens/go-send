@@ -221,10 +221,10 @@ settingsUsersAdminDescription = G\xE9n\xE9rez des invitations \xE0 usage unique 
 settingsUsersUserTitle = Liens d\u2019inscription utilisateur
 settingsUsersUserDescription = G\xE9n\xE9rez des invitations \xE0 usage unique pour les utilisateurs standard.
 settingsUsersActiveLinksLabel = Liens actifs
-settingsUsersGenerateAdmin = Cr\xE9er un lien admin
-settingsUsersGenerateUser = Cr\xE9er un lien utilisateur
-settingsUsersRevokeAdmin = R\xE9voquer les liens admin
-settingsUsersRevokeUser = R\xE9voquer les liens utilisateur
+settingsUsersGenerateAdmin = Cr\xE9er un lien
+settingsUsersGenerateUser = Cr\xE9er un lien
+settingsUsersRevokeAdmin = R\xE9voquer les liens
+settingsUsersRevokeUser = R\xE9voquer les liens
 settingsUsersGenerating = Cr\xE9ation d\u2019un lien d\u2019inscription\u2026
 settingsUsersGenerateSuccess = Lien d\u2019inscription cr\xE9\xE9.
 settingsUsersGenerateError = Impossible de cr\xE9er un lien d\u2019inscription. R\xE9essayez.
@@ -339,7 +339,11 @@ settingsUploadLinksCreatedUnknown = Non disponible
 settingsUploadLinksPlaceholderTitle = Envois invit\xE9s
 settingsUploadLinksPlaceholderDescription = Les administrateurs peuvent \xE9mettre des liens d'envoi pour des bo\xEEtes partag\xE9es. Lorsqu'un lien vous est attribu\xE9, il s'affiche ici.
 settingsUploadLinksGeneralLabel = Lien d'envoi g\xE9n\xE9ral
-settingsUploadLinksGeneralHint = (N'importe qui peut utiliser ce lien, pas seulement un utilisateur sp\xE9cifique)
+settingsUploadLinksGeneralHint = Permet les uploads pour n'importe quel utilisateur (bo\xEEte de r\xE9ception g\xE9n\xE9rale)
+recipientLockedHint = Ce lien d'upload est restreint aux uploads pour { $userName }
+recipientHintSelected = Le destinataire peut voir, t\xE9l\xE9charger et d\xE9chiffrer le fichier.
+encryptForLabel = Destinataire
+recipientUnspecified = Toute personne disposant du lien
 settingsUploadLinksTableType = Type/Utilisateur
 settingsUploadLinksTypeGeneral = G\xE9n\xE9ral
 settingsUploadLinksTypeUserFallback = Sp\xE9cifique \xE0 l'utilisateur
@@ -386,6 +390,7 @@ loginErrorGeneric = \xC9chec de la connexion. Veuillez r\xE9essayer.
 fileTileFrom = DE
 fileTileTo = \xC0
 fileTileGuest = Invit\xE9
+fileTileRecipientNotice = Le destinataire doit se connecter pour t\xE9l\xE9charger ce fichier
 
 footerLinkCli = CLI
 footerLinkDmca = DMCA
@@ -397,4 +402,4 @@ footerUntrustedWarning = Cet ordinateur n'est pas s\xFBr ! Pensez \xE0 vous d\xE
 export {
   fr_default as default
 };
-//# sourceMappingURL=fr-6IGR37R5.js.map
+//# sourceMappingURL=fr-REVADZYQ.js.map

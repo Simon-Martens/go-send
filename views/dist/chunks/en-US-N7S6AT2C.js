@@ -227,10 +227,10 @@ settingsUsersAdminDescription = Generate one-time invitations for administrator 
 settingsUsersUserTitle = User signup links
 settingsUsersUserDescription = Generate one-time invitations for standard users.
 settingsUsersActiveLinksLabel = Active links
-settingsUsersGenerateAdmin = Issue admin link
-settingsUsersGenerateUser = Issue user link
-settingsUsersRevokeAdmin = Revoke admin links
-settingsUsersRevokeUser = Revoke user links
+settingsUsersGenerateAdmin = Issue link
+settingsUsersGenerateUser = Issue link
+settingsUsersRevokeAdmin = Revoke links
+settingsUsersRevokeUser = Revoke links
 settingsUsersGenerating = Creating a new signup link\u2026
 settingsUsersGenerateSuccess = Signup link created.
 settingsUsersGenerateError = Could not create a signup link. Try again.
@@ -351,6 +351,9 @@ settingsUploadLinksTableType = Type/User
 settingsUploadLinksTypeGeneral = General
 settingsUploadLinksTypeUserFallback = User-specific
 recipientLockedHint = This upload link is restricted to uploads for { $userName }
+recipientHintSelected = The recipient can see, download and decrypt the file.
+encryptForLabel = To
+recipientUnspecified = Anyone with the link
 settingsPasswordStatusInfoDeriving = Re-deriving keys\u2026
 settingsPasswordStatusInfoPreparing = Preparing new credentials\u2026
 settingsPasswordStatusInfoUpdating = Updating password\u2026
@@ -386,8 +389,9 @@ loginErrorGeneric = Login failed. Please try again.
 fileTileFrom = FROM
 fileTileTo = TO
 fileTileGuest = Guest
+fileTileRecipientNotice = The recipient must login to download this file
 `;
 export {
   en_US_default as default
 };
-//# sourceMappingURL=en-US-G4AD5BIX.js.map
+//# sourceMappingURL=en-US-N7S6AT2C.js.map

@@ -61,6 +61,9 @@ export async function initSettingsRoute(app) {
 
   await Promise.all([
     import("./ui/settings-layout.mjs"),
+    import("./ui/settings-account-panel.mjs"),
+    import("./ui/settings-upload-links-panel.mjs"),
+    import("./ui/settings-users-panel.mjs"),
     app.controller.ready,
   ]);
 

@@ -1,38 +1,27 @@
-import storage from "../storage.mjs";
-import { USER_ROLES } from "../userSecrets.mjs";
-import { translateElement } from "../utils.mjs";
+import {
+  USER_ROLES,
+  storage_default
+} from "./chunk-4T7GFWSU.js";
+import "./chunk-PC246CWX.js";
+import {
+  translateElement
+} from "./chunk-TXB3JAVG.js";
+import "./chunk-IFG75HHC.js";
 
-/**
- * Settings Layout Controller
- *
- * Lightweight controller that manages:
- * - Category navigation (sidebar)
- * - Panel mounting/unmounting
- * - Admin access control
- *
- * All panel-specific logic is now in separate components:
- * - settings-account-panel
- * - settings-upload-links-panel
- * - settings-users-panel
- */
-class SettingsLayout extends HTMLElement {
+// src/ui/settings-layout.mjs
+var SettingsLayout = class extends HTMLElement {
   constructor() {
     super();
     this._templateMounted = false;
-    this._activeCategory = null; // Set to null initially, will be set on first mount
+    this._activeCategory = null;
     this._currentPanel = null;
     this._isAdmin = false;
-
-    // Element refs
     this._categoryButtons = [];
     this._contentArea = null;
     this._uploadLinksNavItem = null;
     this._usersNavItem = null;
-
-    // Bound handlers
     this._boundCategoryClick = this._handleCategoryClick.bind(this);
   }
-
   connectedCallback() {
     if (!this._templateMounted) {
       const template = document.getElementById("settings-layout");
@@ -44,17 +33,13 @@ class SettingsLayout extends HTMLElement {
       this.appendChild(content);
       this._templateMounted = true;
     }
-
     this._isAdmin = this._checkIsAdmin();
     this._cacheElements();
     this._configureAccess();
     translateElement(this);
     this._attachListeners();
-
-    // Mount initial panel (account is always visible)
     this._selectCategory("account");
   }
-
   disconnectedCallback() {
     this._detachListeners();
     this._unmountCurrentPanel();
@@ -63,10 +48,9 @@ class SettingsLayout extends HTMLElement {
     this._uploadLinksNavItem = null;
     this._usersNavItem = null;
   }
-
   _checkIsAdmin() {
-    const user = storage.user;
-    if (!user || user.role === undefined || user.role === null) {
+    const user = storage_default.user;
+    if (!user || user.role === void 0 || user.role === null) {
       return false;
     }
     const role = user.role;
@@ -86,45 +70,35 @@ class SettingsLayout extends HTMLElement {
     }
     return false;
   }
-
   _cacheElements() {
     this._contentArea = this.querySelector('[data-role="content-area"]');
     this._uploadLinksNavItem = this.querySelector('[data-role="upload-links-nav"]');
     this._usersNavItem = this.querySelector('[data-role="users-nav"]');
-
-    // Cache all category buttons
     const categoryList = this.querySelector('[data-role="category-list"]');
     if (categoryList) {
       this._categoryButtons = Array.from(
-        categoryList.querySelectorAll("button[data-category]"),
+        categoryList.querySelectorAll("button[data-category]")
       );
     }
   }
-
   _configureAccess() {
-    // Show/hide upload links nav for admins
     if (this._uploadLinksNavItem) {
       this._uploadLinksNavItem.classList.toggle("hidden", !this._isAdmin);
     }
-
-    // Show/hide users nav for admins
     if (this._usersNavItem) {
       this._usersNavItem.classList.toggle("hidden", !this._isAdmin);
     }
   }
-
   _attachListeners() {
     this._categoryButtons.forEach((button) => {
       button.addEventListener("click", this._boundCategoryClick);
     });
   }
-
   _detachListeners() {
     this._categoryButtons.forEach((button) => {
       button.removeEventListener("click", this._boundCategoryClick);
     });
   }
-
   _handleCategoryClick(event) {
     const button = event.currentTarget;
     const category = button.getAttribute("data-category");
@@ -133,29 +107,22 @@ class SettingsLayout extends HTMLElement {
     }
     this._selectCategory(category);
   }
-
   _selectCategory(category) {
     if (this._activeCategory === category) {
-      return; // Already on this category
+      return;
     }
-
-    // Check admin access for protected categories
     if (!this._isAdmin && (category === "users" || category === "upload-links")) {
       console.warn(`[SettingsLayout] Non-admin attempted to access ${category}`);
       return;
     }
-
     this._activeCategory = category;
     this._updateCategoryStyles();
     this._mountPanel(category);
   }
-
   _updateCategoryStyles() {
     this._categoryButtons.forEach((button) => {
       const category = button.getAttribute("data-category");
       const isActive = category === this._activeCategory;
-
-      // Update button styling
       if (isActive) {
         button.classList.add("border-primary", "bg-primary/5", "text-primary", "dark:text-primary");
         button.classList.remove("border-transparent", "text-grey-70", "dark:text-grey-30");
@@ -165,17 +132,12 @@ class SettingsLayout extends HTMLElement {
       }
     });
   }
-
   _mountPanel(category) {
-    // Unmount current panel if exists
     this._unmountCurrentPanel();
-
     if (!this._contentArea) {
       console.error("[SettingsLayout] Content area not found");
       return;
     }
-
-    // Create and mount the appropriate panel component
     let panelElement;
     switch (category) {
       case "account":
@@ -193,22 +155,18 @@ class SettingsLayout extends HTMLElement {
         console.warn(`[SettingsLayout] Unknown category: ${category}`);
         return;
     }
-
     this._currentPanel = panelElement;
     this._contentArea.appendChild(panelElement);
   }
-
   _unmountCurrentPanel() {
     if (this._currentPanel) {
       this._currentPanel.remove();
       this._currentPanel = null;
     }
-
-    // Clear content area
     if (this._contentArea) {
       this._contentArea.innerHTML = "";
     }
   }
-}
-
+};
 customElements.define("settings-layout", SettingsLayout);
+//# sourceMappingURL=settings-layout-6NE3FWVG.js.map

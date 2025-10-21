@@ -3038,7 +3038,10 @@ async function initLoginRoute(app) {
 async function initSettingsRoute(app) {
   console.log("[Route] Initializing settings page...");
   await Promise.all([
-    import("./chunks/settings-layout-5DHRPCFN.js"),
+    import("./chunks/settings-layout-6NE3FWVG.js"),
+    import("./chunks/settings-account-panel-WXMDWVXY.js"),
+    import("./chunks/settings-upload-links-panel-KCNOOKCO.js"),
+    import("./chunks/settings-users-panel-SC4EDNS2.js"),
     app.controller.ready
   ]);
   app.showSettingsLayout();

@@ -239,3 +239,11 @@ func (d *DB) IsRecipient(fileID string, userID int64) (bool, error) {
 	err := d.db.QueryRow(query, fileID, userID).Scan(&count)
 	return count > 0, err
 }
+
+// HasRecipients checks if a file has any recipients assigned
+func (d *DB) HasRecipients(fileID string) (bool, error) {
+	query := `SELECT COUNT(*) FROM recipient WHERE file_id = ?`
+	var count int
+	err := d.db.QueryRow(query, fileID).Scan(&count)
+	return count > 0, err
+}

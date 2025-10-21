@@ -69,6 +69,14 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 			}
 		})
 
+		mux.HandleFunc("/register/user", func(w http.ResponseWriter, r *http.Request) {
+			if r.Method == http.MethodPost {
+				handlers.NewRegisterUserHandler(app)(w, r)
+			} else {
+				indexHandler(w, r)
+			}
+		})
+
 		// Registration page with token in URL - validate token before serving page
 		mux.HandleFunc("/register/admin/", handlers.NewRegisterPageHandler(app, indexHandler, storage.TokenTypeAdminSignup))
 		mux.HandleFunc("/register/user/", handlers.NewRegisterPageHandler(app, indexHandler, storage.TokenTypeUserSignup))

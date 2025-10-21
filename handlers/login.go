@@ -46,6 +46,7 @@ type loginResponse struct {
 	OK         bool           `json:"ok"`
 	User       *loginUserData `json:"user,omitempty"`
 	AppVersion string         `json:"app_version"`
+	Redirect   string         `json:"redirect,omitempty"`
 }
 
 type loginUserData struct {
@@ -288,6 +289,12 @@ func NewLoginHandler(app *core.App) http.HandlerFunc {
 			Expires:  time.Unix(0, 0),
 		})
 
+		// Get redirect URL from query parameter (defaults to "/")
+		redirectURL := r.URL.Query().Get("redirect")
+		if redirectURL == "" {
+			redirectURL = "/"
+		}
+
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(loginResponse{
 			OK: true,
@@ -299,6 +306,7 @@ func NewLoginHandler(app *core.App) http.HandlerFunc {
 				Settings: user.Settings,
 			},
 			AppVersion: config.APP_VERSION,
+			Redirect:   redirectURL,
 		})
 
 		app.DBLogger.LogAuthEvent(r, "login_success", req.Email, true, "")

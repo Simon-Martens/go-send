@@ -135,7 +135,7 @@ var RegisterLayoutElement = class extends HTMLElement {
   }
   /**
    * Extract token from URL path
-   * Expected paths: /register/admin/[token] or /register/[token]
+   * Expected paths: /register/admin/[token] or /register/user/[token]
    */
   extractToken() {
     const path = window.location.pathname;
@@ -143,8 +143,8 @@ var RegisterLayoutElement = class extends HTMLElement {
     if (parts[0] === "register" && parts[1] === "admin" && parts[2]) {
       this.token = parts[2];
       this.registerType = "admin";
-    } else if (parts[0] === "register" && parts[1]) {
-      this.token = parts[1];
+    } else if (parts[0] === "register" && parts[1] === "user" && parts[2]) {
+      this.token = parts[2];
       this.registerType = "user";
     } else {
       console.warn("[RegisterLayout] No token found in URL:", path);
@@ -381,4 +381,4 @@ var RegisterLayoutElement = class extends HTMLElement {
   }
 };
 customElements.define("register-layout", RegisterLayoutElement);
-//# sourceMappingURL=register-layout-I52NKTOE.js.map
+//# sourceMappingURL=register-layout-4MBGLU4V.js.map

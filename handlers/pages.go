@@ -56,6 +56,23 @@ func IndexHandler(app *core.App) http.HandlerFunc {
 				app.DBLogger.LogRequest(r, http.StatusNotFound, nil, err.Error(), "file_id", id, "page", "download")
 				downloadMetadata = `{"status": 404}`
 			} else {
+				// Recipient-based authorization for download page
+				authorized, userID, err := CheckRecipientAuthorization(app, r, id, meta)
+				if err != nil {
+					app.Logger.Error("Error checking authorization for page", "file_id", id, "error", err)
+					app.DBLogger.LogRequest(r, http.StatusInternalServerError, nil, err.Error(), "file_id", id, "operation", "check_authorization")
+					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+					return
+				}
+
+				if !authorized {
+					app.Logger.Warn("Unauthorized download page access", "file_id", id, "user_id", userID)
+					app.DBLogger.LogRequest(r, http.StatusForbidden, nil, "not authorized - file has specific recipients",
+						"file_id", id, "user_id", userID)
+					Render403Page(app, w, r, "/download/"+id)
+					return
+				}
+
 				// File found - provide nonce and password flag
 				metaJSON, _ := json.Marshal(map[string]interface{}{
 					"nonce": meta.Nonce,

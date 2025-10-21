@@ -3011,7 +3011,7 @@ async function initDownloadRoute(app) {
 async function initRegisterRoute(app) {
   console.log("[Route] Initializing register page...");
   await Promise.all([
-    import("./chunks/register-layout-I52NKTOE.js"),
+    import("./chunks/register-layout-4MBGLU4V.js"),
     app.controller.ready
   ]);
   app.showRegisterLayout();

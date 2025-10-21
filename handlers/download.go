@@ -57,6 +57,25 @@ func NewDownloadHandler(app *core.App) http.HandlerFunc {
 		app.DB.UpdateNonce(id, newNonce)
 		w.Header().Set("WWW-Authenticate", "send-v1 "+newNonce)
 
+		// Recipient-based authorization (only when UploadGuard is enabled)
+		authorized, userID, err := CheckRecipientAuthorization(app, r, id, meta)
+		if err != nil {
+			app.Logger.Error("Error checking authorization", "file_id", id, "error", err)
+			app.DBLogger.LogFileOp(r, "download", id, http.StatusInternalServerError,
+				time.Since(startTime).Milliseconds(), err.Error(), "operation", "check_authorization")
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		if !authorized {
+			app.Logger.Warn("Unauthorized download attempt", "file_id", id, "user_id", userID)
+			app.DBLogger.LogFileOp(r, "download", id, http.StatusForbidden,
+				time.Since(startTime).Milliseconds(), "not authorized - file has specific recipients",
+				"user_id", userID)
+			Render403Page(app, w, r, "/download/"+id)
+			return
+		}
+
 		// Open file
 		file, err := storage.OpenFile(app.DB.FileDir(), id)
 		if err != nil {

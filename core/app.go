@@ -22,6 +22,10 @@ type App struct {
 	Translator *i18n.Translator
 	DBLogger   *DBLogger
 
+	// InitialAdminClaimURL is set when no users exist at startup
+	// Used to redirect to the initial admin registration page
+	InitialAdminClaimURL string
+
 	// Track active cleanup goroutines with their cancel functions
 	activeCleanups   map[string]context.CancelFunc
 	activeCleanupsMu sync.RWMutex

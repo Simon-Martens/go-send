@@ -103,6 +103,11 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 		rootHandler = middleware.RequireUser(app, guardOpts)(rootHandler)
 	}
 
+	// Apply setup redirect middleware only if no users exist at startup
+	if app.InitialAdminClaimURL != "" {
+		rootHandler = middleware.RedirectToSetup(app)(rootHandler)
+	}
+
 	mux.Handle("/", rootHandler)
 
 	return mux

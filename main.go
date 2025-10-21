@@ -92,6 +92,7 @@ func main() {
 		}
 
 		claimURL := "http://localhost:" + cfg.Port + "/auth/claim/" + rawToken
+		app.InitialAdminClaimURL = claimURL
 		logger.Warn("═══════════════════════════════════════════════════════════════════════")
 		logger.Warn("⚠️  NO USERS REGISTERED - INITIAL ADMIN SETUP REQUIRED")
 		logger.Warn("═══════════════════════════════════════════════════════════════════════")

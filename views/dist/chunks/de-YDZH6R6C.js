@@ -52,8 +52,8 @@ passwordSetError = Dieses Passwort konnte nicht eingerichtet werden
 -mozilla = Mozilla
 introTitle = Einfach und privat Dateien versenden
 introDescription = Mit { -send-brand } k\xF6nnen Sie Dateien sicher mit anderen teilen \u2013 mit Ende-zu-Ende-Verschl\xFCsselung und einem Freigabe-Link, der automatisch abl\xE4uft. So bleiben Ihre geteilten Daten privat und Sie k\xF6nnen sicherstellen, dass Ihre Daten nicht f\xFCr immer im Web herumschwirren.
-uploadGuestBannerMessageGuest = Bitte denken Sie an \xF6ffentlichen Ger\xE4ten daran, sich abzumelden!
-uploadGuestBannerMessageEphemeral = Dieses Ger\xE4t ist nicht vertrauensw\xFCrdig. Bitte denken Sie daran, sich abzumelden!
+uploadGuestBannerMessageGuest = Bitte denken Sie an \xF6ffentlichen Ger\xE4ten daran, sich abzumelden
+uploadGuestBannerMessageEphemeral = Dieses Ger\xE4t ist nicht vertrauensw\xFCrdig. Bitte denken Sie daran, sich abzumelden
 notifyUploadEncryptDone = Ihre Datei wurde verschl\xFCsselt
 # downloadCount is from the downloadCount string and timespan is a timespanMinutes string. ex. 'Expires after 2 downloads or 25 minutes'
 archiveExpiryInfo = L\xE4uft nach { $downloadCount } oder { $timespan } ab
@@ -397,9 +397,9 @@ footerLinkDmca = DMCA
 footerLinkSource = Quellcode
 footerLinkLogin = Anmelden
 footerLinkLogout = Abmelden
-footerUntrustedWarning = Diesem Computer wird nicht vertraut! Denken Sie daran, sich abzumelden!
+footerUntrustedWarning = Diesem Ger\xE4t wird nicht vertraut. Denken Sie daran, sich abzumelden.
 `;
 export {
   de_default as default
 };
-//# sourceMappingURL=de-IE7N4RHW.js.map
+//# sourceMappingURL=de-YDZH6R6C.js.map

@@ -49,8 +49,8 @@ passwordSetError = Dieses Passwort konnte nicht eingerichtet werden
 -mozilla = Mozilla
 introTitle = Einfach und privat Dateien versenden
 introDescription = Mit { -send-brand } können Sie Dateien sicher mit anderen teilen – mit Ende-zu-Ende-Verschlüsselung und einem Freigabe-Link, der automatisch abläuft. So bleiben Ihre geteilten Daten privat und Sie können sicherstellen, dass Ihre Daten nicht für immer im Web herumschwirren.
-uploadGuestBannerMessageGuest = Bitte denken Sie an öffentlichen Geräten daran, sich abzumelden!
-uploadGuestBannerMessageEphemeral = Dieses Gerät ist nicht vertrauenswürdig. Bitte denken Sie daran, sich abzumelden!
+uploadGuestBannerMessageGuest = Bitte denken Sie an öffentlichen Geräten daran, sich abzumelden
+uploadGuestBannerMessageEphemeral = Dieses Gerät ist nicht vertrauenswürdig. Bitte denken Sie daran, sich abzumelden
 notifyUploadEncryptDone = Ihre Datei wurde verschlüsselt
 # downloadCount is from the downloadCount string and timespan is a timespanMinutes string. ex. 'Expires after 2 downloads or 25 minutes'
 archiveExpiryInfo = Läuft nach { $downloadCount } oder { $timespan } ab
@@ -394,4 +394,4 @@ footerLinkDmca = DMCA
 footerLinkSource = Quellcode
 footerLinkLogin = Anmelden
 footerLinkLogout = Abmelden
-footerUntrustedWarning = Diesem Computer wird nicht vertraut! Denken Sie daran, sich abzumelden!
+footerUntrustedWarning = Diesem Gerät wird nicht vertraut. Denken Sie daran, sich abzumelden.

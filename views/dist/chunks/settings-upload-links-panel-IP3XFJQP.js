@@ -21,6 +21,7 @@ var SettingsUploadLinksPanel = class extends HTMLElement {
     this._uploadLinksForm = null;
     this._uploadLinksLabelInput = null;
     this._uploadLinksDescriptionInput = null;
+    this._uploadLinksGeneralCheckbox = null;
     this._uploadLinksSubmitButton = null;
     this._uploadLinksStatusEl = null;
     this._uploadLinksStatusIcon = null;
@@ -73,6 +74,7 @@ var SettingsUploadLinksPanel = class extends HTMLElement {
     this._uploadLinksForm = null;
     this._uploadLinksLabelInput = null;
     this._uploadLinksDescriptionInput = null;
+    this._uploadLinksGeneralCheckbox = null;
     this._uploadLinksSubmitButton = null;
     this._uploadLinksStatusEl = null;
     this._uploadLinksStatusIcon = null;
@@ -121,6 +123,9 @@ var SettingsUploadLinksPanel = class extends HTMLElement {
     );
     this._uploadLinksDescriptionInput = this.querySelector(
       '[data-role="upload-links-description"]'
+    );
+    this._uploadLinksGeneralCheckbox = this.querySelector(
+      '[data-role="upload-links-general"]'
     );
     this._uploadLinksSubmitButton = this.querySelector(
       '[data-role="upload-links-submit"]'
@@ -217,13 +222,15 @@ var SettingsUploadLinksPanel = class extends HTMLElement {
     }
   }
   async _handleUploadLinksSubmit(event) {
-    var _a, _b;
+    var _a, _b, _c;
     event.preventDefault();
     if (!this._isAdmin || this._uploadLinksSubmitting) {
       return;
     }
     const label = (((_a = this._uploadLinksLabelInput) == null ? void 0 : _a.value) || "").trim();
     const description = (((_b = this._uploadLinksDescriptionInput) == null ? void 0 : _b.value) || "").trim();
+    const isGeneral = ((_c = this._uploadLinksGeneralCheckbox) == null ? void 0 : _c.checked) || false;
+    const type = isGeneral ? 2 : 3;
     if (!label) {
       this._setUploadLinksStatus(
         translate("settingsUploadLinksStatusLabelRequired"),
@@ -248,7 +255,8 @@ var SettingsUploadLinksPanel = class extends HTMLElement {
         },
         body: JSON.stringify({
           label,
-          description
+          description,
+          type
         })
       });
       if (!response.ok) {
@@ -262,12 +270,17 @@ var SettingsUploadLinksPanel = class extends HTMLElement {
       if (this._uploadLinksDescriptionInput) {
         this._uploadLinksDescriptionInput.value = "";
       }
+      if (this._uploadLinksGeneralCheckbox) {
+        this._uploadLinksGeneralCheckbox.checked = false;
+      }
       const normalized = {
         id: Number.parseInt(payload == null ? void 0 : payload.id, 10) || (payload == null ? void 0 : payload.id) || Date.now(),
         label: (payload == null ? void 0 : payload.label) || label,
         description: (payload == null ? void 0 : payload.description) || description,
         preview: (payload == null ? void 0 : payload.preview) || "",
         active: (payload == null ? void 0 : payload.active) !== void 0 ? Boolean(payload.active) : true,
+        type: Number.parseInt(payload == null ? void 0 : payload.type, 10) || type,
+        user_name: (payload == null ? void 0 : payload.user_name) || "",
         created: Number.parseInt(payload == null ? void 0 : payload.created, 10) || Math.floor(Date.now() / 1e3),
         created_by: Number.parseInt(payload == null ? void 0 : payload.created_by, 10) || (payload == null ? void 0 : payload.created_by) || null
       };
@@ -515,6 +528,8 @@ var SettingsUploadLinksPanel = class extends HTMLElement {
         description: item.description || "",
         preview: item.preview || "",
         active: Boolean(item.active),
+        type: Number.parseInt(item.type, 10) || 0,
+        user_name: item.user_name || "",
         created: Number.parseInt(item.created, 10) || 0,
         created_by: Number.parseInt(item.created_by, 10) || item.created_by || null
       })).sort((a, b) => (b.created || 0) - (a.created || 0));
@@ -596,6 +611,18 @@ var SettingsUploadLinksPanel = class extends HTMLElement {
         previewNone.classList.remove("hidden");
       }
     }
+    const typeUserEl = row.querySelector('[data-role="type-user"]');
+    if (typeUserEl) {
+      const linkType = link.type || 0;
+      const userName = (link.user_name || "").trim();
+      if (linkType === 2) {
+        typeUserEl.textContent = translate("settingsUploadLinksTypeGeneral");
+      } else if (linkType === 3) {
+        typeUserEl.textContent = userName || translate("settingsUploadLinksTypeUserFallback");
+      } else {
+        typeUserEl.textContent = "\u2014";
+      }
+    }
     const statusWrapper = row.querySelector('[data-role="status"]');
     const statusIcon = statusWrapper == null ? void 0 : statusWrapper.querySelector('[data-role="status-icon"]');
     const statusText = statusWrapper == null ? void 0 : statusWrapper.querySelector('[data-role="status-text"]');
@@ -645,4 +672,4 @@ var SettingsUploadLinksPanel = class extends HTMLElement {
   }
 };
 customElements.define("settings-upload-links-panel", SettingsUploadLinksPanel);
-//# sourceMappingURL=settings-upload-links-panel-KCNOOKCO.js.map
+//# sourceMappingURL=settings-upload-links-panel-IP3XFJQP.js.map

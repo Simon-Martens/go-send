@@ -14,6 +14,7 @@ class SettingsUploadLinksPanel extends HTMLElement {
     this._uploadLinksForm = null;
     this._uploadLinksLabelInput = null;
     this._uploadLinksDescriptionInput = null;
+    this._uploadLinksGeneralCheckbox = null;
     this._uploadLinksSubmitButton = null;
     this._uploadLinksStatusEl = null;
     this._uploadLinksStatusIcon = null;
@@ -76,6 +77,7 @@ class SettingsUploadLinksPanel extends HTMLElement {
     this._uploadLinksForm = null;
     this._uploadLinksLabelInput = null;
     this._uploadLinksDescriptionInput = null;
+    this._uploadLinksGeneralCheckbox = null;
     this._uploadLinksSubmitButton = null;
     this._uploadLinksStatusEl = null;
     this._uploadLinksStatusIcon = null;
@@ -126,6 +128,9 @@ class SettingsUploadLinksPanel extends HTMLElement {
     );
     this._uploadLinksDescriptionInput = this.querySelector(
       '[data-role="upload-links-description"]',
+    );
+    this._uploadLinksGeneralCheckbox = this.querySelector(
+      '[data-role="upload-links-general"]',
     );
     this._uploadLinksSubmitButton = this.querySelector(
       '[data-role="upload-links-submit"]',
@@ -233,6 +238,8 @@ class SettingsUploadLinksPanel extends HTMLElement {
 
     const label = (this._uploadLinksLabelInput?.value || "").trim();
     const description = (this._uploadLinksDescriptionInput?.value || "").trim();
+    const isGeneral = this._uploadLinksGeneralCheckbox?.checked || false;
+    const type = isGeneral ? 2 : 3; // Type 2 = general, Type 3 = user-specific
 
     if (!label) {
       this._setUploadLinksStatus(
@@ -261,6 +268,7 @@ class SettingsUploadLinksPanel extends HTMLElement {
         body: JSON.stringify({
           label,
           description,
+          type,
         }),
       });
 
@@ -277,6 +285,9 @@ class SettingsUploadLinksPanel extends HTMLElement {
       if (this._uploadLinksDescriptionInput) {
         this._uploadLinksDescriptionInput.value = "";
       }
+      if (this._uploadLinksGeneralCheckbox) {
+        this._uploadLinksGeneralCheckbox.checked = false;
+      }
 
       const normalized = {
         id: Number.parseInt(payload?.id, 10) || payload?.id || Date.now(),
@@ -284,6 +295,8 @@ class SettingsUploadLinksPanel extends HTMLElement {
         description: payload?.description || description,
         preview: payload?.preview || "",
         active: payload?.active !== undefined ? Boolean(payload.active) : true,
+        type: Number.parseInt(payload?.type, 10) || type,
+        user_name: payload?.user_name || "",
         created:
           Number.parseInt(payload?.created, 10) ||
           Math.floor(Date.now() / 1000),
@@ -579,6 +592,8 @@ class SettingsUploadLinksPanel extends HTMLElement {
           description: item.description || "",
           preview: item.preview || "",
           active: Boolean(item.active),
+          type: Number.parseInt(item.type, 10) || 0,
+          user_name: item.user_name || "",
           created: Number.parseInt(item.created, 10) || 0,
           created_by:
             Number.parseInt(item.created_by, 10) || item.created_by || null,
@@ -678,6 +693,24 @@ class SettingsUploadLinksPanel extends HTMLElement {
       } else {
         previewBadge.classList.add("hidden");
         previewNone.classList.remove("hidden");
+      }
+    }
+
+    // Type/User
+    const typeUserEl = row.querySelector('[data-role="type-user"]');
+    if (typeUserEl) {
+      const linkType = link.type || 0;
+      const userName = (link.user_name || "").trim();
+
+      if (linkType === 2) {
+        // General upload link
+        typeUserEl.textContent = translate("settingsUploadLinksTypeGeneral");
+      } else if (linkType === 3) {
+        // User-specific upload link
+        typeUserEl.textContent = userName || translate("settingsUploadLinksTypeUserFallback");
+      } else {
+        // Unknown type (fallback)
+        typeUserEl.textContent = "—";
       }
     }
 

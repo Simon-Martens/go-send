@@ -9,10 +9,19 @@
 		<section class="space-y-6 hidden" data-role="upload-links-admin">
 			<form class="space-y-4" data-role="upload-links-form">
 				<div class="grid gap-4 md:grid-cols-2 mt-4">
-					<div>
-						<label for="upload-link-label" class="block text-sm font-medium text-grey-80 dark:text-grey-30 mb-1"><span id="settingsUploadLinksLabelLabel" data-type="lang">Link label</span></label>
-					<input id="upload-link-label" type="text" class="w-full rounded border border-grey-40 dark:border-grey-70 bg-white dark:bg-grey-80 px-3 py-2 text-sm text-grey-90 dark:text-grey-10 focus:outline-none focus:ring-2 focus:ring-primary" maxlength="120" data-role="upload-links-label" data-placeholder-id="settingsUploadLinksLabelPlaceholder" placeholder="Link name">
-						<p class="mt-1 text-xs text-grey-60 dark:text-grey-40"><span id="settingsUploadLinksLabelHint" data-type="lang">Use a descriptive name so you can recognize the link later. The recipient will see the label.</span></p>
+					<div class="space-y-3">
+						<div>
+							<label for="upload-link-label" class="block text-sm font-medium text-grey-80 dark:text-grey-30 mb-1"><span id="settingsUploadLinksLabelLabel" data-type="lang">Link label</span></label>
+							<input id="upload-link-label" type="text" class="w-full rounded border border-grey-40 dark:border-grey-70 bg-white dark:bg-grey-80 px-3 py-2 text-sm text-grey-90 dark:text-grey-10 focus:outline-none focus:ring-2 focus:ring-primary" maxlength="120" data-role="upload-links-label" data-placeholder-id="settingsUploadLinksLabelPlaceholder" placeholder="Link name">
+							<p class="mt-1 text-xs text-grey-60 dark:text-grey-40"><span id="settingsUploadLinksLabelHint" data-type="lang">Use a descriptive name so you can recognize the link later. The recipient will see the label.</span></p>
+						</div>
+						<div class="flex flex-col gap-1">
+							<div class="flex items-center gap-2">
+								<input type="checkbox" id="upload-link-general" class="w-4 h-4 rounded border-grey-40 dark:border-grey-70 text-primary focus:ring-2 focus:ring-primary cursor-pointer" data-role="upload-links-general">
+								<label for="upload-link-general" class="text-sm font-medium text-grey-80 dark:text-grey-30 cursor-pointer"><span id="settingsUploadLinksGeneralLabel" data-type="lang">General upload link</span></label>
+							</div>
+							<p class="text-xs text-grey-60 dark:text-grey-40 ml-6"><span id="settingsUploadLinksGeneralHint" data-type="lang">Anyone can use this link, not just a specific user</span></p>
+						</div>
 					</div>
 					<div>
 						<label for="upload-link-description" class="block text-sm font-medium text-grey-80 dark:text-grey-30 mb-1"><span id="settingsUploadLinksDescriptionLabel" data-type="lang">Internal note</span></label>
@@ -67,6 +76,7 @@
 								<tr>
 									<th scope="col" class="px-5 py-3 font-semibold"><span id="settingsUploadLinksTableLabel" data-type="lang">Label</span></th>
 									<th scope="col" class="px-5 py-3 font-semibold hidden md:table-cell"><span id="settingsUploadLinksTablePreview" data-type="lang">Preview</span></th>
+									<th scope="col" class="px-5 py-3 font-semibold"><span id="settingsUploadLinksTableType" data-type="lang">Type/User</span></th>
 									<th scope="col" class="px-5 py-3 font-semibold"><span id="settingsUploadLinksTableStatus" data-type="lang">Status</span></th>
 								<th scope="col" class="px-5 py-3 font-semibold hidden md:table-cell"><span id="settingsUploadLinksTableCreated" data-type="lang">Created</span></th>
 								<th scope="col" class="px-5 py-3 font-semibold text-right"><span id="settingsUploadLinksTableActions" data-type="lang">Actions</span></th>

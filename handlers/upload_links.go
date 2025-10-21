@@ -18,6 +18,8 @@ type uploadLinkItem struct {
 	Description string `json:"description,omitempty"`
 	Preview     string `json:"preview"`
 	Active      bool   `json:"active"`
+	Type        int    `json:"type"`
+	UserName    string `json:"user_name,omitempty"`
 	Created     int64  `json:"created"`
 	CreatedBy   int64  `json:"created_by"`
 }
@@ -29,6 +31,7 @@ type uploadLinksListResponse struct {
 type uploadLinkCreateRequest struct {
 	Label       string `json:"label"`
 	Description string `json:"description,omitempty"`
+	Type        int    `json:"type"`
 }
 
 type uploadLinkCreateResponse struct {
@@ -37,6 +40,8 @@ type uploadLinkCreateResponse struct {
 	Description string `json:"description,omitempty"`
 	Preview     string `json:"preview"`
 	Active      bool   `json:"active"`
+	Type        int    `json:"type"`
+	UserName    string `json:"user_name,omitempty"`
 	Created     int64  `json:"created"`
 	CreatedBy   int64  `json:"created_by"`
 	Link        string `json:"link"`
@@ -95,8 +100,7 @@ func NewAdminUploadLinkHandler(app *core.App) http.HandlerFunc {
 }
 
 func handleUploadLinksList(app *core.App, w http.ResponseWriter, r *http.Request) {
-	tokenType := storage.TokenTypeGeneralGuestUpload
-	tokens, err := app.DB.ListAuthTokens(&tokenType, nil, nil)
+	links, err := app.DB.ListUploadLinksWithUsers()
 	if err != nil {
 		app.Logger.Error("Upload links: failed to list tokens", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -104,18 +108,20 @@ func handleUploadLinksList(app *core.App, w http.ResponseWriter, r *http.Request
 	}
 
 	response := uploadLinksListResponse{
-		Links: make([]uploadLinkItem, 0, len(tokens)),
+		Links: make([]uploadLinkItem, 0, len(links)),
 	}
 
-	for _, token := range tokens {
+	for _, link := range links {
 		item := uploadLinkItem{
-			ID:          token.ID,
-			Label:       token.Name,
-			Description: token.Description,
-			Preview:     token.Preview,
-			Active:      token.Active,
-			Created:     token.Created,
-			CreatedBy:   token.CreatedBy,
+			ID:          link.ID,
+			Label:       link.Name,
+			Description: link.Description,
+			Preview:     link.Preview,
+			Active:      link.Active,
+			Type:        int(link.Type),
+			UserName:    link.UserName,
+			Created:     link.Created,
+			CreatedBy:   link.CreatedBy,
 		}
 		response.Links = append(response.Links, item)
 	}
@@ -138,7 +144,14 @@ func handleUploadLinksCreate(app *core.App, w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	rawToken, token, err := app.DB.GenerateGuestUploadToken(*session.UserID, req.Label, req.Description)
+	// Validate type: 2 = general, 3 = user-specific
+	tokenType := storage.AuthTokenType(req.Type)
+	if tokenType != storage.TokenTypeGeneralGuestUpload && tokenType != storage.TokenTypeSpecificGuestUpload {
+		http.Error(w, "Invalid type: must be 2 (general) or 3 (user-specific)", http.StatusBadRequest)
+		return
+	}
+
+	rawToken, token, err := app.DB.GenerateGuestUploadToken(*session.UserID, tokenType, req.Label, req.Description)
 	if err != nil {
 		app.Logger.Error("Upload links: failed to create token", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -147,18 +160,32 @@ func handleUploadLinksCreate(app *core.App, w http.ResponseWriter, r *http.Reque
 
 	link := fmt.Sprintf("%s/auth/claim/%s", resolveBaseURL(app, r), rawToken)
 
+	// Get user name for type 3 (user-specific) tokens
+	var userName string
+	if tokenType == storage.TokenTypeSpecificGuestUpload {
+		user, err := app.DB.GetUser(*session.UserID)
+		if err != nil {
+			app.Logger.Warn("Upload links: failed to get user name", "error", err, "user_id", *session.UserID)
+			userName = ""
+		} else {
+			userName = user.Name
+		}
+	}
+
 	response := uploadLinkCreateResponse{
 		ID:          token.ID,
 		Label:       token.Name,
 		Description: token.Description,
 		Preview:     token.Preview,
 		Active:      token.Active,
+		Type:        int(token.Type),
+		UserName:    userName,
 		Created:     token.Created,
 		CreatedBy:   token.CreatedBy,
 		Link:        link,
 	}
 
-	app.DBLogger.LogRequest(r, http.StatusCreated, session.UserID, "upload_link_created", "auth_token_id", token.ID, "token_preview", token.Preview)
+	app.DBLogger.LogRequest(r, http.StatusCreated, session.UserID, "upload_link_created", "auth_token_id", token.ID, "token_preview", token.Preview, "token_type", int(tokenType))
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
@@ -179,7 +206,8 @@ func handleUploadLinkRevoke(app *core.App, w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if token.Type != storage.TokenTypeGeneralGuestUpload {
+	// Allow revoking both general (type 2) and user-specific (type 3) upload links
+	if token.Type != storage.TokenTypeGeneralGuestUpload && token.Type != storage.TokenTypeSpecificGuestUpload {
 		http.Error(w, "Invalid token type", http.StatusBadRequest)
 		return
 	}

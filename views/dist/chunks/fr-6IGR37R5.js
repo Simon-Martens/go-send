@@ -337,7 +337,12 @@ settingsUploadLinksNoPreview = \u2014
 settingsUploadLinksRevokeButton = R\xE9voquer
 settingsUploadLinksCreatedUnknown = Non disponible
 settingsUploadLinksPlaceholderTitle = Envois invit\xE9s
-settingsUploadLinksPlaceholderDescription = Les administrateurs peuvent \xE9mettre des liens d\u2019envoi pour des bo\xEEtes partag\xE9es. Lorsqu\u2019un lien vous est attribu\xE9, il s\u2019affiche ici.
+settingsUploadLinksPlaceholderDescription = Les administrateurs peuvent \xE9mettre des liens d'envoi pour des bo\xEEtes partag\xE9es. Lorsqu'un lien vous est attribu\xE9, il s'affiche ici.
+settingsUploadLinksGeneralLabel = Lien d'envoi g\xE9n\xE9ral
+settingsUploadLinksGeneralHint = (N'importe qui peut utiliser ce lien, pas seulement un utilisateur sp\xE9cifique)
+settingsUploadLinksTableType = Type/Utilisateur
+settingsUploadLinksTypeGeneral = G\xE9n\xE9ral
+settingsUploadLinksTypeUserFallback = Sp\xE9cifique \xE0 l'utilisateur
 settingsAccountDeactivateConfirm = Voulez-vous vraiment d\xE9sactiver votre compte ? Vous serez imm\xE9diatement d\xE9connect\xE9.
 settingsAccountKeyHeading = Sauvegarde de la cl\xE9 priv\xE9e
 settingsAccountKeyDescription = Copiez votre cl\xE9 de chiffrement priv\xE9e et conservez-la en lieu s\xFBr. Perdre cette cl\xE9 signifie perdre l\u2019acc\xE8s aux donn\xE9es chiffr\xE9es. Gardez-la secr\xE8te.
@@ -392,4 +397,4 @@ footerUntrustedWarning = Cet ordinateur n'est pas s\xFBr ! Pensez \xE0 vous d\xE
 export {
   fr_default as default
 };
-//# sourceMappingURL=fr-G3QFZFTE.js.map
+//# sourceMappingURL=fr-6IGR37R5.js.map

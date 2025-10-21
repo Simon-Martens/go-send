@@ -502,6 +502,83 @@ func (d *DB) DeleteTokensByType(tokenType AuthTokenType) (int64, error) {
 	return result.RowsAffected()
 }
 
+// UploadLinkWithUser represents an upload link token with associated user information
+type UploadLinkWithUser struct {
+	AuthToken
+	UserName string `json:"user_name,omitempty"`
+}
+
+// ListUploadLinksWithUsers retrieves all upload link tokens (types 2 and 3) with user names
+func (d *DB) ListUploadLinksWithUsers() ([]*UploadLinkWithUser, error) {
+	query := `
+		SELECT
+			a.id, a.token, a.expires, a.expires_at, a.expires_in,
+			a.name, a.description, a.preview, a.active, a.type,
+			a.created, a.created_by,
+			CASE
+				WHEN a.type = 3 THEN u.name
+				ELSE ''
+			END as user_name
+		FROM authtokens a
+		LEFT JOIN users u ON a.created_by = u.id AND a.type = 3
+		WHERE a.type IN (2, 3)
+		ORDER BY a.created DESC
+	`
+
+	rows, err := d.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var links []*UploadLinkWithUser
+
+	for rows.Next() {
+		link := &UploadLinkWithUser{}
+		var expires, active, tokenType int
+		var expiresAt, expiresIn sql.NullInt64
+		var userName sql.NullString
+
+		err := rows.Scan(
+			&link.ID,
+			&link.Token,
+			&expires,
+			&expiresAt,
+			&expiresIn,
+			&link.Name,
+			&link.Description,
+			&link.Preview,
+			&active,
+			&tokenType,
+			&link.Created,
+			&link.CreatedBy,
+			&userName,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		link.Expires = intToBool(expires)
+		link.Active = intToBool(active)
+		link.Type = AuthTokenType(tokenType)
+
+		if expiresAt.Valid {
+			link.ExpiresAt = &expiresAt.Int64
+		}
+		if expiresIn.Valid {
+			val := int(expiresIn.Int64)
+			link.ExpiresIn = &val
+		}
+		if userName.Valid {
+			link.UserName = userName.String
+		}
+
+		links = append(links, link)
+	}
+
+	return links, rows.Err()
+}
+
 func generateReadableToken(length int) (raw string, hashed string, preview string, err error) {
 	if length <= 0 {
 		return "", "", "", fmt.Errorf("token length must be positive")
@@ -615,12 +692,18 @@ func (d *DB) GenerateSignupToken(creatorID int64, tokenType AuthTokenType, ttl t
 	return rawToken, token, nil
 }
 
-// GenerateGuestUploadToken creates a general guest upload token with the provided label and optional description.
+// GenerateGuestUploadToken creates a guest upload token with the provided type, label and optional description.
 // The returned raw token must be shown to the caller immediately, as only the hashed value is stored in the database.
-func (d *DB) GenerateGuestUploadToken(creatorID int64, name, description string) (string, *AuthToken, error) {
+// tokenType should be either TokenTypeGeneralGuestUpload (2) or TokenTypeSpecificGuestUpload (3).
+func (d *DB) GenerateGuestUploadToken(creatorID int64, tokenType AuthTokenType, name, description string) (string, *AuthToken, error) {
 	name = strings.TrimSpace(name)
 	if name == "" {
 		return "", nil, fmt.Errorf("token label is required")
+	}
+
+	// Validate token type
+	if tokenType != TokenTypeGeneralGuestUpload && tokenType != TokenTypeSpecificGuestUpload {
+		return "", nil, fmt.Errorf("invalid guest upload token type: %d (must be 2 or 3)", tokenType)
 	}
 
 	const tokenLength = 40
@@ -638,7 +721,7 @@ func (d *DB) GenerateGuestUploadToken(creatorID int64, name, description string)
 		Description: strings.TrimSpace(description),
 		Preview:     preview,
 		Active:      true,
-		Type:        TokenTypeGeneralGuestUpload,
+		Type:        tokenType,
 		CreatedBy:   creatorID,
 	}
 

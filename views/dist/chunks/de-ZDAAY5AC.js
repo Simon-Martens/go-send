@@ -338,6 +338,11 @@ settingsUploadLinksRevokeButton = Widerrufen
 settingsUploadLinksCreatedUnknown = Nicht verf\xFCgbar
 settingsUploadLinksPlaceholderTitle = Gast-Uploads
 settingsUploadLinksPlaceholderDescription = Administratoren k\xF6nnen Gast-Upload-Links f\xFCr gemeinsame Postf\xE4cher ausgeben. Sobald ein Link mit Ihnen geteilt wird, erscheint er hier.
+settingsUploadLinksGeneralLabel = Allgemeiner Upload-Link
+settingsUploadLinksGeneralHint = Jeder kann diesen Link verwenden, nicht nur ein bestimmter Benutzer
+settingsUploadLinksTableType = Typ/Benutzer
+settingsUploadLinksTypeGeneral = Allgemein
+settingsUploadLinksTypeUserFallback = Benutzerspezifisch
 settingsAccountDeactivateConfirm = M\xF6chten Sie Ihr Konto wirklich deaktivieren? Sie werden sofort abgemeldet.
 settingsAccountKeyHeading = Sicherung des privaten Schl\xFCssels
 settingsAccountKeyDescription = Kopieren Sie Ihren privaten Verschl\xFCsselungsschl\xFCssel und bewahren Sie ihn sicher auf. Ohne diesen Schl\xFCssel verlieren Sie den Zugriff auf verschl\xFCsselte Daten. Halten Sie ihn geheim.
@@ -392,4 +397,4 @@ footerUntrustedWarning = Diesem Computer wird nicht vertraut! Denken Sie daran, 
 export {
   de_default as default
 };
-//# sourceMappingURL=de-3OOCUBCF.js.map
+//# sourceMappingURL=de-ZDAAY5AC.js.map

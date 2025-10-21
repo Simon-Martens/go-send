@@ -2,7 +2,7 @@ import {
   Keychain,
   OwnedFile,
   storage_default
-} from "./chunk-TCL375PP.js";
+} from "./chunk-4T7GFWSU.js";
 import {
   arrayToB64,
   b64ToArray
@@ -70,7 +70,10 @@ async function syncOwnedFiles(userSecrets, options = {}) {
             dlimit: file.dl_limit,
             dtotal: file.dl_count,
             hasPassword: file.password,
-            timeLimit: file.time_limit
+            timeLimit: file.time_limit,
+            ownerString: file.owner_string || "",
+            authString: file.auth_string || "",
+            recipientString: file.recipient_string || ""
           });
           storage_default.addFile(ownedFile);
           addedCount++;
@@ -92,4 +95,4 @@ async function syncOwnedFiles(userSecrets, options = {}) {
 export {
   syncOwnedFiles
 };
-//# sourceMappingURL=chunk-VA7UHQJ2.js.map
+//# sourceMappingURL=chunk-U3SHF4DJ.js.map

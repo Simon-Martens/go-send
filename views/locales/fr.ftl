@@ -373,6 +373,12 @@ loginSubmitting = Connexion…
 loginErrorChallenge = Impossible de démarrer le défi de connexion. Veuillez réessayer.
 loginErrorGeneric = Échec de la connexion. Veuillez réessayer.
 
+## File ownership labels
+
+fileTileFrom = DE
+fileTileTo = À
+fileTileGuest = Invité
+
 footerLinkCli = CLI
 footerLinkDmca = DMCA
 footerLinkSource = Code source

@@ -374,8 +374,14 @@ loginSubmitButton = Sign in
 loginSubmitting = Signing in...
 loginErrorChallenge = Could not start login challenge. Please try again.
 loginErrorGeneric = Login failed. Please try again.
+
+## File ownership labels
+
+fileTileFrom = FROM
+fileTileTo = TO
+fileTileGuest = Guest
 `;
 export {
   en_US_default as default
 };
-//# sourceMappingURL=en-US-XPGHHJVS.js.map
+//# sourceMappingURL=en-US-OT6JPHFS.js.map

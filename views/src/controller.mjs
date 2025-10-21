@@ -254,6 +254,7 @@ export class Controller {
       archiveName,
       recipientUserId,
       recipientPublicKey,
+      recipientName,
     } = event.detail;
     const archive = this.state.archive;
 
@@ -281,14 +282,20 @@ export class Controller {
     if (recipientUserId !== undefined || recipientPublicKey !== undefined) {
       if (recipientUserId && recipientPublicKey) {
         archive.setRecipient(recipientUserId, recipientPublicKey);
+        // Store recipient name for display
+        if (recipientName) {
+          archive.recipientName = recipientName;
+        }
       } else {
         archive.clearRecipient();
+        archive.recipientName = null;
       }
     }
     console.log("[Controller] Updated archive options", {
       timeLimit: archive.timeLimit,
       downloadLimit: archive.dlimit,
       password: archive.password ? "***" : null,
+      recipientName: archive.recipientName,
     });
   }
 

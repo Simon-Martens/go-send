@@ -376,6 +376,12 @@ loginSubmitting = Anmeldung l\xE4uft\u2026
 loginErrorChallenge = Anmeldeanforderung konnte nicht gestartet werden. Bitte versuchen Sie es erneut.
 loginErrorGeneric = Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.
 
+## File ownership labels
+
+fileTileFrom = VON
+fileTileTo = AN
+fileTileGuest = Gast
+
 footerLinkCli = CLI
 footerLinkDmca = DMCA
 footerLinkSource = Quellcode
@@ -386,4 +392,4 @@ footerUntrustedWarning = Diesem Computer wird nicht vertraut! Denken Sie daran, 
 export {
   de_default as default
 };
-//# sourceMappingURL=de-6EKRBKH3.js.map
+//# sourceMappingURL=de-3OOCUBCF.js.map

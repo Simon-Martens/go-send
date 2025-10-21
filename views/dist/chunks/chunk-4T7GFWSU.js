@@ -3449,6 +3449,9 @@ var OwnedFile = class {
     this.keychain = new Keychain(obj.secretKey, obj.nonce);
     this._hasPassword = !!obj.hasPassword;
     this.timeLimit = obj.timeLimit;
+    this.ownerString = obj.ownerString || "";
+    this.authString = obj.authString || "";
+    this.recipientString = obj.recipientString || "";
   }
   get hasPassword() {
     return !!this._hasPassword;
@@ -3509,7 +3512,10 @@ var OwnedFile = class {
       dlimit: this.dlimit,
       dtotal: this.dtotal,
       hasPassword: this.hasPassword,
-      timeLimit: this.timeLimit
+      timeLimit: this.timeLimit,
+      ownerString: this.ownerString,
+      authString: this.authString,
+      recipientString: this.recipientString
     };
   }
 };
@@ -3805,4 +3811,4 @@ export {
 @noble/curves/esm/ed25519.js:
   (*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
 */
-//# sourceMappingURL=chunk-TCL375PP.js.map
+//# sourceMappingURL=chunk-4T7GFWSU.js.map

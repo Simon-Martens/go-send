@@ -24,6 +24,7 @@ export default class Archive {
     this.customArchiveName = null;
     this.recipientUserId = null; // ID of user to encrypt for (optional)
     this.recipientPublicKey = null; // X25519 public key of recipient (base64)
+    this.recipientName = null; // Name of recipient for display
   }
 
   get name() {
@@ -99,6 +100,7 @@ export default class Archive {
     this.customArchiveName = null;
     this.recipientUserId = null;
     this.recipientPublicKey = null;
+    this.recipientName = null;
   }
 
   setRecipient(userId, publicKey) {
@@ -109,5 +111,6 @@ export default class Archive {
   clearRecipient() {
     this.recipientUserId = null;
     this.recipientPublicKey = null;
+    this.recipientName = null;
   }
 }

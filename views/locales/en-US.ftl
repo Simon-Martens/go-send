@@ -371,3 +371,9 @@ loginSubmitButton = Sign in
 loginSubmitting = Signing in...
 loginErrorChallenge = Could not start login challenge. Please try again.
 loginErrorGeneric = Login failed. Please try again.
+
+## File ownership labels
+
+fileTileFrom = FROM
+fileTileTo = TO
+fileTileGuest = Guest

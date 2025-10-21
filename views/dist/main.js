@@ -1,6 +1,6 @@
 import {
   syncOwnedFiles
-} from "./chunks/chunk-VA7UHQJ2.js";
+} from "./chunks/chunk-U3SHF4DJ.js";
 import {
   APP_VERSION,
   Keychain,
@@ -9,7 +9,7 @@ import {
   USER_ROLES,
   UserSecrets,
   storage_default
-} from "./chunks/chunk-TCL375PP.js";
+} from "./chunks/chunk-4T7GFWSU.js";
 import {
   blobStream,
   concatStream,
@@ -804,6 +804,8 @@ var FileSender = class extends EventTarget {
       this.uploadRequest = null;
       this.progress = [1, 1];
       const secretKey = arrayToB64(this.keychain.rawSecret);
+      const ownerString = storage_default.user && storage_default.user.name ? storage_default.user.name : "";
+      const recipientString = archive.recipientName || "";
       const ownedFile = new OwnedFile({
         id: result.id,
         url: `${result.url}#${secretKey}`,
@@ -818,7 +820,11 @@ var FileSender = class extends EventTarget {
         nonce: this.keychain.nonce,
         ownerToken: result.ownerToken,
         dlimit: archive.dlimit,
-        timeLimit: archive.timeLimit
+        timeLimit: archive.timeLimit,
+        ownerString,
+        authString: "",
+        // Not used for logged-in user uploads
+        recipientString
       });
       return ownedFile;
     } catch (e) {
@@ -1825,12 +1831,12 @@ var localeLoaders = {
   cs: () => import("./chunks/cs-4CHTXZSU.js"),
   cy: () => import("./chunks/cy-RP2L2OUK.js"),
   da: () => import("./chunks/da-DPZF5LGO.js"),
-  de: () => import("./chunks/de-6EKRBKH3.js"),
+  de: () => import("./chunks/de-3OOCUBCF.js"),
   dsb: () => import("./chunks/dsb-L7O73QFV.js"),
   el: () => import("./chunks/el-4RABOQBG.js"),
   "en-CA": () => import("./chunks/en-CA-DJ4OOLA4.js"),
   "en-GB": () => import("./chunks/en-GB-D7G7RTNJ.js"),
-  "en-US": () => import("./chunks/en-US-XPGHHJVS.js"),
+  "en-US": () => import("./chunks/en-US-OT6JPHFS.js"),
   "es-AR": () => import("./chunks/es-AR-6PZGYKH3.js"),
   "es-CL": () => import("./chunks/es-CL-HE4SPZ7U.js"),
   "es-ES": () => import("./chunks/es-ES-XGWIURD2.js"),
@@ -1839,7 +1845,7 @@ var localeLoaders = {
   eu: () => import("./chunks/eu-Q6CLLOH3.js"),
   fa: () => import("./chunks/fa-AEOEUDQ4.js"),
   fi: () => import("./chunks/fi-SI2D7DPR.js"),
-  fr: () => import("./chunks/fr-RO7FD4ZC.js"),
+  fr: () => import("./chunks/fr-G3QFZFTE.js"),
   "fy-NL": () => import("./chunks/fy-NL-C7AQWS3X.js"),
   gn: () => import("./chunks/gn-6SZWZLYL.js"),
   gor: () => import("./chunks/gor-4LJ2LDF3.js"),
@@ -1899,7 +1905,7 @@ var localeLoaders = {
 };
 async function getTranslator(locale2) {
   const bundles = [];
-  const { default: en } = await import("./chunks/en-US-XPGHHJVS.js");
+  const { default: en } = await import("./chunks/en-US-OT6JPHFS.js");
   if (locale2 !== "en-US" && localeLoaders[locale2]) {
     const { default: ftl } = await localeLoaders[locale2]();
     bundles.push(makeBundle(locale2, ftl));
@@ -1934,6 +1940,7 @@ var Archive = class {
     this.customArchiveName = null;
     this.recipientUserId = null;
     this.recipientPublicKey = null;
+    this.recipientName = null;
   }
   get name() {
     if (this.files.length > 1) {
@@ -1996,6 +2003,7 @@ var Archive = class {
     this.customArchiveName = null;
     this.recipientUserId = null;
     this.recipientPublicKey = null;
+    this.recipientName = null;
   }
   setRecipient(userId, publicKey) {
     this.recipientUserId = userId;
@@ -2004,6 +2012,7 @@ var Archive = class {
   clearRecipient() {
     this.recipientUserId = null;
     this.recipientPublicKey = null;
+    this.recipientName = null;
   }
 };
 
@@ -2239,7 +2248,8 @@ var Controller = class {
       password,
       archiveName,
       recipientUserId,
-      recipientPublicKey
+      recipientPublicKey,
+      recipientName
     } = event.detail;
     const archive = this.state.archive;
     if (!archive) {
@@ -2260,14 +2270,19 @@ var Controller = class {
     if (recipientUserId !== void 0 || recipientPublicKey !== void 0) {
       if (recipientUserId && recipientPublicKey) {
         archive.setRecipient(recipientUserId, recipientPublicKey);
+        if (recipientName) {
+          archive.recipientName = recipientName;
+        }
       } else {
         archive.clearRecipient();
+        archive.recipientName = null;
       }
     }
     console.log("[Controller] Updated archive options", {
       timeLimit: archive.timeLimit,
       downloadLimit: archive.dlimit,
-      password: archive.password ? "***" : null
+      password: archive.password ? "***" : null,
+      recipientName: archive.recipientName
     });
   }
   async handleUpload(event) {
@@ -2981,8 +2996,8 @@ async function initUploadRoute(app) {
   console.log("[Route] Initializing upload page...");
   await Promise.all([
     import("./chunks/upload-layout-DFS3ROWS.js"),
-    import("./chunks/upload-area-T7VBNUII.js"),
-    import("./chunks/upload-right-5USDMGVM.js"),
+    import("./chunks/upload-area-WAJAHBJP.js"),
+    import("./chunks/upload-right-MSPYIEIJ.js"),
     app.controller.ready
   ]);
   app.showUploadLayout();
@@ -3005,7 +3020,7 @@ async function initDownloadRoute(app) {
 async function initRegisterRoute(app) {
   console.log("[Route] Initializing register page...");
   await Promise.all([
-    import("./chunks/register-layout-7Y5TSQRE.js"),
+    import("./chunks/register-layout-UKGMQY2Q.js"),
     app.controller.ready
   ]);
   app.showRegisterLayout();
@@ -3014,7 +3029,7 @@ async function initRegisterRoute(app) {
 async function initLoginRoute(app) {
   console.log("[Route] Initializing login page...");
   await Promise.all([
-    import("./chunks/login-layout-GLWGWKPQ.js"),
+    import("./chunks/login-layout-3SN7T752.js"),
     app.controller.ready
   ]);
   app.showLoginLayout();
@@ -3023,7 +3038,7 @@ async function initLoginRoute(app) {
 async function initSettingsRoute(app) {
   console.log("[Route] Initializing settings page...");
   await Promise.all([
-    import("./chunks/settings-layout-DGAUM7Z6.js"),
+    import("./chunks/settings-layout-5DHRPCFN.js"),
     app.controller.ready
   ]);
   app.showSettingsLayout();

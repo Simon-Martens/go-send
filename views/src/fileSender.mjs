@@ -140,6 +140,13 @@ export default class FileSender extends EventTarget {
       this.uploadRequest = null;
       this.progress = [1, 1];
       const secretKey = arrayToB64(this.keychain.rawSecret);
+
+      // Get owner name from logged-in user (if available)
+      const ownerString = storage.user && storage.user.name ? storage.user.name : "";
+
+      // Get recipient name from archive (if one was selected)
+      const recipientString = archive.recipientName || "";
+
       const ownedFile = new OwnedFile({
         id: result.id,
         url: `${result.url}#${secretKey}`,
@@ -155,6 +162,9 @@ export default class FileSender extends EventTarget {
         ownerToken: result.ownerToken,
         dlimit: archive.dlimit,
         timeLimit: archive.timeLimit,
+        ownerString: ownerString,
+        authString: "", // Not used for logged-in user uploads
+        recipientString: recipientString,
       });
 
       return ownedFile;

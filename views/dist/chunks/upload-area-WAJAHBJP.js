@@ -1177,6 +1177,7 @@ var UploadListView = class extends HTMLElement {
     }
   }
   handleRecipientChange(event) {
+    var _a;
     const selectedValue = event.target.value;
     if (!selectedValue) {
       this._recipientUserId = null;
@@ -1187,7 +1188,8 @@ var UploadListView = class extends HTMLElement {
           bubbles: true,
           detail: {
             recipientUserId: null,
-            recipientPublicKey: null
+            recipientPublicKey: null,
+            recipientName: null
           }
         })
       );
@@ -1200,6 +1202,7 @@ var UploadListView = class extends HTMLElement {
     }
     const selectedOption = event.target.selectedOptions[0];
     const publicKey = selectedOption == null ? void 0 : selectedOption.dataset.publicKey;
+    const recipientName = ((_a = selectedOption == null ? void 0 : selectedOption.textContent) == null ? void 0 : _a.trim()) || "";
     if (!publicKey) {
       console.warn("[UploadListView] Selected user has no public key", userId);
       return;
@@ -1212,7 +1215,8 @@ var UploadListView = class extends HTMLElement {
         bubbles: true,
         detail: {
           recipientUserId: userId,
-          recipientPublicKey: publicKey
+          recipientPublicKey: publicKey,
+          recipientName
         }
       })
     );
@@ -1889,4 +1893,4 @@ var UploadAreaElement = class extends HTMLElement {
   }
 };
 customElements.define("upload-area", UploadAreaElement);
-//# sourceMappingURL=upload-area-T7VBNUII.js.map
+//# sourceMappingURL=upload-area-WAJAHBJP.js.map

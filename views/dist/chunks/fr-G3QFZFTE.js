@@ -376,6 +376,12 @@ loginSubmitting = Connexion\u2026
 loginErrorChallenge = Impossible de d\xE9marrer le d\xE9fi de connexion. Veuillez r\xE9essayer.
 loginErrorGeneric = \xC9chec de la connexion. Veuillez r\xE9essayer.
 
+## File ownership labels
+
+fileTileFrom = DE
+fileTileTo = \xC0
+fileTileGuest = Invit\xE9
+
 footerLinkCli = CLI
 footerLinkDmca = DMCA
 footerLinkSource = Code source
@@ -386,4 +392,4 @@ footerUntrustedWarning = Cet ordinateur n'est pas s\xFBr ! Pensez \xE0 vous d\xE
 export {
   fr_default as default
 };
-//# sourceMappingURL=fr-RO7FD4ZC.js.map
+//# sourceMappingURL=fr-G3QFZFTE.js.map

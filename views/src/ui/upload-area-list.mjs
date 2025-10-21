@@ -1195,7 +1195,8 @@ class UploadListView extends HTMLElement {
           bubbles: true,
           detail: {
             recipientUserId: null,
-            recipientPublicKey: null
+            recipientPublicKey: null,
+            recipientName: null
           },
         }),
       );
@@ -1211,6 +1212,7 @@ class UploadListView extends HTMLElement {
 
     const selectedOption = event.target.selectedOptions[0];
     const publicKey = selectedOption?.dataset.publicKey;
+    const recipientName = selectedOption?.textContent?.trim() || "";
 
     if (!publicKey) {
       console.warn("[UploadListView] Selected user has no public key", userId);
@@ -1226,7 +1228,8 @@ class UploadListView extends HTMLElement {
         bubbles: true,
         detail: {
           recipientUserId: userId,
-          recipientPublicKey: publicKey
+          recipientPublicKey: publicKey,
+          recipientName: recipientName
         },
       }),
     );

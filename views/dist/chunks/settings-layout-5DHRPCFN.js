@@ -7,7 +7,7 @@ import {
   getPublicKey,
   normalizeKDFSettings,
   serializeKDFSettings
-} from "./chunk-2SBEPK26.js";
+} from "./chunk-ZTZWVLC7.js";
 import {
   qrcode_default
 } from "./chunk-U2YGIKKI.js";
@@ -17,7 +17,7 @@ import {
   UserSecrets,
   storage_default,
   x25519
-} from "./chunk-TCL375PP.js";
+} from "./chunk-4T7GFWSU.js";
 import "./chunk-PC246CWX.js";
 import {
   arrayToB64,
@@ -1261,9 +1261,9 @@ var SettingsLayout = class extends HTMLElement {
     }
   }
   _createUploadLinkRow(link) {
-    const template = document.getElementById("upload-links-row");
+    const template = document.getElementById("settings-upload-link-item");
     if (!template) {
-      console.error("Template #upload-links-row not found");
+      console.error("Template #settings-upload-link-item not found");
       return null;
     }
     const fragment = template.content.cloneNode(true);
@@ -1286,24 +1286,22 @@ var SettingsLayout = class extends HTMLElement {
         descriptionEl.classList.add("hidden");
       }
     }
-    const previewEl = row.querySelector('[data-role="preview"]');
-    if (previewEl) {
+    const previewBadge = row.querySelector('[data-role="preview-badge"]');
+    const previewNone = row.querySelector('[data-role="preview-none"]');
+    if (previewBadge && previewNone) {
       const previewValue = (link.preview || "").trim();
-      previewEl.innerHTML = "";
       if (previewValue) {
-        const previewBadge = document.createElement("span");
-        previewBadge.className = "font-mono text-xs bg-grey-10 dark:bg-grey-80/40 px-2 py-1 rounded";
         previewBadge.textContent = previewValue;
-        previewEl.appendChild(previewBadge);
+        previewBadge.classList.remove("hidden");
+        previewNone.classList.add("hidden");
       } else {
-        previewEl.textContent = translate("settingsUploadLinksNoPreview");
+        previewBadge.classList.add("hidden");
+        previewNone.classList.remove("hidden");
       }
     }
     const statusWrapper = row.querySelector('[data-role="status"]');
-    const statusIcon = statusWrapper == null ? void 0 : statusWrapper.querySelector("i");
-    const statusText = statusWrapper == null ? void 0 : statusWrapper.querySelector(
-      '[data-role="status-text"]'
-    );
+    const statusIcon = statusWrapper == null ? void 0 : statusWrapper.querySelector('[data-role="status-icon"]');
+    const statusText = statusWrapper == null ? void 0 : statusWrapper.querySelector('[data-role="status-text"]');
     if (statusWrapper && statusIcon && statusText) {
       const baseClass = "inline-flex items-center gap-2 text-xs font-medium";
       if (link.active) {
@@ -1313,9 +1311,7 @@ var SettingsLayout = class extends HTMLElement {
       } else {
         statusWrapper.className = `${baseClass} text-grey-60 dark:text-grey-40`;
         statusIcon.className = "ri-forbid-2-line text-sm leading-4";
-        statusText.textContent = translate(
-          "settingsUploadLinksStatusRevokedLabel"
-        );
+        statusText.textContent = translate("settingsUploadLinksStatusRevokedLabel");
       }
     }
     const createdEl = row.querySelector('[data-role="created"]');
@@ -1323,32 +1319,15 @@ var SettingsLayout = class extends HTMLElement {
       createdEl.textContent = this._formatUploadLinkTimestamp(link.created);
     }
     const revokeButton = row.querySelector('[data-role="revoke-button"]');
-    const revokeLabel = revokeButton == null ? void 0 : revokeButton.querySelector(
-      '[data-role="revoke-label"]'
-    );
     const revokedBadge = row.querySelector('[data-role="revoked-indicator"]');
-    if (revokeButton) {
+    if (revokeButton && revokedBadge) {
       revokeButton.dataset.action = "revoke";
       revokeButton.dataset.tokenId = String(link.id);
       if (link.active) {
-        revokeButton.className = "inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded border border-red-200 dark:border-red-400/40 text-red-600 dark:text-red-400 bg-red-50/70 dark:bg-red-900/10 hover:bg-red-50 dark:hover:bg-red-900/20 transition cursor-pointer";
-        if (revokeLabel) {
-          revokeLabel.textContent = translate(
-            "settingsUploadLinksRevokeButton"
-          );
-        }
         revokeButton.classList.remove("hidden");
-        if (revokedBadge) {
-          revokedBadge.classList.add("hidden");
-        }
       } else {
         revokeButton.remove();
-        if (revokedBadge) {
-          revokedBadge.textContent = translate(
-            "settingsUploadLinksRevokedBadge"
-          );
-          revokedBadge.classList.remove("hidden");
-        }
+        revokedBadge.classList.remove("hidden");
       }
     }
     return row;
@@ -1424,107 +1403,157 @@ var SettingsLayout = class extends HTMLElement {
     if (this._usersListEmpty) {
       this._usersListEmpty.classList.add("hidden");
     }
-    const rows = this._usersData.map((user) => this._renderUserRow(user)).join("");
-    this._usersTableBody.innerHTML = rows;
+    this._usersTableBody.innerHTML = "";
+    for (const user of this._usersData) {
+      const row = this._createUserRow(user);
+      if (row) {
+        this._usersTableBody.appendChild(row);
+      }
+    }
   }
-  _renderUserRow(user) {
+  _createUserRow(user) {
     var _a;
-    const displayName = this._getDisplayName(user);
-    const roleLabel = this._formatUserRole(user.role);
-    const statusLabel = this._formatUserStatus(user.active);
-    const statusClass = user.active ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400";
-    const emailText = ((_a = user.email) == null ? void 0 : _a.trim()) || "";
+    const template = document.getElementById("settings-user-item");
+    if (!template) {
+      console.error("Template #settings-user-item not found");
+      return null;
+    }
+    const fragment = template.content.cloneNode(true);
+    const row = fragment.querySelector('[data-role="user-row"]');
+    if (!row) {
+      return null;
+    }
+    row.dataset.userId = String(user.id);
+    const nameEl = row.querySelector('[data-role="user-name"]');
+    if (nameEl) {
+      nameEl.textContent = this._getDisplayName(user);
+    }
+    const youBadge = row.querySelector('[data-role="you-badge"]');
+    if (youBadge) {
+      if (user.is_current_user) {
+        youBadge.classList.remove("hidden");
+      } else {
+        youBadge.remove();
+      }
+    }
+    const roleLabel = row.querySelector('[data-role="role-label"]');
+    const statusLabel = row.querySelector('[data-role="status-label"]');
+    const metaSeparator = row.querySelector('[data-role="meta-separator"]');
+    const roleLabelText = this._formatUserRole(user.role);
+    const statusLabelText = this._formatUserStatus(user.active);
+    if (roleLabel && roleLabelText) {
+      roleLabel.textContent = roleLabelText;
+    }
+    if (statusLabel && statusLabelText) {
+      statusLabel.textContent = statusLabelText;
+      const statusClass = user.active ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400";
+      statusLabel.className = statusClass;
+      if (metaSeparator) {
+        metaSeparator.classList.remove("hidden");
+      }
+    }
+    const emailEl = row.querySelector('[data-role="user-email"]');
+    if (emailEl) {
+      const emailText = ((_a = user.email) == null ? void 0 : _a.trim()) || "";
+      emailEl.textContent = emailText || "\u2014";
+    }
+    const signingKeyEl = row.querySelector('[data-role="signing-key"]');
     const signingKeyTitle = (user.public_key || "").trim();
-    const encryptionKeyTitle = (user.encryption_public_key || "").trim();
     const signingKey = this._formatKey(signingKeyTitle);
+    if (signingKeyEl) {
+      signingKeyEl.textContent = signingKey;
+      if (signingKeyTitle) {
+        signingKeyEl.title = signingKeyTitle;
+      }
+    }
+    const encryptionKeyEl = row.querySelector('[data-role="encryption-key"]');
+    const encryptionKeyTitle = (user.encryption_public_key || "").trim();
     const encryptionKey = this._formatKey(encryptionKeyTitle);
-    const clearDisabled = user.active_sessions === 0;
-    const deleteDisabled = user.is_current_user;
-    const clearButtonLabel = translate("settingsUsersActionClearSessions");
-    const deleteButtonLabel = translate("settingsUsersActionDelete");
-    const signingLabel = translate("settingsUsersKeySigning");
-    const encryptionLabel = translate("settingsUsersKeyEncryption");
-    const baseButtonClass = "inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded border transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed";
-    const clearButtonClass = `${baseButtonClass} text-grey-80 dark:text-grey-20 border-grey-30 dark:border-grey-60 bg-grey-5 dark:bg-grey-80/40 hover:bg-grey-10 dark:hover:bg-grey-70`;
-    const deleteButtonClass = `${baseButtonClass} text-red-600 dark:text-red-400 border-red-200 dark:border-red-400/40 bg-red-50/60 dark:bg-red-900/20 hover:bg-red-50 dark:hover:bg-red-900/30`;
-    const deactivateButtonClass = `${baseButtonClass} text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-400/40 bg-yellow-50/60 dark:bg-yellow-900/20 hover:bg-yellow-50 dark:hover:bg-yellow-900/30`;
-    const activateButtonClass = `${baseButtonClass} text-green-700 dark:text-green-300 border-green-200 dark:border-green-400/40 bg-green-50/60 dark:bg-green-900/20 hover:bg-green-50 dark:hover:bg-green-900/30`;
-    const toggleAction = user.active ? "deactivate" : "activate";
-    const toggleButtonLabel = user.active ? translate("settingsUsersActionDeactivate") : translate("settingsUsersActionActivate");
-    const toggleIcon = user.active ? "ri-user-unfollow-line" : "ri-user-follow-line";
-    const toggleDisabled = user.active && user.is_current_user;
-    const toggleDisabledTitle = toggleDisabled ? ` title="${this._escapeHTML(translate("settingsUsersActionDeactivateSelfError"))}"` : "";
-    const detailTags = [];
-    if (roleLabel) {
-      detailTags.push(`<span>${this._escapeHTML(roleLabel)}</span>`);
+    if (encryptionKeyEl) {
+      encryptionKeyEl.textContent = encryptionKey;
+      if (encryptionKeyTitle) {
+        encryptionKeyEl.title = encryptionKeyTitle;
+      }
     }
-    if (statusLabel) {
-      detailTags.push(
-        `<span class="${statusClass}">${this._escapeHTML(statusLabel)}</span>`
-      );
+    const copySigningBtn = row.querySelector('[data-role="copy-signing-key"]');
+    if (copySigningBtn) {
+      if (signingKeyTitle) {
+        copySigningBtn.dataset.userId = String(user.id);
+        copySigningBtn.dataset.keyValue = signingKeyTitle;
+        const copyActionLabel = translate("copyLinkButton");
+        const signingCopyLabel = `${copyActionLabel} \u2013 ${translate("settingsUsersKeySigning")}`;
+        copySigningBtn.setAttribute("aria-label", signingCopyLabel);
+        copySigningBtn.title = signingCopyLabel;
+        const srLabel = copySigningBtn.querySelector(".sr-only");
+        if (srLabel) {
+          srLabel.textContent = signingCopyLabel;
+        }
+        copySigningBtn.classList.remove("hidden");
+      }
     }
-    let you;
-    if (user.is_current_user) {
-      const youLabel = translate("settingsUsersCurrentUserLabel");
-      you = `<span class="ml-1.5 inline-flex items-center px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium">${this._escapeHTML(youLabel)}</span>`;
+    const copyEncryptionBtn = row.querySelector('[data-role="copy-encryption-key"]');
+    if (copyEncryptionBtn) {
+      if (encryptionKeyTitle) {
+        copyEncryptionBtn.dataset.userId = String(user.id);
+        copyEncryptionBtn.dataset.keyValue = encryptionKeyTitle;
+        const copyActionLabel = translate("copyLinkButton");
+        const encryptionCopyLabel = `${copyActionLabel} \u2013 ${translate("settingsUsersKeyEncryption")}`;
+        copyEncryptionBtn.setAttribute("aria-label", encryptionCopyLabel);
+        copyEncryptionBtn.title = encryptionCopyLabel;
+        const srLabel = copyEncryptionBtn.querySelector(".sr-only");
+        if (srLabel) {
+          srLabel.textContent = encryptionCopyLabel;
+        }
+        copyEncryptionBtn.classList.remove("hidden");
+      }
     }
-    const metaParts = detailTags.filter(Boolean).join(" \xB7 ");
-    const signingTitleAttr = signingKeyTitle ? ` title="${this._escapeHTML(signingKeyTitle)}"` : "";
-    const encryptionTitleAttr = encryptionKeyTitle ? ` title="${this._escapeHTML(encryptionKeyTitle)}"` : "";
-    const clearDisabledTitle = clearDisabled ? ` title="${this._escapeHTML(translate("settingsUsersActionClearDisabledTooltip"))}"` : "";
-    const deleteDisabledTitle = deleteDisabled ? ` title="${this._escapeHTML(translate("settingsUsersActionDeleteSelfTooltip"))}"` : "";
-    const toggleAriaAttr = ` aria-label="${this._escapeHTML(toggleButtonLabel)}"`;
-    const clearAriaAttr = ` aria-label="${this._escapeHTML(clearButtonLabel)}"`;
-    const deleteAriaAttr = ` aria-label="${this._escapeHTML(deleteButtonLabel)}"`;
-    const toggleDisabledAttr = toggleDisabled ? " disabled" : "";
-    const clearDisabledAttr = clearDisabled ? " disabled" : "";
-    const deleteDisabledAttr = deleteDisabled ? " disabled" : "";
-    const clearButtonContent = `<i class="ri-refresh-line text-base leading-4" aria-hidden="true"></i>`;
-    const deleteButtonContent = `<i class="ri-delete-bin-6-line text-base leading-4" aria-hidden="true"></i>`;
-    const toggleButtonContent = `<i class="${toggleIcon} text-base leading-4" aria-hidden="true"></i>`;
-    const copyButtonClass = "inline-flex h-7 w-7 shrink-0 items-center justify-center rounded border border-grey-30 dark:border-grey-60 bg-white dark:bg-grey-80 text-grey-60 dark:text-grey-30 hover:text-primary hover:bg-grey-10 dark:hover:bg-grey-70 focus:outline focus:outline-2 focus:outline-primary transition cursor-pointer";
-    const copyButtonIconClass = "ri-file-copy-2-line text-base leading-4";
-    const copyActionLabel = translate("copyLinkButton");
-    const signingCopyLabel = `${copyActionLabel} \u2013 ${translate("settingsUsersKeySigning")}`;
-    const encryptionCopyLabel = `${copyActionLabel} \u2013 ${translate("settingsUsersKeyEncryption")}`;
-    const signingCopyButton = signingKeyTitle ? `<button type="button" class="${copyButtonClass}" data-user-action="copy-key" data-user-id="${user.id}" data-key-value="${this._escapeHTML(signingKeyTitle)}" aria-label="${this._escapeHTML(signingCopyLabel)}" title="${this._escapeHTML(signingCopyLabel)}"><i class="${copyButtonIconClass}" aria-hidden="true"></i><span class="sr-only">${this._escapeHTML(signingCopyLabel)}</span></button>` : "";
-    const encryptionCopyButton = encryptionKeyTitle ? `<button type="button" class="${copyButtonClass}" data-user-action="copy-key" data-user-id="${user.id}" data-key-value="${this._escapeHTML(encryptionKeyTitle)}" aria-label="${this._escapeHTML(encryptionCopyLabel)}" title="${this._escapeHTML(encryptionCopyLabel)}"><i class="${copyButtonIconClass}" aria-hidden="true"></i><span class="sr-only">${this._escapeHTML(encryptionCopyLabel)}</span></button>` : "";
-    const toggleButtonClass = user.active ? deactivateButtonClass : activateButtonClass;
-    return `
-      <tr class="align-top">
-        <td class="px-4 py-4">
-          <div class="font-medium text-grey-90 dark:text-grey-10">${this._escapeHTML(displayName)}${you || ""}</div>
-          <div class="text-xs text-grey-60 dark:text-grey-40 mt-1">${metaParts || ""}</div>
-        </td>
-        <td class="px-4 py-4 text-sm text-grey-80 dark:text-grey-20">${emailText ? this._escapeHTML(emailText) : "\u2014"}</td>
-        <td class="px-4 py-4 text-sm">
-          <div class="space-y-3">
-            <div class="flex flex-col gap-1">
-              <span class="text-xs uppercase tracking-wide text-grey-60 dark:text-grey-40">${this._escapeHTML(signingLabel)}</span>
-              <div class="flex items-center gap-2 min-w-0">
-                <code class="flex-1 min-w-0 font-mono text-xs text-grey-80 dark:text-grey-20 whitespace-nowrap overflow-hidden text-ellipsis"${signingTitleAttr}>${this._escapeHTML(signingKey)}</code>
-                ${signingCopyButton}
-              </div>
-            </div>
-            <div class="flex flex-col gap-1">
-              <span class="text-xs uppercase tracking-wide text-grey-60 dark:text-grey-40">${this._escapeHTML(encryptionLabel)}</span>
-              <div class="flex items-center gap-2 min-w-0">
-                <code class="flex-1 min-w-0 font-mono text-xs text-grey-80 dark:text-grey-20 whitespace-nowrap overflow-hidden text-ellipsis"${encryptionTitleAttr}>${this._escapeHTML(encryptionKey)}</code>
-                ${encryptionCopyButton}
-              </div>
-            </div>
-          </div>
-        </td>
-        <td class="px-4 py-4 text-sm text-grey-80 dark:text-grey-20">${Number.isFinite(user.active_sessions) ? user.active_sessions : 0}</td>
-        <td class="px-4 py-4">
-          <div class="flex items-center gap-2">
-            <button type="button" class="${toggleButtonClass}" data-user-action="${toggleAction}" data-user-id="${user.id}"${toggleAriaAttr}${toggleDisabledAttr}${toggleDisabledTitle}>${toggleButtonContent}</button>
-            <button type="button" class="${clearButtonClass}" data-user-action="clear-sessions" data-user-id="${user.id}"${clearAriaAttr}${clearDisabledAttr}${clearDisabledTitle}>${clearButtonContent}</button>
-            <button type="button" class="${deleteButtonClass}" data-user-action="delete" data-user-id="${user.id}"${deleteAriaAttr}${deleteDisabledAttr}${deleteDisabledTitle}>${deleteButtonContent}</button>
-          </div>
-        </td>
-      </tr>
-    `;
+    const sessionsEl = row.querySelector('[data-role="sessions-count"]');
+    if (sessionsEl) {
+      sessionsEl.textContent = Number.isFinite(user.active_sessions) ? String(user.active_sessions) : "0";
+    }
+    const toggleButton = row.querySelector('[data-role="toggle-button"]');
+    if (toggleButton) {
+      const toggleAction = user.active ? "deactivate" : "activate";
+      const toggleIcon = user.active ? "ri-user-unfollow-line" : "ri-user-follow-line";
+      const toggleButtonLabel = user.active ? translate("settingsUsersActionDeactivate") : translate("settingsUsersActionActivate");
+      const baseButtonClass = "inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded border transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed";
+      const deactivateButtonClass = `${baseButtonClass} text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-400/40 bg-yellow-50/60 dark:bg-yellow-900/20 hover:bg-yellow-50 dark:hover:bg-yellow-900/30`;
+      const activateButtonClass = `${baseButtonClass} text-green-700 dark:text-green-300 border-green-200 dark:border-green-400/40 bg-green-50/60 dark:bg-green-900/20 hover:bg-green-50 dark:hover:bg-green-900/30`;
+      toggleButton.className = user.active ? deactivateButtonClass : activateButtonClass;
+      toggleButton.dataset.userAction = toggleAction;
+      toggleButton.dataset.userId = String(user.id);
+      toggleButton.setAttribute("aria-label", toggleButtonLabel);
+      const toggleDisabled = user.active && user.is_current_user;
+      if (toggleDisabled) {
+        toggleButton.disabled = true;
+        toggleButton.title = translate("settingsUsersActionDeactivateSelfError");
+      }
+      const toggleIconEl = toggleButton.querySelector('[data-role="toggle-icon"]');
+      if (toggleIconEl) {
+        toggleIconEl.className = `${toggleIcon} text-base leading-4`;
+      }
+    }
+    const clearSessionsButton = row.querySelector('[data-role="clear-sessions-button"]');
+    if (clearSessionsButton) {
+      const clearDisabled = user.active_sessions === 0;
+      clearSessionsButton.dataset.userId = String(user.id);
+      clearSessionsButton.setAttribute("aria-label", translate("settingsUsersActionClearSessions"));
+      if (clearDisabled) {
+        clearSessionsButton.disabled = true;
+        clearSessionsButton.title = translate("settingsUsersActionClearDisabledTooltip");
+      }
+    }
+    const deleteButton = row.querySelector('[data-role="delete-button"]');
+    if (deleteButton) {
+      const deleteDisabled = user.is_current_user;
+      deleteButton.dataset.userId = String(user.id);
+      deleteButton.setAttribute("aria-label", translate("settingsUsersActionDelete"));
+      if (deleteDisabled) {
+        deleteButton.disabled = true;
+        deleteButton.title = translate("settingsUsersActionDeleteSelfTooltip");
+      }
+    }
+    return row;
   }
   _getDisplayName(user) {
     var _a, _b;
@@ -1566,27 +1595,6 @@ var SettingsLayout = class extends HTMLElement {
       return value;
     }
     return `${value.slice(0, 20)}\u2026${value.slice(-10)}`;
-  }
-  _escapeHTML(str) {
-    if (str == null) {
-      return "";
-    }
-    return String(str).replace(/[&<>"']/g, (char) => {
-      switch (char) {
-        case "&":
-          return "&amp;";
-        case "<":
-          return "&lt;";
-        case ">":
-          return "&gt;";
-        case '"':
-          return "&quot;";
-        case "'":
-          return "&#39;";
-        default:
-          return char;
-      }
-    });
   }
   async _handleUserAction(event) {
     const button = event.target.closest("[data-user-action]");
@@ -2769,4 +2777,4 @@ var SettingsLayout = class extends HTMLElement {
   }
 };
 customElements.define("settings-layout", SettingsLayout);
-//# sourceMappingURL=settings-layout-DGAUM7Z6.js.map
+//# sourceMappingURL=settings-layout-5DHRPCFN.js.map

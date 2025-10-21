@@ -1,4 +1,6 @@
-import "./chunk-TCL375PP.js";
+import {
+  storage_default
+} from "./chunk-4T7GFWSU.js";
 import "./chunk-PC246CWX.js";
 import {
   bytes,
@@ -132,6 +134,10 @@ var UploadRightElement = class extends HTMLElement {
     const downloadLink = item.querySelector('[data-role="download-link"]');
     if (downloadLink) {
       downloadLink.href = ownedFile.url;
+    }
+    const ownershipEl = item.querySelector('[data-role="file-ownership"]');
+    if (ownershipEl) {
+      ownershipEl.innerHTML = this._createOwnershipHTML(ownedFile);
     }
     const deleteBtn = item.querySelector('[data-action="delete"]');
     if (deleteBtn) {
@@ -315,6 +321,37 @@ var UploadRightElement = class extends HTMLElement {
     }
     return fallback;
   }
+  _getCurrentUserName() {
+    if (storage_default && storage_default.user && storage_default.user.name) {
+      return storage_default.user.name.toLowerCase();
+    }
+    return null;
+  }
+  _createOwnershipHTML(ownedFile) {
+    const parts = [];
+    const currentUserName = this._getCurrentUserName();
+    if (ownedFile.ownerString) {
+      const isCurrentUser = currentUserName && ownedFile.ownerString.toLowerCase() === currentUserName.toLowerCase();
+      if (!isCurrentUser) {
+        const fromLabel = this._translateText("fileTileFrom", "FROM");
+        parts.push(`<span class="inline-flex items-center px-2 py-1 rounded bg-primary/10 dark:bg-primary/20 text-primary text-xs">${fromLabel}: ${ownedFile.ownerString}</span>`);
+      }
+    } else if (ownedFile.authString) {
+      const fromLabel = this._translateText("fileTileFrom", "FROM");
+      const guestLabel = this._translateText("fileTileGuest", "Guest");
+      parts.push(
+        `<span class="inline-flex items-center px-2 py-1 rounded bg-primary/10 dark:bg-primary/20 text-primary text-xs">${fromLabel}: ${ownedFile.authString}</span><span class="inline-flex items-center px-2 py-1 rounded bg-grey-20 dark:bg-grey-80 text-xs normal-case">${guestLabel}</span>`
+      );
+    }
+    if (ownedFile.recipientString) {
+      const isCurrentUser = currentUserName && ownedFile.recipientString.toLowerCase() === currentUserName.toLowerCase();
+      if (!isCurrentUser) {
+        const toLabel = this._translateText("fileTileTo", "TO");
+        parts.push(`<span class="inline-flex items-center px-2 py-1 rounded bg-secondary/10 dark:bg-secondary/20 text-secondary text-xs">${toLabel}: ${ownedFile.recipientString}</span>`);
+      }
+    }
+    return parts.join("");
+  }
   /**
    * Event Handlers
    */
@@ -360,4 +397,4 @@ var UploadRightElement = class extends HTMLElement {
   }
 };
 customElements.define("upload-right", UploadRightElement);
-//# sourceMappingURL=upload-right-5USDMGVM.js.map
+//# sourceMappingURL=upload-right-MSPYIEIJ.js.map

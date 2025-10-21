@@ -10,16 +10,16 @@ import (
 
 // FileMetadata represents a file record in the database
 type FileMetadata struct {
-	ID                 string
-	OwnerToken         string
-	Metadata           string // base64 encrypted metadata
-	AuthKey            string // base64 auth verifier
-	Nonce              string // base64 nonce
-	DlLimit            int
-	DlCount            int
-	Password           bool
-	CreatedAt          int64
-	ExpiresAt          int64
+	ID         string
+	OwnerToken string
+	Metadata   string // base64 encrypted metadata
+	AuthKey    string // base64 auth verifier
+	Nonce      string // base64 nonce
+	DlLimit    int
+	DlCount    int
+	Password   bool
+	CreatedAt  int64
+	ExpiresAt  int64
 	// Owner: who uploaded the file (has metadata access via owner token or session)
 	OwnerUserID        *int64 // if uploaded by logged-in user
 	OwnerAuthTokenID   *int64 // if uploaded by guest with auth link
@@ -42,6 +42,7 @@ type FileWithUserInfo struct {
 	OwnerEmail     string
 	RecipientName  string
 	RecipientEmail string
+	AuthLinkLabel  string
 }
 
 // Database operations for files
@@ -212,6 +213,35 @@ func (d *DB) GetFilesByUserID(userID int64) ([]*FileMetadata, error) {
 	defer rows.Close()
 
 	return d.scanFileRows(rows)
+}
+
+// GetFilesByUserIDWithInfo retrieves all files associated with a user (owner or recipient) with user and auth link information
+func (d *DB) GetFilesByUserIDWithInfo(userID int64) ([]*FileWithUserInfo, error) {
+	query := `
+		SELECT f.id, f.owner_token, f.metadata, f.auth_key, f.nonce,
+		       f.dl_limit, f.dl_count, f.password, f.created_at, f.expires_at,
+		       f.owner_user_id, f.owner_auth_token_id,
+		       f.secret_ciphertext, f.secret_ephemeral_pub, f.secret_nonce, f.secret_version,
+		       f.recipient_user_id, f.recipient_secret_ciphertext, f.recipient_secret_ephemeral_pub,
+		       f.recipient_secret_nonce, f.recipient_secret_version,
+		       owner.name, owner.email,
+		       recipient.name, recipient.email,
+		       authlink.name
+		FROM files f
+		LEFT JOIN users owner ON f.owner_user_id = owner.id
+		LEFT JOIN users recipient ON f.recipient_user_id = recipient.id
+		LEFT JOIN authtokens authlink ON f.owner_auth_token_id = authlink.id
+		WHERE f.owner_user_id = ? OR f.recipient_user_id = ?
+		ORDER BY f.created_at DESC
+	`
+
+	rows, err := d.db.Query(query, userID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	return d.scanFileRowsWithInfoAndAuthLink(rows)
 }
 
 // GetInboxFiles retrieves all files where the user is the recipient (not expired)
@@ -524,6 +554,111 @@ func (d *DB) scanFileRowsWithInfo(rows *sql.Rows) ([]*FileWithUserInfo, error) {
 		}
 		if recipientEmail.Valid {
 			fileInfo.RecipientEmail = recipientEmail.String
+		}
+
+		files = append(files, fileInfo)
+	}
+
+	return files, rows.Err()
+}
+
+// scanFileRowsWithInfoAndAuthLink scans file rows with user and auth link information
+func (d *DB) scanFileRowsWithInfoAndAuthLink(rows *sql.Rows) ([]*FileWithUserInfo, error) {
+	var files []*FileWithUserInfo
+	for rows.Next() {
+		fileInfo := &FileWithUserInfo{}
+		var password int
+		var ownerUserID, ownerAuthTokenID sql.NullInt64
+		var secretCiphertext, secretEphemeralPub, secretNonce sql.NullString
+		var secretVersion sql.NullInt64
+		var recipientUserID sql.NullInt64
+		var recipientSecretCiphertext, recipientSecretEphemeralPub, recipientSecretNonce sql.NullString
+		var recipientSecretVersion sql.NullInt64
+		var ownerName, ownerEmail, recipientName, recipientEmail, authLinkLabel sql.NullString
+
+		if err := rows.Scan(
+			&fileInfo.ID,
+			&fileInfo.OwnerToken,
+			&fileInfo.Metadata,
+			&fileInfo.AuthKey,
+			&fileInfo.Nonce,
+			&fileInfo.DlLimit,
+			&fileInfo.DlCount,
+			&password,
+			&fileInfo.CreatedAt,
+			&fileInfo.ExpiresAt,
+			&ownerUserID,
+			&ownerAuthTokenID,
+			&secretCiphertext,
+			&secretEphemeralPub,
+			&secretNonce,
+			&secretVersion,
+			&recipientUserID,
+			&recipientSecretCiphertext,
+			&recipientSecretEphemeralPub,
+			&recipientSecretNonce,
+			&recipientSecretVersion,
+			&ownerName,
+			&ownerEmail,
+			&recipientName,
+			&recipientEmail,
+			&authLinkLabel,
+		); err != nil {
+			return nil, err
+		}
+
+		fileInfo.Password = intToBool(password)
+
+		if ownerUserID.Valid {
+			val := ownerUserID.Int64
+			fileInfo.OwnerUserID = &val
+		}
+		if ownerAuthTokenID.Valid {
+			val := ownerAuthTokenID.Int64
+			fileInfo.OwnerAuthTokenID = &val
+		}
+		if secretCiphertext.Valid {
+			fileInfo.SecretCiphertext = secretCiphertext.String
+		}
+		if secretEphemeralPub.Valid {
+			fileInfo.SecretEphemeralPub = secretEphemeralPub.String
+		}
+		if secretNonce.Valid {
+			fileInfo.SecretNonce = secretNonce.String
+		}
+		if secretVersion.Valid {
+			fileInfo.SecretVersion = int(secretVersion.Int64)
+		}
+		if recipientUserID.Valid {
+			val := recipientUserID.Int64
+			fileInfo.RecipientUserID = &val
+		}
+		if recipientSecretCiphertext.Valid {
+			fileInfo.RecipientSecretCiphertext = recipientSecretCiphertext.String
+		}
+		if recipientSecretEphemeralPub.Valid {
+			fileInfo.RecipientSecretEphemeralPub = recipientSecretEphemeralPub.String
+		}
+		if recipientSecretNonce.Valid {
+			fileInfo.RecipientSecretNonce = recipientSecretNonce.String
+		}
+		if recipientSecretVersion.Valid {
+			fileInfo.RecipientSecretVersion = int(recipientSecretVersion.Int64)
+		}
+		if ownerName.Valid {
+			fileInfo.OwnerName = ownerName.String
+		}
+		if ownerEmail.Valid {
+			fileInfo.OwnerEmail = ownerEmail.String
+		}
+		if recipientName.Valid {
+			fileInfo.RecipientName = recipientName.String
+		}
+		if recipientEmail.Valid {
+			fileInfo.RecipientEmail = recipientEmail.String
+		}
+		if authLinkLabel.Valid {
+			fileInfo.AuthLinkLabel = authLinkLabel.String
 		}
 
 		files = append(files, fileInfo)

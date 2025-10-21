@@ -1,0 +1,103 @@
+<!-- Settings: User list table row -->
+<template id="settings-user-item">
+	<tr class="align-top" data-role="user-row">
+		<!-- Name & Meta -->
+		<td class="px-4 py-4">
+			<div class="flex items-center gap-0">
+				<span class="font-medium text-grey-90 dark:text-grey-10" data-role="user-name"></span>
+				<!-- "You" badge (shown for current user) -->
+				<span class="ml-1.5 inline-flex items-center px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium hidden" data-role="you-badge">
+					<span id="settingsUsersCurrentUserLabel" data-type="lang">You</span>
+				</span>
+			</div>
+			<!-- Role & Status meta -->
+			<div class="text-xs text-grey-60 dark:text-grey-40 mt-1" data-role="user-meta">
+				<span data-role="role-label"></span>
+				<span data-role="meta-separator" class="hidden"> · </span>
+				<span data-role="status-label"></span>
+			</div>
+		</td>
+
+		<!-- Email -->
+		<td class="px-4 py-4 text-sm text-grey-80 dark:text-grey-20" data-role="user-email">—</td>
+
+		<!-- Public Keys -->
+		<td class="px-4 py-4 text-sm">
+			<div class="space-y-3">
+				<!-- Signing Key -->
+				<div class="flex flex-col gap-1">
+					<span class="text-xs uppercase tracking-wide text-grey-60 dark:text-grey-40" id="settingsUsersKeySigning" data-type="lang">Signing</span>
+					<div class="flex items-center gap-2 min-w-0">
+						<code class="flex-1 min-w-0 font-mono text-xs text-grey-80 dark:text-grey-20 whitespace-nowrap overflow-hidden text-ellipsis" data-role="signing-key" data-role-title="signing-key-title"></code>
+						<!-- Copy button for signing key -->
+						<button
+							type="button"
+							class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded border border-grey-30 dark:border-grey-60 bg-white dark:bg-grey-80 text-grey-60 dark:text-grey-30 hover:text-primary hover:bg-grey-10 dark:hover:bg-grey-70 focus:outline focus:outline-2 focus:outline-primary transition cursor-pointer hidden"
+							data-role="copy-signing-key"
+							data-user-action="copy-key"
+						>
+							<i class="ri-file-copy-2-line text-base leading-4" aria-hidden="true"></i>
+							<span class="sr-only" data-role="copy-signing-label"></span>
+						</button>
+					</div>
+				</div>
+
+				<!-- Encryption Key -->
+				<div class="flex flex-col gap-1">
+					<span class="text-xs uppercase tracking-wide text-grey-60 dark:text-grey-40" id="settingsUsersKeyEncryption" data-type="lang">Encryption</span>
+					<div class="flex items-center gap-2 min-w-0">
+						<code class="flex-1 min-w-0 font-mono text-xs text-grey-80 dark:text-grey-20 whitespace-nowrap overflow-hidden text-ellipsis" data-role="encryption-key" data-role-title="encryption-key-title"></code>
+						<!-- Copy button for encryption key -->
+						<button
+							type="button"
+							class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded border border-grey-30 dark:border-grey-60 bg-white dark:bg-grey-80 text-grey-60 dark:text-grey-30 hover:text-primary hover:bg-grey-10 dark:hover:bg-grey-70 focus:outline focus:outline-2 focus:outline-primary transition cursor-pointer hidden"
+							data-role="copy-encryption-key"
+							data-user-action="copy-key"
+						>
+							<i class="ri-file-copy-2-line text-base leading-4" aria-hidden="true"></i>
+							<span class="sr-only" data-role="copy-encryption-label"></span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</td>
+
+		<!-- Active Sessions -->
+		<td class="px-4 py-4 text-sm text-grey-80 dark:text-grey-20" data-role="sessions-count">0</td>
+
+		<!-- Actions -->
+		<td class="px-4 py-4">
+			<div class="flex items-center gap-2">
+				<!-- Activate/Deactivate Button -->
+				<button
+					type="button"
+					class="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded border transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+					data-role="toggle-button"
+					data-user-action="toggle"
+				>
+					<i aria-hidden="true" data-role="toggle-icon"></i>
+				</button>
+
+				<!-- Clear Sessions Button -->
+				<button
+					type="button"
+					class="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded border text-grey-80 dark:text-grey-20 border-grey-30 dark:border-grey-60 bg-grey-5 dark:bg-grey-80/40 hover:bg-grey-10 dark:hover:bg-grey-70 transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+					data-role="clear-sessions-button"
+					data-user-action="clear-sessions"
+				>
+					<i class="ri-refresh-line text-base leading-4" aria-hidden="true"></i>
+				</button>
+
+				<!-- Delete Button -->
+				<button
+					type="button"
+					class="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded border text-red-600 dark:text-red-400 border-red-200 dark:border-red-400/40 bg-red-50/60 dark:bg-red-900/20 hover:bg-red-50 dark:hover:bg-red-900/30 transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+					data-role="delete-button"
+					data-user-action="delete"
+				>
+					<i class="ri-delete-bin-6-line text-base leading-4" aria-hidden="true"></i>
+				</button>
+			</div>
+		</td>
+	</tr>
+</template>

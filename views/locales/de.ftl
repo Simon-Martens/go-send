@@ -373,6 +373,12 @@ loginSubmitting = Anmeldung läuft…
 loginErrorChallenge = Anmeldeanforderung konnte nicht gestartet werden. Bitte versuchen Sie es erneut.
 loginErrorGeneric = Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.
 
+## File ownership labels
+
+fileTileFrom = VON
+fileTileTo = AN
+fileTileGuest = Gast
+
 footerLinkCli = CLI
 footerLinkDmca = DMCA
 footerLinkSource = Quellcode

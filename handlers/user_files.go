@@ -22,6 +22,9 @@ type userFileResponse struct {
 	SecretEphemeralPub string `json:"secret_ephemeral_pub,omitempty"`
 	SecretNonce        string `json:"secret_nonce,omitempty"`
 	SecretVersion      int    `json:"secret_version,omitempty"`
+	OwnerString        string `json:"owner_string,omitempty"`
+	AuthString         string `json:"auth_string,omitempty"`
+	RecipientString    string `json:"recipient_string,omitempty"`
 }
 
 func NewUserFilesHandler(app *core.App) http.HandlerFunc {
@@ -45,7 +48,7 @@ func NewUserFilesHandler(app *core.App) http.HandlerFunc {
 
 		app.TouchSession(session, r)
 
-		files, err := app.DB.GetFilesByUserID(*session.UserID)
+		files, err := app.DB.GetFilesByUserIDWithInfo(*session.UserID)
 		if err != nil {
 			app.Logger.Error("Failed to load user files", "error", err, "user_id", *session.UserID)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -62,26 +65,60 @@ func NewUserFilesHandler(app *core.App) http.HandlerFunc {
 				timeLimit = 0
 			}
 
-			item := userFileResponse{
-				ID:                 f.ID,
-				OwnerToken:         f.OwnerToken,
-				Metadata:           f.Metadata,
-				Nonce:              f.Nonce,
-				DlLimit:            f.DlLimit,
-				DlCount:            f.DlCount,
-				Password:           f.Password,
-				CreatedAt:          f.CreatedAt,
-				ExpiresAt:          f.ExpiresAt,
-				TimeLimit:          timeLimit,
-				SecretCiphertext:   f.SecretCiphertext,
-				SecretEphemeralPub: f.SecretEphemeralPub,
-				SecretNonce:        f.SecretNonce,
-				SecretVersion:      f.SecretVersion,
+			var item userFileResponse
+			if f.OwnerUserID != nil && *f.OwnerUserID == *session.UserID {
+				item = userFileResponse{
+					ID:                 f.ID,
+					OwnerToken:         f.OwnerToken,
+					Metadata:           f.Metadata,
+					Nonce:              f.Nonce,
+					DlLimit:            f.DlLimit,
+					DlCount:            f.DlCount,
+					Password:           f.Password,
+					CreatedAt:          f.CreatedAt,
+					ExpiresAt:          f.ExpiresAt,
+					TimeLimit:          timeLimit,
+					SecretCiphertext:   f.SecretCiphertext,
+					SecretEphemeralPub: f.SecretEphemeralPub,
+					SecretNonce:        f.SecretNonce,
+					SecretVersion:      f.SecretVersion,
+				}
+			} else if f.RecipientUserID != nil && *f.RecipientUserID == *session.UserID {
+				item = userFileResponse{
+					ID:                 f.ID,
+					OwnerToken:         f.OwnerToken,
+					Metadata:           f.Metadata,
+					Nonce:              f.Nonce,
+					DlLimit:            f.DlLimit,
+					DlCount:            f.DlCount,
+					Password:           f.Password,
+					CreatedAt:          f.CreatedAt,
+					ExpiresAt:          f.ExpiresAt,
+					TimeLimit:          timeLimit,
+					SecretCiphertext:   f.RecipientSecretCiphertext,
+					SecretEphemeralPub: f.RecipientSecretEphemeralPub,
+					SecretNonce:        f.RecipientSecretNonce,
+					SecretVersion:      f.RecipientSecretVersion,
+				}
 			}
 
 			if item.SecretCiphertext == "" || item.SecretNonce == "" || item.SecretEphemeralPub == "" {
 				// Skip entries that predate the wrapped-secret migration
 				continue
+			}
+
+			// Set owner_string or auth_string based on who uploaded the file
+			if f.OwnerUserID != nil {
+				// File uploaded by a logged-in user
+				item.OwnerString = f.OwnerName
+			} else if f.OwnerAuthTokenID != nil {
+				// File uploaded by a guest with auth link
+				item.AuthString = f.AuthLinkLabel
+			}
+
+			// Set recipient_string if there is a recipient
+			if f.RecipientUserID != nil {
+				item.RecipientString = f.RecipientName
 			}
 
 			response.Files = append(response.Files, item)

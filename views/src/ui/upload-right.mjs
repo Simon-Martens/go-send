@@ -188,6 +188,12 @@ class UploadRightElement extends HTMLElement {
       downloadLink.href = ownedFile.url;
     }
 
+    // Set owner/recipient information
+    const ownershipEl = item.querySelector('[data-role="file-ownership"]');
+    if (ownershipEl) {
+      ownershipEl.innerHTML = this._createOwnershipHTML(ownedFile);
+    }
+
     // Attach event listeners
     const deleteBtn = item.querySelector('[data-action="delete"]');
     if (deleteBtn) {
@@ -425,6 +431,51 @@ class UploadRightElement extends HTMLElement {
     }
 
     return fallback;
+  }
+
+  _getCurrentUserName() {
+    // Get current user's name from storage.user
+    if (storage && storage.user && storage.user.name) {
+      return storage.user.name.toLowerCase();
+    }
+    return null;
+  }
+
+  _createOwnershipHTML(ownedFile) {
+    const parts = [];
+    const currentUserName = this._getCurrentUserName();
+
+    // Show FROM if we have owner information and it's not the current user
+    if (ownedFile.ownerString) {
+      const isCurrentUser = currentUserName &&
+        ownedFile.ownerString.toLowerCase() === currentUserName.toLowerCase();
+
+      if (!isCurrentUser) {
+        const fromLabel = this._translateText("fileTileFrom", "FROM");
+        parts.push(`<span class="inline-flex items-center px-2 py-1 rounded bg-primary/10 dark:bg-primary/20 text-primary text-xs">${fromLabel}: ${ownedFile.ownerString}</span>`);
+      }
+    } else if (ownedFile.authString) {
+      // Guest upload via auth link
+      const fromLabel = this._translateText("fileTileFrom", "FROM");
+      const guestLabel = this._translateText("fileTileGuest", "Guest");
+      parts.push(
+        `<span class="inline-flex items-center px-2 py-1 rounded bg-primary/10 dark:bg-primary/20 text-primary text-xs">${fromLabel}: ${ownedFile.authString}</span>` +
+        `<span class="inline-flex items-center px-2 py-1 rounded bg-grey-20 dark:bg-grey-80 text-xs normal-case">${guestLabel}</span>`
+      );
+    }
+
+    // Show TO if recipient exists and it's not the current user
+    if (ownedFile.recipientString) {
+      const isCurrentUser = currentUserName &&
+        ownedFile.recipientString.toLowerCase() === currentUserName.toLowerCase();
+
+      if (!isCurrentUser) {
+        const toLabel = this._translateText("fileTileTo", "TO");
+        parts.push(`<span class="inline-flex items-center px-2 py-1 rounded bg-secondary/10 dark:bg-secondary/20 text-secondary text-xs">${toLabel}: ${ownedFile.recipientString}</span>`);
+      }
+    }
+
+    return parts.join('');
   }
 
   /**

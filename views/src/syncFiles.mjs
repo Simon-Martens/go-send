@@ -88,6 +88,9 @@ export async function syncOwnedFiles(userSecrets, options = {}) {
             dtotal: file.dl_count,
             hasPassword: file.password,
             timeLimit: file.time_limit,
+            ownerString: file.owner_string || "",
+            authString: file.auth_string || "",
+            recipientString: file.recipient_string || "",
           });
 
           storage.addFile(ownedFile);

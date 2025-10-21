@@ -22,6 +22,9 @@ export default class OwnedFile {
     this.keychain = new Keychain(obj.secretKey, obj.nonce);
     this._hasPassword = !!obj.hasPassword;
     this.timeLimit = obj.timeLimit;
+    this.ownerString = obj.ownerString || "";
+    this.authString = obj.authString || "";
+    this.recipientString = obj.recipientString || "";
   }
 
   get hasPassword() {
@@ -91,6 +94,9 @@ export default class OwnedFile {
       dtotal: this.dtotal,
       hasPassword: this.hasPassword,
       timeLimit: this.timeLimit,
+      ownerString: this.ownerString,
+      authString: this.authString,
+      recipientString: this.recipientString,
     };
   }
 }

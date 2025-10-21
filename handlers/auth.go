@@ -64,6 +64,8 @@ func NewClaimHandler(app *core.App) http.HandlerFunc {
 			http.Redirect(w, r, redirectURL, http.StatusFound)
 		case storage.TokenTypeGeneralGuestUpload:
 			handleGuestUploadClaim(app, w, r, token, rawToken)
+		case storage.TokenTypeSpecificGuestUpload:
+			handleGuestUploadClaim(app, w, r, token, rawToken)
 		default:
 			app.DBLogger.LogRequest(r, http.StatusBadRequest, nil, "unsupported token type", "type", token.Type)
 			http.Error(w, "Unsupported token type", http.StatusBadRequest)
@@ -122,6 +124,21 @@ func handleGuestUploadClaim(app *core.App, w http.ResponseWriter, r *http.Reques
 		Expires:  time.Now().Add(guestCookieTTL),
 		MaxAge:   int(guestCookieTTL.Seconds()),
 	})
+
+	// For user-specific upload links (type 3), set a cookie with the locked recipient ID
+	if token.Type == storage.TokenTypeSpecificGuestUpload {
+		recipientID := fmt.Sprintf("%d", token.CreatedBy)
+		http.SetCookie(w, &http.Cookie{
+			Name:     core.GuestRecipientCookieName,
+			Value:    recipientID,
+			Path:     "/",
+			HttpOnly: false,
+			Secure:   r.TLS != nil,
+			SameSite: http.SameSiteLaxMode,
+			Expires:  time.Now().Add(guestCookieTTL),
+			MaxAge:   int(guestCookieTTL.Seconds()),
+		})
+	}
 
 	app.DBLogger.LogRequest(
 		r,

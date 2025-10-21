@@ -346,10 +346,11 @@ settingsUploadLinksCreatedUnknown = Not available
 settingsUploadLinksPlaceholderTitle = Guest uploads
 settingsUploadLinksPlaceholderDescription = Administrators can issue guest upload links for shared inboxes. When a link is shared with you it will appear here.
 settingsUploadLinksGeneralLabel = General upload link
-settingsUploadLinksGeneralHint = Anyone can use this link, not just a specific user
+settingsUploadLinksGeneralHint = Allows uploads for any user (general inbox)
 settingsUploadLinksTableType = Type/User
 settingsUploadLinksTypeGeneral = General
 settingsUploadLinksTypeUserFallback = User-specific
+recipientLockedHint = This upload link is restricted to uploads for { $userName }
 settingsPasswordStatusInfoDeriving = Re-deriving keys\u2026
 settingsPasswordStatusInfoPreparing = Preparing new credentials\u2026
 settingsPasswordStatusInfoUpdating = Updating password\u2026
@@ -389,4 +390,4 @@ fileTileGuest = Guest
 export {
   en_US_default as default
 };
-//# sourceMappingURL=en-US-22LCIPR2.js.map
+//# sourceMappingURL=en-US-G4AD5BIX.js.map

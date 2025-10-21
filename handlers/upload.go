@@ -247,6 +247,22 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 				sendError(conn, 400)
 				return
 			}
+		} else {
+			// No recipient specified - for user-specific guest links (type 3), this is required
+			if guestToken != nil && guestToken.Type == storage.TokenTypeSpecificGuestUpload {
+				app.Logger.Warn("User-specific upload link requires recipient",
+					"auth_token_id", guestToken.ID,
+					"expected_recipient", guestToken.CreatedBy,
+					"remote_addr", r.RemoteAddr)
+				app.DBLogger.LogFileOp(r, "upload", "", http.StatusBadRequest,
+					time.Since(startTime).Milliseconds(), "User-specific upload link requires recipient",
+					"auth_token_id", guestToken.ID, "expected_recipient", guestToken.CreatedBy)
+				sendError(conn, 400)
+				return
+			}
+		}
+
+		if hasRecipientSecret {
 
 			// Verify recipient user exists
 			exists, err := app.DB.UserExists(*req.RecipientUserID)
@@ -263,6 +279,22 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 					time.Since(startTime).Milliseconds(), "Recipient user does not exist", "operation", "validate_recipient_user", "user_id", *req.RecipientUserID)
 				sendError(conn, 400)
 				return
+			}
+
+			// For user-specific guest upload links (type 3), enforce recipient restriction
+			if guestToken != nil && guestToken.Type == storage.TokenTypeSpecificGuestUpload {
+				if *req.RecipientUserID != guestToken.CreatedBy {
+					app.Logger.Warn("User-specific upload link used with wrong recipient",
+						"expected_recipient", guestToken.CreatedBy,
+						"attempted_recipient", *req.RecipientUserID,
+						"auth_token_id", guestToken.ID,
+						"remote_addr", r.RemoteAddr)
+					app.DBLogger.LogFileOp(r, "upload", "", http.StatusForbidden,
+						time.Since(startTime).Milliseconds(), "Recipient mismatch for user-specific upload link",
+						"auth_token_id", guestToken.ID, "expected_recipient", guestToken.CreatedBy, "attempted_recipient", *req.RecipientUserID)
+					sendError(conn, 403)
+					return
+				}
 			}
 
 			// All recipient encryption fields must be present

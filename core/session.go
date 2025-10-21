@@ -11,6 +11,7 @@ import (
 const sessionCookieName = "send_session"
 const GuestTokenCookieName = "send_guest_token"
 const GuestLabelCookieName = "send_guest_label"
+const GuestRecipientCookieName = "send_guest_recipient"
 
 type guestTokenContextKey struct{}
 
@@ -61,7 +62,8 @@ func (a *App) GetGuestAuthToken(r *http.Request) (*storage.AuthToken, error) {
 		return nil, nil
 	}
 
-	if token.Type != storage.TokenTypeGeneralGuestUpload {
+	// Accept both general (type 2) and user-specific (type 3) guest upload tokens
+	if token.Type != storage.TokenTypeGeneralGuestUpload && token.Type != storage.TokenTypeSpecificGuestUpload {
 		return nil, nil
 	}
 

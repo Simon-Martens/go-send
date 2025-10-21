@@ -1162,6 +1162,26 @@ var UploadListView = class extends HTMLElement {
       option.dataset.publicKey = user.encryption_public_key;
       this.elements.recipientSelect.appendChild(option);
     });
+    if (this._users.length === 1) {
+      const user = this._users[0];
+      this.elements.recipientSelect.value = String(user.id);
+      this.elements.recipientSelect.disabled = true;
+      this._recipientUserId = user.id;
+      this._recipientPublicKey = user.encryption_public_key;
+      this._updateRecipientHint(true, user.name || user.email);
+      this.dispatchEvent(
+        new CustomEvent("updateoptions", {
+          bubbles: true,
+          detail: {
+            recipientUserId: user.id,
+            recipientPublicKey: user.encryption_public_key,
+            recipientName: user.name || user.email
+          }
+        })
+      );
+    } else {
+      this.elements.recipientSelect.disabled = false;
+    }
     this._attachRecipientListener();
   }
   _attachRecipientListener() {
@@ -1221,7 +1241,7 @@ var UploadListView = class extends HTMLElement {
       })
     );
   }
-  _updateRecipientHint(hasRecipient) {
+  _updateRecipientHint(hasRecipient, recipientName = null) {
     const recipientSlot = this.querySelector("#upload-recipient-slot");
     if (!recipientSlot) {
       return;
@@ -1233,10 +1253,18 @@ var UploadListView = class extends HTMLElement {
     if (hasRecipient) {
       const hintTextSpan = hintElement.querySelector('[data-type="lang"]');
       if (hintTextSpan) {
-        hintTextSpan.textContent = this._translateText(
-          "recipientHintSelected",
-          "The recipient can see, download and decrypt the file."
-        );
+        if (recipientName && this.elements.recipientSelect && this.elements.recipientSelect.disabled) {
+          hintTextSpan.textContent = this._translateText(
+            "recipientLockedHint",
+            `This upload link is restricted to uploads for ${recipientName}`,
+            { userName: recipientName }
+          );
+        } else {
+          hintTextSpan.textContent = this._translateText(
+            "recipientHintSelected",
+            "The recipient can see, download and decrypt the file."
+          );
+        }
       }
       hintElement.classList.remove("hidden");
     } else {
@@ -1893,4 +1921,4 @@ var UploadAreaElement = class extends HTMLElement {
   }
 };
 customElements.define("upload-area", UploadAreaElement);
-//# sourceMappingURL=upload-area-WAJAHBJP.js.map
+//# sourceMappingURL=upload-area-PAJRVA5T.js.map

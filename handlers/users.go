@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/Simon-Martens/go-send/core"
+	"github.com/Simon-Martens/go-send/storage"
 )
 
 // PublicUserInfo represents the public information about a user (for recipient selection)
@@ -32,17 +33,28 @@ func NewUsersListHandler(app *core.App) http.HandlerFunc {
 			return
 		}
 
-		// Check if user is authenticated OR has valid guest token
-		hasAccess, err := checkUserOrGuestAccess(app, r)
+		// Check authentication and get potential guest token
+		session, err := app.GetAuthenticatedSession(r)
 		if err != nil {
-			app.Logger.Error("Users list: failed to check access", "error", err)
+			app.Logger.Error("Users list: failed to check session", "error", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
 
-		if !hasAccess {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
+		var guestToken *storage.AuthToken
+		if session != nil {
+			app.TouchSession(session, r)
+		} else {
+			guestToken, err = app.GetGuestAuthToken(r)
+			if err != nil {
+				app.Logger.Error("Users list: failed to check guest token", "error", err)
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
+			if guestToken == nil {
+				http.Error(w, "Unauthorized", http.StatusUnauthorized)
+				return
+			}
 		}
 
 		// Get all active users
@@ -58,14 +70,30 @@ func NewUsersListHandler(app *core.App) http.HandlerFunc {
 			Users: make([]PublicUserInfo, 0),
 		}
 
-		for _, user := range users {
-			if user.Active {
-				response.Users = append(response.Users, PublicUserInfo{
-					ID:                  user.ID,
-					Name:                user.Name,
-					Email:               user.Email,
-					EncryptionPublicKey: user.EncryptionPublicKey,
-				})
+		// For user-specific guest upload links (type 3), only return the creator user
+		if guestToken != nil && guestToken.Type == storage.TokenTypeSpecificGuestUpload {
+			for _, user := range users {
+				if user.Active && user.ID == guestToken.CreatedBy {
+					response.Users = append(response.Users, PublicUserInfo{
+						ID:                  user.ID,
+						Name:                user.Name,
+						Email:               user.Email,
+						EncryptionPublicKey: user.EncryptionPublicKey,
+					})
+					break
+				}
+			}
+		} else {
+			// For logged-in users or general guest tokens (type 2), return all users
+			for _, user := range users {
+				if user.Active {
+					response.Users = append(response.Users, PublicUserInfo{
+						ID:                  user.ID,
+						Name:                user.Name,
+						Email:               user.Email,
+						EncryptionPublicKey: user.EncryptionPublicKey,
+					})
+				}
 			}
 		}
 

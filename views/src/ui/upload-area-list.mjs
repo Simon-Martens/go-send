@@ -1164,6 +1164,32 @@ class UploadListView extends HTMLElement {
       this.elements.recipientSelect.appendChild(option);
     });
 
+    // If only one user available (user-specific upload link), auto-select and lock
+    if (this._users.length === 1) {
+      const user = this._users[0];
+      this.elements.recipientSelect.value = String(user.id);
+      this.elements.recipientSelect.disabled = true;
+
+      // Trigger the selection
+      this._recipientUserId = user.id;
+      this._recipientPublicKey = user.encryption_public_key;
+      this._updateRecipientHint(true, user.name || user.email);
+
+      this.dispatchEvent(
+        new CustomEvent("updateoptions", {
+          bubbles: true,
+          detail: {
+            recipientUserId: user.id,
+            recipientPublicKey: user.encryption_public_key,
+            recipientName: user.name || user.email
+          },
+        }),
+      );
+    } else {
+      // Multiple users available - enable select
+      this.elements.recipientSelect.disabled = false;
+    }
+
     // Attach the change listener after populating
     this._attachRecipientListener();
   }
@@ -1235,7 +1261,7 @@ class UploadListView extends HTMLElement {
     );
   }
 
-  _updateRecipientHint(hasRecipient) {
+  _updateRecipientHint(hasRecipient, recipientName = null) {
     const recipientSlot = this.querySelector("#upload-recipient-slot");
     if (!recipientSlot) {
       return;
@@ -1251,10 +1277,19 @@ class UploadListView extends HTMLElement {
       // Select the span inside the hint content area (not the invisible spacer)
       const hintTextSpan = hintElement.querySelector('[data-type="lang"]');
       if (hintTextSpan) {
-        hintTextSpan.textContent = this._translateText(
-          "recipientHintSelected",
-          "The recipient can see, download and decrypt the file.",
-        );
+        // If recipient name is provided and select is disabled (locked), show locked message
+        if (recipientName && this.elements.recipientSelect && this.elements.recipientSelect.disabled) {
+          hintTextSpan.textContent = this._translateText(
+            "recipientLockedHint",
+            `This upload link is restricted to uploads for ${recipientName}`,
+            { userName: recipientName }
+          );
+        } else {
+          hintTextSpan.textContent = this._translateText(
+            "recipientHintSelected",
+            "The recipient can see, download and decrypt the file.",
+          );
+        }
       }
       hintElement.classList.remove("hidden");
     } else {

@@ -93,7 +93,20 @@ func Render403Page(app *core.App, w http.ResponseWriter, r *http.Request, downlo
 	}
 
 	// Set CSP header with nonce
-	csp := fmt.Sprintf("script-src 'self' 'nonce-%s'; style-src 'self' 'nonce-%s'", nonce, nonce)
+	csp := fmt.Sprintf(
+		"default-src 'none'; "+
+			"connect-src 'self'; "+
+			"img-src 'self' data:; "+
+			"script-src 'nonce-%s'; "+
+			"style-src 'self' 'nonce-%s'; "+
+			"font-src 'self'; "+
+			"worker-src 'self'; "+
+			"form-action 'self'; "+
+			"frame-ancestors 'none'; "+
+			"object-src 'none'; "+
+			"base-uri 'self';",
+		nonce, nonce,
+	)
 	w.Header().Set("Content-Security-Policy", csp)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 

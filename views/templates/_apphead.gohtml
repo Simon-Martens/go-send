@@ -10,5 +10,5 @@
 <link rel="stylesheet" href="{{ assetURL .Assets.CSS }}">{{end}}
 <link rel="icon" href="/favicon.ico">
 {{if .Assets.JS}}
-<script type="module" defer src="{{ assetURL .Assets.JS }}"></script>{{end}}
+<script type="module" defer {{.NonceAttr}} src="{{ assetURL .Assets.JS }}"></script>{{end}}
 

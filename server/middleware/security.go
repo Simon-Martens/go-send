@@ -24,7 +24,12 @@ func SecurityHeaders(isDev bool) func(http.Handler) http.Handler {
 			w.Header().Set("Referrer-Policy", "no-referrer")
 
 			// Permissions-Policy: Disable unnecessary browser features
-			w.Header().Set("Permissions-Policy", "geolocation=(), microphone=(), camera=()")
+			w.Header().Set("Permissions-Policy", "geolocation=(), microphone=(), camera=(), payment=(), usb=(), serial=(), magnetometer=(), gyroscope=(), accelerometer=(), fullscreen=(self)")
+
+			// Cross-Origin policies: Isolate browsing context and prevent unauthorized embedding
+			w.Header().Set("Cross-Origin-Opener-Policy", "same-origin")
+			w.Header().Set("Cross-Origin-Embedder-Policy", "require-corp")
+			w.Header().Set("Cross-Origin-Resource-Policy", "same-origin")
 
 			// HSTS: Force HTTPS (only in production)
 			if !isDev {
@@ -72,12 +77,14 @@ func CSP(isDev bool, baseURL string) func(http.Handler) http.Handler {
 				wsURL := fmt.Sprintf("%s://%s", wsScheme, r.Host)
 
 				csp := fmt.Sprintf(
-					"default-src 'self'; "+
+					"default-src 'none'; "+
 						"connect-src 'self' %s; "+
 						"img-src 'self' data:; "+
-						"script-src 'self' 'nonce-%s'; "+
+						"script-src 'nonce-%s'; "+
 						"style-src 'self' 'nonce-%s'; "+
-						"form-action 'none'; "+
+						"font-src 'self'; "+
+						"worker-src 'self'; "+
+						"form-action 'self'; "+
 						"frame-ancestors 'none'; "+
 						"object-src 'none'; "+
 						"base-uri 'self';",

@@ -5,26 +5,33 @@ import (
 	"net/http"
 
 	"github.com/Simon-Martens/go-send/core"
+	"github.com/Simon-Martens/go-send/storage"
 )
 
+type recipientInfo struct {
+	UserID int64  `json:"user_id"`
+	Name   string `json:"name"`
+	Email  string `json:"email"`
+}
+
 type userFileResponse struct {
-	ID                 string `json:"id"`
-	OwnerToken         string `json:"owner_token"`
-	Metadata           string `json:"metadata"`
-	Nonce              string `json:"nonce"`
-	DlLimit            int    `json:"dl_limit"`
-	DlCount            int    `json:"dl_count"`
-	Password           bool   `json:"password"`
-	CreatedAt          int64  `json:"created_at"`
-	ExpiresAt          int64  `json:"expires_at"`
-	TimeLimit          int64  `json:"time_limit"`
-	SecretCiphertext   string `json:"secret_ciphertext,omitempty"`
-	SecretEphemeralPub string `json:"secret_ephemeral_pub,omitempty"`
-	SecretNonce        string `json:"secret_nonce,omitempty"`
-	SecretVersion      int    `json:"secret_version,omitempty"`
-	OwnerString        string `json:"owner_string,omitempty"`
-	AuthString         string `json:"auth_string,omitempty"`
-	RecipientString    string `json:"recipient_string,omitempty"`
+	ID                 string          `json:"id"`
+	OwnerToken         string          `json:"owner_token"`
+	Metadata           string          `json:"metadata"`
+	Nonce              string          `json:"nonce"`
+	DlLimit            int             `json:"dl_limit"`
+	DlCount            int             `json:"dl_count"`
+	Password           bool            `json:"password"`
+	CreatedAt          int64           `json:"created_at"`
+	ExpiresAt          int64           `json:"expires_at"`
+	TimeLimit          int64           `json:"time_limit"`
+	SecretCiphertext   string          `json:"secret_ciphertext,omitempty"`
+	SecretEphemeralPub string          `json:"secret_ephemeral_pub,omitempty"`
+	SecretNonce        string          `json:"secret_nonce,omitempty"`
+	SecretVersion      int             `json:"secret_version,omitempty"`
+	OwnerString        string          `json:"owner_string,omitempty"`
+	AuthString         string          `json:"auth_string,omitempty"`
+	Recipients         []recipientInfo `json:"recipients,omitempty"`
 }
 
 func NewUserFilesHandler(app *core.App) http.HandlerFunc {
@@ -66,7 +73,19 @@ func NewUserFilesHandler(app *core.App) http.HandlerFunc {
 			}
 
 			var item userFileResponse
-			if f.OwnerUserID != nil && *f.OwnerUserID == *session.UserID {
+			isOwner := f.OwnerUserID != nil && *f.OwnerUserID == *session.UserID
+
+			// Check if user is a recipient
+			var recipientRecord *storage.RecipientWithUserInfo
+			for _, r := range f.Recipients {
+				if r.UserID == *session.UserID {
+					recipientRecord = r
+					break
+				}
+			}
+
+			if isOwner {
+				// User is the owner
 				item = userFileResponse{
 					ID:                 f.ID,
 					OwnerToken:         f.OwnerToken,
@@ -83,7 +102,8 @@ func NewUserFilesHandler(app *core.App) http.HandlerFunc {
 					SecretNonce:        f.SecretNonce,
 					SecretVersion:      f.SecretVersion,
 				}
-			} else if f.RecipientUserID != nil && *f.RecipientUserID == *session.UserID {
+			} else if recipientRecord != nil {
+				// User is a recipient
 				item = userFileResponse{
 					ID:                 f.ID,
 					OwnerToken:         f.OwnerToken,
@@ -95,11 +115,14 @@ func NewUserFilesHandler(app *core.App) http.HandlerFunc {
 					CreatedAt:          f.CreatedAt,
 					ExpiresAt:          f.ExpiresAt,
 					TimeLimit:          timeLimit,
-					SecretCiphertext:   f.RecipientSecretCiphertext,
-					SecretEphemeralPub: f.RecipientSecretEphemeralPub,
-					SecretNonce:        f.RecipientSecretNonce,
-					SecretVersion:      f.RecipientSecretVersion,
+					SecretCiphertext:   recipientRecord.SecretCiphertext,
+					SecretEphemeralPub: recipientRecord.SecretEphemeralPub,
+					SecretNonce:        recipientRecord.SecretNonce,
+					SecretVersion:      recipientRecord.SecretVersion,
 				}
+			} else {
+				// User is neither owner nor recipient, skip
+				continue
 			}
 
 			if item.SecretCiphertext == "" || item.SecretNonce == "" || item.SecretEphemeralPub == "" {
@@ -116,9 +139,16 @@ func NewUserFilesHandler(app *core.App) http.HandlerFunc {
 				item.AuthString = f.AuthLinkLabel
 			}
 
-			// Set recipient_string if there is a recipient
-			if f.RecipientUserID != nil {
-				item.RecipientString = f.RecipientName
+			// Set recipients list
+			if len(f.Recipients) > 0 {
+				item.Recipients = make([]recipientInfo, 0, len(f.Recipients))
+				for _, r := range f.Recipients {
+					item.Recipients = append(item.Recipients, recipientInfo{
+						UserID: r.UserID,
+						Name:   r.UserName,
+						Email:  r.UserEmail,
+					})
+				}
 			}
 
 			response.Files = append(response.Files, item)

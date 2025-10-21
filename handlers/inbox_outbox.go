@@ -6,33 +6,38 @@ import (
 	"strings"
 
 	"github.com/Simon-Martens/go-send/core"
+	"github.com/Simon-Martens/go-send/storage"
 )
 
+type recipientInfoDetailed struct {
+	UserID             int64  `json:"user_id"`
+	Name               string `json:"name,omitempty"`
+	Email              string `json:"email,omitempty"`
+	SecretCiphertext   string `json:"secret_ciphertext,omitempty"`
+	SecretEphemeralPub string `json:"secret_ephemeral_pub,omitempty"`
+	SecretNonce        string `json:"secret_nonce,omitempty"`
+	SecretVersion      int    `json:"secret_version,omitempty"`
+}
+
 type fileWithUserInfoResponse struct {
-	ID                          string  `json:"id"`
-	OwnerToken                  string  `json:"owner_token,omitempty"` // Only sent if user is owner
-	Metadata                    string  `json:"metadata"`
-	Nonce                       string  `json:"nonce"`
-	DlLimit                     int     `json:"dl_limit"`
-	DlCount                     int     `json:"dl_count"`
-	Password                    bool    `json:"password"`
-	CreatedAt                   int64   `json:"created_at"`
-	ExpiresAt                   int64   `json:"expires_at"`
-	TimeLimit                   int64   `json:"time_limit"`
-	OwnerUserID                 *int64  `json:"owner_user_id,omitempty"`
-	RecipientUserID             *int64  `json:"recipient_user_id,omitempty"`
-	OwnerName                   string  `json:"owner_name,omitempty"`
-	OwnerEmail                  string  `json:"owner_email,omitempty"`
-	RecipientName               string  `json:"recipient_name,omitempty"`
-	RecipientEmail              string  `json:"recipient_email,omitempty"`
-	SecretCiphertext            string  `json:"secret_ciphertext,omitempty"`
-	SecretEphemeralPub          string  `json:"secret_ephemeral_pub,omitempty"`
-	SecretNonce                 string  `json:"secret_nonce,omitempty"`
-	SecretVersion               int     `json:"secret_version,omitempty"`
-	RecipientSecretCiphertext   string  `json:"recipient_secret_ciphertext,omitempty"`
-	RecipientSecretEphemeralPub string  `json:"recipient_secret_ephemeral_pub,omitempty"`
-	RecipientSecretNonce        string  `json:"recipient_secret_nonce,omitempty"`
-	RecipientSecretVersion      int     `json:"recipient_secret_version,omitempty"`
+	ID                 string                  `json:"id"`
+	OwnerToken         string                  `json:"owner_token,omitempty"` // Only sent if user is owner
+	Metadata           string                  `json:"metadata"`
+	Nonce              string                  `json:"nonce"`
+	DlLimit            int                     `json:"dl_limit"`
+	DlCount            int                     `json:"dl_count"`
+	Password           bool                    `json:"password"`
+	CreatedAt          int64                   `json:"created_at"`
+	ExpiresAt          int64                   `json:"expires_at"`
+	TimeLimit          int64                   `json:"time_limit"`
+	OwnerUserID        *int64                  `json:"owner_user_id,omitempty"`
+	OwnerName          string                  `json:"owner_name,omitempty"`
+	OwnerEmail         string                  `json:"owner_email,omitempty"`
+	SecretCiphertext   string                  `json:"secret_ciphertext,omitempty"`
+	SecretEphemeralPub string                  `json:"secret_ephemeral_pub,omitempty"`
+	SecretNonce        string                  `json:"secret_nonce,omitempty"`
+	SecretVersion      int                     `json:"secret_version,omitempty"`
+	Recipients         []recipientInfoDetailed `json:"recipients,omitempty"`
 }
 
 // NewInboxHandler creates a handler for the inbox endpoint
@@ -75,31 +80,42 @@ func NewInboxHandler(app *core.App) http.HandlerFunc {
 				timeLimit = 0
 			}
 
+			// Find the recipient record for this user
+			var myRecipientRecord *storage.RecipientWithUserInfo
+			for _, r := range f.Recipients {
+				if r.UserID == *session.UserID {
+					myRecipientRecord = r
+					break
+				}
+			}
+
+			if myRecipientRecord == nil {
+				// User is not a recipient of this file, skip
+				continue
+			}
+
 			item := fileWithUserInfoResponse{
-				ID:                          f.ID,
+				ID:                 f.ID,
 				// Don't include OwnerToken for inbox files (user is recipient, not owner)
-				Metadata:                    f.Metadata,
-				Nonce:                       f.Nonce,
-				DlLimit:                     f.DlLimit,
-				DlCount:                     f.DlCount,
-				Password:                    f.Password,
-				CreatedAt:                   f.CreatedAt,
-				ExpiresAt:                   f.ExpiresAt,
-				TimeLimit:                   timeLimit,
-				OwnerUserID:                 f.OwnerUserID,
-				RecipientUserID:             f.RecipientUserID,
-				OwnerName:                   f.OwnerName,
-				OwnerEmail:                  f.OwnerEmail,
-				RecipientName:               f.RecipientName,
-				RecipientEmail:              f.RecipientEmail,
-				RecipientSecretCiphertext:   f.RecipientSecretCiphertext,
-				RecipientSecretEphemeralPub: f.RecipientSecretEphemeralPub,
-				RecipientSecretNonce:        f.RecipientSecretNonce,
-				RecipientSecretVersion:      f.RecipientSecretVersion,
+				Metadata:           f.Metadata,
+				Nonce:              f.Nonce,
+				DlLimit:            f.DlLimit,
+				DlCount:            f.DlCount,
+				Password:           f.Password,
+				CreatedAt:          f.CreatedAt,
+				ExpiresAt:          f.ExpiresAt,
+				TimeLimit:          timeLimit,
+				OwnerUserID:        f.OwnerUserID,
+				OwnerName:          f.OwnerName,
+				OwnerEmail:         f.OwnerEmail,
+				SecretCiphertext:   myRecipientRecord.SecretCiphertext,
+				SecretEphemeralPub: myRecipientRecord.SecretEphemeralPub,
+				SecretNonce:        myRecipientRecord.SecretNonce,
+				SecretVersion:      myRecipientRecord.SecretVersion,
 			}
 
 			// Only include files with encryption fields
-			if item.RecipientSecretCiphertext == "" || item.RecipientSecretNonce == "" || item.RecipientSecretEphemeralPub == "" {
+			if item.SecretCiphertext == "" || item.SecretNonce == "" || item.SecretEphemeralPub == "" {
 				continue
 			}
 
@@ -154,35 +170,44 @@ func NewOutboxHandler(app *core.App) http.HandlerFunc {
 			}
 
 			item := fileWithUserInfoResponse{
-				ID:                          f.ID,
-				OwnerToken:                  f.OwnerToken, // Include for owners
-				Metadata:                    f.Metadata,
-				Nonce:                       f.Nonce,
-				DlLimit:                     f.DlLimit,
-				DlCount:                     f.DlCount,
-				Password:                    f.Password,
-				CreatedAt:                   f.CreatedAt,
-				ExpiresAt:                   f.ExpiresAt,
-				TimeLimit:                   timeLimit,
-				OwnerUserID:                 f.OwnerUserID,
-				RecipientUserID:             f.RecipientUserID,
-				OwnerName:                   f.OwnerName,
-				OwnerEmail:                  f.OwnerEmail,
-				RecipientName:               f.RecipientName,
-				RecipientEmail:              f.RecipientEmail,
-				SecretCiphertext:            f.SecretCiphertext,
-				SecretEphemeralPub:          f.SecretEphemeralPub,
-				SecretNonce:                 f.SecretNonce,
-				SecretVersion:               f.SecretVersion,
-				RecipientSecretCiphertext:   f.RecipientSecretCiphertext,
-				RecipientSecretEphemeralPub: f.RecipientSecretEphemeralPub,
-				RecipientSecretNonce:        f.RecipientSecretNonce,
-				RecipientSecretVersion:      f.RecipientSecretVersion,
+				ID:                 f.ID,
+				OwnerToken:         f.OwnerToken, // Include for owners
+				Metadata:           f.Metadata,
+				Nonce:              f.Nonce,
+				DlLimit:            f.DlLimit,
+				DlCount:            f.DlCount,
+				Password:           f.Password,
+				CreatedAt:          f.CreatedAt,
+				ExpiresAt:          f.ExpiresAt,
+				TimeLimit:          timeLimit,
+				OwnerUserID:        f.OwnerUserID,
+				OwnerName:          f.OwnerName,
+				OwnerEmail:         f.OwnerEmail,
+				SecretCiphertext:   f.SecretCiphertext,
+				SecretEphemeralPub: f.SecretEphemeralPub,
+				SecretNonce:        f.SecretNonce,
+				SecretVersion:      f.SecretVersion,
 			}
 
 			// Only include files with owner encryption fields
 			if item.SecretCiphertext == "" || item.SecretNonce == "" || item.SecretEphemeralPub == "" {
 				continue
+			}
+
+			// Add recipients
+			if len(f.Recipients) > 0 {
+				item.Recipients = make([]recipientInfoDetailed, 0, len(f.Recipients))
+				for _, r := range f.Recipients {
+					item.Recipients = append(item.Recipients, recipientInfoDetailed{
+						UserID:             r.UserID,
+						Name:               r.UserName,
+						Email:              r.UserEmail,
+						SecretCiphertext:   r.SecretCiphertext,
+						SecretEphemeralPub: r.SecretEphemeralPub,
+						SecretNonce:        r.SecretNonce,
+						SecretVersion:      r.SecretVersion,
+					})
+				}
 			}
 
 			response.Files = append(response.Files, item)
@@ -233,7 +258,14 @@ func NewFileInfoHandler(app *core.App) http.HandlerFunc {
 
 		// Check if user is owner or recipient
 		isOwner := fileInfo.OwnerUserID != nil && *fileInfo.OwnerUserID == *session.UserID
-		isRecipient := fileInfo.RecipientUserID != nil && *fileInfo.RecipientUserID == *session.UserID
+		var myRecipientRecord *storage.RecipientWithUserInfo
+		for _, r := range fileInfo.Recipients {
+			if r.UserID == *session.UserID {
+				myRecipientRecord = r
+				break
+			}
+		}
+		isRecipient := myRecipientRecord != nil
 
 		if !isOwner && !isRecipient {
 			http.Error(w, "Forbidden", http.StatusForbidden)
@@ -246,25 +278,18 @@ func NewFileInfoHandler(app *core.App) http.HandlerFunc {
 		}
 
 		response := fileWithUserInfoResponse{
-			ID:                          fileInfo.ID,
-			Metadata:                    fileInfo.Metadata,
-			Nonce:                       fileInfo.Nonce,
-			DlLimit:                     fileInfo.DlLimit,
-			DlCount:                     fileInfo.DlCount,
-			Password:                    fileInfo.Password,
-			CreatedAt:                   fileInfo.CreatedAt,
-			ExpiresAt:                   fileInfo.ExpiresAt,
-			TimeLimit:                   timeLimit,
-			OwnerUserID:                 fileInfo.OwnerUserID,
-			RecipientUserID:             fileInfo.RecipientUserID,
-			OwnerName:                   fileInfo.OwnerName,
-			OwnerEmail:                  fileInfo.OwnerEmail,
-			RecipientName:               fileInfo.RecipientName,
-			RecipientEmail:              fileInfo.RecipientEmail,
-			RecipientSecretCiphertext:   fileInfo.RecipientSecretCiphertext,
-			RecipientSecretEphemeralPub: fileInfo.RecipientSecretEphemeralPub,
-			RecipientSecretNonce:        fileInfo.RecipientSecretNonce,
-			RecipientSecretVersion:      fileInfo.RecipientSecretVersion,
+			ID:          fileInfo.ID,
+			Metadata:    fileInfo.Metadata,
+			Nonce:       fileInfo.Nonce,
+			DlLimit:     fileInfo.DlLimit,
+			DlCount:     fileInfo.DlCount,
+			Password:    fileInfo.Password,
+			CreatedAt:   fileInfo.CreatedAt,
+			ExpiresAt:   fileInfo.ExpiresAt,
+			TimeLimit:   timeLimit,
+			OwnerUserID: fileInfo.OwnerUserID,
+			OwnerName:   fileInfo.OwnerName,
+			OwnerEmail:  fileInfo.OwnerEmail,
 		}
 
 		// Only include owner token if user is owner
@@ -274,6 +299,28 @@ func NewFileInfoHandler(app *core.App) http.HandlerFunc {
 			response.SecretEphemeralPub = fileInfo.SecretEphemeralPub
 			response.SecretNonce = fileInfo.SecretNonce
 			response.SecretVersion = fileInfo.SecretVersion
+
+			// Include all recipients if user is owner
+			if len(fileInfo.Recipients) > 0 {
+				response.Recipients = make([]recipientInfoDetailed, 0, len(fileInfo.Recipients))
+				for _, r := range fileInfo.Recipients {
+					response.Recipients = append(response.Recipients, recipientInfoDetailed{
+						UserID:             r.UserID,
+						Name:               r.UserName,
+						Email:              r.UserEmail,
+						SecretCiphertext:   r.SecretCiphertext,
+						SecretEphemeralPub: r.SecretEphemeralPub,
+						SecretNonce:        r.SecretNonce,
+						SecretVersion:      r.SecretVersion,
+					})
+				}
+			}
+		} else if myRecipientRecord != nil {
+			// User is recipient, include their secret
+			response.SecretCiphertext = myRecipientRecord.SecretCiphertext
+			response.SecretEphemeralPub = myRecipientRecord.SecretEphemeralPub
+			response.SecretNonce = myRecipientRecord.SecretNonce
+			response.SecretVersion = myRecipientRecord.SecretVersion
 		}
 
 		w.Header().Set("Content-Type", "application/json")

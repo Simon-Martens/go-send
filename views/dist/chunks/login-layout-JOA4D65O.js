@@ -3,14 +3,14 @@ import {
   deriveKeyMaterial,
   normalizeKDFSettings,
   signChallenge
-} from "./chunk-ZTZWVLC7.js";
+} from "./chunk-GLUHNSIY.js";
 import {
   syncOwnedFiles
-} from "./chunk-U3SHF4DJ.js";
+} from "./chunk-RQ7QWOKL.js";
 import {
   UserSecrets,
   storage_default
-} from "./chunk-4T7GFWSU.js";
+} from "./chunk-BXQMQ3VC.js";
 import "./chunk-PC246CWX.js";
 import {
   arrayToB64,
@@ -266,4 +266,4 @@ var LoginLayoutElement = class extends HTMLElement {
   }
 };
 customElements.define("login-layout", LoginLayoutElement);
-//# sourceMappingURL=login-layout-3SN7T752.js.map
+//# sourceMappingURL=login-layout-JOA4D65O.js.map

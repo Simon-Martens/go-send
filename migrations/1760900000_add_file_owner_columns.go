@@ -10,12 +10,14 @@ func init() {
 
 func up_1760900000_add_file_owner_columns(app *core.App) error {
 	statements := []string{
-		`ALTER TABLE files ADD COLUMN user_id INTEGER`,
+		`ALTER TABLE files ADD COLUMN user_id INTEGER REFERENCES users(id) ON DELETE CASCADE`,
+		`ALTER TABLE files ADD COLUMN auth_token_id INTEGER REFERENCES authtokens(id) ON DELETE CASCADE`,
 		`ALTER TABLE files ADD COLUMN secret_ciphertext TEXT`,
 		`ALTER TABLE files ADD COLUMN secret_ephemeral_pub TEXT`,
 		`ALTER TABLE files ADD COLUMN secret_nonce TEXT`,
 		`ALTER TABLE files ADD COLUMN secret_version INTEGER DEFAULT 0`,
 		`CREATE INDEX IF NOT EXISTS idx_files_user_id ON files(user_id)`,
+		`CREATE INDEX IF NOT EXISTS idx_files_auth_token_id ON files(auth_token_id)`,
 	}
 
 	for _, stmt := range statements {

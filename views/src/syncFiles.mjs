@@ -71,6 +71,15 @@ export async function syncOwnedFiles(userSecrets, options = {}) {
           const metadataBytes = b64ToArray(file.metadata);
           const metadata = await keychain.decryptMetadata(metadataBytes);
 
+          // Parse recipients array from server
+          const recipients = Array.isArray(file.recipients)
+            ? file.recipients.map(r => ({
+                userId: r.user_id,
+                userName: r.name || "",
+                userEmail: r.email || "",
+              }))
+            : [];
+
           const ownedFile = new OwnedFile({
             id: file.id,
             url: `${window.location.origin}/download/${file.id}#${secretB64}`,
@@ -90,7 +99,7 @@ export async function syncOwnedFiles(userSecrets, options = {}) {
             timeLimit: file.time_limit,
             ownerString: file.owner_string || "",
             authString: file.auth_string || "",
-            recipientString: file.recipient_string || "",
+            recipients: recipients,
           });
 
           storage.addFile(ownedFile);

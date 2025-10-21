@@ -1,7 +1,7 @@
 import {
   sha512,
   x25519
-} from "./chunk-4T7GFWSU.js";
+} from "./chunk-BXQMQ3VC.js";
 import {
   arrayToB64,
   b64ToArray
@@ -689,4 +689,4 @@ export {
 @noble/ed25519/index.js:
   (*! noble-ed25519 - MIT License (c) 2019 Paul Miller (paulmillr.com) *)
 */
-//# sourceMappingURL=chunk-ZTZWVLC7.js.map
+//# sourceMappingURL=chunk-GLUHNSIY.js.map

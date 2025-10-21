@@ -495,15 +495,7 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 			meta.SecretVersion = ownerWrapVersion
 		}
 
-		// Save recipient encryption data (optional - file encrypted FOR a user)
-		if hasRecipientSecret {
-			meta.RecipientUserID = req.RecipientUserID
-			meta.RecipientSecretCiphertext = req.RecipientSecretCiphertext
-			meta.RecipientSecretEphemeralPub = req.RecipientSecretEphemeralPub
-			meta.RecipientSecretNonce = req.RecipientSecretNonce
-			meta.RecipientSecretVersion = recipientWrapVersion
-		}
-
+		// Create file metadata first
 		if err := app.DB.CreateFile(meta); err != nil {
 			app.Logger.Error("Database error creating file metadata", "error", err, "file_id", id)
 			app.DBLogger.LogFileOp(r, "upload", id, http.StatusInternalServerError,
@@ -511,6 +503,29 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 			storage.DeleteFile(app.DB.FileDir(), id)
 			sendError(conn, 500)
 			return
+		}
+
+		// Save recipient encryption data (optional - file encrypted FOR a user)
+		if hasRecipientSecret {
+			recipient := &storage.Recipient{
+				UserID:             *req.RecipientUserID,
+				FileID:             id,
+				SecretCiphertext:   req.RecipientSecretCiphertext,
+				SecretEphemeralPub: req.RecipientSecretEphemeralPub,
+				SecretNonce:        req.RecipientSecretNonce,
+				SecretVersion:      recipientWrapVersion,
+			}
+
+			if err := app.DB.CreateRecipient(recipient); err != nil {
+				app.Logger.Error("Database error creating recipient record", "error", err, "file_id", id, "user_id", *req.RecipientUserID)
+				app.DBLogger.LogFileOp(r, "upload", id, http.StatusInternalServerError,
+					time.Since(startTime).Milliseconds(), err.Error(), "operation", "save_recipient")
+				// Clean up file and metadata
+				app.DB.DeleteFileRecord(id)
+				storage.DeleteFile(app.DB.FileDir(), id)
+				sendError(conn, 500)
+				return
+			}
 		}
 
 		app.Logger.Info("File uploaded successfully",

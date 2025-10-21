@@ -1,6 +1,6 @@
 import {
   syncOwnedFiles
-} from "./chunks/chunk-U3SHF4DJ.js";
+} from "./chunks/chunk-RQ7QWOKL.js";
 import {
   APP_VERSION,
   Keychain,
@@ -9,7 +9,7 @@ import {
   USER_ROLES,
   UserSecrets,
   storage_default
-} from "./chunks/chunk-4T7GFWSU.js";
+} from "./chunks/chunk-BXQMQ3VC.js";
 import {
   blobStream,
   concatStream,
@@ -763,23 +763,6 @@ var FileSender = class extends EventTarget {
         console.warn("[FileSender] Failed to wrap recipient secret", err);
       }
     }
-    if (archive.recipientUserId && archive.recipientPublicKey) {
-      try {
-        const wrapResult = await UserSecrets.wrapSecretForRecipient(
-          this.keychain.rawSecret,
-          archive.recipientPublicKey
-        );
-        recipientSecretWrap = {
-          userId: archive.recipientUserId,
-          ciphertext: wrapResult.ciphertext,
-          nonce: wrapResult.nonce,
-          ephemeralPublicKey: wrapResult.ephemeralPublicKey,
-          version: wrapResult.version || OWNER_SECRET_VERSION
-        };
-      } catch (err) {
-        console.warn("[FileSender] Failed to wrap recipient secret", err);
-      }
-    }
     this.uploadRequest = uploadWs(
       encStream,
       metadata2,
@@ -805,7 +788,15 @@ var FileSender = class extends EventTarget {
       this.progress = [1, 1];
       const secretKey = arrayToB64(this.keychain.rawSecret);
       const ownerString = storage_default.user && storage_default.user.name ? storage_default.user.name : "";
-      const recipientString = archive.recipientName || "";
+      const recipients = [];
+      if (archive.recipientUserId) {
+        recipients.push({
+          userId: archive.recipientUserId,
+          userName: archive.recipientName || "",
+          userEmail: ""
+          // Not available during upload
+        });
+      }
       const ownedFile = new OwnedFile({
         id: result.id,
         url: `${result.url}#${secretKey}`,
@@ -824,7 +815,7 @@ var FileSender = class extends EventTarget {
         ownerString,
         authString: "",
         // Not used for logged-in user uploads
-        recipientString
+        recipients
       });
       return ownedFile;
     } catch (e) {
@@ -2997,7 +2988,7 @@ async function initUploadRoute(app) {
   await Promise.all([
     import("./chunks/upload-layout-DFS3ROWS.js"),
     import("./chunks/upload-area-WAJAHBJP.js"),
-    import("./chunks/upload-right-MSPYIEIJ.js"),
+    import("./chunks/upload-right-Q42GQV7H.js"),
     app.controller.ready
   ]);
   app.showUploadLayout();
@@ -3020,7 +3011,7 @@ async function initDownloadRoute(app) {
 async function initRegisterRoute(app) {
   console.log("[Route] Initializing register page...");
   await Promise.all([
-    import("./chunks/register-layout-UKGMQY2Q.js"),
+    import("./chunks/register-layout-I52NKTOE.js"),
     app.controller.ready
   ]);
   app.showRegisterLayout();
@@ -3029,7 +3020,7 @@ async function initRegisterRoute(app) {
 async function initLoginRoute(app) {
   console.log("[Route] Initializing login page...");
   await Promise.all([
-    import("./chunks/login-layout-3SN7T752.js"),
+    import("./chunks/login-layout-JOA4D65O.js"),
     app.controller.ready
   ]);
   app.showLoginLayout();
@@ -3038,10 +3029,10 @@ async function initLoginRoute(app) {
 async function initSettingsRoute(app) {
   console.log("[Route] Initializing settings page...");
   await Promise.all([
-    import("./chunks/settings-layout-6NE3FWVG.js"),
-    import("./chunks/settings-account-panel-WXMDWVXY.js"),
-    import("./chunks/settings-upload-links-panel-IP3XFJQP.js"),
-    import("./chunks/settings-users-panel-SC4EDNS2.js"),
+    import("./chunks/settings-layout-GF66JEEO.js"),
+    import("./chunks/settings-account-panel-CHEFSIKW.js"),
+    import("./chunks/settings-upload-links-panel-ZZDHCNVQ.js"),
+    import("./chunks/settings-users-panel-4Q7BRS4M.js"),
     app.controller.ready
   ]);
   app.showSettingsLayout();

@@ -2,7 +2,7 @@ import {
   Keychain,
   OwnedFile,
   storage_default
-} from "./chunk-4T7GFWSU.js";
+} from "./chunk-BXQMQ3VC.js";
 import {
   arrayToB64,
   b64ToArray
@@ -54,6 +54,11 @@ async function syncOwnedFiles(userSecrets, options = {}) {
           const keychain = new Keychain(secretB64, file.nonce);
           const metadataBytes = b64ToArray(file.metadata);
           const metadata = await keychain.decryptMetadata(metadataBytes);
+          const recipients = Array.isArray(file.recipients) ? file.recipients.map((r) => ({
+            userId: r.user_id,
+            userName: r.name || "",
+            userEmail: r.email || ""
+          })) : [];
           const ownedFile = new OwnedFile({
             id: file.id,
             url: `${window.location.origin}/download/${file.id}#${secretB64}`,
@@ -73,7 +78,7 @@ async function syncOwnedFiles(userSecrets, options = {}) {
             timeLimit: file.time_limit,
             ownerString: file.owner_string || "",
             authString: file.auth_string || "",
-            recipientString: file.recipient_string || ""
+            recipients
           });
           storage_default.addFile(ownedFile);
           addedCount++;
@@ -95,4 +100,4 @@ async function syncOwnedFiles(userSecrets, options = {}) {
 export {
   syncOwnedFiles
 };
-//# sourceMappingURL=chunk-U3SHF4DJ.js.map
+//# sourceMappingURL=chunk-RQ7QWOKL.js.map

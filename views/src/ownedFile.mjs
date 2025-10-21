@@ -24,7 +24,7 @@ export default class OwnedFile {
     this.timeLimit = obj.timeLimit;
     this.ownerString = obj.ownerString || "";
     this.authString = obj.authString || "";
-    this.recipientString = obj.recipientString || "";
+    this.recipients = obj.recipients || []; // Array of {userId, userName, userEmail}
   }
 
   get hasPassword() {
@@ -96,7 +96,7 @@ export default class OwnedFile {
       timeLimit: this.timeLimit,
       ownerString: this.ownerString,
       authString: this.authString,
-      recipientString: this.recipientString,
+      recipients: this.recipients,
     };
   }
 }

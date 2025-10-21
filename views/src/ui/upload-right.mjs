@@ -464,15 +464,21 @@ class UploadRightElement extends HTMLElement {
       );
     }
 
-    // Show TO if recipient exists and it's not the current user
-    if (ownedFile.recipientString) {
-      const isCurrentUser = currentUserName &&
-        ownedFile.recipientString.toLowerCase() === currentUserName.toLowerCase();
+    // Show TO if recipients exist (filter out current user)
+    if (Array.isArray(ownedFile.recipients) && ownedFile.recipients.length > 0) {
+      const toLabel = this._translateText("fileTileTo", "TO");
 
-      if (!isCurrentUser) {
-        const toLabel = this._translateText("fileTileTo", "TO");
-        parts.push(`<span class="inline-flex items-center px-2 py-1 rounded bg-secondary/10 dark:bg-secondary/20 text-secondary text-xs">${toLabel}: ${ownedFile.recipientString}</span>`);
-      }
+      // Filter out current user from recipients
+      const otherRecipients = ownedFile.recipients.filter(r => {
+        if (!currentUserName || !r.userName) return true;
+        return r.userName.toLowerCase() !== currentUserName.toLowerCase();
+      });
+
+      // Display each recipient
+      otherRecipients.forEach(recipient => {
+        const recipientName = recipient.userName || recipient.userEmail || `User ${recipient.userId}`;
+        parts.push(`<span class="inline-flex items-center px-2 py-1 rounded bg-secondary/10 dark:bg-secondary/20 text-secondary text-xs">${toLabel}: ${recipientName}</span>`);
+      });
     }
 
     return parts.join('');

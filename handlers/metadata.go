@@ -63,13 +63,20 @@ func NewMetadataHandler(app *core.App) http.HandlerFunc {
 			response["ownerSecretVersion"] = meta.SecretVersion
 		}
 
-		// Include recipient encryption fields if present (allows recipient to decrypt master key)
-		if meta.RecipientUserID != nil && meta.RecipientSecretCiphertext != "" {
-			response["recipientUserId"] = *meta.RecipientUserID
-			response["recipientSecretCiphertext"] = meta.RecipientSecretCiphertext
-			response["recipientSecretEphemeralPub"] = meta.RecipientSecretEphemeralPub
-			response["recipientSecretNonce"] = meta.RecipientSecretNonce
-			response["recipientSecretVersion"] = meta.RecipientSecretVersion
+		// Include recipient encryption fields if present (allows recipients to decrypt master key)
+		recipients, err := app.DB.GetRecipientsWithUserInfoByFileID(id)
+		if err == nil && len(recipients) > 0 {
+			recipientList := make([]map[string]interface{}, 0, len(recipients))
+			for _, r := range recipients {
+				recipientList = append(recipientList, map[string]interface{}{
+					"userId":             r.UserID,
+					"secretCiphertext":   r.SecretCiphertext,
+					"secretEphemeralPub": r.SecretEphemeralPub,
+					"secretNonce":        r.SecretNonce,
+					"secretVersion":      r.SecretVersion,
+				})
+			}
+			response["recipients"] = recipientList
 		}
 
 		w.Header().Set("Content-Type", "application/json")

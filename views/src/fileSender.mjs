@@ -95,24 +95,6 @@ export default class FileSender extends EventTarget {
         // Don't fail upload if recipient wrapping fails, just proceed without it
       }
     }
-    if (archive.recipientUserId && archive.recipientPublicKey) {
-      try {
-        const wrapResult = await UserSecrets.wrapSecretForRecipient(
-          this.keychain.rawSecret,
-          archive.recipientPublicKey,
-        );
-        recipientSecretWrap = {
-          userId: archive.recipientUserId,
-          ciphertext: wrapResult.ciphertext,
-          nonce: wrapResult.nonce,
-          ephemeralPublicKey: wrapResult.ephemeralPublicKey,
-          version: wrapResult.version || OWNER_SECRET_VERSION,
-        };
-      } catch (err) {
-        console.warn("[FileSender] Failed to wrap recipient secret", err);
-        // Don't fail upload if recipient wrapping fails, just proceed without it
-      }
-    }
 
     this.uploadRequest = uploadWs(
       encStream,
@@ -144,8 +126,15 @@ export default class FileSender extends EventTarget {
       // Get owner name from logged-in user (if available)
       const ownerString = storage.user && storage.user.name ? storage.user.name : "";
 
-      // Get recipient name from archive (if one was selected)
-      const recipientString = archive.recipientName || "";
+      // Build recipients array (if one was selected)
+      const recipients = [];
+      if (archive.recipientUserId) {
+        recipients.push({
+          userId: archive.recipientUserId,
+          userName: archive.recipientName || "",
+          userEmail: "", // Not available during upload
+        });
+      }
 
       const ownedFile = new OwnedFile({
         id: result.id,
@@ -164,7 +153,7 @@ export default class FileSender extends EventTarget {
         timeLimit: archive.timeLimit,
         ownerString: ownerString,
         authString: "", // Not used for logged-in user uploads
-        recipientString: recipientString,
+        recipients: recipients,
       });
 
       return ownedFile;

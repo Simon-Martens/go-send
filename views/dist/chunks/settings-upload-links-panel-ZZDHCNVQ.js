@@ -1,7 +1,7 @@
 import {
   USER_ROLES,
   storage_default
-} from "./chunk-4T7GFWSU.js";
+} from "./chunk-BXQMQ3VC.js";
 import "./chunk-PC246CWX.js";
 import {
   copyToClipboard,
@@ -672,4 +672,4 @@ var SettingsUploadLinksPanel = class extends HTMLElement {
   }
 };
 customElements.define("settings-upload-links-panel", SettingsUploadLinksPanel);
-//# sourceMappingURL=settings-upload-links-panel-IP3XFJQP.js.map
+//# sourceMappingURL=settings-upload-links-panel-ZZDHCNVQ.js.map

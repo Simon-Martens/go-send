@@ -1,6 +1,6 @@
 import {
   storage_default
-} from "./chunk-4T7GFWSU.js";
+} from "./chunk-BXQMQ3VC.js";
 import "./chunk-PC246CWX.js";
 import {
   bytes,
@@ -343,12 +343,16 @@ var UploadRightElement = class extends HTMLElement {
         `<span class="inline-flex items-center px-2 py-1 rounded bg-primary/10 dark:bg-primary/20 text-primary text-xs">${fromLabel}: ${ownedFile.authString}</span><span class="inline-flex items-center px-2 py-1 rounded bg-grey-20 dark:bg-grey-80 text-xs normal-case">${guestLabel}</span>`
       );
     }
-    if (ownedFile.recipientString) {
-      const isCurrentUser = currentUserName && ownedFile.recipientString.toLowerCase() === currentUserName.toLowerCase();
-      if (!isCurrentUser) {
-        const toLabel = this._translateText("fileTileTo", "TO");
-        parts.push(`<span class="inline-flex items-center px-2 py-1 rounded bg-secondary/10 dark:bg-secondary/20 text-secondary text-xs">${toLabel}: ${ownedFile.recipientString}</span>`);
-      }
+    if (Array.isArray(ownedFile.recipients) && ownedFile.recipients.length > 0) {
+      const toLabel = this._translateText("fileTileTo", "TO");
+      const otherRecipients = ownedFile.recipients.filter((r) => {
+        if (!currentUserName || !r.userName) return true;
+        return r.userName.toLowerCase() !== currentUserName.toLowerCase();
+      });
+      otherRecipients.forEach((recipient) => {
+        const recipientName = recipient.userName || recipient.userEmail || `User ${recipient.userId}`;
+        parts.push(`<span class="inline-flex items-center px-2 py-1 rounded bg-secondary/10 dark:bg-secondary/20 text-secondary text-xs">${toLabel}: ${recipientName}</span>`);
+      });
     }
     return parts.join("");
   }
@@ -397,4 +401,4 @@ var UploadRightElement = class extends HTMLElement {
   }
 };
 customElements.define("upload-right", UploadRightElement);
-//# sourceMappingURL=upload-right-MSPYIEIJ.js.map
+//# sourceMappingURL=upload-right-Q42GQV7H.js.map

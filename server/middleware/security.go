@@ -67,32 +67,30 @@ func CSP(isDev bool, baseURL string) func(http.Handler) http.Handler {
 			// Store nonce in request context for use in templates
 			r = r.WithContext(WithNonce(r.Context(), nonce))
 
-			// Skip CSP in development for easier debugging
-			if !isDev {
-				// Determine WebSocket URL
-				wsScheme := "ws"
-				if r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https" {
-					wsScheme = "wss"
-				}
-				wsURL := fmt.Sprintf("%s://%s", wsScheme, r.Host)
-
-				csp := fmt.Sprintf(
-					"default-src 'none'; "+
-						"connect-src 'self' %s; "+
-						"img-src 'self' data:; "+
-						"script-src 'nonce-%s'; "+
-						"style-src 'self' 'nonce-%s'; "+
-						"font-src 'self'; "+
-						"worker-src 'self'; "+
-						"form-action 'self'; "+
-						"frame-ancestors 'none'; "+
-						"object-src 'none'; "+
-						"base-uri 'self';",
-					wsURL, nonce, nonce,
-				)
-
-				w.Header().Set("Content-Security-Policy", csp)
+			// Apply CSP in both development and production
+			// Determine WebSocket URL
+			wsScheme := "ws"
+			if r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https" {
+				wsScheme = "wss"
 			}
+			wsURL := fmt.Sprintf("%s://%s", wsScheme, r.Host)
+
+			csp := fmt.Sprintf(
+				"default-src 'none'; "+
+					"connect-src 'self' %s; "+
+					"img-src 'self' data:; "+
+					"script-src 'nonce-%s'; "+
+					"style-src 'self' 'nonce-%s'; "+
+					"font-src 'self'; "+
+					"worker-src 'self'; "+
+					"form-action 'self'; "+
+					"frame-ancestors 'none'; "+
+					"object-src 'none'; "+
+					"base-uri 'self';",
+				wsURL, nonce, nonce,
+			)
+
+			w.Header().Set("Content-Security-Policy", csp)
 
 			next.ServeHTTP(w, r)
 		})

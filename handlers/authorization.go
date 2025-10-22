@@ -116,3 +116,97 @@ func Render403Page(app *core.App, w http.ResponseWriter, r *http.Request, downlo
 		http.Error(w, "Forbidden", http.StatusForbidden)
 	}
 }
+
+// requireUserAccount checks that the session has a user_id (forbids auth_token_id).
+// Returns the session, user, and whether the check passed.
+// This explicitly forbids guest sessions (sessions with auth_token_id).
+func requireUserAccount(app *core.App, w http.ResponseWriter, r *http.Request) (*storage.Session, *storage.User, bool) {
+	session, err := app.GetAuthenticatedSession(r)
+	if err != nil {
+		app.Logger.Warn("Auth: failed to resolve session", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return nil, nil, false
+	}
+
+	// No session at all
+	if session == nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return nil, nil, false
+	}
+
+	// Guest session (has auth_token_id instead of user_id)
+	if session.AuthTokenID != nil {
+		http.Error(w, "Forbidden: guest access not allowed", http.StatusForbidden)
+		return nil, nil, false
+	}
+
+	// No user_id in session
+	if session.UserID == nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return nil, nil, false
+	}
+
+	// Get the user
+	user, err := app.DB.GetUser(*session.UserID)
+	if err != nil {
+		app.Logger.Error("Auth: failed to load user", "error", err, "user_id", *session.UserID)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return nil, nil, false
+	}
+
+	if user == nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return nil, nil, false
+	}
+
+	app.TouchSession(session, r)
+	return session, user, true
+}
+
+// checkUploadRecipientAccess validates upload recipient for Type 3 tokens.
+// Returns true if upload is allowed, false otherwise.
+func checkUploadRecipientAccess(app *core.App, session *storage.Session, recipientUserID *int64) (bool, error) {
+	if session == nil || session.AuthTokenID == nil {
+		// Not a guest session, no restrictions
+		return true, nil
+	}
+
+	// Get the auth token
+	token, err := app.GetSessionAuthToken(session)
+	if err != nil {
+		return false, err
+	}
+
+	if token == nil {
+		// No token found, shouldn't happen but be defensive
+		return false, nil
+	}
+
+	// Type 3: Can only upload to token creator
+	if token.Type == storage.TokenTypeSpecificGuestUpload {
+		if recipientUserID == nil || *recipientUserID != token.CreatedBy {
+			return false, nil
+		}
+	}
+
+	// Type 2 or other types: no restrictions
+	return true, nil
+}
+
+// getSessionAuthTokenType returns the token type for a session, or nil if it's a user session.
+func getSessionAuthTokenType(app *core.App, session *storage.Session) (*storage.AuthTokenType, error) {
+	if session == nil || session.AuthTokenID == nil {
+		return nil, nil
+	}
+
+	token, err := app.GetSessionAuthToken(session)
+	if err != nil {
+		return nil, err
+	}
+
+	if token == nil {
+		return nil, nil
+	}
+
+	return &token.Type, nil
+}

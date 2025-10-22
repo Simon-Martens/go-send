@@ -48,34 +48,11 @@ func NewLogsHandler(app *core.App) http.HandlerFunc {
 			return
 		}
 
-		// Get authenticated session (required)
-		session, err := app.GetAuthenticatedSession(r)
-		if err != nil {
-			app.Logger.Error("Logs: failed to check session", "error", err)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		// Require user account (forbids guest sessions)
+		session, user, ok := requireUserAccount(app, w, r)
+		if !ok {
 			return
 		}
-
-		if session == nil || session.UserID == nil {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
-
-		// Get user to determine role
-		user, err := app.DB.GetUser(*session.UserID)
-		if err != nil {
-			app.Logger.Error("Logs: failed to get user", "error", err, "user_id", *session.UserID)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			return
-		}
-
-		if user == nil {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
-
-		// Touch session
-		app.TouchSession(session, r)
 
 		// Parse page parameter
 		pageStr := r.URL.Query().Get("page")

@@ -172,6 +172,7 @@ func requireAdminUser(app *core.App, w http.ResponseWriter, r *http.Request) (*s
 
 // requireNonGuestUser checks if the user is authenticated and not a guest (allows both admin and regular user roles)
 // Returns the session and user for further authorization checks
+// Forbids both guest sessions (with auth_token_id) and guest user accounts (with Role=Guest)
 func requireNonGuestUser(app *core.App, w http.ResponseWriter, r *http.Request) (*storage.Session, *storage.User, bool) {
 	session, err := app.GetAuthenticatedSession(r)
 	if err != nil {
@@ -179,7 +180,21 @@ func requireNonGuestUser(app *core.App, w http.ResponseWriter, r *http.Request) 
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return nil, nil, false
 	}
-	if session == nil || session.UserID == nil {
+
+	// No session at all
+	if session == nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return nil, nil, false
+	}
+
+	// Guest session (has auth_token_id instead of user_id)
+	if session.AuthTokenID != nil {
+		http.Error(w, "Forbidden: guest access not allowed", http.StatusForbidden)
+		return nil, nil, false
+	}
+
+	// No user_id in session
+	if session.UserID == nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return nil, nil, false
 	}
@@ -190,6 +205,8 @@ func requireNonGuestUser(app *core.App, w http.ResponseWriter, r *http.Request) 
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return nil, nil, false
 	}
+
+	// Guest user account (user with Role=Guest)
 	if user.Role == storage.RoleGuest {
 		http.Error(w, "Forbidden", http.StatusForbidden)
 		return nil, nil, false

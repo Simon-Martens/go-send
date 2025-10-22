@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/Simon-Martens/go-send/core"
-	"github.com/Simon-Martens/go-send/storage"
 	sqlite3 "github.com/mattn/go-sqlite3"
 )
 
@@ -28,7 +27,7 @@ func NewAccountProfileHandler(app *core.App) http.HandlerFunc {
 			return
 		}
 
-		user, session, ok := resolveAuthenticatedUser(app, w, r)
+		session, user, ok := requireUserAccount(app, w, r)
 		if !ok {
 			return
 		}
@@ -94,7 +93,7 @@ func NewAccountClearSessionsHandler(app *core.App) http.HandlerFunc {
 			return
 		}
 
-		user, _, ok := resolveAuthenticatedUser(app, w, r)
+		_, user, ok := requireUserAccount(app, w, r)
 		if !ok {
 			return
 		}
@@ -122,7 +121,7 @@ func NewAccountDeactivateHandler(app *core.App) http.HandlerFunc {
 			return
 		}
 
-		user, _, ok := resolveAuthenticatedUser(app, w, r)
+		_, user, ok := requireUserAccount(app, w, r)
 		if !ok {
 			return
 		}
@@ -145,29 +144,6 @@ func NewAccountDeactivateHandler(app *core.App) http.HandlerFunc {
 		app.DBLogger.LogRequest(r, http.StatusNoContent, nil, "account deactivated", "user_id", user.ID)
 		w.WriteHeader(http.StatusNoContent)
 	}
-}
-
-func resolveAuthenticatedUser(app *core.App, w http.ResponseWriter, r *http.Request) (*storage.User, *storage.Session, bool) {
-	session, err := app.GetAuthenticatedSession(r)
-	if err != nil {
-		app.Logger.Warn("Account: failed to resolve session", "error", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return nil, nil, false
-	}
-
-	if session == nil || session.UserID == nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return nil, nil, false
-	}
-
-	user, err := app.DB.GetUser(*session.UserID)
-	if err != nil {
-		app.Logger.Error("Account: failed to fetch user", "error", err, "user_id", *session.UserID)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return nil, nil, false
-	}
-
-	return user, session, true
 }
 
 func writeAccountError(w http.ResponseWriter, status int, code string) {

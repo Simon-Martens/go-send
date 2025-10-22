@@ -49,7 +49,21 @@ func NewSignupLinksHandler(app *core.App) http.HandlerFunc {
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
-		if session == nil || session.UserID == nil {
+
+		// No session at all
+		if session == nil {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		// Guest session (has auth_token_id instead of user_id)
+		if session.AuthTokenID != nil {
+			http.Error(w, "Forbidden: guest access not allowed", http.StatusForbidden)
+			return
+		}
+
+		// No user_id in session
+		if session.UserID == nil {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}

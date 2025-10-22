@@ -257,6 +257,29 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 			}
 		} else {
 			// No recipient specified - for user-specific guest links (type 3), this is required
+			// Check session-based guest tokens
+			if session != nil && session.AuthTokenID != nil {
+				token, err := app.GetSessionAuthToken(session)
+				if err != nil {
+					app.Logger.Error("Error checking session auth token type", "error", err)
+					app.DBLogger.LogFileOp(r, "upload", "", http.StatusInternalServerError,
+						time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, err.Error(), "operation", "check_auth_token_type")
+					sendError(conn, 500)
+					return
+				}
+				if token != nil && token.Type == storage.TokenTypeSpecificGuestUpload {
+					app.Logger.Warn("User-specific upload link requires recipient",
+						"auth_token_id", token.ID,
+						"expected_recipient", token.CreatedBy,
+						"remote_addr", r.RemoteAddr)
+					app.DBLogger.LogFileOp(r, "upload", "", http.StatusBadRequest,
+						time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, "User-specific upload link requires recipient",
+						"auth_token_id", token.ID, "expected_recipient", token.CreatedBy)
+					sendError(conn, 400)
+					return
+				}
+			}
+			// Legacy: Check guest token cookie
 			if guestToken != nil && guestToken.Type == storage.TokenTypeSpecificGuestUpload {
 				app.Logger.Warn("User-specific upload link requires recipient",
 					"auth_token_id", guestToken.ID,
@@ -289,7 +312,26 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 				return
 			}
 
-			// For user-specific guest upload links (type 3), enforce recipient restriction
+			// For session-based guest tokens, check recipient restrictions
+			allowed, err := checkUploadRecipientAccess(app, session, req.RecipientUserID)
+			if err != nil {
+				app.Logger.Error("Error checking upload recipient access", "error", err)
+				app.DBLogger.LogFileOp(r, "upload", "", http.StatusInternalServerError,
+					time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, err.Error(), "operation", "check_recipient_access")
+				sendError(conn, 500)
+				return
+			}
+			if !allowed {
+				app.Logger.Warn("Upload recipient not allowed for this guest session",
+					"attempted_recipient", *req.RecipientUserID,
+					"remote_addr", r.RemoteAddr)
+				app.DBLogger.LogFileOp(r, "upload", "", http.StatusForbidden,
+					time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, "Recipient not allowed for this upload link")
+				sendError(conn, 403)
+				return
+			}
+
+			// Legacy: For guest token cookie, also enforce recipient restriction
 			if guestToken != nil && guestToken.Type == storage.TokenTypeSpecificGuestUpload {
 				if *req.RecipientUserID != guestToken.CreatedBy {
 					app.Logger.Warn("User-specific upload link used with wrong recipient",

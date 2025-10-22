@@ -87,3 +87,45 @@ func GuestTokenFromContext(r *http.Request) *storage.AuthToken {
 	token, _ := r.Context().Value(guestCtxKey).(*storage.AuthToken)
 	return token
 }
+
+// GetSessionAuthToken retrieves the auth token associated with a session (if session has auth_token_id).
+// Returns nil if session is a user session (has user_id instead of auth_token_id).
+func (a *App) GetSessionAuthToken(session *storage.Session) (*storage.AuthToken, error) {
+	if session == nil || session.AuthTokenID == nil {
+		return nil, nil
+	}
+
+	token, err := a.DB.GetAuthTokenByID(*session.AuthTokenID)
+	if err != nil {
+		return nil, err
+	}
+
+	return token, nil
+}
+
+// GetEffectiveAuthToken gets auth token from session first, falls back to legacy cookie.
+// Returns the auth token, the session (if session-based), and any error.
+// This helper enables gradual migration from cookie-based to session-based auth.
+func (a *App) GetEffectiveAuthToken(r *http.Request) (*storage.AuthToken, *storage.Session, error) {
+	// Try session first (new approach)
+	session, err := a.GetAuthenticatedSession(r)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if session != nil && session.AuthTokenID != nil {
+		token, err := a.GetSessionAuthToken(session)
+		if err != nil {
+			return nil, session, err
+		}
+		return token, session, nil
+	}
+
+	// Fallback to legacy cookie
+	token, err := a.GetGuestAuthToken(r)
+	if err != nil {
+		return nil, session, err
+	}
+
+	return token, session, nil
+}

@@ -33,7 +33,7 @@ func NewUsersListHandler(app *core.App) http.HandlerFunc {
 			return
 		}
 
-		// Check authentication and get potential guest token
+		// Check authentication and get session/token
 		session, err := app.GetAuthenticatedSession(r)
 		if err != nil {
 			app.Logger.Error("Users list: failed to check session", "error", err)
@@ -44,7 +44,18 @@ func NewUsersListHandler(app *core.App) http.HandlerFunc {
 		var guestToken *storage.AuthToken
 		if session != nil {
 			app.TouchSession(session, r)
+
+			// If session has auth_token_id (guest session), get the token
+			if session.AuthTokenID != nil {
+				guestToken, err = app.GetSessionAuthToken(session)
+				if err != nil {
+					app.Logger.Error("Users list: failed to get session auth token", "error", err)
+					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+					return
+				}
+			}
 		} else {
+			// Fallback to legacy guest token cookie
 			guestToken, err = app.GetGuestAuthToken(r)
 			if err != nil {
 				app.Logger.Error("Users list: failed to check guest token", "error", err)
@@ -186,10 +197,25 @@ func checkUserOrGuestAccess(app *core.App, r *http.Request) (bool, error) {
 
 	if session != nil {
 		app.TouchSession(session, r)
-		return true, nil
+
+		// User session (has user_id) - allow access
+		if session.UserID != nil {
+			return true, nil
+		}
+
+		// Guest session (has auth_token_id) - check if it's a valid upload token (type 2 or 3)
+		if session.AuthTokenID != nil {
+			token, err := app.GetSessionAuthToken(session)
+			if err != nil {
+				return false, err
+			}
+			if token != nil && (token.Type == storage.TokenTypeGeneralGuestUpload || token.Type == storage.TokenTypeSpecificGuestUpload) {
+				return true, nil
+			}
+		}
 	}
 
-	// Check for valid guest token
+	// Fallback to legacy guest token cookie for backward compatibility
 	guestToken, err := app.GetGuestAuthToken(r)
 	if err != nil {
 		return false, err

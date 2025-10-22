@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/Simon-Martens/go-send/core"
+	"github.com/Simon-Martens/go-send/storage"
 )
 
 // UserGuardOptions configures RequireUser middleware behaviour
@@ -34,12 +35,33 @@ func RequireUser(app *core.App, opts UserGuardOptions) func(http.Handler) http.H
 				return
 			}
 
+			// Session exists - check if it's a user session or guest session
 			if session != nil {
-				app.TouchSession(session, r)
-				next.ServeHTTP(w, r)
-				return
+				// User session (has user_id) - allow access
+				if session.UserID != nil {
+					app.TouchSession(session, r)
+					next.ServeHTTP(w, r)
+					return
+				}
+
+				// Guest session (has auth_token_id) - check token type and path restrictions
+				if session.AuthTokenID != nil && opts.AllowGuest {
+					token, err := app.GetSessionAuthToken(session)
+					if err != nil {
+						app.Logger.Warn("User guard failed to load session auth token", "error", err, "auth_token_id", *session.AuthTokenID)
+						http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+						return
+					}
+
+					if token != nil && isGuestSessionAllowed(r, token, opts) {
+						app.TouchSession(session, r)
+						next.ServeHTTP(w, core.WithGuestToken(r, token))
+						return
+					}
+				}
 			}
 
+			// Fallback to legacy guest token cookie for backward compatibility
 			if opts.AllowGuest {
 				guestToken, err := app.GetGuestAuthToken(r)
 				if err != nil {
@@ -107,5 +129,34 @@ func isGuestAccessAllowed(r *http.Request, opts UserGuardOptions) bool {
 		}
 	}
 
+	return false
+}
+
+// isGuestSessionAllowed checks if a guest session (with auth_token_id) is allowed to access the path.
+// Enforces token type-specific path restrictions.
+func isGuestSessionAllowed(r *http.Request, token *storage.AuthToken, opts UserGuardOptions) bool {
+	if token == nil {
+		return false
+	}
+
+	path := r.URL.Path
+
+	// Type 0 (Admin Signup): Only allow /register/admin/* paths
+	if token.Type == storage.TokenTypeAdminSignup {
+		return strings.HasPrefix(path, "/register/admin")
+	}
+
+	// Type 1 (User Signup): Only allow /register/user/* paths
+	if token.Type == storage.TokenTypeUserSignup {
+		return strings.HasPrefix(path, "/register/user")
+	}
+
+	// Type 2 (General Guest Upload) and Type 3 (Specific Guest Upload):
+	// Check against GuestAllowExact and GuestAllowPrefixes
+	if token.Type == storage.TokenTypeGeneralGuestUpload || token.Type == storage.TokenTypeSpecificGuestUpload {
+		return isGuestAccessAllowed(r, opts)
+	}
+
+	// Unknown token type - deny
 	return false
 }

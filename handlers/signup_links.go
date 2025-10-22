@@ -43,49 +43,12 @@ const signupLinkMaxUses = 1
 
 func NewSignupLinksHandler(app *core.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		session, err := app.GetAuthenticatedSession(r)
-		if err != nil {
-			app.Logger.Warn("Signup links: session lookup failed", "error", err)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			return
-		}
-
-		// No session at all
-		if session == nil {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
-
-		// Guest session (has auth_token_id instead of user_id)
-		if session.AuthTokenID != nil {
-			http.Error(w, "Forbidden: guest access not allowed", http.StatusForbidden)
-			return
-		}
-
-		// No user_id in session
-		if session.UserID == nil {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
-
-		app.TouchSession(session, r)
-
-		user, err := app.DB.GetUser(*session.UserID)
-		if err != nil {
-			app.Logger.Error("Signup links: failed to load user", "error", err, "user_id", *session.UserID)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			return
-		}
-		if user.Role != storage.RoleAdmin {
-			http.Error(w, "Forbidden", http.StatusForbidden)
-			return
-		}
-
+		// Middleware ensures admin authentication
 		switch r.Method {
 		case http.MethodGet:
 			handleSignupLinksGet(app, w, r)
 		case http.MethodPost:
-			handleSignupLinksPost(app, w, r, *session.UserID)
+			handleSignupLinksPost(app, w, r)
 		case http.MethodDelete:
 			handleSignupLinksDelete(app, w, r)
 		default:
@@ -121,7 +84,10 @@ func handleSignupLinksGet(app *core.App, w http.ResponseWriter, r *http.Request)
 	}
 }
 
-func handleSignupLinksPost(app *core.App, w http.ResponseWriter, r *http.Request, userID int64) {
+func handleSignupLinksPost(app *core.App, w http.ResponseWriter, r *http.Request) {
+	// Get user ID from session
+	session, _ := app.GetAuthenticatedSession(r)
+	userID := *session.UserID
 	var req signupLinkIssueRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)

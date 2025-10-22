@@ -48,11 +48,9 @@ func NewLogsHandler(app *core.App) http.HandlerFunc {
 			return
 		}
 
-		// Require user account (forbids guest sessions)
-		session, user, ok := requireUserAccount(app, w, r)
-		if !ok {
-			return
-		}
+		// Middleware ensures user authentication
+		session, _ := app.GetAuthenticatedSession(r)
+		user, _ := app.DB.GetUser(*session.UserID)
 
 		// Parse page parameter
 		pageStr := r.URL.Query().Get("page")

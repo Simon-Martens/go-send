@@ -22,7 +22,7 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 
 	uploadHandler := http.Handler(handlers.NewUploadHandler(app))
 	if app.Config.UploadGuard {
-		uploadHandler = middleware.RequireUser(app, middleware.UserGuardOptions{
+		uploadHandler = middleware.RequireUserGuard(app, middleware.UserGuardOptions{
 			RedirectToLogin: false,
 			AllowGuest:      true,
 			GuestAllowExact: []string{"/api/ws"},
@@ -37,23 +37,28 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 	mux.HandleFunc("/api/password/", handlers.NewPasswordHandler(app))
 	mux.HandleFunc("/api/info/", handlers.NewInfoHandler(app))
 
-	// Public user endpoints (accessible to logged-in users OR guests)
+	// User management endpoints
 	if app.Config.UseUserManagement {
-		mux.HandleFunc("/api/users", handlers.NewUsersListHandler(app))
-		mux.HandleFunc("/api/users/", handlers.NewUserDetailsHandler(app))
-	}
-	if app.Config.UseUserManagement {
-		mux.HandleFunc("/api/me/files", handlers.NewUserFilesHandler(app))
-		mux.HandleFunc("/api/me/profile", handlers.NewAccountProfileHandler(app))
-		mux.HandleFunc("/api/me/clear-sessions", handlers.NewAccountClearSessionsHandler(app))
-		mux.HandleFunc("/api/me/deactivate", handlers.NewAccountDeactivateHandler(app))
-		mux.HandleFunc("/api/passwordreset", handlers.NewPasswordResetHandler(app))
-		mux.HandleFunc("/api/logs", handlers.NewLogsHandler(app))
-		mux.HandleFunc("/api/upload-links/", handlers.NewUploadLinksHandler(app))
-		mux.HandleFunc("/api/upload-links", handlers.NewUploadLinksHandler(app))
-		mux.HandleFunc("/api/admin/signup-links", handlers.NewSignupLinksHandler(app))
-		mux.HandleFunc("/api/admin/users", handlers.NewAdminUsersHandler(app))
-		mux.HandleFunc("/api/admin/users/", handlers.NewAdminUserHandler(app))
+		// Public user endpoints (accessible to logged-in users OR guests with upload tokens)
+		mux.Handle("/api/users", middleware.RequireUserOrGuest(app)(http.HandlerFunc(handlers.NewUsersListHandler(app))))
+		mux.Handle("/api/users/", middleware.RequireUserOrGuest(app)(http.HandlerFunc(handlers.NewUserDetailsHandler(app))))
+
+		// User-only endpoints (no guest access)
+		mux.Handle("/api/me/files", middleware.RequireUser(app)(http.HandlerFunc(handlers.NewUserFilesHandler(app))))
+		mux.Handle("/api/me/profile", middleware.RequireUser(app)(http.HandlerFunc(handlers.NewAccountProfileHandler(app))))
+		mux.Handle("/api/me/clear-sessions", middleware.RequireUser(app)(http.HandlerFunc(handlers.NewAccountClearSessionsHandler(app))))
+		mux.Handle("/api/me/deactivate", middleware.RequireUser(app)(http.HandlerFunc(handlers.NewAccountDeactivateHandler(app))))
+		mux.Handle("/api/passwordreset", middleware.RequireUser(app)(http.HandlerFunc(handlers.NewPasswordResetHandler(app))))
+		mux.Handle("/api/logs", middleware.RequireUser(app)(http.HandlerFunc(handlers.NewLogsHandler(app))))
+
+		// User-only endpoints
+		mux.Handle("/api/upload-links/", middleware.RequireUser(app)(http.HandlerFunc(handlers.NewUploadLinksHandler(app))))
+		mux.Handle("/api/upload-links", middleware.RequireUser(app)(http.HandlerFunc(handlers.NewUploadLinksHandler(app))))
+
+		// Admin-only endpoints
+		mux.Handle("/api/admin/signup-links", middleware.RequireAdmin(app)(http.HandlerFunc(handlers.NewSignupLinksHandler(app))))
+		mux.Handle("/api/admin/users", middleware.RequireAdmin(app)(http.HandlerFunc(handlers.NewAdminUsersHandler(app))))
+		mux.Handle("/api/admin/users/", middleware.RequireAdmin(app)(http.HandlerFunc(handlers.NewAdminUserHandler(app))))
 
 		// Auth and registration routes
 		mux.HandleFunc("/auth/challenge", handlers.NewLoginChallengeHandler(app))
@@ -109,7 +114,7 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 			GuestAllowExact:    []string{"/", "/upload", "/upload/"},
 			GuestAllowPrefixes: []string{"/download"},
 		}
-		rootHandler = middleware.RequireUser(app, guardOpts)(rootHandler)
+		rootHandler = middleware.RequireUserGuard(app, guardOpts)(rootHandler)
 	}
 
 	// Apply setup redirect middleware only if no users exist at startup

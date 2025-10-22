@@ -55,10 +55,9 @@ type uploadLinkRevokeResponse struct {
 
 func NewUploadLinksHandler(app *core.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		session, user, ok := requireNonGuestUser(app, w, r)
-		if !ok {
-			return
-		}
+		// Middleware ensures non-guest authentication
+		session, _ := app.GetAuthenticatedSession(r)
+		user, _ := app.DB.GetUser(*session.UserID)
 
 		switch r.Method {
 		case http.MethodPost:

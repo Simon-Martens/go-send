@@ -19,8 +19,9 @@ type UserGuardOptions struct {
 	GuestAllowExact    []string
 }
 
-// RequireUser ensures the requester has an authenticated user session.
-func RequireUser(app *core.App, opts UserGuardOptions) func(http.Handler) http.Handler {
+// RequireUserGuard ensures the requester has an authenticated user session with configurable options.
+// This is used for the upload guard feature with flexible guest access rules.
+func RequireUserGuard(app *core.App, opts UserGuardOptions) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if isGuardBypassed(r, opts) {

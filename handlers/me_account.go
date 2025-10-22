@@ -27,10 +27,9 @@ func NewAccountProfileHandler(app *core.App) http.HandlerFunc {
 			return
 		}
 
-		session, user, ok := requireUserAccount(app, w, r)
-		if !ok {
-			return
-		}
+		// Middleware ensures user authentication
+		session, _ := app.GetAuthenticatedSession(r)
+		user, _ := app.DB.GetUser(*session.UserID)
 
 		if !user.Active {
 			writeAccountError(w, http.StatusBadRequest, "not_active")
@@ -93,10 +92,9 @@ func NewAccountClearSessionsHandler(app *core.App) http.HandlerFunc {
 			return
 		}
 
-		_, user, ok := requireUserAccount(app, w, r)
-		if !ok {
-			return
-		}
+		// Middleware ensures user authentication
+		session, _ := app.GetAuthenticatedSession(r)
+		user, _ := app.DB.GetUser(*session.UserID)
 
 		if !user.Active {
 			writeAccountError(w, http.StatusBadRequest, "not_active")
@@ -121,10 +119,9 @@ func NewAccountDeactivateHandler(app *core.App) http.HandlerFunc {
 			return
 		}
 
-		_, user, ok := requireUserAccount(app, w, r)
-		if !ok {
-			return
-		}
+		// Middleware ensures user authentication
+		session, _ := app.GetAuthenticatedSession(r)
+		user, _ := app.DB.GetUser(*session.UserID)
 
 		if !user.Active {
 			writeAccountError(w, http.StatusBadRequest, "not_active")

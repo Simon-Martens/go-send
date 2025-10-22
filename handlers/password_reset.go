@@ -47,17 +47,8 @@ func NewPasswordResetHandler(app *core.App) http.HandlerFunc {
 			return
 		}
 
-		session, err := app.GetAuthenticatedSession(r)
-		if err != nil {
-			app.Logger.Error("Password reset: failed to resolve session", "error", err)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			return
-		}
-		if session == nil || session.UserID == nil {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
-		app.TouchSession(session, r)
+		// Middleware ensures user authentication
+		session, _ := app.GetAuthenticatedSession(r)
 
 		var req passwordResetRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {

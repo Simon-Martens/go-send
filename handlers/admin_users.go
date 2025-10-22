@@ -35,10 +35,8 @@ func NewAdminUsersHandler(app *core.App) http.HandlerFunc {
 			return
 		}
 
-		session, ok := requireAdminUser(app, w, r)
-		if !ok {
-			return
-		}
+		// Middleware ensures admin authentication
+		session, _ := app.GetAuthenticatedSession(r)
 
 		users, err := app.DB.ListUsers(nil)
 		if err != nil {
@@ -84,10 +82,8 @@ func NewAdminUsersHandler(app *core.App) http.HandlerFunc {
 
 func NewAdminUserHandler(app *core.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		session, ok := requireAdminUser(app, w, r)
-		if !ok {
-			return
-		}
+		// Middleware ensures admin authentication
+		session, _ := app.GetAuthenticatedSession(r)
 
 		path := strings.TrimPrefix(r.URL.Path, "/api/admin/users/")
 		if path == "" {
@@ -141,79 +137,6 @@ func NewAdminUserHandler(app *core.App) http.HandlerFunc {
 
 		http.Error(w, "Not Found", http.StatusNotFound)
 	}
-}
-
-func requireAdminUser(app *core.App, w http.ResponseWriter, r *http.Request) (*storage.Session, bool) {
-	session, err := app.GetAuthenticatedSession(r)
-	if err != nil {
-		app.Logger.Warn("Admin users: failed to resolve session", "error", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return nil, false
-	}
-	if session == nil || session.UserID == nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return nil, false
-	}
-
-	user, err := app.DB.GetUser(*session.UserID)
-	if err != nil {
-		app.Logger.Error("Admin users: failed to load user", "error", err, "user_id", *session.UserID)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return nil, false
-	}
-	if user.Role != storage.RoleAdmin {
-		http.Error(w, "Forbidden", http.StatusForbidden)
-		return nil, false
-	}
-
-	app.TouchSession(session, r)
-	return session, true
-}
-
-// requireNonGuestUser checks if the user is authenticated and not a guest (allows both admin and regular user roles)
-// Returns the session and user for further authorization checks
-// Forbids both guest sessions (with auth_token_id) and guest user accounts (with Role=Guest)
-func requireNonGuestUser(app *core.App, w http.ResponseWriter, r *http.Request) (*storage.Session, *storage.User, bool) {
-	session, err := app.GetAuthenticatedSession(r)
-	if err != nil {
-		app.Logger.Warn("Auth: failed to resolve session", "error", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return nil, nil, false
-	}
-
-	// No session at all
-	if session == nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return nil, nil, false
-	}
-
-	// Guest session (has auth_token_id instead of user_id)
-	if session.AuthTokenID != nil {
-		http.Error(w, "Forbidden: guest access not allowed", http.StatusForbidden)
-		return nil, nil, false
-	}
-
-	// No user_id in session
-	if session.UserID == nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return nil, nil, false
-	}
-
-	user, err := app.DB.GetUser(*session.UserID)
-	if err != nil {
-		app.Logger.Error("Auth: failed to load user", "error", err, "user_id", *session.UserID)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return nil, nil, false
-	}
-
-	// Guest user account (user with Role=Guest)
-	if user.Role == storage.RoleGuest {
-		http.Error(w, "Forbidden", http.StatusForbidden)
-		return nil, nil, false
-	}
-
-	app.TouchSession(session, r)
-	return session, user, true
 }
 
 func handleAdminDeleteUser(app *core.App, w http.ResponseWriter, r *http.Request, targetUserID int64, session *storage.Session) {

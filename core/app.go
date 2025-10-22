@@ -8,19 +8,17 @@ import (
 	"time"
 
 	"github.com/Simon-Martens/go-send/config"
-	"github.com/Simon-Martens/go-send/i18n"
 	"github.com/Simon-Martens/go-send/storage"
 )
 
 // App holds all global application state and dependencies
 type App struct {
-	DB         *storage.DB
-	Config     *config.Config
-	Template   *template.Template
-	Manifest   Manifest
-	Logger     *slog.Logger
-	Translator *i18n.Translator
-	DBLogger   *DBLogger
+	DB       *storage.DB
+	Config   *config.Config
+	Template *template.Template
+	Manifest Manifest
+	Logger   *slog.Logger
+	DBLogger *DBLogger
 
 	// InitialAdminClaimURL is set when no users exist at startup
 	// Used to redirect to the initial admin registration page
@@ -32,13 +30,12 @@ type App struct {
 }
 
 // NewApp creates and initializes a new App instance
-func NewApp(db *storage.DB, cfg *config.Config, tmpl *template.Template, manifest Manifest, translator *i18n.Translator, logger *slog.Logger, dbLogger *DBLogger) *App {
+func NewApp(db *storage.DB, cfg *config.Config, tmpl *template.Template, manifest Manifest, logger *slog.Logger, dbLogger *DBLogger) *App {
 	return &App{
 		DB:             db,
 		Config:         cfg,
 		Template:       tmpl,
 		Manifest:       manifest,
-		Translator:     translator,
 		Logger:         logger,
 		DBLogger:       dbLogger,
 		activeCleanups: make(map[string]context.CancelFunc),

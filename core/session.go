@@ -129,3 +129,24 @@ func (a *App) GetEffectiveAuthToken(r *http.Request) (*storage.AuthToken, *stora
 
 	return token, session, nil
 }
+
+// GetSessionUser is a convenience method that retrieves both the session and user.
+// Returns (session, user, error). Returns (nil, nil, nil) if no valid session exists.
+// Middleware should be used to enforce authentication before calling this.
+func (a *App) GetSessionUser(r *http.Request) (*storage.Session, *storage.User, error) {
+	session, err := a.GetAuthenticatedSession(r)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if session == nil || session.UserID == nil {
+		return session, nil, nil
+	}
+
+	user, err := a.DB.GetUser(*session.UserID)
+	if err != nil {
+		return session, nil, err
+	}
+
+	return session, user, nil
+}

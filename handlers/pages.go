@@ -1,31 +1,18 @@
 package handlers
 
 import (
-	"crypto/rand"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
 
-	"github.com/Simon-Martens/go-send/config"
 	"github.com/Simon-Martens/go-send/core"
-	"github.com/Simon-Martens/go-send/locale"
+	"github.com/Simon-Martens/go-send/utils"
 )
-
-// generateNonce generates a random string for CSP nonces.
-func generateNonce() (string, error) {
-	b := make([]byte, 16)
-	_, err := rand.Read(b)
-	if err != nil {
-		return "", err
-	}
-	return base64.StdEncoding.EncodeToString(b), nil
-}
 
 func IndexHandler(app *core.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		nonce, err := generateNonce()
+		nonce, err := utils.GenerateNonce()
 		if err != nil {
 			app.Logger.Error("Failed to generate nonce", "error", err)
 			app.DBLogger.LogRequest(r, http.StatusInternalServerError, nil, err.Error(), "operation", "generate_nonce")
@@ -33,11 +20,9 @@ func IndexHandler(app *core.App) http.HandlerFunc {
 			return
 		}
 
-		detectedLocale := detectLocale(r, app.Config)
-
-		var translate func(string, map[string]interface{}) string
-		if app.Translator != nil {
-			translate = app.Translator.Func(detectedLocale)
+		locale := app.Config.CustomLocale
+		if locale == "" {
+			locale = "en"
 		}
 
 		// Check if this is a download page request
@@ -84,7 +69,7 @@ func IndexHandler(app *core.App) http.HandlerFunc {
 			}
 		}
 
-		data := getTemplateData(app.Manifest, downloadMetadata, app.Config, detectedLocale, nonce, translate)
+		data := getTemplateData(app.Manifest, downloadMetadata, app.Config, locale, nonce)
 		data.IsDownloadPage = isDownloadPage
 
 		csp := fmt.Sprintf(
@@ -113,15 +98,4 @@ func IndexHandler(app *core.App) http.HandlerFunc {
 		// Log successful request
 		app.DBLogger.LogRequest(r, http.StatusOK, nil, "")
 	}
-}
-
-func detectLocale(r *http.Request, cfg *config.Config) string {
-	// If custom locale is set, use it
-	if cfg.CustomLocale != "" {
-		return cfg.CustomLocale
-	}
-
-	// Otherwise negotiate from Accept-Language header
-	acceptLanguage := r.Header.Get("Accept-Language")
-	return locale.NegotiateLocale(acceptLanguage)
 }

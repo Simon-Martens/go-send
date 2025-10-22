@@ -7,6 +7,7 @@ import (
 
 	"github.com/Simon-Martens/go-send/core"
 	"github.com/Simon-Martens/go-send/storage"
+	"github.com/Simon-Martens/go-send/utils"
 )
 
 // CheckRecipientAuthorization checks if a user is authorized to access a file with recipients.
@@ -60,20 +61,13 @@ func CheckRecipientAuthorization(app *core.App, r *http.Request, fileID string, 
 func Render403Page(app *core.App, w http.ResponseWriter, r *http.Request, downloadPath string) {
 	redirectURL := url.QueryEscape(downloadPath)
 
-	// Detect locale
 	locale := app.Config.CustomLocale
 	if locale == "" {
 		locale = "en"
 	}
 
-	// Get translator
-	var translate func(string, map[string]interface{}) string
-	if app.Translator != nil {
-		translate = app.Translator.Func(locale)
-	}
-
 	// Generate nonce for CSP
-	nonce, err := generateNonce()
+	nonce, err := utils.GenerateNonce()
 	if err != nil {
 		app.Logger.Error("Failed to generate nonce for 403 page", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -81,7 +75,7 @@ func Render403Page(app *core.App, w http.ResponseWriter, r *http.Request, downlo
 	}
 
 	// Build template data using the standard structure
-	data := getTemplateData(app.Manifest, "{}", app.Config, locale, nonce, translate)
+	data := getTemplateData(app.Manifest, "{}", app.Config, locale, nonce)
 
 	// Add 403-specific data
 	data403 := struct {
@@ -145,22 +139,4 @@ func checkUploadRecipientAccess(app *core.App, session *storage.Session, recipie
 
 	// Type 2 or other types: no restrictions
 	return true, nil
-}
-
-// getSessionAuthTokenType returns the token type for a session, or nil if it's a user session.
-func getSessionAuthTokenType(app *core.App, session *storage.Session) (*storage.AuthTokenType, error) {
-	if session == nil || session.AuthTokenID == nil {
-		return nil, nil
-	}
-
-	token, err := app.GetSessionAuthToken(session)
-	if err != nil {
-		return nil, err
-	}
-
-	if token == nil {
-		return nil, nil
-	}
-
-	return &token.Type, nil
 }

@@ -15,7 +15,6 @@ type TemplateData struct {
 	Theme          ThemeConfig
 	Assets         AssetBundle
 	ClientConfig   *config.ClientConfig
-	Translate      func(string, ...interface{}) string
 	IsDownloadPage bool
 	// DownloadMetadata is only set on download pages
 	DownloadMetadata json.RawMessage
@@ -39,7 +38,7 @@ type AssetBundle struct {
 	SafariPinnedTab string
 }
 
-func getTemplateData(manifest map[string]string, downloadMetadata string, cfg *config.Config, detectedLocale string, nonce string, translate func(string, map[string]interface{}) string) TemplateData {
+func getTemplateData(manifest map[string]string, downloadMetadata string, cfg *config.Config, locale string, nonce string) TemplateData {
 	assets := AssetBundle{
 		CSS:             assetFromManifest(manifest, config.DEFAULT_MANIFEST_CSS, config.DEFAULT_MANIFEST_CSS),
 		JS:              assetFromManifest(manifest, config.DEFAULT_MANIFEST_JS, config.DEFAULT_MANIFEST_JS),
@@ -50,7 +49,7 @@ func getTemplateData(manifest map[string]string, downloadMetadata string, cfg *c
 	}
 
 	return TemplateData{
-		Locale:    detectedLocale,
+		Locale:    locale,
 		NonceAttr: template.HTMLAttr(fmt.Sprintf("nonce=\"%s\"", nonce)),
 		Theme: ThemeConfig{
 			Primary: cfg.UIColorPrimary,
@@ -59,18 +58,6 @@ func getTemplateData(manifest map[string]string, downloadMetadata string, cfg *c
 		Assets:           assets,
 		ClientConfig:     cfg.GetClientConfig(),
 		DownloadMetadata: normalizeRawJSON(downloadMetadata),
-		Translate: func(id string, args ...interface{}) string {
-			var data map[string]interface{}
-			if len(args) > 0 {
-				if m, ok := args[0].(map[string]interface{}); ok {
-					data = m
-				}
-			}
-			if translate == nil {
-				return id
-			}
-			return translate(id, data)
-		},
 	}
 }
 

@@ -428,6 +428,13 @@ func (d *DB) DeleteSessionsByAuthToken(authTokenID int64) error {
 	return err
 }
 
+// HardDeleteSessionsByAuthToken permanently removes all sessions for a specific auth token
+func (d *DB) HardDeleteSessionsByAuthToken(authTokenID int64) error {
+	query := `DELETE FROM sessions WHERE auth_token_id = ?`
+	_, err := d.db.Exec(query, authTokenID)
+	return err
+}
+
 // CountActiveSessionsByUser returns the number of active (non-expired) sessions for a user.
 func (d *DB) CountActiveSessionsByUser(userID int64) (int, error) {
 	query := `

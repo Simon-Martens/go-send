@@ -210,7 +210,7 @@ func NewLoginHandler(app *core.App) http.HandlerFunc {
 			return
 		}
 
-		rawToken, hashedToken, err := generateSessionToken()
+		rawToken, hashedToken, err := GenerateSessionToken()
 		if err != nil {
 			app.Logger.Error("Failed to generate session token", "error", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -321,7 +321,9 @@ func generateChallengeNonce() (string, error) {
 	return base64.RawURLEncoding.EncodeToString(b), nil
 }
 
-func generateSessionToken() (string, string, error) {
+// GenerateSessionToken creates a new random session token
+// Returns the raw token (to be sent to client) and hashed token (to be stored in DB)
+func GenerateSessionToken() (string, string, error) {
 	b := make([]byte, 32)
 	if _, err := rand.Read(b); err != nil {
 		return "", "", err

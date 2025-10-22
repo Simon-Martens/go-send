@@ -522,8 +522,11 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 		if uploaderUserID != nil {
 			// Logged-in user upload
 			meta.OwnerUserID = uploaderUserID
+		} else if session != nil && session.AuthTokenID != nil {
+			// Guest upload via auth link (with session)
+			meta.OwnerAuthTokenID = session.AuthTokenID
 		} else if guestToken != nil {
-			// Guest upload via auth link
+			// Legacy: Guest upload via auth link (without session)
 			meta.OwnerAuthTokenID = &guestToken.ID
 		}
 		// If neither, owner fields remain nil (public upload, no upload guard active)

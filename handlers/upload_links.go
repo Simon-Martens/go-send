@@ -229,8 +229,9 @@ func handleUploadLinkRevoke(app *core.App, w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if err := app.DB.DeleteSessionsByAuthToken(tokenID); err != nil {
-		app.Logger.Warn("Upload links: failed to delete sessions for token", "error", err, "auth_token_id", tokenID)
+	// Hard delete all sessions associated with this auth token
+	if err := app.DB.HardDeleteSessionsByAuthToken(tokenID); err != nil {
+		app.Logger.Warn("Upload links: failed to hard delete sessions for token", "error", err, "auth_token_id", tokenID)
 	}
 
 	app.DBLogger.LogRequest(r, http.StatusOK, session.UserID, "upload_link_revoked", "auth_token_id", tokenID)

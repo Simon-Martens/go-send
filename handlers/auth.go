@@ -97,13 +97,50 @@ func handleGuestUploadClaim(app *core.App, w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// No active session - proceed with guest cookie setup
+	// No active session - proceed with guest cookie and session setup
 	label := strings.TrimSpace(token.Name)
 	if label == "" {
 		label = "Guest uploader"
 	}
-	// Issue a guest cookie that is readable from JavaScript so the frontend can
-	// recognise the guest session without persisting user data in storage.
+
+	// Create a proper session for this auth token
+	sessionRawToken, sessionHashedToken, err2 := GenerateSessionToken()
+	if err2 != nil {
+		app.Logger.Error("Failed to generate session token for guest", "error", err2)
+		app.DBLogger.LogRequest(r, http.StatusInternalServerError, nil, err2.Error(), "operation", "generate_session_token")
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	tokenID := token.ID
+	session = &storage.Session{
+		Token:       sessionHashedToken,
+		LastIP:      storage.NewRequestData(r).IP,
+		ExpiresAt:   time.Now().Add(guestCookieTTL).Unix(),
+		Ephemeral:   false,
+		AuthTokenID: &tokenID,
+	}
+
+	if err := app.DB.CreateSession(session); err != nil {
+		app.Logger.Error("Failed to create session for guest", "error", err)
+		app.DBLogger.LogRequest(r, http.StatusInternalServerError, nil, err.Error(), "operation", "create_session")
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	// Set the new session cookie (HttpOnly for security)
+	http.SetCookie(w, &http.Cookie{
+		Name:     "send_session",
+		Value:    sessionRawToken,
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   r.TLS != nil,
+		SameSite: http.SameSiteLaxMode,
+		Expires:  time.Now().Add(guestCookieTTL),
+		MaxAge:   int(guestCookieTTL.Seconds()),
+	})
+
+	// Keep the legacy guest token cookie for backward compatibility (JavaScript-readable)
 	http.SetCookie(w, &http.Cookie{
 		Name:     core.GuestTokenCookieName,
 		Value:    rawToken,

@@ -499,7 +499,7 @@ func (d *DBLogger) resolveSessionOwnerName(sessionID *int64, db *storage.DB) str
 		}
 	}
 
-	// Try auth token owner
+	// Try auth token owner (for guest sessions created via auth links)
 	if session.AuthTokenID != nil {
 		token, err := db.GetAuthTokenByID(*session.AuthTokenID)
 		if err == nil && token != nil {

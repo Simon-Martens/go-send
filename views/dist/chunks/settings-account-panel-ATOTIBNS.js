@@ -7,14 +7,14 @@ import {
   getPublicKey,
   normalizeKDFSettings,
   serializeKDFSettings
-} from "./chunk-VPKRFVCK.js";
+} from "./chunk-KAHELHZS.js";
 import {
   OWNER_SECRET_VERSION,
   UserSecrets,
   storage_default,
   x25519
-} from "./chunk-DP6HAB66.js";
-import "./chunk-PC246CWX.js";
+} from "./chunk-3WTCPM2E.js";
+import "./chunk-WXWAAH3Q.js";
 import {
   arrayToB64,
   copyToClipboard,
@@ -920,4 +920,4 @@ var SettingsAccountPanel = class extends HTMLElement {
   }
 };
 customElements.define("settings-account-panel", SettingsAccountPanel);
-//# sourceMappingURL=settings-account-panel-C3MYSXGV.js.map
+//# sourceMappingURL=settings-account-panel-ATOTIBNS.js.map

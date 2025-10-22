@@ -1,0 +1,40 @@
+<!-- Settings Logs Row Item -->
+<template id="settings-logs-row">
+	<tr class="border-b border-grey-20 dark:border-grey-80 hover:bg-grey-5 dark:hover:bg-grey-95 transition" data-role="log-row">
+		<!-- Column 1: Type, Timestamp, Duration -->
+		<td class="px-4 py-3 text-grey-90 dark:text-grey-10">
+			<div class="space-y-1">
+				<div class="flex items-center gap-2">
+					<i data-role="log-type-icon" class="text-lg leading-4"></i>
+					<span class="font-medium" data-role="log-type">—</span>
+				</div>
+				<div class="text-xs text-grey-60 dark:text-grey-50" data-role="log-timestamp">—</div>
+				<div class="text-xs text-grey-60 dark:text-grey-50">
+					<span id="duration" data-type="lang">Duration</span>: <span data-role="log-duration">—</span>
+				</div>
+			</div>
+		</td>
+
+		<!-- Column 2: File ID, Owner/Guest Name -->
+		<td class="px-4 py-3 text-grey-90 dark:text-grey-10">
+			<div class="space-y-1">
+				<div class="font-mono text-sm font-semibold text-primary" data-role="log-file-id">abc1…</div>
+				<div class="text-xs text-grey-60 dark:text-grey-50" data-role="log-owner">—</div>
+			</div>
+		</td>
+
+		<!-- Column 3: IP, User Agent, Origin -->
+		<td class="px-4 py-3 text-grey-90 dark:text-grey-10">
+			<div class="space-y-1">
+				<div class="font-mono text-xs text-grey-70 dark:text-grey-30" data-role="log-ip">—</div>
+				<div class="text-xs text-grey-60 dark:text-grey-50 truncate" title="" data-role="log-user-agent">—</div>
+				<div class="text-xs text-grey-60 dark:text-grey-50 truncate" title="" data-role="log-origin">—</div>
+			</div>
+		</td>
+
+		<!-- Column 4: Session User (Access Type) -->
+		<td class="px-4 py-3 text-grey-90 dark:text-grey-10">
+			<div class="text-sm" data-role="log-session-user">—</div>
+		</td>
+	</tr>
+</template>

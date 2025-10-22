@@ -64,6 +64,7 @@ export async function initSettingsRoute(app) {
     import("./ui/settings-account-panel.mjs"),
     import("./ui/settings-upload-links-panel.mjs"),
     import("./ui/settings-users-panel.mjs"),
+    import("./ui/settings-logs-panel.mjs"),
     app.controller.ready,
   ]);
 

@@ -1,8 +1,8 @@
 import {
   USER_ROLES,
   storage_default
-} from "./chunk-DP6HAB66.js";
-import "./chunk-PC246CWX.js";
+} from "./chunk-3WTCPM2E.js";
+import "./chunk-WXWAAH3Q.js";
 import {
   translateElement
 } from "./chunk-TXB3JAVG.js";
@@ -21,6 +21,7 @@ var SettingsLayout = class extends HTMLElement {
     this._contentArea = null;
     this._uploadLinksNavItem = null;
     this._usersNavItem = null;
+    this._logsNavItem = null;
     this._boundCategoryClick = this._handleCategoryClick.bind(this);
   }
   connectedCallback() {
@@ -49,6 +50,7 @@ var SettingsLayout = class extends HTMLElement {
     this._contentArea = null;
     this._uploadLinksNavItem = null;
     this._usersNavItem = null;
+    this._logsNavItem = null;
   }
   _checkIsAdmin() {
     const user = storage_default.user;
@@ -99,6 +101,7 @@ var SettingsLayout = class extends HTMLElement {
     this._contentArea = this.querySelector('[data-role="content-area"]');
     this._uploadLinksNavItem = this.querySelector('[data-role="upload-links-nav"]');
     this._usersNavItem = this.querySelector('[data-role="users-nav"]');
+    this._logsNavItem = this.querySelector('[data-role="logs-nav"]');
     const categoryList = this.querySelector('[data-role="category-list"]');
     if (categoryList) {
       this._categoryButtons = Array.from(
@@ -112,6 +115,9 @@ var SettingsLayout = class extends HTMLElement {
     }
     if (this._usersNavItem) {
       this._usersNavItem.classList.toggle("hidden", !this._isAdmin);
+    }
+    if (this._logsNavItem) {
+      this._logsNavItem.classList.toggle("hidden", !this._isAdmin);
     }
   }
   _attachListeners() {
@@ -142,6 +148,10 @@ var SettingsLayout = class extends HTMLElement {
     }
     if (category === "upload-links" && !this._isNonGuest) {
       console.warn("[SettingsLayout] Guest attempted to access upload-links panel");
+      return;
+    }
+    if (category === "logs" && !this._isAdmin) {
+      console.warn("[SettingsLayout] Non-admin attempted to access logs panel");
       return;
     }
     this._activeCategory = category;
@@ -180,6 +190,10 @@ var SettingsLayout = class extends HTMLElement {
         if (!this._isAdmin) return;
         panelElement = document.createElement("settings-users-panel");
         break;
+      case "logs":
+        if (!this._isAdmin) return;
+        panelElement = document.createElement("settings-logs-panel");
+        break;
       default:
         console.warn(`[SettingsLayout] Unknown category: ${category}`);
         return;
@@ -198,4 +212,4 @@ var SettingsLayout = class extends HTMLElement {
   }
 };
 customElements.define("settings-layout", SettingsLayout);
-//# sourceMappingURL=settings-layout-FPMRWELA.js.map
+//# sourceMappingURL=settings-layout-6JTUGC7I.js.map

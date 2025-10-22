@@ -28,6 +28,8 @@ type fileTransferLogEntry struct {
 	errorMsg   string
 	keyValues  []any
 	durationMS int64
+	sessionID  *int64
+	userID     *int64
 }
 
 // DBLogger handles asynchronous logging to both database and stdout
@@ -94,6 +96,7 @@ func (d *DBLogger) LogRequest(
 }
 
 // LogFileOp logs a file transfer operation (upload/download) to both database and stdout
+// sessionID and userID are optional - pass nil if not available
 // errorMsg is automatically keyed as "error" in the Error JSON
 // keyValues are additional key-value pairs added to the Error JSON
 func (d *DBLogger) LogFileOp(
@@ -102,6 +105,8 @@ func (d *DBLogger) LogFileOp(
 	fileID string,
 	statusCode int,
 	durationMS int64,
+	sessionID *int64,
+	userID *int64,
 	errorMsg string,
 	keyValues ...any,
 ) {
@@ -114,6 +119,8 @@ func (d *DBLogger) LogFileOp(
 		errorMsg:   errorMsg,
 		keyValues:  keyValues,
 		durationMS: durationMS,
+		sessionID:  sessionID,
+		userID:     userID,
 	}
 
 	// Send to channel (non-blocking to prevent request blocking)
@@ -337,8 +344,8 @@ func (d *DBLogger) processFileTransferLog(entry *fileTransferLogEntry) {
 		StatusCode:  &statusCode,
 		RequestData: reqData.ToJSON(),
 		Data:        errorJSON,
-		UserID:      nil, // TODO: Extract from context when auth is implemented
-		SessionID:   nil, // TODO: Extract from context when sessions are implemented
+		UserID:      entry.userID,
+		SessionID:   entry.sessionID,
 		DurationMS:  &durationMS,
 	}
 
@@ -360,6 +367,14 @@ func (d *DBLogger) processFileTransferLog(entry *fileTransferLogEntry) {
 		"status", entry.statusCode,
 		"duration_ms", entry.durationMS,
 		"ip", reqData.IP,
+	}
+
+	if entry.sessionID != nil {
+		logAttrs = append(logAttrs, "session_id", *entry.sessionID)
+	}
+
+	if entry.userID != nil {
+		logAttrs = append(logAttrs, "user_id", *entry.userID)
 	}
 
 	if entry.errorMsg != "" {

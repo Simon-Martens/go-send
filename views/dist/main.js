@@ -1,6 +1,6 @@
 import {
   syncOwnedFiles
-} from "./chunks/chunk-25OO5UXV.js";
+} from "./chunks/chunk-ATYDBTFA.js";
 import {
   APP_VERSION,
   Keychain,
@@ -9,7 +9,7 @@ import {
   USER_ROLES,
   UserSecrets,
   storage_default
-} from "./chunks/chunk-DP6HAB66.js";
+} from "./chunks/chunk-3WTCPM2E.js";
 import {
   blobStream,
   concatStream,
@@ -17,7 +17,7 @@ import {
   getApiUrl,
   metadata,
   uploadWs
-} from "./chunks/chunk-PC246CWX.js";
+} from "./chunks/chunk-WXWAAH3Q.js";
 import {
   arrayToB64,
   browserName,
@@ -2986,8 +2986,8 @@ async function initUploadRoute(app) {
   console.log("[Route] Initializing upload page...");
   await Promise.all([
     import("./chunks/upload-layout-DFS3ROWS.js"),
-    import("./chunks/upload-area-SFX4UWWK.js"),
-    import("./chunks/upload-right-YQSJADFZ.js"),
+    import("./chunks/upload-area-MOZOQFJO.js"),
+    import("./chunks/upload-right-7PKXLQ3O.js"),
     app.controller.ready
   ]);
   app.showUploadLayout();
@@ -3010,7 +3010,7 @@ async function initDownloadRoute(app) {
 async function initRegisterRoute(app) {
   console.log("[Route] Initializing register page...");
   await Promise.all([
-    import("./chunks/register-layout-W6KBX4OX.js"),
+    import("./chunks/register-layout-KINE7CQ2.js"),
     app.controller.ready
   ]);
   app.showRegisterLayout();
@@ -3019,7 +3019,7 @@ async function initRegisterRoute(app) {
 async function initLoginRoute(app) {
   console.log("[Route] Initializing login page...");
   await Promise.all([
-    import("./chunks/login-layout-YJFRVD74.js"),
+    import("./chunks/login-layout-WDPFC3YZ.js"),
     app.controller.ready
   ]);
   app.showLoginLayout();
@@ -3028,10 +3028,11 @@ async function initLoginRoute(app) {
 async function initSettingsRoute(app) {
   console.log("[Route] Initializing settings page...");
   await Promise.all([
-    import("./chunks/settings-layout-FPMRWELA.js"),
-    import("./chunks/settings-account-panel-C3MYSXGV.js"),
-    import("./chunks/settings-upload-links-panel-4DGLXSVV.js"),
-    import("./chunks/settings-users-panel-EEEV7WS4.js"),
+    import("./chunks/settings-layout-6JTUGC7I.js"),
+    import("./chunks/settings-account-panel-ATOTIBNS.js"),
+    import("./chunks/settings-upload-links-panel-PRYP6D32.js"),
+    import("./chunks/settings-users-panel-2KJ62NYL.js"),
+    import("./chunks/settings-logs-panel-6SFGUPDS.js"),
     app.controller.ready
   ]);
   app.showSettingsLayout();

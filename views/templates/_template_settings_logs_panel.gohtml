@@ -1,0 +1,55 @@
+<!-- Settings Logs Panel -->
+<template id="settings-logs-panel">
+	<div data-panel="logs" class="space-y-8">
+		<header class="flex items-start justify-between gap-4">
+			<div>
+				<h2 class="text-xl font-semibold text-grey-90 dark:text-grey-10"><span id="settingsLogsHeading" data-type="lang">Logs</span></h2>
+				<p class="text-sm text-grey-70 dark:text-grey-40 mt-1"><span id="settingsLogsSubheading" data-type="lang">View upload and download activity for your files.</span></p>
+			</div>
+			<button type="button" class="inline-flex items-center justify-center gap-2 rounded border border-grey-40 dark:border-grey-70 bg-white dark:bg-grey-90 px-4 py-2 text-sm font-medium text-grey-90 dark:text-grey-10 hover:bg-grey-10 dark:hover:bg-grey-80 transition cursor-pointer" data-role="logs-refresh" title="Refresh logs">
+				<i class="ri-refresh-line text-base leading-4"></i>
+				<span id="settingsLogsRefresh" data-type="lang">Refresh</span>
+			</button>
+		</header>
+
+		<!-- Status message area -->
+		<div class="text-sm flex items-center gap-2 min-h-[1.25rem]" data-role="logs-status">
+			<i class="hidden" data-role="logs-status-icon"></i>
+			<span data-role="logs-status-text"></span>
+		</div>
+
+		<!-- Logs table -->
+		<div class="overflow-x-auto border border-grey-30 dark:border-grey-70 rounded-xs">
+			<table class="w-full text-sm" data-role="logs-table">
+				<thead class="bg-grey-5 dark:bg-grey-95 border-b border-grey-30 dark:border-grey-70">
+					<tr>
+						<th class="text-left px-4 py-3 font-semibold text-grey-90 dark:text-grey-10"><span id="settingsLogsColumnType" data-type="lang">Type / Time / Duration</span></th>
+						<th class="text-left px-4 py-3 font-semibold text-grey-90 dark:text-grey-10"><span id="settingsLogsColumnFile" data-type="lang">File ID / Owner</span></th>
+						<th class="text-left px-4 py-3 font-semibold text-grey-90 dark:text-grey-10"><span id="settingsLogsColumnSession" data-type="lang">IP / User Agent / Origin</span></th>
+						<th class="text-left px-4 py-3 font-semibold text-grey-90 dark:text-grey-10"><span id="settingsLogsColumnAccess" data-type="lang">Access</span></th>
+					</tr>
+				</thead>
+				<tbody data-role="logs-body">
+					<!-- Log rows will be inserted here -->
+				</tbody>
+			</table>
+		</div>
+
+		<!-- Empty state -->
+		<div class="text-center py-8 text-grey-70 dark:text-grey-30 hidden" data-role="logs-empty">
+			<i class="ri-inbox-line text-4xl mb-2 block"></i>
+			<span id="settingsLogsEmpty" data-type="lang">No logs available.</span>
+		</div>
+
+		<!-- Pagination controls -->
+		<div class="flex items-center justify-between pt-4 border-t border-grey-30 dark:border-grey-70">
+			<div class="text-sm text-grey-70 dark:text-grey-40">
+				<span id="settingsLogsCount" data-type="lang" data-role="logs-count">—</span>
+			</div>
+			<button type="button" class="inline-flex items-center justify-center gap-2 rounded border border-grey-40 dark:border-grey-70 bg-white dark:bg-grey-90 px-4 py-2 text-sm font-medium text-grey-90 dark:text-grey-10 hover:bg-grey-10 dark:hover:bg-grey-80 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed" data-role="logs-next" disabled>
+				<span id="settingsLogsNext" data-type="lang">Next</span>
+				<i class="ri-arrow-right-line text-base leading-4"></i>
+			</button>
+		</div>
+	</div>
+</template>

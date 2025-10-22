@@ -59,6 +59,14 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		startTime := time.Now()
 
+		// Extract session info for logging (early for all LogFileOp calls)
+		var sessionID, userID *int64
+		sessionForLogging, _ := app.GetAuthenticatedSession(r)
+		if sessionForLogging != nil {
+			sessionID = &sessionForLogging.ID
+			userID = sessionForLogging.UserID
+		}
+
 		// Upgrade HTTP to WebSocket with proper response headers
 		responseHeader := http.Header{}
 		responseHeader.Set("Sec-WebSocket-Protocol", r.Header.Get("Sec-WebSocket-Protocol"))
@@ -73,7 +81,7 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 				"upgrade", r.Header.Get("Upgrade"),
 				"connection", r.Header.Get("Connection"))
 			app.DBLogger.LogFileOp(r, "upload", "", http.StatusInternalServerError,
-				time.Since(startTime).Milliseconds(), err.Error(), "operation", "websocket_upgrade")
+				time.Since(startTime).Milliseconds(), sessionID, userID, err.Error(), "operation", "websocket_upgrade")
 			return
 		}
 		defer conn.Close()
@@ -94,14 +102,14 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 				if err != nil {
 					app.Logger.Error("Upload guest token lookup failed", "error", err)
 					app.DBLogger.LogFileOp(r, "upload", "", http.StatusInternalServerError,
-						time.Since(startTime).Milliseconds(), err.Error(), "operation", "guest_token_lookup")
+						time.Since(startTime).Milliseconds(), sessionID, userID, err.Error(), "operation", "guest_token_lookup")
 					sendError(conn, 500)
 					return
 				}
 			}
 			if guestToken == nil {
 				app.DBLogger.LogFileOp(r, "upload", "", http.StatusUnauthorized,
-					time.Since(startTime).Milliseconds(), "guest upload token missing", "operation", "authorize")
+					time.Since(startTime).Milliseconds(), sessionID, userID, "guest upload token missing", "operation", "authorize")
 				sendError(conn, 401)
 				return
 			}
@@ -146,7 +154,7 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 				app.Logger.Error("WebSocket read error", "error", err, "remote_addr", r.RemoteAddr)
 			}
 			app.DBLogger.LogFileOp(r, "upload", "", http.StatusInternalServerError,
-				time.Since(startTime).Milliseconds(), err.Error(), "operation", "websocket_read_metadata")
+				time.Since(startTime).Milliseconds(), sessionID, userID, err.Error(), "operation", "websocket_read_metadata")
 			return
 		}
 
@@ -154,7 +162,7 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 		if err := json.Unmarshal(message, &req); err != nil {
 			app.Logger.Warn("Invalid upload request JSON", "error", err, "remote_addr", r.RemoteAddr)
 			app.DBLogger.LogFileOp(r, "upload", "", http.StatusBadRequest,
-				time.Since(startTime).Milliseconds(), err.Error(), "operation", "parse_json")
+				time.Since(startTime).Milliseconds(), sessionID, userID, err.Error(), "operation", "parse_json")
 			sendError(conn, 400)
 			return
 		}
@@ -166,7 +174,7 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 				"has_auth", req.Authorization != "",
 				"remote_addr", r.RemoteAddr)
 			app.DBLogger.LogFileOp(r, "upload", "", http.StatusBadRequest,
-				time.Since(startTime).Milliseconds(), "Missing required fields", "operation", "validate_request")
+				time.Since(startTime).Milliseconds(), sessionID, userID, "Missing required fields", "operation", "validate_request")
 			sendError(conn, 400)
 			return
 		}
@@ -178,7 +186,7 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 			if uploaderUserID == nil {
 				app.Logger.Warn("Upload provided owner secret without authenticated session", "remote_addr", r.RemoteAddr)
 				app.DBLogger.LogFileOp(r, "upload", "", http.StatusUnauthorized,
-					time.Since(startTime).Milliseconds(), "Owner secret provided without session", "operation", "validate_owner_secret")
+					time.Since(startTime).Milliseconds(), sessionID, userID, "Owner secret provided without session", "operation", "validate_owner_secret")
 				sendError(conn, 401)
 				return
 			}
@@ -186,7 +194,7 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 			if req.OwnerSecretCiphertext == "" || req.OwnerSecretNonce == "" || req.OwnerSecretEphemeralPub == "" {
 				app.Logger.Warn("Incomplete owner secret payload", "remote_addr", r.RemoteAddr)
 				app.DBLogger.LogFileOp(r, "upload", "", http.StatusBadRequest,
-					time.Since(startTime).Milliseconds(), "Incomplete owner secret payload", "operation", "validate_owner_secret")
+					time.Since(startTime).Milliseconds(), sessionID, userID, "Incomplete owner secret payload", "operation", "validate_owner_secret")
 				sendError(conn, 400)
 				return
 			}
@@ -195,7 +203,7 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 			if err != nil || len(cipherBytes) == 0 {
 				app.Logger.Warn("Invalid owner secret ciphertext", "error", err)
 				app.DBLogger.LogFileOp(r, "upload", "", http.StatusBadRequest,
-					time.Since(startTime).Milliseconds(), "Invalid owner secret ciphertext", "operation", "validate_owner_secret")
+					time.Since(startTime).Milliseconds(), sessionID, userID, "Invalid owner secret ciphertext", "operation", "validate_owner_secret")
 				sendError(conn, 400)
 				return
 			}
@@ -204,7 +212,7 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 			if err != nil || len(nonceBytes) != 12 {
 				app.Logger.Warn("Invalid owner secret nonce", "error", err, "length", len(nonceBytes))
 				app.DBLogger.LogFileOp(r, "upload", "", http.StatusBadRequest,
-					time.Since(startTime).Milliseconds(), "Invalid owner secret nonce", "operation", "validate_owner_secret")
+					time.Since(startTime).Milliseconds(), sessionID, userID, "Invalid owner secret nonce", "operation", "validate_owner_secret")
 				sendError(conn, 400)
 				return
 			}
@@ -213,7 +221,7 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 			if err != nil || len(ephemeralBytes) != 32 {
 				app.Logger.Warn("Invalid owner secret ephemeral pub", "error", err, "length", len(ephemeralBytes))
 				app.DBLogger.LogFileOp(r, "upload", "", http.StatusBadRequest,
-					time.Since(startTime).Milliseconds(), "Invalid owner secret ephemeral pub", "operation", "validate_owner_secret")
+					time.Since(startTime).Milliseconds(), sessionID, userID, "Invalid owner secret ephemeral pub", "operation", "validate_owner_secret")
 				sendError(conn, 400)
 				return
 			}
@@ -225,7 +233,7 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 			if version != ownerSecretVersion {
 				app.Logger.Warn("Unsupported owner secret version", "version", version)
 				app.DBLogger.LogFileOp(r, "upload", "", http.StatusBadRequest,
-					time.Since(startTime).Milliseconds(), "Unsupported owner secret version", "operation", "validate_owner_secret")
+					time.Since(startTime).Milliseconds(), sessionID, userID, "Unsupported owner secret version", "operation", "validate_owner_secret")
 				sendError(conn, 400)
 				return
 			}
@@ -243,7 +251,7 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 			if req.RecipientUserID == nil {
 				app.Logger.Warn("Upload provided recipient secret without user ID", "remote_addr", r.RemoteAddr)
 				app.DBLogger.LogFileOp(r, "upload", "", http.StatusBadRequest,
-					time.Since(startTime).Milliseconds(), "Recipient secret provided without user ID", "operation", "validate_recipient_secret")
+					time.Since(startTime).Milliseconds(), sessionID, userID, "Recipient secret provided without user ID", "operation", "validate_recipient_secret")
 				sendError(conn, 400)
 				return
 			}
@@ -255,7 +263,7 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 					"expected_recipient", guestToken.CreatedBy,
 					"remote_addr", r.RemoteAddr)
 				app.DBLogger.LogFileOp(r, "upload", "", http.StatusBadRequest,
-					time.Since(startTime).Milliseconds(), "User-specific upload link requires recipient",
+					time.Since(startTime).Milliseconds(), sessionID, userID, "User-specific upload link requires recipient",
 					"auth_token_id", guestToken.ID, "expected_recipient", guestToken.CreatedBy)
 				sendError(conn, 400)
 				return
@@ -269,14 +277,14 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 			if err != nil {
 				app.Logger.Error("Error checking recipient user existence", "error", err, "user_id", *req.RecipientUserID)
 				app.DBLogger.LogFileOp(r, "upload", "", http.StatusInternalServerError,
-					time.Since(startTime).Milliseconds(), err.Error(), "operation", "validate_recipient_user")
+					time.Since(startTime).Milliseconds(), sessionID, userID, err.Error(), "operation", "validate_recipient_user")
 				sendError(conn, 500)
 				return
 			}
 			if !exists {
 				app.Logger.Warn("Upload specified non-existent recipient user", "user_id", *req.RecipientUserID, "remote_addr", r.RemoteAddr)
 				app.DBLogger.LogFileOp(r, "upload", "", http.StatusBadRequest,
-					time.Since(startTime).Milliseconds(), "Recipient user does not exist", "operation", "validate_recipient_user", "user_id", *req.RecipientUserID)
+					time.Since(startTime).Milliseconds(), sessionID, userID, "Recipient user does not exist", "operation", "validate_recipient_user", "user_id", *req.RecipientUserID)
 				sendError(conn, 400)
 				return
 			}
@@ -290,7 +298,7 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 						"auth_token_id", guestToken.ID,
 						"remote_addr", r.RemoteAddr)
 					app.DBLogger.LogFileOp(r, "upload", "", http.StatusForbidden,
-						time.Since(startTime).Milliseconds(), "Recipient mismatch for user-specific upload link",
+						time.Since(startTime).Milliseconds(), sessionID, userID, "Recipient mismatch for user-specific upload link",
 						"auth_token_id", guestToken.ID, "expected_recipient", guestToken.CreatedBy, "attempted_recipient", *req.RecipientUserID)
 					sendError(conn, 403)
 					return
@@ -301,7 +309,7 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 			if req.RecipientSecretCiphertext == "" || req.RecipientSecretNonce == "" || req.RecipientSecretEphemeralPub == "" {
 				app.Logger.Warn("Incomplete recipient secret payload", "remote_addr", r.RemoteAddr)
 				app.DBLogger.LogFileOp(r, "upload", "", http.StatusBadRequest,
-					time.Since(startTime).Milliseconds(), "Incomplete recipient secret payload", "operation", "validate_recipient_secret")
+					time.Since(startTime).Milliseconds(), sessionID, userID, "Incomplete recipient secret payload", "operation", "validate_recipient_secret")
 				sendError(conn, 400)
 				return
 			}
@@ -311,7 +319,7 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 			if err != nil || len(recipCipherBytes) == 0 {
 				app.Logger.Warn("Invalid recipient secret ciphertext", "error", err)
 				app.DBLogger.LogFileOp(r, "upload", "", http.StatusBadRequest,
-					time.Since(startTime).Milliseconds(), "Invalid recipient secret ciphertext", "operation", "validate_recipient_secret")
+					time.Since(startTime).Milliseconds(), sessionID, userID, "Invalid recipient secret ciphertext", "operation", "validate_recipient_secret")
 				sendError(conn, 400)
 				return
 			}
@@ -321,7 +329,7 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 			if err != nil || len(recipNonceBytes) != 12 {
 				app.Logger.Warn("Invalid recipient secret nonce", "error", err, "length", len(recipNonceBytes))
 				app.DBLogger.LogFileOp(r, "upload", "", http.StatusBadRequest,
-					time.Since(startTime).Milliseconds(), "Invalid recipient secret nonce", "operation", "validate_recipient_secret")
+					time.Since(startTime).Milliseconds(), sessionID, userID, "Invalid recipient secret nonce", "operation", "validate_recipient_secret")
 				sendError(conn, 400)
 				return
 			}
@@ -331,7 +339,7 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 			if err != nil || len(recipEphemeralBytes) != 32 {
 				app.Logger.Warn("Invalid recipient secret ephemeral pub", "error", err, "length", len(recipEphemeralBytes))
 				app.DBLogger.LogFileOp(r, "upload", "", http.StatusBadRequest,
-					time.Since(startTime).Milliseconds(), "Invalid recipient secret ephemeral pub", "operation", "validate_recipient_secret")
+					time.Since(startTime).Milliseconds(), sessionID, userID, "Invalid recipient secret ephemeral pub", "operation", "validate_recipient_secret")
 				sendError(conn, 400)
 				return
 			}
@@ -344,7 +352,7 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 			if version != recipientSecretVersion {
 				app.Logger.Warn("Unsupported recipient secret version", "version", version)
 				app.DBLogger.LogFileOp(r, "upload", "", http.StatusBadRequest,
-					time.Since(startTime).Milliseconds(), "Unsupported recipient secret version", "operation", "validate_recipient_secret")
+					time.Since(startTime).Milliseconds(), sessionID, userID, "Unsupported recipient secret version", "operation", "validate_recipient_secret")
 				sendError(conn, 400)
 				return
 			}
@@ -408,7 +416,7 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 		if err != nil {
 			app.Logger.Error("Failed to create temp file for upload", "error", err)
 			app.DBLogger.LogFileOp(r, "upload", id, http.StatusInternalServerError,
-				time.Since(startTime).Milliseconds(), err.Error(), "operation", "create_temp_file")
+				time.Since(startTime).Milliseconds(), sessionID, userID, err.Error(), "operation", "create_temp_file")
 			sendError(conn, 500)
 			return
 		}
@@ -440,7 +448,7 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 						"remote_addr", r.RemoteAddr)
 				}
 				app.DBLogger.LogFileOp(r, "upload", id, http.StatusInternalServerError,
-					time.Since(startTime).Milliseconds(), err.Error(), "operation", "read_upload_data", "bytes_received", totalSize)
+					time.Since(startTime).Milliseconds(), sessionID, userID, err.Error(), "operation", "read_upload_data", "bytes_received", totalSize)
 				return
 			}
 
@@ -457,7 +465,7 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 					"max_size", maxSize,
 					"file_id", id)
 				app.DBLogger.LogFileOp(r, "upload", id, http.StatusRequestEntityTooLarge,
-					time.Since(startTime).Milliseconds(), "File size limit exceeded",
+					time.Since(startTime).Milliseconds(), sessionID, userID, "File size limit exceeded",
 					"attempted_size", totalSize+int64(len(data)), "max_size", maxSize)
 				sendError(conn, 413)
 				return
@@ -469,7 +477,7 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 				tmpFile.Close()
 				app.Logger.Error("Error writing upload data", "error", err, "file_id", id)
 				app.DBLogger.LogFileOp(r, "upload", id, http.StatusInternalServerError,
-					time.Since(startTime).Milliseconds(), err.Error(), "operation", "write_chunk", "bytes_written", totalSize)
+					time.Since(startTime).Milliseconds(), sessionID, userID, err.Error(), "operation", "write_chunk", "bytes_written", totalSize)
 				sendError(conn, 500)
 				return
 			}
@@ -480,7 +488,7 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 		if err := tmpFile.Close(); err != nil {
 			app.Logger.Error("Error closing temp file", "error", err, "file_id", id)
 			app.DBLogger.LogFileOp(r, "upload", id, http.StatusInternalServerError,
-				time.Since(startTime).Milliseconds(), err.Error(), "operation", "close_temp_file")
+				time.Since(startTime).Milliseconds(), sessionID, userID, err.Error(), "operation", "close_temp_file")
 			sendError(conn, 500)
 			return
 		}
@@ -489,7 +497,7 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 		if err := os.Rename(tmpPath, finalPath); err != nil {
 			app.Logger.Error("Error moving uploaded file", "error", err, "file_id", id)
 			app.DBLogger.LogFileOp(r, "upload", id, http.StatusInternalServerError,
-				time.Since(startTime).Milliseconds(), err.Error(), "operation", "move_file")
+				time.Since(startTime).Milliseconds(), sessionID, userID, err.Error(), "operation", "move_file")
 			sendError(conn, 500)
 			return
 		}
@@ -531,7 +539,7 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 		if err := app.DB.CreateFile(meta); err != nil {
 			app.Logger.Error("Database error creating file metadata", "error", err, "file_id", id)
 			app.DBLogger.LogFileOp(r, "upload", id, http.StatusInternalServerError,
-				time.Since(startTime).Milliseconds(), err.Error(), "operation", "save_metadata")
+				time.Since(startTime).Milliseconds(), sessionID, userID, err.Error(), "operation", "save_metadata")
 			storage.DeleteFile(app.DB.FileDir(), id)
 			sendError(conn, 500)
 			return
@@ -551,7 +559,7 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 			if err := app.DB.CreateRecipient(recipient); err != nil {
 				app.Logger.Error("Database error creating recipient record", "error", err, "file_id", id, "user_id", *req.RecipientUserID)
 				app.DBLogger.LogFileOp(r, "upload", id, http.StatusInternalServerError,
-					time.Since(startTime).Milliseconds(), err.Error(), "operation", "save_recipient")
+					time.Since(startTime).Milliseconds(), sessionID, userID, err.Error(), "operation", "save_recipient")
 				// Clean up file and metadata
 				app.DB.DeleteFileRecord(id)
 				storage.DeleteFile(app.DB.FileDir(), id)
@@ -576,7 +584,7 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 			logFields = append(logFields, "auth_token_id", guestToken.ID)
 		}
 		app.DBLogger.LogFileOp(r, "upload", id, http.StatusOK,
-			time.Since(startTime).Milliseconds(), "", logFields...)
+			time.Since(startTime).Milliseconds(), sessionID, userID, "", logFields...)
 
 		// Schedule cleanup if file expires within 1 hour
 		ttl := time.Until(time.Unix(meta.ExpiresAt, 0))

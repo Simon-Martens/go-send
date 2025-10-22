@@ -4,8 +4,8 @@ import {
 import {
   USER_ROLES,
   storage_default
-} from "./chunk-DP6HAB66.js";
-import "./chunk-PC246CWX.js";
+} from "./chunk-3WTCPM2E.js";
+import "./chunk-WXWAAH3Q.js";
 import {
   copyToClipboard,
   translate,
@@ -1081,4 +1081,4 @@ var SettingsUsersPanel = class extends HTMLElement {
   }
 };
 customElements.define("settings-users-panel", SettingsUsersPanel);
-//# sourceMappingURL=settings-users-panel-EEEV7WS4.js.map
+//# sourceMappingURL=settings-users-panel-2KJ62NYL.js.map

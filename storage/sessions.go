@@ -16,6 +16,7 @@ type Session struct {
 	CreatedAt   int64  `json:"created_at"`
 	UpdatedAt   int64  `json:"updated_at"`
 	Ephemeral   bool   `json:"ephemeral"`
+	Active      bool   `json:"active"` // Whether the session is currently active (not logged out)
 	UserID      *int64 `json:"user_id,omitempty"`
 	AuthTokenID *int64 `json:"auth_token_id,omitempty"`
 }
@@ -43,6 +44,7 @@ func (d *DB) CreateSession(session *Session) error {
 	session.CreatedAt = now
 	session.UpdatedAt = now
 	session.LastSeen = now
+	session.Active = true // New sessions are always active
 
 	// Validate that exactly one of UserID or AuthTokenID is set
 	if (session.UserID == nil && session.AuthTokenID == nil) ||
@@ -53,9 +55,9 @@ func (d *DB) CreateSession(session *Session) error {
 	query := `
 		INSERT INTO sessions (
 			token, last_seen, last_ip, expires_at, created_at, updated_at,
-			ephemeral, user_id, auth_token_id
+			ephemeral, active, user_id, auth_token_id
 		)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
 
 	result, err := d.db.Exec(
@@ -67,6 +69,7 @@ func (d *DB) CreateSession(session *Session) error {
 		session.CreatedAt,
 		session.UpdatedAt,
 		session.Ephemeral,
+		session.Active,
 		session.UserID,
 		session.AuthTokenID,
 	)
@@ -87,7 +90,7 @@ func (d *DB) CreateSession(session *Session) error {
 func (d *DB) GetSession(tokenHash string) (*Session, error) {
 	query := `
 		SELECT id, token, last_seen, last_ip, expires_at, created_at, updated_at,
-		       ephemeral, user_id, auth_token_id
+		       ephemeral, active, user_id, auth_token_id
 		FROM sessions
 		WHERE token = ?
 	`
@@ -99,7 +102,7 @@ func (d *DB) GetSession(tokenHash string) (*Session, error) {
 func (d *DB) GetSessionByID(id int64) (*Session, error) {
 	query := `
 		SELECT id, token, last_seen, last_ip, expires_at, created_at, updated_at,
-		       ephemeral, user_id, auth_token_id
+		       ephemeral, active, user_id, auth_token_id
 		FROM sessions
 		WHERE id = ?
 	`
@@ -111,7 +114,7 @@ func (d *DB) GetSessionByID(id int64) (*Session, error) {
 func (d *DB) scanSession(row *sql.Row) (*Session, error) {
 	session := &Session{}
 	var userID, authTokenID sql.NullInt64
-	var ephemeral int
+	var ephemeral, active int
 
 	err := row.Scan(
 		&session.ID,
@@ -122,6 +125,7 @@ func (d *DB) scanSession(row *sql.Row) (*Session, error) {
 		&session.CreatedAt,
 		&session.UpdatedAt,
 		&ephemeral,
+		&active,
 		&userID,
 		&authTokenID,
 	)
@@ -130,6 +134,7 @@ func (d *DB) scanSession(row *sql.Row) (*Session, error) {
 	}
 
 	session.Ephemeral = ephemeral != 0
+	session.Active = active != 0
 
 	if userID.Valid {
 		session.UserID = &userID.Int64
@@ -148,7 +153,7 @@ func (d *DB) scanSessions(rows *sql.Rows) ([]*Session, error) {
 	for rows.Next() {
 		session := &Session{}
 		var userID, authTokenID sql.NullInt64
-		var ephemeral int
+		var ephemeral, active int
 
 		err := rows.Scan(
 			&session.ID,
@@ -159,6 +164,7 @@ func (d *DB) scanSessions(rows *sql.Rows) ([]*Session, error) {
 			&session.CreatedAt,
 			&session.UpdatedAt,
 			&ephemeral,
+			&active,
 			&userID,
 			&authTokenID,
 		)
@@ -167,6 +173,7 @@ func (d *DB) scanSessions(rows *sql.Rows) ([]*Session, error) {
 		}
 
 		session.Ephemeral = ephemeral != 0
+		session.Active = active != 0
 
 		if userID.Valid {
 			session.UserID = &userID.Int64
@@ -194,7 +201,7 @@ func (d *DB) UpdateSession(session *Session) error {
 	query := `
 		UPDATE sessions
 		SET token = ?, last_seen = ?, last_ip = ?, expires_at = ?, updated_at = ?,
-		    ephemeral = ?, user_id = ?, auth_token_id = ?
+		    ephemeral = ?, active = ?, user_id = ?, auth_token_id = ?
 		WHERE id = ?
 	`
 
@@ -206,6 +213,7 @@ func (d *DB) UpdateSession(session *Session) error {
 		session.ExpiresAt,
 		session.UpdatedAt,
 		session.Ephemeral,
+		session.Active,
 		session.UserID,
 		session.AuthTokenID,
 		session.ID,
@@ -301,10 +309,11 @@ func (d *DB) DeleteSession(id int64) error {
 	return nil
 }
 
-// DeleteSessionByToken removes a session by its hashed token
+// DeleteSessionByToken marks a session as inactive by its hashed token (soft delete)
 func (d *DB) DeleteSessionByToken(tokenHash string) error {
-	query := `DELETE FROM sessions WHERE token = ?`
-	result, err := d.db.Exec(query, tokenHash)
+	now := time.Now().Unix()
+	query := `UPDATE sessions SET active = 0, updated_at = ? WHERE token = ?`
+	result, err := d.db.Exec(query, now, tokenHash)
 	if err != nil {
 		return err
 	}
@@ -321,7 +330,7 @@ func (d *DB) DeleteSessionByToken(tokenHash string) error {
 	return nil
 }
 
-// IsSessionValid checks if a session exists and is not expired
+// IsSessionValid checks if a session exists, is active, and is not expired
 func (d *DB) IsSessionValid(tokenHash string) (bool, *Session, error) {
 	session, err := d.GetSession(tokenHash)
 	if err != nil {
@@ -329,6 +338,11 @@ func (d *DB) IsSessionValid(tokenHash string) (bool, *Session, error) {
 			return false, nil, nil
 		}
 		return false, nil, err
+	}
+
+	// Check if session is active
+	if !session.Active {
+		return false, session, nil
 	}
 
 	if session.IsExpired() {
@@ -364,7 +378,7 @@ func (d *DB) IsSessionValid(tokenHash string) (bool, *Session, error) {
 func (d *DB) GetSessionsByUser(userID int64) ([]*Session, error) {
 	query := `
 		SELECT id, token, last_seen, last_ip, expires_at, created_at, updated_at,
-		       ephemeral, user_id, auth_token_id
+		       ephemeral, active, user_id, auth_token_id
 		FROM sessions
 		WHERE user_id = ?
 		ORDER BY last_seen DESC
@@ -383,7 +397,7 @@ func (d *DB) GetSessionsByUser(userID int64) ([]*Session, error) {
 func (d *DB) GetSessionsByAuthToken(authTokenID int64) ([]*Session, error) {
 	query := `
 		SELECT id, token, last_seen, last_ip, expires_at, created_at, updated_at,
-		       ephemeral, user_id, auth_token_id
+		       ephemeral, active, user_id, auth_token_id
 		FROM sessions
 		WHERE auth_token_id = ?
 		ORDER BY last_seen DESC
@@ -398,17 +412,19 @@ func (d *DB) GetSessionsByAuthToken(authTokenID int64) ([]*Session, error) {
 	return d.scanSessions(rows)
 }
 
-// DeleteSessionsByUser deletes all sessions for a specific user
+// DeleteSessionsByUser marks all sessions for a specific user as inactive (soft delete)
 func (d *DB) DeleteSessionsByUser(userID int64) error {
-	query := `DELETE FROM sessions WHERE user_id = ?`
-	_, err := d.db.Exec(query, userID)
+	now := time.Now().Unix()
+	query := `UPDATE sessions SET active = 0, updated_at = ? WHERE user_id = ?`
+	_, err := d.db.Exec(query, now, userID)
 	return err
 }
 
-// DeleteSessionsByAuthToken deletes all sessions for a specific auth token
+// DeleteSessionsByAuthToken marks all sessions for a specific auth token as inactive (soft delete)
 func (d *DB) DeleteSessionsByAuthToken(authTokenID int64) error {
-	query := `DELETE FROM sessions WHERE auth_token_id = ?`
-	_, err := d.db.Exec(query, authTokenID)
+	now := time.Now().Unix()
+	query := `UPDATE sessions SET active = 0, updated_at = ? WHERE auth_token_id = ?`
+	_, err := d.db.Exec(query, now, authTokenID)
 	return err
 }
 
@@ -462,15 +478,15 @@ func (d *DB) CountSessions(userID *int64, authTokenID *int64, onlyValid bool) (i
 	return count, err
 }
 
-// GetActiveSessions retrieves all non-expired sessions
+// GetActiveSessions retrieves all active, non-expired sessions
 func (d *DB) GetActiveSessions(limit int) ([]*Session, error) {
 	now := time.Now().Unix()
 
 	query := `
 		SELECT id, token, last_seen, last_ip, expires_at, created_at, updated_at,
-		       ephemeral, user_id, auth_token_id
+		       ephemeral, active, user_id, auth_token_id
 		FROM sessions
-		WHERE expires_at > ?
+		WHERE expires_at > ? AND active = 1
 		ORDER BY last_seen DESC
 	`
 
@@ -493,7 +509,7 @@ func (d *DB) GetInactiveSessions(inactiveDuration time.Duration) ([]*Session, er
 
 	query := `
 		SELECT id, token, last_seen, last_ip, expires_at, created_at, updated_at,
-		       ephemeral, user_id, auth_token_id
+		       ephemeral, active, user_id, auth_token_id
 		FROM sessions
 		WHERE last_seen < ?
 		ORDER BY last_seen ASC

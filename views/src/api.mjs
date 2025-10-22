@@ -62,6 +62,21 @@ export async function fetchUsers() {
   throw new Error(response.status);
 }
 
+export async function fetchLogs(page = 1) {
+  const response = await fetch(getApiUrl(`/api/logs?page=${page}`));
+
+  if (response.ok) {
+    const data = await response.json();
+    return {
+      logs: data.logs || [],
+      currentPage: data.currentPage || page,
+      totalCount: data.totalCount || 0,
+    };
+  }
+
+  throw new Error(response.status);
+}
+
 export function parseNonce(header) {
   header = header || "";
   return header.split(" ")[1];

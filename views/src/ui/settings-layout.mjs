@@ -29,6 +29,7 @@ class SettingsLayout extends HTMLElement {
     this._contentArea = null;
     this._uploadLinksNavItem = null;
     this._usersNavItem = null;
+    this._logsNavItem = null;
 
     // Bound handlers
     this._boundCategoryClick = this._handleCategoryClick.bind(this);
@@ -64,6 +65,7 @@ class SettingsLayout extends HTMLElement {
     this._contentArea = null;
     this._uploadLinksNavItem = null;
     this._usersNavItem = null;
+    this._logsNavItem = null;
   }
 
   _checkIsAdmin() {
@@ -117,6 +119,7 @@ class SettingsLayout extends HTMLElement {
     this._contentArea = this.querySelector('[data-role="content-area"]');
     this._uploadLinksNavItem = this.querySelector('[data-role="upload-links-nav"]');
     this._usersNavItem = this.querySelector('[data-role="users-nav"]');
+    this._logsNavItem = this.querySelector('[data-role="logs-nav"]');
 
     // Cache all category buttons
     const categoryList = this.querySelector('[data-role="category-list"]');
@@ -136,6 +139,11 @@ class SettingsLayout extends HTMLElement {
     // Show/hide users nav for admins only
     if (this._usersNavItem) {
       this._usersNavItem.classList.toggle("hidden", !this._isAdmin);
+    }
+
+    // Show/hide logs nav for admins only
+    if (this._logsNavItem) {
+      this._logsNavItem.classList.toggle("hidden", !this._isAdmin);
     }
   }
 
@@ -172,6 +180,10 @@ class SettingsLayout extends HTMLElement {
     }
     if (category === "upload-links" && !this._isNonGuest) {
       console.warn("[SettingsLayout] Guest attempted to access upload-links panel");
+      return;
+    }
+    if (category === "logs" && !this._isAdmin) {
+      console.warn("[SettingsLayout] Non-admin attempted to access logs panel");
       return;
     }
 
@@ -218,6 +230,10 @@ class SettingsLayout extends HTMLElement {
       case "users":
         if (!this._isAdmin) return;
         panelElement = document.createElement("settings-users-panel");
+        break;
+      case "logs":
+        if (!this._isAdmin) return;
+        panelElement = document.createElement("settings-logs-panel");
         break;
       default:
         console.warn(`[SettingsLayout] Unknown category: ${category}`);

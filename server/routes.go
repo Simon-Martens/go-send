@@ -48,6 +48,7 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 		mux.HandleFunc("/api/me/clear-sessions", handlers.NewAccountClearSessionsHandler(app))
 		mux.HandleFunc("/api/me/deactivate", handlers.NewAccountDeactivateHandler(app))
 		mux.HandleFunc("/api/passwordreset", handlers.NewPasswordResetHandler(app))
+		mux.HandleFunc("/api/logs", handlers.NewLogsHandler(app))
 		mux.HandleFunc("/api/upload-links/", handlers.NewUploadLinksHandler(app))
 		mux.HandleFunc("/api/upload-links", handlers.NewUploadLinksHandler(app))
 		mux.HandleFunc("/api/admin/signup-links", handlers.NewSignupLinksHandler(app))

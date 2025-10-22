@@ -19,17 +19,32 @@
 		</div>
 
 		<!-- Logs table -->
-		<div class="overflow-x-auto border border-grey-30 dark:border-grey-70 rounded-xs">
-			<table class="w-full text-sm" data-role="logs-table">
-				<thead class="bg-grey-5 dark:bg-grey-95 border-b border-grey-30 dark:border-grey-70">
+		<div class="overflow-x-auto rounded border border-grey-30 dark:border-grey-70">
+			<table class="min-w-full divide-y divide-grey-20 dark:divide-grey-70 text-sm !align-top" data-role="logs-table">
+				<thead class="bg-grey-5 dark:bg-grey-80/40 text-xs uppercase tracking-wide text-grey-60 dark:text-grey-40 align-top">
 					<tr>
-						<th class="text-left px-4 py-3 font-semibold text-grey-90 dark:text-grey-10"><span id="settingsLogsColumnType" data-type="lang">Type / Time / Duration</span></th>
-						<th class="text-left px-4 py-3 font-semibold text-grey-90 dark:text-grey-10"><span id="settingsLogsColumnFile" data-type="lang">File ID / Owner</span></th>
-						<th class="text-left px-4 py-3 font-semibold text-grey-90 dark:text-grey-10"><span id="settingsLogsColumnSession" data-type="lang">IP / User Agent / Origin</span></th>
-						<th class="text-left px-4 py-3 font-semibold text-grey-90 dark:text-grey-10"><span id="settingsLogsColumnAccess" data-type="lang">Access</span></th>
+						<th scope="col" class="text-left px-4 py-3">
+							<div class="space-y-0.5">
+								<div><span id="settingsLogsColumnType" data-type="lang">Type</span></div>
+								<div><span id="settingsLogsColumnDate" data-type="lang">Date</span></div>
+							</div>
+						</th>
+						<th scope="col" class="text-left px-4 py-3">
+							<div class="space-y-0.5">
+								<div><span id="settingsLogsColumnFileID" data-type="lang">File ID or Name</span></div>
+								<div><span id="settingsLogsColumnOwner" data-type="lang">Owner</span></div>
+							</div>
+						</th>
+						<th scope="col" class="text-left px-4 py-3">
+							<div class="space-y-0.5">
+								<div><span id="settingsLogsColumnIP" data-type="lang">IP</span></div>
+								<div><span id="settingsLogsColumnRequestData" data-type="lang">Request Data</span></div>
+							</div>
+						</th>
+						<th scope="col" class="text-left px-4 py-3"><span id="settingsLogsColumnAccessedBy" data-type="lang">Access By</span></th>
 					</tr>
 				</thead>
-				<tbody data-role="logs-body">
+				<tbody data-role="logs-body" class="align-top divide-y divide-grey-20 dark:divide-grey-70 bg-white dark:bg-grey-90">
 					<!-- Log rows will be inserted here -->
 				</tbody>
 			</table>

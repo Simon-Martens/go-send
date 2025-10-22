@@ -30,6 +30,7 @@ type fileTransferLogEntry struct {
 	durationMS int64
 	sessionID  *int64
 	userID     *int64
+	db         *storage.DB // Database reference for resolving owner names
 }
 
 // DBLogger handles asynchronous logging to both database and stdout
@@ -97,6 +98,7 @@ func (d *DBLogger) LogRequest(
 
 // LogFileOp logs a file transfer operation (upload/download) to both database and stdout
 // sessionID and userID are optional - pass nil if not available
+// db is required for resolving owner names at log-time
 // errorMsg is automatically keyed as "error" in the Error JSON
 // keyValues are additional key-value pairs added to the Error JSON
 func (d *DBLogger) LogFileOp(
@@ -107,6 +109,7 @@ func (d *DBLogger) LogFileOp(
 	durationMS int64,
 	sessionID *int64,
 	userID *int64,
+	db *storage.DB,
 	errorMsg string,
 	keyValues ...any,
 ) {
@@ -121,6 +124,7 @@ func (d *DBLogger) LogFileOp(
 		durationMS: durationMS,
 		sessionID:  sessionID,
 		userID:     userID,
+		db:         db,
 	}
 
 	// Send to channel (non-blocking to prevent request blocking)
@@ -333,20 +337,26 @@ func (d *DBLogger) processFileTransferLog(entry *fileTransferLogEntry) {
 		errorJSON = json.RawMessage("{}")
 	}
 
+	// Resolve owner names at log-time
+	owner := d.resolveFileOwnerName(entry.fileID, entry.db)
+	sessionOwner := d.resolveSessionOwnerName(entry.sessionID, entry.db)
+
 	// Create file transfer log entry for database
 	fileID := entry.fileID
 	statusCode := entry.statusCode
 	durationMS := entry.durationMS
 
 	transferLog := &storage.FileTransferLog{
-		EventType:   entry.eventType,
-		FileID:      &fileID,
-		StatusCode:  &statusCode,
-		RequestData: reqData.ToJSON(),
-		Data:        errorJSON,
-		UserID:      entry.userID,
-		SessionID:   entry.sessionID,
-		DurationMS:  &durationMS,
+		EventType:    entry.eventType,
+		FileID:       &fileID,
+		StatusCode:   &statusCode,
+		RequestData:  reqData.ToJSON(),
+		Data:         errorJSON,
+		UserID:       entry.userID,
+		SessionID:    entry.sessionID,
+		Owner:        owner,
+		SessionOwner: sessionOwner,
+		DurationMS:   &durationMS,
 	}
 
 	// Write to database
@@ -411,6 +421,16 @@ func (d *DBLogger) Close() error {
 	return d.logDB.Close()
 }
 
+// ListFileTransferLogsForUser is a wrapper for LogDB.ListFileTransferLogsForUser
+func (d *DBLogger) ListFileTransferLogsForUser(userID int64, isAdmin bool, limit int, offset int) ([]*storage.FileTransferLog, error) {
+	return d.logDB.ListFileTransferLogsForUser(userID, isAdmin, limit, offset)
+}
+
+// CountFileTransferLogsForUser is a wrapper for LogDB.CountFileTransferLogsForUser
+func (d *DBLogger) CountFileTransferLogsForUser(userID int64, isAdmin bool) (int, error) {
+	return d.logDB.CountFileTransferLogsForUser(userID, isAdmin)
+}
+
 // statusCodeToLogLevel maps HTTP status codes to slog levels
 // 2XX -> DEBUG, 3XX -> INFO, 4XX -> WARN, 5XX -> ERROR
 func statusCodeToLogLevel(statusCode int) slog.Level {
@@ -426,4 +446,66 @@ func statusCodeToLogLevel(statusCode int) slog.Level {
 	default:
 		return slog.LevelInfo
 	}
+}
+
+// resolveFileOwnerName resolves the owner name of a file at log-time
+// Returns the user name or auth token name, or "Guest" if not found
+func (d *DBLogger) resolveFileOwnerName(fileID string, db *storage.DB) string {
+	if fileID == "" {
+		return "Guest"
+	}
+
+	file, err := db.GetFile(fileID)
+	if err != nil || file == nil {
+		return "Guest"
+	}
+
+	// Try user owner first
+	if file.OwnerUserID != nil {
+		user, err := db.GetUser(*file.OwnerUserID)
+		if err == nil && user != nil {
+			return user.Name
+		}
+	}
+
+	// Try auth token owner
+	if file.OwnerAuthTokenID != nil {
+		token, err := db.GetAuthTokenByID(*file.OwnerAuthTokenID)
+		if err == nil && token != nil {
+			return token.Name
+		}
+	}
+
+	return "Guest"
+}
+
+// resolveSessionOwnerName resolves the session owner name at log-time
+// Returns the user name or auth token name, or empty string if no session
+func (d *DBLogger) resolveSessionOwnerName(sessionID *int64, db *storage.DB) string {
+	if sessionID == nil {
+		return ""
+	}
+
+	session, err := db.GetSessionByID(*sessionID)
+	if err != nil || session == nil {
+		return ""
+	}
+
+	// Try user owner first
+	if session.UserID != nil {
+		user, err := db.GetUser(*session.UserID)
+		if err == nil && user != nil {
+			return user.Name
+		}
+	}
+
+	// Try auth token owner
+	if session.AuthTokenID != nil {
+		token, err := db.GetAuthTokenByID(*session.AuthTokenID)
+		if err == nil && token != nil {
+			return token.Name
+		}
+	}
+
+	return ""
 }

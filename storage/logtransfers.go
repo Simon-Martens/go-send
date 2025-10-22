@@ -8,16 +8,18 @@ import (
 
 // FileTransferLog represents a file upload/download log entry
 type FileTransferLog struct {
-	ID          int64           `json:"id"`
-	EventType   string          `json:"event_type"` // "upload" or "download"
-	FileID      *string         `json:"file_id,omitempty"`
-	Timestamp   int64           `json:"timestamp"`
-	RequestData json.RawMessage `json:"request_data"` // JSON blob with URL, IP, user agent, etc.
-	StatusCode  *int            `json:"status_code,omitempty"`
-	Data        json.RawMessage `json:"data"` // JSON blob with additional data (errors, context, etc)
-	UserID      *int64          `json:"user_id,omitempty"`
-	SessionID   *int64          `json:"session_id,omitempty"`
-	DurationMS  *int64          `json:"duration_ms,omitempty"`
+	ID           int64           `json:"id"`
+	EventType    string          `json:"event_type"` // "upload" or "download"
+	FileID       *string         `json:"file_id,omitempty"`
+	Timestamp    int64           `json:"timestamp"`
+	RequestData  json.RawMessage `json:"request_data"` // JSON blob with URL, IP, user agent, etc.
+	StatusCode   *int            `json:"status_code,omitempty"`
+	Data         json.RawMessage `json:"data"` // JSON blob with additional data (errors, context, etc)
+	UserID       *int64          `json:"user_id,omitempty"`
+	SessionID    *int64          `json:"session_id,omitempty"`
+	Owner        string          `json:"owner"`         // File owner name (resolved at log-time)
+	SessionOwner string          `json:"session_owner"` // Session owner name (resolved at log-time)
+	DurationMS   *int64          `json:"duration_ms,omitempty"`
 }
 
 // CreateFileTransferLog inserts a new file transfer log entry
@@ -35,9 +37,9 @@ func (l *LogDB) CreateFileTransferLog(log *FileTransferLog) error {
 	query := `
 		INSERT INTO file_transfer_logs (
 			event_type, file_id, timestamp, request_data, status_code,
-			data, user_id, session_id, duration_ms
+			data, user_id, session_id, owner, session_owner, duration_ms
 		)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
 
 	// Use explicit transaction with immediate lock to avoid conflicts
@@ -57,6 +59,8 @@ func (l *LogDB) CreateFileTransferLog(log *FileTransferLog) error {
 		string(log.Data),
 		log.UserID,
 		log.SessionID,
+		log.Owner,
+		log.SessionOwner,
 		log.DurationMS,
 	)
 	if err != nil {
@@ -80,7 +84,7 @@ func (l *LogDB) CreateFileTransferLog(log *FileTransferLog) error {
 func (l *LogDB) GetFileTransferLog(id int64) (*FileTransferLog, error) {
 	query := `
 		SELECT id, event_type, file_id, timestamp, request_data, status_code,
-		       data, user_id, session_id, duration_ms
+		       data, user_id, session_id, owner, session_owner, duration_ms
 		FROM file_transfer_logs
 		WHERE id = ?
 	`
@@ -101,6 +105,8 @@ func (l *LogDB) GetFileTransferLog(id int64) (*FileTransferLog, error) {
 		&data,
 		&userID,
 		&sessionID,
+		&log.Owner,
+		&log.SessionOwner,
 		&durationMS,
 	)
 	if err != nil {
@@ -134,7 +140,7 @@ func (l *LogDB) GetFileTransferLog(id int64) (*FileTransferLog, error) {
 func (l *LogDB) ListFileTransferLogs(eventType *string, userID *int64, fileID *string, limit int, offset int) ([]*FileTransferLog, error) {
 	query := `
 		SELECT id, event_type, file_id, timestamp, request_data, status_code,
-		       data, user_id, session_id, duration_ms
+		       data, user_id, session_id, owner, session_owner, duration_ms
 		FROM file_transfer_logs
 		WHERE 1=1
 	`
@@ -191,6 +197,8 @@ func (l *LogDB) ListFileTransferLogs(eventType *string, userID *int64, fileID *s
 			&data,
 			&userID,
 			&sessionID,
+			&log.Owner,
+			&log.SessionOwner,
 			&durationMS,
 		)
 		if err != nil {
@@ -246,6 +254,30 @@ func (l *LogDB) CountFileTransferLogs(eventType *string, userID *int64, fileID *
 	var count int
 	err := l.db.QueryRow(query, args...).Scan(&count)
 	return count, err
+}
+
+// ListFileTransferLogsForUser retrieves file transfer logs accessible to a specific user
+// For admins (isAdmin=true), returns all logs
+// For regular users, returns logs where the log's user_id matches
+// NOTE: This only queries the log database - file/user enrichment must be done in the application layer
+func (l *LogDB) ListFileTransferLogsForUser(userID int64, isAdmin bool, limit int, offset int) ([]*FileTransferLog, error) {
+	if isAdmin {
+		// Admin sees all logs
+		return l.ListFileTransferLogs(nil, nil, nil, limit, offset)
+	}
+
+	// Regular user sees only their logs
+	return l.ListFileTransferLogs(nil, &userID, nil, limit, offset)
+}
+
+// CountFileTransferLogsForUser returns the count of file transfer logs accessible to a user
+func (l *LogDB) CountFileTransferLogsForUser(userID int64, isAdmin bool) (int, error) {
+	if isAdmin {
+		return l.CountFileTransferLogs(nil, nil, nil)
+	}
+
+	// For regular users, count logs where they are the user
+	return l.CountFileTransferLogs(nil, &userID, nil)
 }
 
 // DeleteFileTransferLogsOlderThan removes file transfer logs older than the specified timestamp

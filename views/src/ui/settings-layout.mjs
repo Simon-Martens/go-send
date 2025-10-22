@@ -141,9 +141,9 @@ class SettingsLayout extends HTMLElement {
       this._usersNavItem.classList.toggle("hidden", !this._isAdmin);
     }
 
-    // Show/hide logs nav for admins only
+    // Show/hide logs nav for non-guest users (both admin and regular users)
     if (this._logsNavItem) {
-      this._logsNavItem.classList.toggle("hidden", !this._isAdmin);
+      this._logsNavItem.classList.toggle("hidden", !this._isNonGuest);
     }
   }
 
@@ -182,8 +182,8 @@ class SettingsLayout extends HTMLElement {
       console.warn("[SettingsLayout] Guest attempted to access upload-links panel");
       return;
     }
-    if (category === "logs" && !this._isAdmin) {
-      console.warn("[SettingsLayout] Non-admin attempted to access logs panel");
+    if (category === "logs" && !this._isNonGuest) {
+      console.warn("[SettingsLayout] Guest attempted to access logs panel");
       return;
     }
 
@@ -232,7 +232,7 @@ class SettingsLayout extends HTMLElement {
         panelElement = document.createElement("settings-users-panel");
         break;
       case "logs":
-        if (!this._isAdmin) return;
+        if (!this._isNonGuest) return;
         panelElement = document.createElement("settings-logs-panel");
         break;
       default:

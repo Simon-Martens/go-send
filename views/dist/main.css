@@ -744,6 +744,11 @@
   .gap-8 {
     gap: calc(var(--spacing) * 8);
   }
+  :where(.space-y-0\.5 > :not(:last-child)) {
+    --tw-space-y-reverse: 0;
+    margin-block-start: calc(calc(var(--spacing) * 0.5) * var(--tw-space-y-reverse));
+    margin-block-end: calc(calc(var(--spacing) * 0.5) * calc(1 - var(--tw-space-y-reverse)));
+  }
   :where(.space-y-1 > :not(:last-child)) {
     --tw-space-y-reverse: 0;
     margin-block-start: calc(calc(var(--spacing) * 1) * var(--tw-space-y-reverse));
@@ -1118,6 +1123,9 @@
   }
   .text-right {
     text-align: right;
+  }
+  .\!align-top {
+    vertical-align: top !important;
   }
   .align-baseline {
     vertical-align: baseline;
@@ -1721,11 +1729,6 @@
   @media (prefers-color-scheme: dark) {
     .dark\:border-grey-70 {
       border-color: var(--color-grey-70);
-    }
-  }
-  @media (prefers-color-scheme: dark) {
-    .dark\:border-grey-80 {
-      border-color: var(--color-grey-80);
     }
   }
   @media (prefers-color-scheme: dark) {

@@ -20,6 +20,8 @@ func up_1760787760_create_file_transfer_logs(app *core.App) error {
 		data TEXT DEFAULT '{}',
 		user_id INTEGER,
 		session_id INTEGER,
+		owner TEXT,
+		session_owner TEXT,
 		duration_ms INTEGER
 	);
 

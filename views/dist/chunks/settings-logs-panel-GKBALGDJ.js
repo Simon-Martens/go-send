@@ -1,4 +1,7 @@
 import {
+  storage_default
+} from "./chunk-3WTCPM2E.js";
+import {
   fetchLogs
 } from "./chunk-WXWAAH3Q.js";
 import {
@@ -192,13 +195,31 @@ var SettingsLogsPanel = class extends HTMLElement {
     }
     const durationEl = row.querySelector('[data-role="log-duration"]');
     if (durationEl) {
-      durationEl.textContent = `${log.duration}ms`;
+      const ms = log.duration;
+      let formatted;
+      if (ms < 1e3) {
+        formatted = `${ms}ms`;
+      } else if (ms < 6e4) {
+        const seconds = (ms / 1e3).toFixed(2);
+        formatted = `${seconds}s`;
+      } else {
+        const minutes = Math.floor(ms / 6e4);
+        const seconds = Math.floor(ms % 6e4 / 1e3);
+        formatted = `${minutes}m ${seconds}s`;
+      }
+      durationEl.textContent = formatted;
     }
     const fileIdEl = row.querySelector('[data-role="log-file-id"]');
     if (fileIdEl && log.fileId) {
-      const abbreviated = log.fileId.substring(0, 4) + "\u2026";
-      fileIdEl.textContent = abbreviated;
-      fileIdEl.title = log.fileId;
+      const fileMetadata = storage_default.getFileById(log.fileId);
+      if (fileMetadata && fileMetadata.name) {
+        fileIdEl.textContent = fileMetadata.name;
+        fileIdEl.title = `File: ${fileMetadata.name} (ID: ${log.fileId})`;
+      } else {
+        const abbreviated = log.fileId.substring(0, 8) + "\u2026";
+        fileIdEl.textContent = abbreviated;
+        fileIdEl.title = log.fileId;
+      }
     }
     const ownerEl = row.querySelector('[data-role="log-owner"]');
     if (ownerEl && log.ownerName) {
@@ -209,24 +230,21 @@ var SettingsLogsPanel = class extends HTMLElement {
     if (ipEl && log.ip) {
       ipEl.textContent = log.ip;
     }
-    const userAgentEl = row.querySelector('[data-role="log-user-agent"]');
-    if (userAgentEl && log.userAgent) {
-      userAgentEl.textContent = log.userAgent;
-      userAgentEl.title = log.userAgent;
+    const requestDataEl = row.querySelector('[data-role="log-request-data"]');
+    if (requestDataEl) {
+      const parts = [];
+      if (log.userAgent) parts.push(log.userAgent);
+      if (log.origin) parts.push(`Origin: ${log.origin}`);
+      const combined = parts.join(" \u2022 ") || "\u2014";
+      requestDataEl.textContent = combined;
+      requestDataEl.title = combined;
     }
-    const originEl = row.querySelector('[data-role="log-origin"]');
-    if (originEl && log.origin) {
-      originEl.textContent = log.origin;
-      originEl.title = log.origin;
-    }
-    const sessionUserEl = row.querySelector('[data-role="log-session-user"]');
-    if (sessionUserEl) {
-      if (log.type === "download" && log.sessionUser) {
-        sessionUserEl.textContent = log.sessionUser;
-      } else if (log.type === "upload") {
-        sessionUserEl.textContent = "\u2014";
+    const accessedByEl = row.querySelector('[data-role="log-accessed-by"]');
+    if (accessedByEl) {
+      if (log.sessionUser && log.sessionUser !== "Anonymous") {
+        accessedByEl.textContent = log.sessionUser;
       } else {
-        sessionUserEl.textContent = log.sessionUser || "\u2014";
+        accessedByEl.innerHTML = '<span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-grey-20 dark:bg-grey-80 text-grey-70 dark:text-grey-40">[Guest]</span>';
       }
     }
     return row;
@@ -249,4 +267,4 @@ var SettingsLogsPanel = class extends HTMLElement {
   }
 };
 customElements.define("settings-logs-panel", SettingsLogsPanel);
-//# sourceMappingURL=settings-logs-panel-6SFGUPDS.js.map
+//# sourceMappingURL=settings-logs-panel-GKBALGDJ.js.map

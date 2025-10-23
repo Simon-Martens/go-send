@@ -668,6 +668,39 @@ func (d *DB) IncrementDownload(id string) error {
 	return err
 }
 
+// IncrementDownloadAndCheck atomically increments download count and returns whether limit is reached
+// Returns (shouldDelete=true) if dl_count >= dl_limit after increment
+func (d *DB) IncrementDownloadAndCheck(id string) (shouldDelete bool, err error) {
+	// Start a transaction to ensure atomicity
+	tx, err := d.db.Begin()
+	if err != nil {
+		return false, err
+	}
+	defer tx.Rollback()
+
+	// Increment download count
+	query := `UPDATE files SET dl_count = dl_count + 1 WHERE id = ?`
+	_, err = tx.Exec(query, id)
+	if err != nil {
+		return false, err
+	}
+
+	// Check if limit reached
+	var dlCount, dlLimit int
+	checkQuery := `SELECT dl_count, dl_limit FROM files WHERE id = ?`
+	err = tx.QueryRow(checkQuery, id).Scan(&dlCount, &dlLimit)
+	if err != nil {
+		return false, err
+	}
+
+	// Commit transaction
+	if err = tx.Commit(); err != nil {
+		return false, err
+	}
+
+	return dlCount >= dlLimit, nil
+}
+
 func (d *DB) DeleteFileRecord(id string) error {
 	query := `DELETE FROM files WHERE id = ?`
 	_, err := d.db.Exec(query, id)

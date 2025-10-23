@@ -61,6 +61,12 @@ async function navigate(path, app) {
     return;
   }
 
+  // Help route is always public
+  if (path === "/help" || path.startsWith("/help/")) {
+    await router.initHelpRoute(app);
+    return;
+  }
+
   // Login and register routes are always accessible
   if (path.startsWith("/login")) {
     await router.initLoginRoute(app);

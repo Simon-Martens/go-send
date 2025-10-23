@@ -86,29 +86,27 @@ func RateLimit(r rate.Limit, b int) func(http.Handler) http.Handler {
 }
 
 // GetIP extracts the real IP address from the request
+// SECURITY: Only trust X-Real-IP, not X-Forwarded-For to prevent IP spoofing
+// If deployed behind a reverse proxy, ensure it sets X-Real-IP or configure
+// trusted proxy IP ranges for X-Forwarded-For validation
 func GetIP(r *http.Request) string {
-	// Try X-Forwarded-For header (from reverse proxy)
-	forwarded := r.Header.Get("X-Forwarded-For")
-	if forwarded != "" {
-		// Take the first IP in the list
-		ips := splitIP(forwarded)
-		if len(ips) > 0 {
-			return ips[0]
-		}
-	}
-
-	// Try X-Real-IP header
+	// Try X-Real-IP header (single IP, less prone to spoofing)
 	realIP := r.Header.Get("X-Real-IP")
-	if realIP != "" {
+	if realIP != "" && isValidIP(realIP) {
 		return realIP
 	}
 
-	// Fall back to RemoteAddr
+	// Fall back to RemoteAddr (actual TCP connection source)
 	ip, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
 		return r.RemoteAddr
 	}
 	return ip
+}
+
+// isValidIP checks if a string is a valid IP address
+func isValidIP(ip string) bool {
+	return net.ParseIP(ip) != nil
 }
 
 func splitIP(s string) []string {

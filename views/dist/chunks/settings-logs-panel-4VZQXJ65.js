@@ -209,6 +209,22 @@ var SettingsLogsPanel = class extends HTMLElement {
       }
       durationEl.textContent = formatted;
     }
+    const statusEl = row.querySelector('[data-role="log-status"]');
+    if (statusEl && log.statusCode) {
+      const code = log.statusCode;
+      statusEl.textContent = code;
+      if (code >= 200 && code < 300) {
+        statusEl.className = "text-xs font-mono font-semibold text-green-600 dark:text-green-400";
+      } else if (code >= 300 && code < 400) {
+        statusEl.className = "text-xs font-mono font-semibold text-blue-600 dark:text-blue-400";
+      } else if (code >= 400 && code < 500) {
+        statusEl.className = "text-xs font-mono font-semibold text-orange-600 dark:text-orange-400";
+      } else if (code >= 500) {
+        statusEl.className = "text-xs font-mono font-semibold text-red-600 dark:text-red-400";
+      } else {
+        statusEl.className = "text-xs font-mono text-grey-60 dark:text-grey-40";
+      }
+    }
     const fileIdEl = row.querySelector('[data-role="log-file-id"]');
     if (fileIdEl && log.fileId) {
       const fileMetadata = storage_default.getFileById(log.fileId);
@@ -267,4 +283,4 @@ var SettingsLogsPanel = class extends HTMLElement {
   }
 };
 customElements.define("settings-logs-panel", SettingsLogsPanel);
-//# sourceMappingURL=settings-logs-panel-GKBALGDJ.js.map
+//# sourceMappingURL=settings-logs-panel-4VZQXJ65.js.map

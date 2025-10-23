@@ -249,6 +249,31 @@ class SettingsLogsPanel extends HTMLElement {
       durationEl.textContent = formatted;
     }
 
+    // Status Code (color-coded by range)
+    const statusEl = row.querySelector('[data-role="log-status"]');
+    if (statusEl && log.statusCode) {
+      const code = log.statusCode;
+      statusEl.textContent = code;
+
+      // Color code based on status range
+      if (code >= 200 && code < 300) {
+        // 2xx: Success - green
+        statusEl.className = "text-xs font-mono font-semibold text-green-600 dark:text-green-400";
+      } else if (code >= 300 && code < 400) {
+        // 3xx: Redirect - blue
+        statusEl.className = "text-xs font-mono font-semibold text-blue-600 dark:text-blue-400";
+      } else if (code >= 400 && code < 500) {
+        // 4xx: Client error - orange
+        statusEl.className = "text-xs font-mono font-semibold text-orange-600 dark:text-orange-400";
+      } else if (code >= 500) {
+        // 5xx: Server error - red
+        statusEl.className = "text-xs font-mono font-semibold text-red-600 dark:text-red-400";
+      } else {
+        // Unknown range - grey
+        statusEl.className = "text-xs font-mono text-grey-60 dark:text-grey-40";
+      }
+    }
+
     // File ID or Name (check storage for metadata)
     const fileIdEl = row.querySelector('[data-role="log-file-id"]');
     if (fileIdEl && log.fileId) {

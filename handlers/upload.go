@@ -16,14 +16,34 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool {
-		return true // Allow all origins (files are encrypted client-side, CSRF not applicable)
-	},
-	ReadBufferSize:    64 * 1024, // 64KB read buffer
-	WriteBufferSize:   64 * 1024, // 64KB write buffer
-	EnableCompression: false,     // Disable compression (files are already encrypted/compressed)
-	HandshakeTimeout:  10 * time.Second,
+// createUpgrader creates a WebSocket upgrader with proper origin validation
+func createUpgrader(baseURL string) websocket.Upgrader {
+	return websocket.Upgrader{
+		CheckOrigin: func(r *http.Request) bool {
+			origin := r.Header.Get("Origin")
+			if origin == "" {
+				// Allow requests with no Origin header (e.g., non-browser clients)
+				return true
+			}
+
+			// Validate against configured base URL
+			if baseURL != "" && origin == baseURL {
+				return true
+			}
+
+			// Allow same-origin requests (compare against request Host)
+			scheme := "http"
+			if r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https" {
+				scheme = "https"
+			}
+			expectedOrigin := scheme + "://" + r.Host
+			return origin == expectedOrigin
+		},
+		ReadBufferSize:    64 * 1024, // 64KB read buffer
+		WriteBufferSize:   64 * 1024, // 64KB write buffer
+		EnableCompression: false,     // Disable compression (files are already encrypted/compressed)
+		HandshakeTimeout:  10 * time.Second,
+	}
 }
 
 const ownerSecretVersion = 1
@@ -71,6 +91,7 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 		responseHeader := http.Header{}
 		responseHeader.Set("Sec-WebSocket-Protocol", r.Header.Get("Sec-WebSocket-Protocol"))
 
+		upgrader := createUpgrader(app.Config.BaseURL)
 		conn, err := upgrader.Upgrade(w, r, responseHeader)
 		if err != nil {
 			app.Logger.Error("WebSocket upgrade error",
@@ -403,9 +424,30 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 		}
 
 		// Generate ID and tokens
-		id := generateRandomHex(8)
-		ownerToken := generateRandomHex(10)
-		nonce := auth.GenerateNonce()
+		id, err := generateRandomHex(8)
+		if err != nil {
+			app.Logger.Error("Failed to generate file ID", "error", err)
+			app.DBLogger.LogFileOp(r, "upload", "", http.StatusInternalServerError,
+				time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, err.Error(), "operation", "generate_id")
+			sendError(conn, 500)
+			return
+		}
+		ownerToken, err := generateRandomHex(10)
+		if err != nil {
+			app.Logger.Error("Failed to generate owner token", "error", err)
+			app.DBLogger.LogFileOp(r, "upload", id, http.StatusInternalServerError,
+				time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, err.Error(), "operation", "generate_owner_token")
+			sendError(conn, 500)
+			return
+		}
+		nonce, err := auth.GenerateNonce()
+		if err != nil {
+			app.Logger.Error("Failed to generate nonce", "error", err)
+			app.DBLogger.LogFileOp(r, "upload", id, http.StatusInternalServerError,
+				time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, err.Error(), "operation", "generate_nonce")
+			sendError(conn, 500)
+			return
+		}
 		authKey := auth.ExtractAuthKey(req.Authorization)
 
 		// Set defaults
@@ -653,8 +695,10 @@ func sendError(conn *websocket.Conn, code int) {
 	time.Sleep(100 * time.Millisecond)
 }
 
-func generateRandomHex(n int) string {
+func generateRandomHex(n int) (string, error) {
 	bytes := make([]byte, n)
-	rand.Read(bytes)
-	return hex.EncodeToString(bytes)
+	if _, err := rand.Read(bytes); err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(bytes), nil
 }

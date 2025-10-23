@@ -192,6 +192,7 @@ settingsBackButton = Upload
 settingsNavAccount = Account
 settingsNavUploadLinks = Upload links
 settingsNavUsers = Users
+settingsNavLogs = Logs
 settingsAccountHeading = Account
 settingsAccountSubheading = Manage your profile information, password, and sign-in sessions.
 settingsAccountProfileHeading = Profile
@@ -390,3 +391,20 @@ fileTilePwdProtectedNotice = File is password protected
 fileTileRecipientNotice = The recipient must login to download this file
 fileTileSharableNotice = Share this link and the password over two different channels (eg. eMail, encrypted Messenger)
 fileTileUnshareableNotice = The link is confidential. It is inadvisable to share the link over an unencrypted channel (eg. eMail)
+
+## Logs settings strings
+
+settingsLogsHeading = Logs
+settingsLogsSubheading = View upload and download activity for your files.
+settingsLogsRefresh = Refresh
+settingsLogsColumnType = Type
+settingsLogsColumnDate = Date
+settingsLogsColumnStatus = Status
+settingsLogsColumnFileID = File ID or Name
+settingsLogsColumnOwner = Owner
+settingsLogsColumnIP = IP
+settingsLogsColumnRequestData = Request Data
+settingsLogsColumnAccessedBy = Access By
+settingsLogsEmpty = No logs available.
+settingsLogsCount = Showing logs
+settingsLogsNext = Next

@@ -10,10 +10,12 @@ import (
 )
 
 // GenerateNonce generates a random base64-encoded nonce
-func GenerateNonce() string {
+func GenerateNonce() (string, error) {
 	bytes := make([]byte, 16)
-	rand.Read(bytes)
-	return base64.StdEncoding.EncodeToString(bytes)
+	if _, err := rand.Read(bytes); err != nil {
+		return "", err
+	}
+	return base64.StdEncoding.EncodeToString(bytes), nil
 }
 
 // VerifyHMAC verifies the HMAC signature from the Authorization header

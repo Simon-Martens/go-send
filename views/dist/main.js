@@ -3,7 +3,7 @@ import {
 } from "./chunks/chunk-ATYDBTFA.js";
 import {
   tooltip
-} from "./chunks/chunk-5GRZTTPD.js";
+} from "./chunks/chunk-NEFC7EAQ.js";
 import {
   APP_VERSION,
   Keychain,
@@ -1830,7 +1830,7 @@ var localeLoaders = {
   el: () => import("./chunks/el-4RABOQBG.js"),
   "en-CA": () => import("./chunks/en-CA-DJ4OOLA4.js"),
   "en-GB": () => import("./chunks/en-GB-D7G7RTNJ.js"),
-  "en-US": () => import("./chunks/en-US-DLTNSO5C.js"),
+  "en-US": () => import("./chunks/en-US-BCQCD2AV.js"),
   "es-AR": () => import("./chunks/es-AR-6PZGYKH3.js"),
   "es-CL": () => import("./chunks/es-CL-HE4SPZ7U.js"),
   "es-ES": () => import("./chunks/es-ES-XGWIURD2.js"),
@@ -1899,7 +1899,7 @@ var localeLoaders = {
 };
 async function getTranslator(locale2) {
   const bundles = [];
-  const { default: en } = await import("./chunks/en-US-DLTNSO5C.js");
+  const { default: en } = await import("./chunks/en-US-BCQCD2AV.js");
   if (locale2 !== "en-US" && localeLoaders[locale2]) {
     const { default: ftl } = await localeLoaders[locale2]();
     bundles.push(makeBundle(locale2, ftl));
@@ -2765,6 +2765,16 @@ var GoSendElement = class extends HTMLElement {
     this.currentLayout = settingsLayout;
     this.currentView = "settings";
   }
+  showHelpLayout() {
+    const slot = this.querySelector("#app-content");
+    if (!slot) {
+      console.error("Slot #app-content not found in go-send template");
+      return;
+    }
+    slot.innerHTML = "";
+    this.currentLayout = null;
+    this.currentView = "help";
+  }
   showErrorLayout(errorMessage) {
     const slot = this.querySelector("#app-content");
     if (!slot) {
@@ -3010,7 +3020,7 @@ async function initUploadRoute(app) {
   await Promise.all([
     import("./chunks/upload-layout-DFS3ROWS.js"),
     import("./chunks/upload-area-MOZOQFJO.js"),
-    import("./chunks/upload-right-M23VWDD6.js"),
+    import("./chunks/upload-right-Y6XS4QXB.js"),
     app.controller.ready
   ]);
   app.showUploadLayout();
@@ -3055,11 +3065,17 @@ async function initSettingsRoute(app) {
     import("./chunks/settings-account-panel-ATOTIBNS.js"),
     import("./chunks/settings-upload-links-panel-PRYP6D32.js"),
     import("./chunks/settings-users-panel-2KJ62NYL.js"),
-    import("./chunks/settings-logs-panel-GKBALGDJ.js"),
+    import("./chunks/settings-logs-panel-4VZQXJ65.js"),
     app.controller.ready
   ]);
   app.showSettingsLayout();
   console.log("[Route] Settings page ready");
+}
+async function initHelpRoute(app) {
+  console.log("[Route] Initializing help page...");
+  await app.controller.ready;
+  app.showHelpLayout();
+  console.log("[Route] Help page ready");
 }
 async function bootstrapApplication() {
   const user = storage_default.user;
@@ -3113,6 +3129,10 @@ async function navigate(path, app) {
   var _a;
   if (path.match(/^\/download/) || path.match(/^\/[0-9a-fA-F]{10,16}/)) {
     await initDownloadRoute(app);
+    return;
+  }
+  if (path === "/help" || path.startsWith("/help/")) {
+    await initHelpRoute(app);
     return;
   }
   if (path.startsWith("/login")) {

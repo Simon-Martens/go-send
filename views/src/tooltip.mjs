@@ -97,13 +97,11 @@ export function tooltip(element, text, options = {}) {
     });
 
     element.addEventListener("mouseleave", () => {
-      // Clear any pending open
       if (openTimeoutId) {
         clearTimeout(openTimeoutId);
         openTimeoutId = null;
       }
 
-      // Schedule close with 300ms delay
       if (closeDelayTimeoutId) clearTimeout(closeDelayTimeoutId);
       closeDelayTimeoutId = setTimeout(() => {
         if (currentOpenTooltip === tooltipEl) {
@@ -111,7 +109,7 @@ export function tooltip(element, text, options = {}) {
           currentOpenTooltip = null;
         }
         closeDelayTimeoutId = null;
-      }, 300);
+      }, 450);
     });
   }
 }

@@ -61,7 +61,8 @@ func CSP(isDev bool, baseURL string) func(http.Handler) http.Handler {
 			// Generate nonce for inline scripts/styles
 			nonce, err := CSPNonce()
 			if err != nil {
-				nonce = "fallback-nonce-" + hex.EncodeToString([]byte{1, 2, 3, 4})
+				http.Error(w, "Internal server error", http.StatusInternalServerError)
+				return
 			}
 
 			// Store nonce in request context for use in templates

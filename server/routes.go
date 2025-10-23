@@ -88,9 +88,12 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 		mux.HandleFunc("/register/user/", handlers.NewRegisterPageHandler(app, indexHandler, storage.TokenTypeUserSignup))
 	}
 
+	// Help page route (public, no auth required)
+	mux.HandleFunc("/help", handlers.HelpHandler(app))
+
 	rootHandler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Try to serve static files first
-		if r.URL.Path != "/" && r.URL.Path != "/download/" && r.URL.Path != "/error" && r.URL.Path != "/settings" {
+		if r.URL.Path != "/" && r.URL.Path != "/download/" && r.URL.Path != "/error" && r.URL.Path != "/settings" && r.URL.Path != "/help" {
 			if middleware.ServeUserStaticFile(w, r, app.Config.UserFrontendDir, config.USER_DIST_SUBDIR) {
 				return
 			}
@@ -108,7 +111,7 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 		guardOpts := middleware.UserGuardOptions{
 			RedirectToLogin:    true,
 			AllowPrefixes:      []string{"/download"},
-			AllowExact:         []string{"/login", "/login/", "/logout", "/error"},
+			AllowExact:         []string{"/login", "/login/", "/logout", "/error", "/help"},
 			AllowStatic:        true,
 			AllowGuest:         true,
 			GuestAllowExact:    []string{"/", "/upload", "/upload/"},

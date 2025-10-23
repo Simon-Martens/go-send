@@ -22,6 +22,7 @@ type LogEntry struct {
 	UserAgent     string `json:"userAgent"`      // user agent
 	Origin        string `json:"origin"`         // origin header
 	SessionUser   string `json:"sessionUser"`    // who accessed (for downloads)
+	StatusCode    int    `json:"statusCode"`     // HTTP status code
 }
 
 // LogsResponse represents the response structure for the logs endpoint
@@ -123,6 +124,12 @@ func NewLogsHandler(app *core.App) http.HandlerFunc {
 				sessionUser = "Anonymous"
 			}
 
+			// Get status code (default to 0 if null)
+			statusCode := 0
+			if log.StatusCode != nil {
+				statusCode = *log.StatusCode
+			}
+
 			entry := LogEntry{
 				Type:        log.EventType,
 				Timestamp:   timestamp,
@@ -134,6 +141,7 @@ func NewLogsHandler(app *core.App) http.HandlerFunc {
 				UserAgent:   requestData.UserAgent,
 				Origin:      requestData.Origin,
 				SessionUser: sessionUser,
+				StatusCode:  statusCode,
 			}
 
 			logEntries = append(logEntries, entry)

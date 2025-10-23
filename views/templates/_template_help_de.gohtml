@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="{{.Locale}}">
+	{{ template "head.gohtml" . }}
+	<body class="flex flex-col items-center md:h-screen bg-transparent">
+		{{ block "header.gohtml" . }}{{ end }}
+		
+	<script {{.NonceAttr}}>
+		var LIMITS = {{toJSON .ClientConfig.LIMITS}};
+		var WEB_UI = {{toJSON .ClientConfig.WEB_UI}};
+		var DEFAULTS = {{toJSON .ClientConfig.DEFAULTS}};
+		var FOOTER = {{toJSON .ClientConfig.FOOTER}};
+		var FEATURES = {{toJSON .ClientConfig.FEATURES}};
+		var PREFS = {};
+		var downloadMetadata = {{rawJSON .DownloadMetadata}};
+	</script>
+
+	<main class="flex flex-col items-center md:h-screen w-full">
+		<go-send id="app"></go-send>
+		<div class="relative max-w-[82rem] w-full text mb-20">
+			<h1>Frequently Asked Questions</h1>
+			<div class="question">
+				<h2>Was bedeutet »Ende-zu-Ende verschlüsselt«?</h2>
+				<p>Im Kontext von Go Send bedeutet Ende-zu-Ende verschlüsselt, dass ausschließlich Absender und Empfänger einer Datei über genug Informationen verfügen, um Metadaten der Datei zu lesen oder die Datei zu entschlüsseln. Der Schlüssel wird niemals übertragen, sondern entweder über den Link und, je nach Einstellung, zusätzlich über das Passwort mit dem Empfänger geteilt. Weder Internetanbieter, noch Provider, noch oder Lesen.</p>
+			</div>
+			<div class="question">
+				<h2>Warum sollte ich ein Passwort verwenden?</h2>
+				<p>Ein Passwort bietet eine zusätzliche Sicherheit, da die Datei nur mit dem Passwort entschlüsselt werden kann. Wenn Sie ein Passwort für Ihre Dateien verwenden, können Sie den Link einfacher über Klartextprotokolle, wie eMail teilen, ohne das Risko einzugehen, dass ein Dritter die Datei herunterladen kann.</p>
+				<p>Wenn Sie Ihre Datei mit einem anderen angemeldeten Benutzer teilen, bietet das Passwort, zusätzlich zum Passwort des Benutzers, eine dritte Sicherheit.</p>
+			</div>
+			<div class="question">
+				<h2>Was ist ein sicherer »Kanal«?</h2>
+				<p>Ein sicherer »Kanal« ist eine Kommunikationsmethode, die über eine sichere Verbindung mit Ihrem Gegenüber kommuniziert. Die benutzerfreundlichsten Dienste, die ausreichende Sicherheit bieten, sind Messenger wie Signal oder Matrix-basierte Dienste.
+				<p>E-Mail ist kein sicherer Kanal. Manche eMail-Anbieter nutzen ausschießlich TLS-Verschlüsselungen zum Versand von Nachrichten, allerdings müssen Sie dabei Ihrem eMail-Anbieter vertrauen.</p>
+				<p>Obwohl manche closed-source-Systeme (wie MS Teams oder Telegram) einen guten Ruf haben, werden sie generell nicht empfohlen, da Ihre Zuverlässigkeit nur zertifiziert und nicht unabhängig verifiziert werden kann.</p>
+			</div>
+			<div class="question">
+				<h2>Was sind bekannte Schwachstellen von Go Send?</h2>
+				<p>Da alle Geheimnisse im Browser gespeichert und verwaltet werden, ist der Browser Dreh- und Angelpunkt für die Sicherheit Ihrer Daten. Leider entzieht sich der Browser zu einem großen Teil der Kontrolle der Entwickler. Die gröbsten XSS-Attacken werden durch strenge CORS und CSP-Reichlinien migitiert. Anmeledecookies sind für JavaScript nicht sichtbar. Go Send bietet die Möglichkeit unsichere Sessions anzulegen, um sensible Daten nach Benutzung zu löschen.</p>
+				<p>Dennoch ist der Browser grundsätzlich ein Sicherheitsrisiko: vor allem Browser-Erweiterungen können oftmals alle Ihre Daten lesen und nach Belieben Skripte einbetten; daher ist es wichtig, dass Sie den Vertreibern und Entwicklern ihrer Erweiterungen vertrauen.</p>
+			</div>
+			<div class="question">
+				<h2>Warum ist es eine gute Idee, sich ausloggen?</h2>
+				<p>Bei einem Klick auf den »Sign Out«-Button werden Ihre Cookies und alle Geheimnisse aus Ihrem Browser-Speicher gelöscht. Leider sind alle Browserhersteller unzuverlässig bei der automatisierten Löschung sensibler Daten: selbst wenn Entwickler durch vorgesehene Header oder &lt;meta&gt;-Tags spezifizieren, dass nach der Sitzung Daten gelöscht werden, kann der Browser, je nach Einstellungen, diese Anweisungen ignorieren. Bei einem Absturz des Browsers wird ebenfalls nichts bereinigt. Daher sollten Sie sich nach Benutzung von Go Send explizit ausloggen.</p>
+			</div>
+		</div>
+		<app-footer></app-footer>
+	</main>
+
+	{{ template "_template_app_footer.gohtml" . }}
+	</body>
+</html>

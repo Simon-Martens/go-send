@@ -503,3 +503,23 @@ upload-right {
   @apply w-full;
   @apply h-full;
 }
+
+.text {
+  @apply text-xl leading-relaxed mt-8;
+}
+
+.text h1 {
+  @apply text-6xl font-bold mt-4 mb-16 text-sky-500;
+}
+
+.text h2 {
+  @apply text-4xl font-bold mt-12 mb-4 text-orange-600;
+}
+
+.text p {
+  @apply max-w-4xl hyphens-auto;
+}
+
+.text p:not(:first-of-type) {
+  @apply indent-8;
+}

@@ -66,7 +66,7 @@ function tooltip(element, text, options = {}) {
           currentOpenTooltip = null;
         }
         closeDelayTimeoutId = null;
-      }, 300);
+      }, 450);
     });
   }
 }
@@ -129,4 +129,4 @@ function getPointerClasses(position) {
 export {
   tooltip
 };
-//# sourceMappingURL=chunk-5GRZTTPD.js.map
+//# sourceMappingURL=chunk-NEFC7EAQ.js.map

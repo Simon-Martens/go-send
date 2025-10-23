@@ -165,6 +165,20 @@ class GoSendElement extends HTMLElement {
     this.currentView = "settings";
   }
 
+  showHelpLayout() {
+    const slot = this.querySelector("#app-content");
+    if (!slot) {
+      console.error("Slot #app-content not found in go-send template");
+      return;
+    }
+
+    // Clear the app content - help page is server-rendered HTML
+    slot.innerHTML = "";
+
+    this.currentLayout = null;
+    this.currentView = "help";
+  }
+
   showErrorLayout(errorMessage) {
     const slot = this.querySelector("#app-content");
     if (!slot) {

@@ -32,7 +32,12 @@ func NewMetadataHandler(app *core.App) http.HandlerFunc {
 		authHeader := r.Header.Get("Authorization")
 		if !auth.VerifyHMAC(authHeader, meta.AuthKey, meta.Nonce, app.Logger) {
 			// Generate new nonce for retry
-			newNonce := auth.GenerateNonce()
+			newNonce, err := auth.GenerateNonce()
+			if err != nil {
+				app.Logger.Error("Failed to generate nonce", "error", err)
+				http.Error(w, "Internal server error", http.StatusInternalServerError)
+				return
+			}
 			app.DB.UpdateNonce(id, newNonce)
 			w.Header().Set("WWW-Authenticate", "send-v1 "+newNonce)
 			app.Logger.Warn("Metadata auth failed", "file_id", id)
@@ -41,7 +46,12 @@ func NewMetadataHandler(app *core.App) http.HandlerFunc {
 		}
 
 		// Rotate nonce after successful auth
-		newNonce := auth.GenerateNonce()
+		newNonce, err := auth.GenerateNonce()
+		if err != nil {
+			app.Logger.Error("Failed to generate nonce", "error", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
 		app.DB.UpdateNonce(id, newNonce)
 		w.Header().Set("WWW-Authenticate", "send-v1 "+newNonce)
 

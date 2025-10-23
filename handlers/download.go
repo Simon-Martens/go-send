@@ -50,7 +50,14 @@ func NewDownloadHandler(app *core.App) http.HandlerFunc {
 		authHeader := r.Header.Get("Authorization")
 		if !auth.VerifyHMAC(authHeader, meta.AuthKey, meta.Nonce, app.Logger) {
 			// Generate new nonce for retry
-			newNonce := auth.GenerateNonce()
+			newNonce, err := auth.GenerateNonce()
+			if err != nil {
+				app.Logger.Error("Failed to generate nonce", "error", err)
+				app.DBLogger.LogFileOp(r, "download", id, http.StatusInternalServerError,
+					time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, err.Error())
+				http.Error(w, "Internal server error", http.StatusInternalServerError)
+				return
+			}
 			app.DB.UpdateNonce(id, newNonce)
 			w.Header().Set("WWW-Authenticate", "send-v1 "+newNonce)
 			app.Logger.Warn("Download auth failed", "file_id", id)
@@ -61,7 +68,14 @@ func NewDownloadHandler(app *core.App) http.HandlerFunc {
 		}
 
 		// Rotate nonce after successful auth
-		newNonce := auth.GenerateNonce()
+		newNonce, err := auth.GenerateNonce()
+		if err != nil {
+			app.Logger.Error("Failed to generate nonce", "error", err)
+			app.DBLogger.LogFileOp(r, "download", id, http.StatusInternalServerError,
+				time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, err.Error())
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
 		app.DB.UpdateNonce(id, newNonce)
 		w.Header().Set("WWW-Authenticate", "send-v1 "+newNonce)
 
@@ -123,21 +137,18 @@ func NewDownloadHandler(app *core.App) http.HandlerFunc {
 		app.DBLogger.LogFileOp(r, "download", id, http.StatusOK,
 			time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, "", "size_bytes", size)
 
-		// Increment download count
-		if err := app.DB.IncrementDownload(id); err != nil {
+		// Atomically increment download count and check if limit reached
+		shouldDelete, err := app.DB.IncrementDownloadAndCheck(id)
+		if err != nil {
 			app.Logger.Error("Error incrementing download count", "file_id", id, "error", err)
-		}
-
-		// Check if we've reached download limit
-		meta, _ = app.DB.GetFile(id)
-		if meta != nil && meta.DlCount >= meta.DlLimit {
+		} else if shouldDelete {
 			// Cancel any scheduled cleanup goroutine
 			app.CancelCleanup(id)
 
 			// Delete file and metadata
 			app.DB.DeleteFileRecord(id)
 			storage.DeleteFile(app.DB.FileDir(), id)
-			app.Logger.Info("File deleted after reaching download limit", "file_id", id, "downloads", meta.DlCount)
+			app.Logger.Info("File deleted after reaching download limit", "file_id", id)
 		}
 	}
 }

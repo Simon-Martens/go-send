@@ -96,3 +96,60 @@ func IndexHandler(app *core.App) http.HandlerFunc {
 		app.DBLogger.LogRequest(r, http.StatusOK, nil, "")
 	}
 }
+
+func HelpHandler(app *core.App) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		nonce, err := utils.GenerateNonce()
+		if err != nil {
+			app.Logger.Error("Failed to generate nonce", "error", err)
+			app.DBLogger.LogRequest(r, http.StatusInternalServerError, nil, err.Error(), "operation", "generate_nonce")
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+
+		locale := getLocaleFromRequest(r, app.Config.CustomLocale)
+
+		// Determine which help template to use based on locale
+		templateName := "_template_help_" + locale + ".gohtml"
+
+		// Check if the locale-specific template exists by trying to execute it
+		// If it doesn't exist, fall back to English
+		data := getTemplateData(app.Manifest, "{}", app.Config, locale, nonce)
+
+		csp := fmt.Sprintf(
+			"default-src 'none'; "+
+				"connect-src 'self'; "+
+				"img-src 'self' data:; "+
+				"script-src 'nonce-%s'; "+
+				"style-src 'self' 'nonce-%s'; "+
+				"font-src 'self'; "+
+				"worker-src 'self'; "+
+				"form-action 'self'; "+
+				"frame-ancestors 'none'; "+
+				"object-src 'none'; "+
+				"base-uri 'self';",
+			nonce, nonce,
+		)
+		w.Header().Set("Content-Security-Policy", csp)
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+		// Try locale-specific template first
+		err = app.Template.ExecuteTemplate(w, templateName, data)
+		if err != nil {
+			// Template not found for this locale, try English fallback
+			app.Logger.Debug("Help template not found for locale, falling back to English", "locale", locale, "template", templateName)
+			templateName = "_template_help_en.gohtml"
+
+			err = app.Template.ExecuteTemplate(w, templateName, data)
+			if err != nil {
+				app.Logger.Error("Failed to render help template", "error", err, "template", templateName)
+				app.DBLogger.LogRequest(r, http.StatusInternalServerError, nil, err.Error(), "template", templateName)
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
+		}
+
+		// Log successful request
+		app.DBLogger.LogRequest(r, http.StatusOK, nil, "", "page", "help", "locale", locale, "template", templateName)
+	}
+}

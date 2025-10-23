@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<html lang="{{.Locale}}">
+	{{ template "head.gohtml" . }}
+	<body class="flex flex-col items-center md:h-screen bg-transparent">
+		{{ block "header.gohtml" . }}{{ end }}
+		{{ template "_app.gohtml" . }}
+	</body>
+</html>

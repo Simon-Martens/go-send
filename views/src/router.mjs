@@ -72,6 +72,14 @@ export async function initSettingsRoute(app) {
   console.log("[Route] Settings page ready");
 }
 
+export async function initHelpRoute(app) {
+  console.log("[Route] Initializing help page...");
+  await app.controller.ready;
+
+  app.showHelpLayout();
+  console.log("[Route] Help page ready");
+}
+
 export async function bootstrapApplication() {
   const user = storage.user;
   if (user && user.version && user.version !== APP_VERSION) {

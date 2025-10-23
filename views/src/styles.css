@@ -517,7 +517,7 @@ upload-right {
 }
 
 .text p {
-  @apply max-w-4xl hyphens-auto;
+  @apply max-w-4xl hyphens-auto mt-1.5;
 }
 
 .text p:not(:first-of-type) {

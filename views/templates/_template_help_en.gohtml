@@ -3,6 +3,69 @@
 	{{ template "head.gohtml" . }}
 	<body class="flex flex-col items-center md:h-screen bg-transparent">
 		{{ block "header.gohtml" . }}{{ end }}
-		{{ template "_app.gohtml" . }}
+
+	<script {{.NonceAttr}}>
+		var LIMITS = {{toJSON .ClientConfig.LIMITS}};
+		var WEB_UI = {{toJSON .ClientConfig.WEB_UI}};
+		var DEFAULTS = {{toJSON .ClientConfig.DEFAULTS}};
+		var FOOTER = {{toJSON .ClientConfig.FOOTER}};
+		var FEATURES = {{toJSON .ClientConfig.FEATURES}};
+		var PREFS = {};
+		var downloadMetadata = {{rawJSON .DownloadMetadata}};
+	</script>
+
+	<main class="flex flex-col items-center md:h-screen w-full">
+		<go-send id="app"></go-send>
+		<div class="relative max-w-[82rem] w-full text mb-20">
+			<h1>Frequently Asked Questions</h1>
+			<div class="question">
+				<h2>What does "end-to-end encrypted" mean?</h2>
+				<p>End-to-end encryption in Go Send ensures that only the sender and recipient possess the cryptographic keys necessary to decrypt file contents and metadata. Encryption keys are never transmitted through the application infrastructure; instead, they are conveyed to recipients via URL fragments and, optionally, password protection. This architecture guarantees that no intermediary—including internet service providers, network operators, server administrators, or hosting providers—can access the plaintext contents of transmitted files.</p>
+			</div>
+			<div class="question">
+				<h2>Why should I use a password?</h2>
+				<p>Password protection adds a second authentication factor that separates the encryption key from the download URL. This separation allows you to share links through less secure channels like email while maintaining file confidentiality, since possession of the link alone is insufficient for decryption.</p>
+				<p>It is critical that passwords and download links be transmitted through separate communication channels to maintain this security boundary.</p>
+				<p>When sharing files with authenticated users, an additional password provides defense-in-depth by requiring both the user's account credentials and the file-specific password.</p>
+				<p>As with all password systems, length provides significantly more entropy than special characters. A passphrase like "correct horse battery staple" offers substantially greater security than complex but short passwords like "aB3!xY9$".</p>
+			</div>
+			<div class="question">
+				<h2>What constitutes a secure communication channel?</h2>
+				<p>A secure channel is a communication medium that provides end-to-end encryption between parties. The most accessible secure channels include Signal and Matrix-based messaging platforms. Depending on your threat model and organizational policies, self-hosted services with TLS encryption may also provide adequate security.</p>
+				<p>Email does not constitute a secure channel. While many email providers use TLS for transport encryption, this only protects messages in transit between servers. Unless both sender and recipient self-host their email infrastructure, the content is accessible to both email providers and remains vulnerable to server-side compromise.</p>
+				<p>Proprietary platforms such as Microsoft Teams and Telegram, despite having favorable reputations, are not recommended for sensitive communications. Their security claims rely on trust in the vendor rather than independently verifiable cryptographic implementations.</p>
+			</div>
+			<div class="question">
+				<h2>Why should I explicitly sign out?</h2>
+				<p>The "Sign Out" function performs explicit deletion of authentication cookies and cryptographic secrets from browser storage. This manual cleanup is necessary because browser vendors do not reliably implement automated session data deletion, even when developers specify cache-control headers or meta directives. Browser crashes and improper shutdowns also prevent automatic cleanup. Explicitly signing out after each session ensures that sensitive cryptographic material does not persist in browser storage.</p>
+			</div>
+			<div class="question">
+				<h2>Can deleted files be recovered?</h2>
+				<p>No. File deletion is permanent and irreversible. Both the encrypted file contents and associated metadata are removed from storage. User accounts and access tokens are similarly permanent upon deletion. Audit logs, however, are retained according to administrator-defined retention policies.</p>
+			</div>
+			<div class="question">
+				<h2>What information is logged?</h2>
+				<p>Upload and download operations generate audit logs containing user identifiers or token names, file identifiers, IP addresses, and client information. These logs enable rapid detection and response to potential data exfiltration. File senders may view audit logs for their uploaded files. Logs are automatically purged according to administrator-configured retention periods. All authentication failures and system errors are logged without including sensitive cryptographic material.</p>
+			</div>
+			<div class="question">
+				<h2>What are Go Send's security limitations?</h2>
+				<p>The browser environment serves as the trusted computing base for all cryptographic operations. This presents inherent limitations, as web browsers exist largely outside developer control. Go Send implements strict Content Security Policy (CSP) and Cross-Origin Resource Sharing (CORS) policies to mitigate cross-site scripting attacks, and authentication cookies are protected with httpOnly flags to prevent JavaScript access.</p>
+				<p>However, browsers present a significant attack surface. Browser extensions routinely operate with privileges that allow reading all page content and injecting arbitrary scripts. Users must carefully evaluate the trustworthiness of all installed extensions. Additionally, the complexity of modern browsers results in a continuous stream of security vulnerabilities requiring rapid patching across all major browser engines.</p>
+				<p>Go Send supports browser versions released within the past year, as older versions may contain unpatched vulnerabilities.</p>
+			</div>
+			<div class="question">
+				<h2>What cryptographic technologies does Go Send implement?</h2>
+				<p>For unauthenticated file transfers, Go Send generates random secrets and derives separate encryption keys for metadata and file contents using HMAC-based key derivation. These keys remain in the browser and are transmitted to recipients via URL fragments. This approach inherits the cryptographic architecture of the original Firefox Send implementation with minimal modifications.</p>
+				<p>Authenticated file transfers employ Diffie-Hellman key agreement over elliptic curves (X25519) to establish shared secrets. The sender generates an ephemeral public key specific to each file, which is transmitted to the server alongside the encrypted file. During login, recipients derive their private key from their password using key derivation functions. This private key, combined with the sender's ephemeral public key, allows reconstruction of the shared secret for decryption. Critically, no secret material is exchanged between sender and recipient through any channel. Guest accounts discard their private keys immediately after encryption, while authenticated users benefit from the enhanced security of asymmetric cryptography.</p>
+				<p>User registration and password changes involve generating a public key from the password with a cryptographic salt, then transmitting this public key to the server. Keys are periodically rotated through salt regeneration.</p>
+				<p>These cryptographic protocols follow established practices used by secure messaging platforms including Signal and WhatsApp.</p>
+				<p>The server implementation uses Go with SQLite for metadata persistence, exposing cryptographic operations through authenticated REST endpoints. Authenticated users undergo challenge-response authentication and maintain authorization through secure cookies.</p>
+				<p>The frontend is implemented in JavaScript using native browser cryptographic APIs, with minimal dependencies: @noble libraries for elliptic curve operations and a CRC32 package for ZIP file generation. As browser capabilities expand, these external dependencies may become unnecessary.</p>
+			</div>
+		</div>
+		<app-footer></app-footer>
+	</main>
+
+	{{ template "_template_app_footer.gohtml" . }}
 	</body>
 </html>

@@ -2672,6 +2672,7 @@ upload-right {
   color: var(--color-orange-600);
 }
 .text p {
+  margin-top: calc(var(--spacing) * 1.5);
   max-width: var(--container-4xl);
   -webkit-hyphens: auto;
   hyphens: auto;

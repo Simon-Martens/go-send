@@ -20,27 +20,47 @@
 			<h1>Frequently Asked Questions</h1>
 			<div class="question">
 				<h2>Was bedeutet »Ende-zu-Ende verschlüsselt«?</h2>
-				<p>Im Kontext von Go Send bedeutet Ende-zu-Ende verschlüsselt, dass ausschließlich Absender und Empfänger einer Datei über genug Informationen verfügen, um Metadaten der Datei zu lesen oder die Datei zu entschlüsseln. Der Schlüssel wird niemals übertragen, sondern entweder über den Link und, je nach Einstellung, zusätzlich über das Passwort mit dem Empfänger geteilt. Weder Internetanbieter, noch Provider, noch der Betreiber Ihres Servers kann Ihre Dateien entschlüsseln oder lesen.</p>
+				<p>Im Kontext von Go Send bedeutet Ende-zu-Ende verschlüsselt, dass ausschließlich Absender und Empfänger einer Datei über die kryptogaphischen Schlüssel verfügen, die zur Entschlüsselung von Dateiinhalten und Metadaten erforderlich sind. Der Schlüssel wird niemals über die Applikation selbst übertragen; stattdessen erflogt die Übermittlung an den Empfänger über Links und, optional, zusätzlich über das Passwort. Diese Architektur garantiert, dass keine zwischengeschaltete Patei, weder Internetprovider oder Netzbetreiber, noch Betreiber oder Adminstrator Ihres Servers Ihre Dateien entschlüsseln und lesen kann.</p>
 			</div>
 			<div class="question">
 				<h2>Warum sollte ich ein Passwort verwenden?</h2>
-				<p>Ein Passwort bietet eine zusätzliche Sicherheit, da die Datei nur mit dem Passwort entschlüsselt werden kann. Wenn Sie ein Passwort für Ihre Dateien verwenden, können Sie den Link einfacher über Klartextprotokolle, wie eMail teilen, ohne das Risko einzugehen, dass ein Dritter die Datei herunterladen kann.</p>
-				<p>Wenn Sie Ihre Datei mit einem anderen angemeldeten Benutzer teilen, bietet das Passwort, zusätzlich zum Passwort des Benutzers, eine dritte Sicherheit.</p>
+				<p>Ein Passwort bietet eine zusätzliche Sicherheit, da die Datei nur mit dem Passwort entschlüsselt werden kann. Wenn Sie ein Passwort für Ihre Dateien verwenden, können Sie den Link einfacher über Klartextprotokolle wie e-Mail teilen ohne das Risko einzugehen, dass ein Dritter die Datei herunterladen kann.</p>
+				<p>Es ist von entscheidender Bedeutung, dass Passwörter und Download-Links über separate Kommunikationskanäle übermittelt werden, um diese Sicherheitsgrenze aufrechtzuerhalten.</p>
+				<p>Wenn Sie Ihre Datei mit einem angemeldeten Benutzer teilen gibt das Passwort, zusätzlich zum Passwort des Benutzers, eine dritte Sicherheit.</p>
+				<p>Hier gilt, wie überall anders auch: Passwortlänge übertrumpft Passwortkomplexität bei Weitem. Um ein prominentes Beispiel aus der Forschung zu zitieren, Passphrasen wie »correct horse battery staple« bieten eine quasi unendlich höhere Sicherheit als komplexe, aber kurze Passwörter wie »aB3!xY9$;«.</p>
 			</div>
 			<div class="question">
 				<h2>Was ist ein sicherer »Kanal«?</h2>
-				<p>Ein sicherer »Kanal« ist eine Kommunikationsmethode, die über eine sichere Verbindung mit Ihrem Gegenüber kommuniziert. Die benutzerfreundlichsten Dienste, die ausreichende Sicherheit bieten, sind Messenger wie Signal oder Matrix-basierte Dienste.
-				<p>E-Mail ist kein sicherer Kanal. Manche eMail-Anbieter nutzen ausschießlich TLS-Verschlüsselungen zum Versand von Nachrichten, allerdings müssen Sie dabei Ihrem eMail-Anbieter vertrauen.</p>
-				<p>Obwohl manche closed-source-Systeme (wie MS Teams oder Telegram) einen guten Ruf haben, werden sie generell nicht empfohlen, da Ihre Zuverlässigkeit nur zertifiziert und nicht unabhängig verifiziert werden kann.</p>
+				<p>Ein sicherer Kanal ist eine Kommunikationsmethode, die über eine sichere Verbindung mit Ihrem Gegenüber kommuniziert. Die zugä̇nglichsten Kanäle, die ausreichende Verschlüsselung bieten, sind Messenger wie Signal oder Matrix- oder PGP-basierte Dienste. Abhängig vom Bedrohungsmodell und organisatorischen Richtlinien können auch selbstgehostete Dienste mit TLS-Verschlüsselung adäquate Sicherheit bieten.</p>
+				<p>E-Mail ist kein sicherer Kanal. Manche Produkte nutzen ausschießlich TLS-Verschlüsselungen zum Versand von Nachrichten, allerdings müssen Sie Ihrem eMail-Anbieter und dem Ihres Empfängers vertrauen, wenn Sie und Ihr Empfänger ihre eMail-Lösung nicht selber hosten und beide Parteien ihre Systeme auf dem aktuellsten Stand halten.</p>
+				<p>Obwohl manche proprietäre Dienste (wie MS Teams oder Telegram) einen guten Ruf haben, werden sie generell für sensible Kommunikation nicht empfohlen, da Ihre Zuverlässigkeit nur zertifiziert und nicht verifiziert werden kann, also vom Vertrauen abhängig ist, dass Sie dem jeweiligen Dienstleister entgegebringen.</p>
 			</div>
 			<div class="question">
-				<h2>Was sind bekannte Schwachstellen von Go Send?</h2>
-				<p>Da alle Geheimnisse im Browser gespeichert und verwaltet werden, ist der Browser Dreh- und Angelpunkt für die Sicherheit Ihrer Daten. Leider entzieht sich der Browser zu einem großen Teil der Kontrolle der Entwickler. Die gröbsten XSS-Attacken werden durch strenge CORS und CSP-Reichlinien migitiert. Anmeledecookies sind für JavaScript nicht sichtbar. Go Send bietet die Möglichkeit unsichere Sessions anzulegen, um sensible Daten nach Benutzung zu löschen.</p>
-				<p>Dennoch ist der Browser grundsätzlich ein Sicherheitsrisiko: vor allem Browser-Erweiterungen können oftmals alle Ihre Daten lesen und nach Belieben Skripte einbetten; daher ist es wichtig, dass Sie den Vertreibern und Entwicklern ihrer Erweiterungen vertrauen.</p>
+				<h2>Warum ist es eine gute Praxis, sich ausloggen?</h2>
+				<p>Bei einem Klick auf den »Sign Out«-Button werden Ihre Cookies und alle Geheimnisse explizit aus Ihrem Browser-Speicher gelöscht. Diese manuelle Bereinigung ist erforderlich, weil Browser-Hersteller die automatisierte Löschung von Sitzungsdaten nicht zuverlässig implementieren, selbst wenn Entwickler entsprechende Cache-Control-Header oder Meta-Direktiven spezifizieren. Bei einem Absturz des Browsers wird ebenfalls nichts bereinigt. Daher sollten Sie sich nach Benutzung von Go Send explizit ausloggen.</p>
 			</div>
 			<div class="question">
-				<h2>Warum ist es eine gute Idee, sich ausloggen?</h2>
-				<p>Bei einem Klick auf den »Sign Out«-Button werden Ihre Cookies und alle Geheimnisse aus Ihrem Browser-Speicher gelöscht. Leider sind alle Browserhersteller unzuverlässig bei der automatisierten Löschung sensibler Daten: selbst wenn Entwickler durch vorgesehene Header oder &lt;meta&gt;-Tags spezifizieren, dass nach der Sitzung Daten gelöscht werden, kann der Browser, je nach Einstellungen, diese Anweisungen ignorieren. Bei einem Absturz des Browsers wird ebenfalls nichts bereinigt. Daher sollten Sie sich nach Benutzung von Go Send explizit ausloggen.</p>
+				<h2>Können gelöschte Dateien wiederhergestellt werden?</h2>
+				<p>Nein. Die Dateilöschung ist permanent und irreversibel. Sowohl die verschlüsselten Dateiinhalte als auch zugehörige Metadaten werden aus dem Speicher entfernt. Benutzerkonten und Zugriffstokens werden gleichermaßen permanent gelöscht. Audit-Logs werden jedoch gemäß Administrator-definierten Richtlinien aufbewahrt.</p>
+			</div>
+			<div class="question">
+				<h2>Weleche Informationen werden protokolliert?</h2>
+				<p>Up- und Downloads lösen Audit-Logs aus. Dabei werden Benutzer- oder Token-Namen, Datei-Identifikatoren, Übertragungszeiten, Benutzerinteraktionen und Daten über IP-Adressen und verwendete Clients aufgezeichnet, um unautoriserte Abfragen schnell erkennen und migitieren zu können. Die Logs sind für den Absender einer Datei und Admistratoren einsehbar und werden nach einer vom Administrator festgelegten Zeit gelöscht. Alle Systemfehler und Anmeldeversuche werden (exklusive sensible Daten) protokolliert.
+			</div>
+			<div class="question">
+				<h2>Was sind die kritischen Schwachstellen von Go Send?</h2>
+				<p>Da alle Geheimnisse im Browser gespeichert und verwaltet werden, ist der Browser Dreh- und Angelpunkt für die Geheimhaltung Ihrer Daten. Leider entzieht sich der Browser zu einem großen Teil der Kontrolle der Entwickler. Go Send implementiert strikte Content Security Policy (CSP) und Cross-Origin Resource Sharing (CORS) Richtlinien zur Mitigation von Cross-Site-Scripting-Angriffen (XSS). Anmeldecookies sind vor JavaScript-Zugriffen geschützt.</p>
+				<p>Dennoch sind Browser grundsätzlich ein Sicherheitsrisiko: vor allem Browser-Erweiterungen können oftmals alle Ihre Daten lesen und uneingeschränkt Skripte einbetten; daher ist es wichtig, dass Sie den Vertreibern und Entwicklern ihrer Plugins vertrauen. Weiterhin bietet der Browser durch seine vielfältigen Funktionen eine große Angriffsoberfläche; immer noch werden quasi wöchentlich in allen gängigen Browsern Lücken entdeckt und gepatcht.</p>
+				<p>Go Send ist für Browserversionen ausgelegt, die nicht älter als ein Jahr sind.
+			</div>
+			<div class="question">
+				<h2>Welche Technologien verwendet Go Send?</h2>
+				<p>Beim Versenden von Dateien an unangemeldete Benutzer werden zufällige Daten verwendet, um mittels HMAC-Verfahren Schlüssel für die Verschlüsselung von Meta- und Dateidaten zu generieren. Diese Schlüssel werden im Browser gespeichert und im Link dem Empfänger übertragen. Dieses Verfahren und der Code dazu wurde aus dem ehemaligen Firefox Send übernommen und nur unwesentlich geändert.
+				<p>Beim Versenden von Dateien an angemeldete Benutzer wird unter Zunahme des öffentlichen Schlüssels des entsprechenden Benutzers mittels des Diffie-Hellmann-Verfahrens ein gemeinsames Geheimnis etabliert, mit welchem die Datei verschlüsselt wird. Der dateispezifische öffentliche Schlüssel (»ephemeral Key«) wird auf einer elliptischen Kurve (X25519) generiert und zusammen mit der Datei an den Server übertragen. Beim Login leitet der Browser aus dem Passwort des Benutzers einen privaten Schlüssel ab. Zusammen mit dem ephermeral Key kann das Geheimnis wiederhergestellt werden, dass die Datei entschlüsselt. Es braucht dabei überhaupt keinen Austausch von geheimen Daten zwischen Sendern und Empfängern, auch nicht über die Kanäle Dritter. Gastaccounts verwerfen ihren privaten Schlüssel unmittelbar nach der Verschlüsselung. Angemeldete Benutzer genießen also grundsätzlich ein sichereres Verfahren als unangemeldete.
+				<p>Beim Erstellen eines Benutzers oder einer Passwortänderung wird aus dem Passwort ein öffentlicher Schlüssel mit Salt generiert und an den Server übertragen. Der Schlüssel wird periodisch durch Anpassung des Salts rotiert.
+				<p>Dieses Verfahren ist absolut gängig und wird von vielen sicheren Diensen (wie Signal oder WhatsApp) analog praktiziert.
+				<p>Der Server ist eine Go-Anwendung, die die SQLite-Datenbanken verwaltet und über geschützte Endpoints zugänglich macht. Zusätzlich zum privaten Schlüssel werden angemeldete Benutzer über ein Challenge-Response-Verfahren authentifiziert und über ein Cookie für die jeweiligen Endpunkte autorisiert. 
+				<p>Das Frontend ist eine Javascript-Anwendung, die allein Browser-APIs nutzt und lediglich zur Kompatibilität und für die Erstellung öffentlicher Schlüssel mittel Kurvenkryptographie @noble-Pakete verwendet. Die einzige andere Abhängigkeit ist ein CRC32-Paket, dass dabei behilflflich ist, ZIP-Dateien zu erstellen. Es ist zu erwarten, und in neueren Browserversionen bereits vorgesehn, dass Browser in Zukunft ähnliche Funktionen bieten und die Abhängigkeiten ganz wegfallen.
 			</div>
 		</div>
 		<app-footer></app-footer>

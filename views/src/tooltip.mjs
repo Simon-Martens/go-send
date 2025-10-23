@@ -46,8 +46,7 @@ export function tooltip(element, text, options = {}) {
     contentEl.textContent = text;
   }
 
-  // Set positioning classes based on position option
-  const positionClasses = getPositionClasses(position);
+  const positionClasses = getPositionClasses();
   tooltipEl.className = `${tooltipEl.className} ${positionClasses}`;
 
   // Set pointer positioning based on position option
@@ -180,8 +179,8 @@ function hideTooltip(tooltipEl) {
  * Get position classes based on position option
  * (Position is calculated via JavaScript)
  */
-function getPositionClasses(position) {
-  return "absolute px-2 py-1 text-xs rounded-lg whitespace-nowrap shadow-lg z-[9999] transition-opacity duration-200";
+function getPositionClasses() {
+  return "absolute px-2 py-1 text-xs rounded-lg shadow-lg z-[9999] transition-opacity duration-200 block max-w-sm";
 }
 
 /**

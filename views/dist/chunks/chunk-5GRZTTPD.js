@@ -18,7 +18,7 @@ function tooltip(element, text, options = {}) {
   if (contentEl) {
     contentEl.textContent = text;
   }
-  const positionClasses = getPositionClasses(position);
+  const positionClasses = getPositionClasses();
   tooltipEl.className = `${tooltipEl.className} ${positionClasses}`;
   const pointerEl = tooltipEl.querySelector("[data-role='tooltip-pointer']");
   if (pointerEl) {
@@ -108,8 +108,8 @@ function hideTooltip(tooltipEl) {
   tooltipEl.classList.remove("visible", "opacity-100");
   tooltipEl.classList.add("hidden", "opacity-0");
 }
-function getPositionClasses(position) {
-  return "absolute px-2 py-1 text-xs rounded-lg whitespace-nowrap shadow-lg z-[9999] transition-opacity duration-200";
+function getPositionClasses() {
+  return "absolute px-2 py-1 text-xs rounded-lg shadow-lg z-[9999] transition-opacity duration-200 block max-w-sm";
 }
 function getPointerClasses(position) {
   const baseClasses = "absolute w-0 h-0";
@@ -129,4 +129,4 @@ function getPointerClasses(position) {
 export {
   tooltip
 };
-//# sourceMappingURL=chunk-7GBDGWUL.js.map
+//# sourceMappingURL=chunk-5GRZTTPD.js.map

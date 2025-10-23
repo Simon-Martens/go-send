@@ -46,6 +46,14 @@
 				<span id="downloadButtonLabel" data-type="lang">Download</span>
 			</a>
 			<div class="flex flex-row gap-x-2">
+			<button
+				type="button"
+				class="link-primary text-sm flex items-center focus:outline cursor-pointer mr-3"
+				data-action="copy"
+			>
+				<i class="ri-file-copy-line h-4 w-4 mr-2 ml-2 text-base leading-4" data-role="copy-icon"></i>
+				<span id="copyLinkButton" data-type="lang">Copy link</span>
+			</button>
 			<div class="hidden" data-role="file-is-pwd-protected">
 				<i class="ri-key-2-line fill text-lg text-orange-500 leading-4"></i>
 			</div>
@@ -77,19 +85,6 @@
 				<i class="ri-at-line text-lg text-orange-500 leading-4"></i>
 				<span class="text-lg text-orange-500 leading-4 inline-block -ml-1.5 font-serif" data-role="file-is-sharable">!</span>
 			</div>
-			<button
-				type="button"
-				class="link-primary text-sm flex items-center focus:outline cursor-pointer"
-				data-action="copy"
-			>
-				<i class="ri-file-copy-line h-4 w-4 mr-2 ml-2 text-base leading-4" data-role="copy-icon"></i>
-				<span id="copyLinkButton" data-type="lang">Copy link</span>
-			</button>
-			<!-- 
-			<div class="hidden text-sm opacity-75 italic" data-role="recipient-notice">
-				<span id="fileTileRecipientNotice" data-type="lang">The recipient must login to download this file</span>
-			</div>
-			-->
 		</div>
 		</div>
 	</li>

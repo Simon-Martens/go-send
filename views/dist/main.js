@@ -3,7 +3,7 @@ import {
 } from "./chunks/chunk-ATYDBTFA.js";
 import {
   tooltip
-} from "./chunks/chunk-7GBDGWUL.js";
+} from "./chunks/chunk-5GRZTTPD.js";
 import {
   APP_VERSION,
   Keychain,
@@ -3010,7 +3010,7 @@ async function initUploadRoute(app) {
   await Promise.all([
     import("./chunks/upload-layout-DFS3ROWS.js"),
     import("./chunks/upload-area-MOZOQFJO.js"),
-    import("./chunks/upload-right-QTKB2GKQ.js"),
+    import("./chunks/upload-right-M23VWDD6.js"),
     app.controller.ready
   ]);
   app.showUploadLayout();

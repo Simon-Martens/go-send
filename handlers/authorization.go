@@ -61,10 +61,7 @@ func CheckRecipientAuthorization(app *core.App, r *http.Request, fileID string, 
 func Render403Page(app *core.App, w http.ResponseWriter, r *http.Request, downloadPath string) {
 	redirectURL := url.QueryEscape(downloadPath)
 
-	locale := app.Config.CustomLocale
-	if locale == "" {
-		locale = "en"
-	}
+	locale := getLocaleFromRequest(r, app.Config.CustomLocale)
 
 	// Generate nonce for CSP
 	nonce, err := utils.GenerateNonce()

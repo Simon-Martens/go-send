@@ -387,7 +387,10 @@ loginErrorGeneric = Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.
 fileTileFrom = VON
 fileTileTo = AN
 fileTileGuest = Gast
+fileTilePwdProtectedNotice = Datei ist passwortgeschützt
 fileTileRecipientNotice = Der Empfänger meldet sich zum Download der Datei an
+fileTileSharableNotice = Teilen Sie diesen Link und das Passwort über zwei verschiedene Kanäle (z. B. E-Mail, verschlüsselter Messenger)
+fileTileUnshareableNotice = Der Link ist vertraulich. Es ist nicht ratsam, den Link über unverschlüsselte Kanäle zu teilen (z. B. E-Mail)
 
 footerLinkCli = CLI
 footerLinkDmca = DMCA

@@ -390,7 +390,10 @@ loginErrorGeneric = Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.
 fileTileFrom = VON
 fileTileTo = AN
 fileTileGuest = Gast
+fileTilePwdProtectedNotice = Datei ist passwortgesch\xFCtzt
 fileTileRecipientNotice = Der Empf\xE4nger meldet sich zum Download der Datei an
+fileTileSharableNotice = Teilen Sie diesen Link und das Passwort \xFCber zwei verschiedene Kan\xE4le (z. B. E-Mail, verschl\xFCsselter Messenger)
+fileTileUnshareableNotice = Der Link ist vertraulich. Es ist nicht ratsam, den Link \xFCber unverschl\xFCsselte Kan\xE4le zu teilen (z. B. E-Mail)
 
 footerLinkCli = CLI
 footerLinkDmca = DMCA
@@ -402,4 +405,4 @@ footerUntrustedWarning = Diesem Ger\xE4t wird nicht vertraut. Denken Sie daran, 
 export {
   de_default as default
 };
-//# sourceMappingURL=de-YDZH6R6C.js.map
+//# sourceMappingURL=de-SO2K4AV6.js.map

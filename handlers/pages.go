@@ -20,10 +20,7 @@ func IndexHandler(app *core.App) http.HandlerFunc {
 			return
 		}
 
-		locale := app.Config.CustomLocale
-		if locale == "" {
-			locale = "en"
-		}
+		locale := getLocaleFromRequest(r, app.Config.CustomLocale)
 
 		// Check if this is a download page request
 		isDownloadPage := strings.HasPrefix(r.URL.Path, "/download/")

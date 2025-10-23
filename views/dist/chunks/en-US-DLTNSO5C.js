@@ -389,9 +389,12 @@ loginErrorGeneric = Login failed. Please try again.
 fileTileFrom = FROM
 fileTileTo = TO
 fileTileGuest = Guest
+fileTilePwdProtectedNotice = File is password protected
 fileTileRecipientNotice = The recipient must login to download this file
+fileTileSharableNotice = Share this link and the password over two different channels (eg. eMail, encrypted Messenger)
+fileTileUnshareableNotice = The link is confidential. It is inadvisable to share the link over an unencrypted channel (eg. eMail)
 `;
 export {
   en_US_default as default
 };
-//# sourceMappingURL=en-US-N7S6AT2C.js.map
+//# sourceMappingURL=en-US-DLTNSO5C.js.map

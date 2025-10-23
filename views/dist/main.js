@@ -2,6 +2,9 @@ import {
   syncOwnedFiles
 } from "./chunks/chunk-ATYDBTFA.js";
 import {
+  tooltip
+} from "./chunks/chunk-7GBDGWUL.js";
+import {
   APP_VERSION,
   Keychain,
   OWNER_SECRET_VERSION,
@@ -1822,12 +1825,12 @@ var localeLoaders = {
   cs: () => import("./chunks/cs-4CHTXZSU.js"),
   cy: () => import("./chunks/cy-RP2L2OUK.js"),
   da: () => import("./chunks/da-DPZF5LGO.js"),
-  de: () => import("./chunks/de-YDZH6R6C.js"),
+  de: () => import("./chunks/de-SO2K4AV6.js"),
   dsb: () => import("./chunks/dsb-L7O73QFV.js"),
   el: () => import("./chunks/el-4RABOQBG.js"),
   "en-CA": () => import("./chunks/en-CA-DJ4OOLA4.js"),
   "en-GB": () => import("./chunks/en-GB-D7G7RTNJ.js"),
-  "en-US": () => import("./chunks/en-US-N7S6AT2C.js"),
+  "en-US": () => import("./chunks/en-US-DLTNSO5C.js"),
   "es-AR": () => import("./chunks/es-AR-6PZGYKH3.js"),
   "es-CL": () => import("./chunks/es-CL-HE4SPZ7U.js"),
   "es-ES": () => import("./chunks/es-ES-XGWIURD2.js"),
@@ -1836,7 +1839,7 @@ var localeLoaders = {
   eu: () => import("./chunks/eu-Q6CLLOH3.js"),
   fa: () => import("./chunks/fa-AEOEUDQ4.js"),
   fi: () => import("./chunks/fi-SI2D7DPR.js"),
-  fr: () => import("./chunks/fr-REVADZYQ.js"),
+  fr: () => import("./chunks/fr-BTBS67DW.js"),
   "fy-NL": () => import("./chunks/fy-NL-C7AQWS3X.js"),
   gn: () => import("./chunks/gn-6SZWZLYL.js"),
   gor: () => import("./chunks/gor-4LJ2LDF3.js"),
@@ -1896,7 +1899,7 @@ var localeLoaders = {
 };
 async function getTranslator(locale2) {
   const bundles = [];
-  const { default: en } = await import("./chunks/en-US-N7S6AT2C.js");
+  const { default: en } = await import("./chunks/en-US-DLTNSO5C.js");
   if (locale2 !== "en-US" && localeLoaders[locale2]) {
     const { default: ftl } = await localeLoaders[locale2]();
     bundles.push(makeBundle(locale2, ftl));
@@ -2819,8 +2822,19 @@ var AppFooter = class extends HTMLElement {
       this._frame = null;
       if (!this.isConnected) return;
       translateElement(this);
-      this.setupFooter();
+      this._waitForTranslateAndSetup();
     });
+  }
+  _waitForTranslateAndSetup() {
+    if (window.translate && typeof window.translate === "function") {
+      this.setupFooter();
+    } else {
+      setTimeout(() => {
+        if (this.isConnected) {
+          this._waitForTranslateAndSetup();
+        }
+      }, 100);
+    }
   }
   disconnectedCallback() {
     if (this._frame !== null) {
@@ -2885,7 +2899,6 @@ var AppFooter = class extends HTMLElement {
     const usernameSpan = this.querySelector('[data-role="username"]');
     const authLink = this.querySelector('[data-role="auth-link"]');
     const authLabel = this.querySelector('[data-role="auth-label"]');
-    const untrustedWarning = this.querySelector('[data-role="untrusted-warning"]');
     const user = storage_default.user;
     const guestCookie = hasGuestToken();
     const rawRole = user == null ? void 0 : user.role;
@@ -2921,28 +2934,26 @@ var AppFooter = class extends HTMLElement {
         const isTrusted = storage_default.getTrustPreference();
         const rawRole2 = user == null ? void 0 : user.role;
         const isGuestRole2 = rawRole2 === USER_ROLES.GUEST || typeof rawRole2 === "string" && rawRole2.trim().toLowerCase() === "guest";
-        if (untrustedWarning) {
+        const securityIcon = this.querySelector('[data-role="security-warning-icon"]');
+        if (securityIcon) {
           if (!isTrusted || hasGuest || isGuestRole2) {
-            const warningText = untrustedWarning.querySelector('[data-role="warning-text"]') || untrustedWarning;
             const guestOnly = hasGuest && !user;
             const key = guestOnly ? "uploadGuestBannerMessageGuest" : "uploadGuestBannerMessageEphemeral";
-            warningText.id = key;
-            const baseClasses = "absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 text-xs rounded-lg whitespace-nowrap shadow-lg";
-            const pointer = untrustedWarning.querySelector('[data-role="warning-pointer"]');
-            if (guestOnly) {
-              untrustedWarning.className = `${baseClasses} bg-primary text-white border border-primary`;
-              if (pointer) {
-                pointer.className = "absolute top-full left-1/2 -translate-x-1/2 -mt-px border-8 border-transparent border-t-primary";
-              }
-            } else {
-              untrustedWarning.className = `${baseClasses} bg-orange-500 text-white border border-orange-500`;
-              if (pointer) {
-                pointer.className = "absolute top-full left-1/2 -translate-x-1/2 -mt-px border-8 border-transparent border-t-orange-500";
-              }
+            const tooltipText = this._translateText(
+              key,
+              guestOnly ? "Remember to logout on untrusted devices!" : "This computer isn't trusted! Remember to sign out!"
+            );
+            const existingTooltip = securityIcon.querySelector('[data-role="tooltip"]');
+            if (existingTooltip) {
+              existingTooltip.remove();
             }
-            showElement(untrustedWarning);
+            tooltip(securityIcon, tooltipText, {
+              position: "top",
+              default: "open"
+            });
+            showElement(securityIcon);
           } else {
-            hideElement(untrustedWarning);
+            hideElement(securityIcon);
           }
         }
       } else {
@@ -2950,8 +2961,9 @@ var AppFooter = class extends HTMLElement {
         authLabel.id = "footerLinkLogin";
         authLabel.removeAttribute("data-type");
         authLabel.textContent = this._translate("footerLinkLogin", "Sign in");
-        if (untrustedWarning) {
-          hideElement(untrustedWarning);
+        const securityIcon = this.querySelector('[data-role="security-warning-icon"]');
+        if (securityIcon) {
+          hideElement(securityIcon);
         }
       }
       translateElement(this);
@@ -2978,6 +2990,17 @@ var AppFooter = class extends HTMLElement {
     }
     return fallback;
   }
+  _translateText(key, fallback, args = {}) {
+    if (window.translate && typeof window.translate === "function") {
+      try {
+        const result = window.translate(key);
+        if (result && result !== key) return result;
+      } catch (e) {
+        console.warn("[AppFooter] Error with window.translate:", key, e);
+      }
+    }
+    return fallback;
+  }
 };
 customElements.define("app-footer", AppFooter);
 
@@ -2987,7 +3010,7 @@ async function initUploadRoute(app) {
   await Promise.all([
     import("./chunks/upload-layout-DFS3ROWS.js"),
     import("./chunks/upload-area-MOZOQFJO.js"),
-    import("./chunks/upload-right-7PKXLQ3O.js"),
+    import("./chunks/upload-right-QTKB2GKQ.js"),
     app.controller.ready
   ]);
   app.showUploadLayout();

@@ -1,6 +1,7 @@
 import { translateElement, hasGuestToken, getGuestLabel } from "../utils.mjs";
 import storage from "../storage.mjs";
 import { USER_ROLES } from "../userSecrets.mjs";
+import { tooltip } from "../tooltip.mjs";
 
 function showElement(el) {
   if (el) {
@@ -58,8 +59,24 @@ class AppFooter extends HTMLElement {
       if (!this.isConnected) return;
 
       translateElement(this);
-      this.setupFooter();
+
+      // Wait for translate to be available before setting up footer
+      this._waitForTranslateAndSetup();
     });
+  }
+
+  _waitForTranslateAndSetup() {
+    if (window.translate && typeof window.translate === "function") {
+      // Translate is ready, set up footer now
+      this.setupFooter();
+    } else {
+      // Translate not ready yet, wait a bit and try again
+      setTimeout(() => {
+        if (this.isConnected) {
+          this._waitForTranslateAndSetup();
+        }
+      }, 100);
+    }
   }
 
   disconnectedCallback() {
@@ -143,7 +160,6 @@ class AppFooter extends HTMLElement {
     const usernameSpan = this.querySelector('[data-role="username"]');
     const authLink = this.querySelector('[data-role="auth-link"]');
     const authLabel = this.querySelector('[data-role="auth-label"]');
-    const untrustedWarning = this.querySelector('[data-role="untrusted-warning"]');
     const user = storage.user;
     const guestCookie = hasGuestToken();
     const rawRole = user?.role;
@@ -188,45 +204,43 @@ class AppFooter extends HTMLElement {
           this._boundHandlers.handleLogoutClick,
         );
 
-        // Show untrusted warning if computer is not trusted
+        // Show security warning tooltip if computer is not trusted or guest access
         const isTrusted = storage.getTrustPreference();
         const rawRole = user?.role;
         const isGuestRole =
           rawRole === USER_ROLES.GUEST ||
           (typeof rawRole === "string" &&
             rawRole.trim().toLowerCase() === "guest");
-        if (untrustedWarning) {
+
+        const securityIcon = this.querySelector('[data-role="security-warning-icon"]');
+        if (securityIcon) {
           if (!isTrusted || hasGuest || isGuestRole) {
-            const warningText =
-              untrustedWarning.querySelector('[data-role="warning-text"]') ||
-              untrustedWarning;
             const guestOnly = hasGuest && !user;
             const key = guestOnly
               ? "uploadGuestBannerMessageGuest"
               : "uploadGuestBannerMessageEphemeral";
 
-            // Update the id attribute to match the translation key
-            warningText.id = key;
+            const tooltipText = this._translateText(key,
+              guestOnly
+                ? "Remember to logout on untrusted devices!"
+                : "This computer isn't trusted! Remember to sign out!"
+            );
 
-            const baseClasses =
-              "absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 text-xs rounded-lg whitespace-nowrap shadow-lg";
-            const pointer =
-              untrustedWarning.querySelector("[data-role=\"warning-pointer\"]");
-            if (guestOnly) {
-              untrustedWarning.className = `${baseClasses} bg-primary text-white border border-primary`;
-              if (pointer) {
-                pointer.className = "absolute top-full left-1/2 -translate-x-1/2 -mt-px border-8 border-transparent border-t-primary";
-              }
-            } else {
-              untrustedWarning.className = `${baseClasses} bg-orange-500 text-white border border-orange-500`;
-              if (pointer) {
-                pointer.className = "absolute top-full left-1/2 -translate-x-1/2 -mt-px border-8 border-transparent border-t-orange-500";
-              }
+            // Remove any existing tooltip before adding a new one
+            const existingTooltip = securityIcon.querySelector('[data-role="tooltip"]');
+            if (existingTooltip) {
+              existingTooltip.remove();
             }
 
-            showElement(untrustedWarning);
+            // Add tooltip that stays open
+            tooltip(securityIcon, tooltipText, {
+              position: "top",
+              default: "open",
+            });
+
+            showElement(securityIcon);
           } else {
-            hideElement(untrustedWarning);
+            hideElement(securityIcon);
           }
         }
       } else {
@@ -236,9 +250,10 @@ class AppFooter extends HTMLElement {
         authLabel.removeAttribute("data-type");
         authLabel.textContent = this._translate("footerLinkLogin", "Sign in");
 
-        // Hide untrusted warning when not logged in
-        if (untrustedWarning) {
-          hideElement(untrustedWarning);
+        // Hide security warning icon when not logged in
+        const securityIcon = this.querySelector('[data-role="security-warning-icon"]');
+        if (securityIcon) {
+          hideElement(securityIcon);
         }
       }
 
@@ -270,6 +285,20 @@ class AppFooter extends HTMLElement {
         console.warn("[AppFooter] Missing translation for", key, err);
       }
     }
+    return fallback;
+  }
+
+  _translateText(key, fallback, args = {}) {
+    // Use global translate function
+    if (window.translate && typeof window.translate === "function") {
+      try {
+        const result = window.translate(key);
+        if (result && result !== key) return result;
+      } catch (e) {
+        console.warn("[AppFooter] Error with window.translate:", key, e);
+      }
+    }
+
     return fallback;
   }
 }

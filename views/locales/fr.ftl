@@ -387,7 +387,10 @@ loginErrorGeneric = Échec de la connexion. Veuillez réessayer.
 fileTileFrom = DE
 fileTileTo = À
 fileTileGuest = Invité
+fileTilePwdProtectedNotice = Le fichier est protégé par mot de passe
 fileTileRecipientNotice = Le destinataire doit se connecter pour télécharger ce fichier
+fileTileSharableNotice = Partagez ce lien et le mot de passe via deux canaux différents (par exemple, e-mail, messagerie chiffrée)
+fileTileUnshareableNotice = Le lien est secret. Il est déconseillé de partager le lien via un canal non chiffré (par exemple, e-mail)
 
 footerLinkCli = CLI
 footerLinkDmca = DMCA

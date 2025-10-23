@@ -5,14 +5,14 @@
 		<div class="flex items-start w-full mb-2">
 			<i class="ri-file-line h-8 w-8 flex-shrink-0 text-primary text-3xl leading-8" data-role="file-icon"></i>
 			<div class="ml-4 flex-grow min-w-0">
-				<h3 class="text-base font-medium break-words" data-role="file-name"></h3>
-				<div class="text-sm opacity-75 pt-1" data-role="file-size"></div>
+				<h3 class="text-base font-medium break-words font-bold" data-role="file-name"></h3>
+				<div class="text-sm opacity-75" data-role="file-size"></div>
 				<!-- Owner/Recipient information -->
 				<div class="text-xs uppercase font-semibold tracking-wide mt-2 flex flex-wrap gap-2" data-role="file-ownership"></div>
 			</div>
 			<button
 				type="button"
-				class="flex-shrink-0 ml-2 p-1 hover:text-red-500 focus:outline cursor-pointer"
+				class="flex-shrink-0 ml-6 hover:text-red-500 focus:outline cursor-pointer"
 				data-action="delete"
 				data-type="lang"
 				title="Delete"
@@ -45,17 +45,52 @@
 				<i class="ri-download-2-line h-4 w-4 mr-2 text-base leading-4"></i>
 				<span id="downloadButtonLabel" data-type="lang">Download</span>
 			</a>
+			<div class="flex flex-row gap-x-2">
+			<div class="hidden" data-role="file-is-pwd-protected">
+				<i class="ri-key-2-line fill text-lg text-orange-500 leading-4"></i>
+			</div>
+			<div class="hidden" data-role="file-is-unshareable">
+				<svg class="text-orange-500 align-middle relative top-[2.8px]" fill="currentColor" height="16" viewBox="0 0 20 20" width="16">
+					<path
+						id="path51"
+						d="M 7.8027344,18.41426 6.6523438,20.146682 C 7.699058,20.518482 8.825764,20.720901 10,20.720901 c 2.0523,0 3.959475,-0.617334 5.546875,-1.677734 L 14.4375,17.377151 c -1.27,0.8483 -2.7957,1.34375 -4.4375,1.34375 -0.762186,0 -1.498962,-0.107559 -2.1972656,-0.306641 z" />
+					<path
+						id="path46"
+						d="m 11.044922,13.533401 -1.44336,2.171875 c 0.131214,0.01033 0.264571,0.01563 0.398438,0.01563 1.4158,0 2.693916,-0.587603 3.603516,-1.533203 0.6298,0.9259 1.692284,1.533203 2.896484,1.533203 1.933,0 3.5,-1.567 3.5,-3.5 v -1.5 C 20,8.1250479 19.010546,5.7601319 17.388672,3.9826198 L 16.240234,5.7130885 C 17.341745,7.0838318 18,8.825567 18,10.720901 v 1.5 c 0,0.8284 -0.6716,1.5 -1.5,1.5 -0.8284,0 -1.5,-0.6716 -1.5,-1.5 V 7.5783229 l -2.001953,3.0156251 c 0.0017,0.04203 0.002,0.08449 0.002,0.126953 0,1.28956 -0.813186,2.38837 -1.955078,2.8125 z" />
+					<path
+						id="path42"
+						d="M 11.046875,5.830276 C 10.709403,5.7584116 10.3589,5.720901 10,5.720901 c -2.76142,0 -5,2.23858 -5,5 0,1.063738 0.3321397,2.050829 0.8984375,2.861328 L 7.1582031,11.683792 C 7.0556473,11.381292 7,11.05806 7,10.720901 7,9.135984 8.228179,7.8384858 9.785156,7.7287135 Z" />
+					<path
+						id="path40"
+						d="M 13.912109,1.5158229 C 12.710347,1.0043928 11.388465,0.720901 10,0.720901 c -5.52285,0 -10,4.47715 -10,10 0,2.814161 1.1622575,5.356646 3.0332031,7.173828 L 4.1640625,16.193557 C 2.822003,14.762753 2,12.837419 2,10.720901 c 0,-4.41828 3.58172,-8 8,-8 0.978211,0 1.914847,0.174749 2.78125,0.4960938 z" />
+					<path
+						style=""
+						d="M 16.179315,0 2.668994,20.339211 4.4924162,21.500933 18.002737,1.1617235 Z"
+						id="path38" />
+				</svg>
+			</div>
+
+			<div class="hidden" data-role="file-is-secure">
+				<i class="ri-shield-keyhole-line text-lg text-orange-500 leading-4"></i>
+			</div>
+			<div class="hidden" data-role="file-is-sharable">
+				<i class="ri-at-line text-lg text-orange-500 leading-4"></i>
+				<span class="text-lg text-orange-500 leading-4 inline-block -ml-1.5 font-serif" data-role="file-is-sharable">!</span>
+			</div>
 			<button
 				type="button"
 				class="link-primary text-sm flex items-center focus:outline cursor-pointer"
 				data-action="copy"
 			>
-				<i class="ri-file-copy-line h-4 w-4 mr-2 text-base leading-4" data-role="copy-icon"></i>
+				<i class="ri-file-copy-line h-4 w-4 mr-2 ml-2 text-base leading-4" data-role="copy-icon"></i>
 				<span id="copyLinkButton" data-type="lang">Copy link</span>
 			</button>
+			<!-- 
 			<div class="hidden text-sm opacity-75 italic" data-role="recipient-notice">
 				<span id="fileTileRecipientNotice" data-type="lang">The recipient must login to download this file</span>
 			</div>
+			-->
+		</div>
 		</div>
 	</li>
 </template>

@@ -1,4 +1,7 @@
 import {
+  tooltip
+} from "./chunk-7GBDGWUL.js";
+import {
   storage_default
 } from "./chunk-3WTCPM2E.js";
 import "./chunk-WXWAAH3Q.js";
@@ -159,12 +162,76 @@ var UploadRightElement = class extends HTMLElement {
         copyBtn.classList.add("hidden");
       }
       if (recipientNotice) {
-        recipientNotice.classList.remove("hidden");
+        recipientNotice.classList.add("hidden");
       }
     } else {
       if (recipientNotice) {
         recipientNotice.classList.add("hidden");
       }
+    }
+    console.log(ownedFile);
+    if (ownedFile.recipients && ownedFile.recipients.length > 0) {
+      const secure_notice = item.querySelector('[data-role="file-is-secure"]');
+      if (secure_notice) {
+        secure_notice.classList.remove("hidden");
+        const tooltipText = this._translateText(
+          "fileTileRecipientNotice",
+          "The recipient must login to download this file"
+        );
+        tooltip(secure_notice, tooltipText, {
+          position: "top",
+          default: "closed"
+        });
+      }
+    } else {
+      console.log("No recipients");
+      if (ownedFile._hasPassword) {
+        console.log("Has password");
+        const sharable_notice = item.querySelector(
+          '[data-role="file-is-sharable"]'
+        );
+        if (sharable_notice) {
+          sharable_notice.classList.remove("hidden");
+          const tooltipText = this._translateText(
+            "fileTileSharableNotice",
+            "Share this link and the password over two different channels (eg. eMail, encrypted Messenger)"
+          );
+          tooltip(sharable_notice, tooltipText, {
+            position: "top",
+            default: "closed"
+          });
+        }
+      } else {
+        console.log("Has no password");
+        const unshareable_notice = item.querySelector(
+          '[data-role="file-is-unshareable"]'
+        );
+        if (unshareable_notice) {
+          unshareable_notice.classList.remove("hidden");
+          const tooltipText = this._translateText(
+            "fileTileUnshareableNotice",
+            "The link is secret. It is inadvisable to share the link over any unencrypted channel (eg. eMail)"
+          );
+          tooltip(unshareable_notice, tooltipText, {
+            position: "top",
+            default: "closed"
+          });
+        }
+      }
+    }
+    const passwort_hint = item.querySelector(
+      '[data-role="file-is-pwd-protected"]'
+    );
+    if (passwort_hint && ownedFile.hasPassword) {
+      passwort_hint.classList.remove("hidden");
+      const tooltipText = this._translateText(
+        "fileTilePwdProtectedNotice",
+        "File is password protected"
+      );
+      tooltip(passwort_hint, tooltipText, {
+        position: "top",
+        default: "closed"
+      });
     }
     this.elements.uploadList.prepend(li);
     requestAnimationFrame(() => {
@@ -299,7 +366,11 @@ var UploadRightElement = class extends HTMLElement {
     const date = new Date(timestamp);
     const now = /* @__PURE__ */ new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const uploadDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const uploadDate = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate()
+    );
     const locale = document.documentElement.lang || navigator.language || "en";
     if (uploadDate.getTime() === today.getTime()) {
       return new Intl.DateTimeFormat(locale, {
@@ -347,7 +418,9 @@ var UploadRightElement = class extends HTMLElement {
       const isCurrentUser = currentUserName && ownedFile.ownerString.toLowerCase() === currentUserName.toLowerCase();
       if (!isCurrentUser) {
         const fromLabel = this._translateText("fileTileFrom", "FROM");
-        parts.push(`<span class="inline-flex items-center px-2 py-1 rounded bg-primary/10 dark:bg-primary/20 text-primary text-xs">${fromLabel}: ${ownedFile.ownerString}</span>`);
+        parts.push(
+          `<span class="inline-flex items-center px-2 py-1 rounded bg-primary/10 dark:bg-primary/20 text-primary text-xs">${fromLabel}: ${ownedFile.ownerString}</span>`
+        );
       }
     } else if (ownedFile.authString) {
       const fromLabel = this._translateText("fileTileFrom", "FROM");
@@ -364,7 +437,9 @@ var UploadRightElement = class extends HTMLElement {
       });
       otherRecipients.forEach((recipient) => {
         const recipientName = recipient.userName || recipient.userEmail || `User ${recipient.userId}`;
-        parts.push(`<span class="inline-flex items-center px-2 py-1 rounded bg-secondary/10 dark:bg-secondary/20 text-secondary text-xs">${toLabel}: ${recipientName}</span>`);
+        parts.push(
+          `<span class="inline-flex items-center px-2 py-1 rounded bg-secondary/10 dark:bg-secondary/20 text-secondary text-xs">${toLabel}: ${recipientName}</span>`
+        );
       });
     }
     return parts.join("");
@@ -414,4 +489,4 @@ var UploadRightElement = class extends HTMLElement {
   }
 };
 customElements.define("upload-right", UploadRightElement);
-//# sourceMappingURL=upload-right-7PKXLQ3O.js.map
+//# sourceMappingURL=upload-right-QTKB2GKQ.js.map

@@ -390,7 +390,10 @@ loginErrorGeneric = \xC9chec de la connexion. Veuillez r\xE9essayer.
 fileTileFrom = DE
 fileTileTo = \xC0
 fileTileGuest = Invit\xE9
+fileTilePwdProtectedNotice = Le fichier est prot\xE9g\xE9 par mot de passe
 fileTileRecipientNotice = Le destinataire doit se connecter pour t\xE9l\xE9charger ce fichier
+fileTileSharableNotice = Partagez ce lien et le mot de passe via deux canaux diff\xE9rents (par exemple, e-mail, messagerie chiffr\xE9e)
+fileTileUnshareableNotice = Le lien est secret. Il est d\xE9conseill\xE9 de partager le lien via un canal non chiffr\xE9 (par exemple, e-mail)
 
 footerLinkCli = CLI
 footerLinkDmca = DMCA
@@ -402,4 +405,4 @@ footerUntrustedWarning = Cet ordinateur n'est pas s\xFBr ! Pensez \xE0 vous d\xE
 export {
   fr_default as default
 };
-//# sourceMappingURL=fr-REVADZYQ.js.map
+//# sourceMappingURL=fr-BTBS67DW.js.map

@@ -5,6 +5,7 @@ import {
   copyToClipboard,
 } from "../utils.mjs";
 import storage from "../storage.mjs";
+import { tooltip } from "../tooltip.mjs";
 
 /**
  * <upload-right> - Right column component
@@ -165,7 +166,8 @@ class UploadRightElement extends HTMLElement {
     if (iconEl && ownedFile.name) {
       const fileName = ownedFile.name.toLowerCase();
       if (fileName.endsWith(".zip")) {
-        iconEl.className = "ri-folder-6-line h-8 w-8 flex-shrink-0 text-primary text-3xl leading-8";
+        iconEl.className =
+          "ri-folder-6-line h-8 w-8 flex-shrink-0 text-primary text-3xl leading-8";
       }
     }
 
@@ -209,21 +211,95 @@ class UploadRightElement extends HTMLElement {
       );
     }
 
-    // Hide copy button and show recipient notice for files with recipients
+    // Hide copy button for files with recipients and hide recipient notice (now a tooltip)
     const recipientNotice = item.querySelector('[data-role="recipient-notice"]');
     if (ownedFile.recipients && ownedFile.recipients.length > 0) {
-      // File has recipients - hide copy button, show notice
+      // File has recipients - hide copy button
       if (copyBtn) {
         copyBtn.classList.add("hidden");
       }
-      if (recipientNotice) {
-        recipientNotice.classList.remove("hidden");
-      }
-    } else {
-      // No recipients - keep copy button visible (default behavior)
+      // Hide recipient notice div (now displayed as tooltip)
       if (recipientNotice) {
         recipientNotice.classList.add("hidden");
       }
+    } else {
+      // No recipients - keep copy button visible, hide notice
+      if (recipientNotice) {
+        recipientNotice.classList.add("hidden");
+      }
+    }
+
+    console.log(ownedFile);
+
+    // Create Sharing Hints
+    if (ownedFile.recipients && ownedFile.recipients.length > 0) {
+      const secure_notice = item.querySelector('[data-role="file-is-secure"]');
+      if (secure_notice) {
+        secure_notice.classList.remove("hidden");
+        // Add tooltip with recipient login message
+        const tooltipText = this._translateText(
+          "fileTileRecipientNotice",
+          "The recipient must login to download this file"
+        );
+        tooltip(secure_notice, tooltipText, {
+          position: "top",
+          default: "closed",
+        });
+      }
+    } else {
+      console.log("No recipients");
+      if (ownedFile._hasPassword) {
+        console.log("Has password");
+        const sharable_notice = item.querySelector(
+          '[data-role="file-is-sharable"]',
+        );
+        if (sharable_notice) {
+          sharable_notice.classList.remove("hidden");
+          // Add tooltip for password sharing recommendation
+          const tooltipText = this._translateText(
+            "fileTileSharableNotice",
+            "Share this link and the password over two different channels (eg. eMail, encrypted Messenger)"
+          );
+          tooltip(sharable_notice, tooltipText, {
+            position: "top",
+            default: "closed",
+          });
+        }
+      } else {
+        console.log("Has no password");
+        const unshareable_notice = item.querySelector(
+          '[data-role="file-is-unshareable"]',
+        );
+        if (unshareable_notice) {
+          unshareable_notice.classList.remove("hidden");
+          // Add tooltip for secret link warning
+          const tooltipText = this._translateText(
+            "fileTileUnshareableNotice",
+            "The link is secret. It is inadvisable to share the link over any unencrypted channel (eg. eMail)"
+          );
+          tooltip(unshareable_notice, tooltipText, {
+            position: "top",
+            default: "closed",
+          });
+        }
+      }
+    }
+
+    // Create Password Hints
+    const passwort_hint = item.querySelector(
+      '[data-role="file-is-pwd-protected"]',
+    );
+    if (passwort_hint && ownedFile.hasPassword) {
+      passwort_hint.classList.remove("hidden");
+      // Add tooltip for password protected indicator
+      const tooltipText = this._translateText(
+        "fileTilePwdProtectedNotice",
+        "File is password protected"
+      );
+      tooltip(passwort_hint, tooltipText, {
+        position: "top",
+        default: "closed",
+      });
     }
 
     // Prepend to list (newest first)
@@ -365,7 +441,8 @@ class UploadRightElement extends HTMLElement {
       if (iconEl && f.name) {
         const fileName = f.name.toLowerCase();
         if (fileName.endsWith(".zip")) {
-          iconEl.className = "ri-folder-6-line h-6 w-6 text-primary flex-shrink-0 text-2xl leading-6";
+          iconEl.className =
+            "ri-folder-6-line h-6 w-6 text-primary flex-shrink-0 text-2xl leading-6";
         }
       }
 
@@ -399,7 +476,11 @@ class UploadRightElement extends HTMLElement {
     const date = new Date(timestamp);
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const uploadDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const uploadDate = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+    );
 
     // Get user's locale from document or default to browser locale
     const locale = document.documentElement.lang || navigator.language || "en";
@@ -464,12 +545,15 @@ class UploadRightElement extends HTMLElement {
 
     // Show FROM if we have owner information and it's not the current user
     if (ownedFile.ownerString) {
-      const isCurrentUser = currentUserName &&
+      const isCurrentUser =
+        currentUserName &&
         ownedFile.ownerString.toLowerCase() === currentUserName.toLowerCase();
 
       if (!isCurrentUser) {
         const fromLabel = this._translateText("fileTileFrom", "FROM");
-        parts.push(`<span class="inline-flex items-center px-2 py-1 rounded bg-primary/10 dark:bg-primary/20 text-primary text-xs">${fromLabel}: ${ownedFile.ownerString}</span>`);
+        parts.push(
+          `<span class="inline-flex items-center px-2 py-1 rounded bg-primary/10 dark:bg-primary/20 text-primary text-xs">${fromLabel}: ${ownedFile.ownerString}</span>`,
+        );
       }
     } else if (ownedFile.authString) {
       // Guest upload via auth link
@@ -477,28 +561,36 @@ class UploadRightElement extends HTMLElement {
       const guestLabel = this._translateText("fileTileGuest", "Guest");
       parts.push(
         `<span class="inline-flex items-center px-2 py-1 rounded bg-primary/10 dark:bg-primary/20 text-primary text-xs">${fromLabel}: ${ownedFile.authString}</span>` +
-        `<span class="inline-flex items-center px-2 py-1 rounded bg-grey-20 dark:bg-grey-80 text-xs normal-case">${guestLabel}</span>`
+          `<span class="inline-flex items-center px-2 py-1 rounded bg-grey-20 dark:bg-grey-80 text-xs normal-case">${guestLabel}</span>`,
       );
     }
 
     // Show TO if recipients exist (filter out current user)
-    if (Array.isArray(ownedFile.recipients) && ownedFile.recipients.length > 0) {
+    if (
+      Array.isArray(ownedFile.recipients) &&
+      ownedFile.recipients.length > 0
+    ) {
       const toLabel = this._translateText("fileTileTo", "TO");
 
       // Filter out current user from recipients
-      const otherRecipients = ownedFile.recipients.filter(r => {
+      const otherRecipients = ownedFile.recipients.filter((r) => {
         if (!currentUserName || !r.userName) return true;
         return r.userName.toLowerCase() !== currentUserName.toLowerCase();
       });
 
       // Display each recipient
-      otherRecipients.forEach(recipient => {
-        const recipientName = recipient.userName || recipient.userEmail || `User ${recipient.userId}`;
-        parts.push(`<span class="inline-flex items-center px-2 py-1 rounded bg-secondary/10 dark:bg-secondary/20 text-secondary text-xs">${toLabel}: ${recipientName}</span>`);
+      otherRecipients.forEach((recipient) => {
+        const recipientName =
+          recipient.userName ||
+          recipient.userEmail ||
+          `User ${recipient.userId}`;
+        parts.push(
+          `<span class="inline-flex items-center px-2 py-1 rounded bg-secondary/10 dark:bg-secondary/20 text-secondary text-xs">${toLabel}: ${recipientName}</span>`,
+        );
       });
     }
 
-    return parts.join('');
+    return parts.join("");
   }
 
   /**

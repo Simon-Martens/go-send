@@ -53,13 +53,14 @@ func NewClaimHandler(app *core.App) http.HandlerFunc {
 		}
 
 		// Route based on token type
+		baseURL := resolveBaseURL(app, r)
 		switch token.Type {
 		case storage.TokenTypeAdminSignup:
-			redirectURL := fmt.Sprintf("/register/admin/%s", rawToken)
+			redirectURL := fmt.Sprintf("%s/register/admin/%s", baseURL, rawToken)
 			app.DBLogger.LogRequest(r, http.StatusFound, nil, "", "token_type", token.Type.String(), "redirect", redirectURL)
 			http.Redirect(w, r, redirectURL, http.StatusFound)
 		case storage.TokenTypeUserSignup:
-			redirectURL := fmt.Sprintf("/register/user/%s", rawToken)
+			redirectURL := fmt.Sprintf("%s/register/user/%s", baseURL, rawToken)
 			app.DBLogger.LogRequest(r, http.StatusFound, nil, "", "token_type", token.Type.String(), "redirect", redirectURL)
 			http.Redirect(w, r, redirectURL, http.StatusFound)
 		case storage.TokenTypeGeneralGuestUpload:
@@ -74,6 +75,8 @@ func NewClaimHandler(app *core.App) http.HandlerFunc {
 }
 
 func handleGuestUploadClaim(app *core.App, w http.ResponseWriter, r *http.Request, token *storage.AuthToken, rawToken string) {
+	baseURL := resolveBaseURL(app, r)
+
 	// Check if user is already logged in with a valid session
 	session, err := app.GetAuthenticatedSession(r)
 	if err != nil {
@@ -93,7 +96,7 @@ func handleGuestUploadClaim(app *core.App, w http.ResponseWriter, r *http.Reques
 			"session_id", session.ID,
 			"auth_token_id", token.ID,
 		)
-		http.Redirect(w, r, "/", http.StatusFound)
+		http.Redirect(w, r, baseURL+"/", http.StatusFound)
 		return
 	}
 
@@ -186,7 +189,7 @@ func handleGuestUploadClaim(app *core.App, w http.ResponseWriter, r *http.Reques
 		"label", label,
 	)
 
-	http.Redirect(w, r, "/", http.StatusFound)
+	http.Redirect(w, r, baseURL+"/", http.StatusFound)
 }
 
 // NewRegisterPageHandler creates a handler for showing registration pages

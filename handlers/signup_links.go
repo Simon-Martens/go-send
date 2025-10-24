@@ -215,17 +215,3 @@ func countActiveTokens(db *storage.DB, tokenType storage.AuthTokenType) (int, er
 	}
 	return count, nil
 }
-
-func resolveBaseURL(app *core.App, r *http.Request) string {
-	base := app.Config.BaseURL
-	if base == "" && app.Config.DetectBaseURL {
-		scheme := "http"
-		if isSecureRequest(r) {
-			scheme = "https"
-		}
-		base = scheme + "://" + r.Host
-	} else if base == "" {
-		base = "http://localhost:" + app.Config.Port
-	}
-	return strings.TrimRight(base, "/")
-}

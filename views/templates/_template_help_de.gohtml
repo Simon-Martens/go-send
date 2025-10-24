@@ -20,12 +20,12 @@
 			<h1>Frequently Asked Questions</h1>
 			<div class="question">
 				<h2>Was bedeutet »Ende-zu-Ende verschlüsselt«?</h2>
-				<p>Im Kontext von Go Send bedeutet Ende-zu-Ende verschlüsselt, dass ausschließlich Absender und Empfänger einer Datei über die kryptogaphischen Schlüssel verfügen, die zur Entschlüsselung von Dateiinhalten und Metadaten erforderlich sind. Der Schlüssel wird niemals über die Applikation selbst übertragen; stattdessen erflogt die Übermittlung an den Empfänger über Links und, optional, zusätzlich über das Passwort. Diese Architektur garantiert, dass keine zwischengeschaltete Patei, weder Internetprovider oder Netzbetreiber, noch Betreiber oder Adminstrator Ihres Servers Ihre Dateien entschlüsseln und lesen kann.</p>
+				<p>Im Kontext von Go Send bedeutet Ende-zu-Ende verschlüsselt, dass ausschließlich Absender und Empfänger einer Datei über die kryptogaphischen Schlüssel verfügen, die zur Entschlüsselung von Dateiinhalten und Metadaten erforderlich sind. Der Schlüssel wird niemals über die Applikation übertragen; stattdessen erflogt die Übermittlung an den Empfänger über Links und, optional, zusätzlich über das Passwort. Diese Architektur garantiert, dass keine zwischengeschaltete Patei, weder Internetprovider oder Netzbetreiber, noch Betreiber oder Adminstrator Ihres Servers Ihre Dateien entschlüsseln und lesen kann.</p>
 			</div>
 			<div class="question">
 				<h2>Warum sollte ich ein Passwort verwenden?</h2>
 				<p>Ein Passwort bietet eine zusätzliche Sicherheit, da die Datei nur mit dem Passwort entschlüsselt werden kann. Wenn Sie ein Passwort für Ihre Dateien verwenden, können Sie den Link einfacher über Klartextprotokolle wie e-Mail teilen ohne das Risko einzugehen, dass ein Dritter die Datei herunterladen kann.</p>
-				<p>Es ist von entscheidender Bedeutung, dass Passwörter und Download-Links über separate Kommunikationskanäle übermittelt werden, um diese Sicherheitsgrenze aufrechtzuerhalten. Empfohlen werden dabei die Kanäle unten, aber auch ein kurzes Telefonat, persönliches Gespräch oder die »Papierpost« reichen in der Regel völlig aus.</p>
+				<p>Es ist von entscheidender Bedeutung, dass Passwörter und Download-Links über separate Kommunikationskanäle übermittelt werden, um diese Sicherheitsgrenze aufrechtzuerhalten. 
 				<p>Wenn Sie Ihre Datei mit einem angemeldeten Benutzer teilen gibt das Passwort, zusätzlich zum Passwort des Benutzers, eine dritte Sicherheit.</p>
 				<p>Hier gilt, wie überall anders auch: Passwortlänge übertrumpft Passwortkomplexität bei Weitem. Um ein prominentes Beispiel aus der Forschung zu zitieren, Passphrasen wie »correct horse battery staple« bieten eine quasi unendlich höhere Sicherheit als komplexe, aber kurze Passwörter wie »aB3!xY9$;«.</p>
 			</div>
@@ -33,7 +33,8 @@
 				<h2>Was ist ein sicherer »Kanal«?</h2>
 				<p>Ein sicherer Kanal ist eine Kommunikationsmethode, die über eine sichere Verbindung mit Ihrem Gegenüber kommuniziert. Die zugä̇nglichsten Kanäle, die ausreichende Verschlüsselung bieten, sind Messenger wie Signal oder Matrix- oder PGP-basierte Dienste. Abhängig vom Bedrohungsmodell und organisatorischen Richtlinien können auch selbstgehostete Dienste mit TLS-Verschlüsselung adäquate Sicherheit bieten.</p>
 				<p>E-Mail ist kein sicherer Kanal. Manche Produkte nutzen ausschießlich TLS-Verschlüsselungen zum Versand von Nachrichten, allerdings müssen Sie Ihrem eMail-Anbieter und dem Ihres Empfängers vertrauen, wenn Sie und Ihr Empfänger ihre eMail-Lösung nicht selber hosten und beide Parteien ihre Systeme auf dem aktuellsten Stand halten.</p>
-				<p>Obwohl manche proprietäre Dienste (wie MS Teams oder Telegram) einen guten Ruf haben, werden sie generell für sensible Kommunikation nicht empfohlen, da Ihre Zuverlässigkeit nur zertifiziert und nicht verifiziert werden kann, also dessen Verwendung vom Vertrauen abhängig ist, dass Sie dem jeweiligen Dienstleister entgegebringen.</p>
+				<p>Obwohl manche proprietäre Dienste (wie MS Teams oder Telegram) einen guten Ruf haben, werden sie generell für sensible Kommunikation nicht empfohlen, da Ihre Zuverlässigkeit nur zertifiziert und nicht verifiziert werden kann. Die Verwendung dieser Services ist also vom Vertrauen abhängig, dass Sie dem jeweiligen Dienstleister entgegebringen.</p>
+				<p>Zum Schluss noch der Hinweis, dass auch herkömlice Kommunikation wie ein kurzes Gespräch oder Telefonat als guter, wenn auch nicht sicherer Kanal gilt.
 			</div>
 			<div class="question">
 				<h2>Warum ist es eine gute Praxis, sich ausloggen?</h2>

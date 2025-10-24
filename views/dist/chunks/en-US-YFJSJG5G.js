@@ -374,6 +374,7 @@ settingsPasswordStatusErrorWrap = Failed to re-encrypt file keys.
 settingsPasswordStatusErrorRequest = Password reset failed.
 settingsPasswordStatusErrorGeneric = Failed to update password.
 settingsPasswordStatusSuccess = Password updated successfully.
+settingsAccountPasswordSecurityWarning = Changing your password will result in the permanent loss of access to your uploaded files. Only proceed with this change if your password has been compromised or if you are certain you no longer require access to your files.
 
 ## Login strings
 
@@ -418,4 +419,4 @@ settingsLogsNext = Next
 export {
   en_US_default as default
 };
-//# sourceMappingURL=en-US-3SSCNO2R.js.map
+//# sourceMappingURL=en-US-YFJSJG5G.js.map

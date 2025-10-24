@@ -374,6 +374,7 @@ settingsPasswordStatusErrorWrap = Datei-Schl\xFCssel konnten nicht erneut versch
 settingsPasswordStatusErrorRequest = Passwort konnte nicht zur\xFCckgesetzt werden.
 settingsPasswordStatusErrorGeneric = Passwort konnte nicht aktualisiert werden.
 settingsPasswordStatusSuccess = Passwort wurde erfolgreich aktualisiert.
+settingsAccountPasswordSecurityWarning = Durch die \xC4nderung Ihres Passworts verlieren Sie unwiderruflich den Zugriff auf Ihre hochgeladenen Dateien. F\xFChren Sie diese \xC4nderung nur durch, wenn Ihr Passwort kompromittiert wurde oder Sie sicher sind, keinen weiteren Zugriff auf Ihre Dateien zu ben\xF6tigen.
 
 ## Login strings
 
@@ -408,4 +409,4 @@ footerUntrustedWarning = Diesem Ger\xE4t wird nicht vertraut. Denken Sie daran, 
 export {
   de_default as default
 };
-//# sourceMappingURL=de-FDYWRSJL.js.map
+//# sourceMappingURL=de-EMR4KXUJ.js.map

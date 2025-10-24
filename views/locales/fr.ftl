@@ -371,6 +371,7 @@ settingsPasswordStatusErrorWrap = Impossible de rechiffrer les clés de fichier.
 settingsPasswordStatusErrorRequest = Échec de la réinitialisation du mot de passe.
 settingsPasswordStatusErrorGeneric = Échec de la mise à jour du mot de passe.
 settingsPasswordStatusSuccess = Mot de passe mis à jour avec succès.
+settingsAccountPasswordSecurityWarning = La modification de votre mot de passe entraînera la perte irréversible de l'accès à vos fichiers téléchargés. Ne procédez à cette modification que si votre mot de passe a été compromis ou si vous êtes certain de ne plus nécessiter l'accès à vos fichiers.
 
 ## Login strings
 

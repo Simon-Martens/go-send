@@ -43,6 +43,7 @@
     --color-orange-600: oklch(64.6% 0.222 41.116);
     --color-orange-700: oklch(55.3% 0.195 38.402);
     --color-orange-800: oklch(47% 0.157 37.304);
+    --color-orange-900: oklch(40.8% 0.123 38.172);
     --color-orange-950: oklch(26.6% 0.079 36.259);
     --color-amber-50: oklch(98.7% 0.022 95.277);
     --color-amber-100: oklch(96.2% 0.059 95.617);
@@ -432,6 +433,9 @@
   }
   .my-4 {
     margin-block: calc(var(--spacing) * 4);
+  }
+  .mt-0\.5 {
+    margin-top: calc(var(--spacing) * 0.5);
   }
   .mt-1 {
     margin-top: calc(var(--spacing) * 1);
@@ -947,6 +951,9 @@
   .border-orange-200 {
     border-color: var(--color-orange-200);
   }
+  .border-orange-400 {
+    border-color: var(--color-orange-400);
+  }
   .border-orange-700 {
     border-color: var(--color-orange-700);
   }
@@ -1051,6 +1058,14 @@
   }
   .bg-orange-50 {
     background-color: var(--color-orange-50);
+  }
+  .bg-orange-50\/80 {
+    background-color: color-mix(in srgb, oklch(98% 0.016 73.684) 80%, transparent);
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .bg-orange-50\/80 {
+      background-color: color-mix(in oklab, var(--color-orange-50) 80%, transparent);
+    }
   }
   .bg-orange-700 {
     background-color: var(--color-orange-700);
@@ -1395,8 +1410,14 @@
   .text-orange-600 {
     color: var(--color-orange-600);
   }
+  .text-orange-700 {
+    color: var(--color-orange-700);
+  }
   .text-orange-800 {
     color: var(--color-orange-800);
+  }
+  .text-orange-900 {
+    color: var(--color-orange-900);
   }
   .text-primary {
     color: var(--color-primary);
@@ -1862,6 +1883,16 @@
     }
   }
   @media (prefers-color-scheme: dark) {
+    .dark\:border-orange-500\/60 {
+      border-color: color-mix(in srgb, oklch(70.5% 0.213 47.604) 60%, transparent);
+    }
+    @supports (color: color-mix(in lab, red, red)) {
+      .dark\:border-orange-500\/60 {
+        border-color: color-mix(in oklab, var(--color-orange-500) 60%, transparent);
+      }
+    }
+  }
+  @media (prefers-color-scheme: dark) {
     .dark\:border-orange-800 {
       border-color: var(--color-orange-800);
     }
@@ -1964,6 +1995,16 @@
   @media (prefers-color-scheme: dark) {
     .dark\:bg-grey-90 {
       background-color: var(--color-grey-90);
+    }
+  }
+  @media (prefers-color-scheme: dark) {
+    .dark\:bg-orange-900\/20 {
+      background-color: color-mix(in srgb, oklch(40.8% 0.123 38.172) 20%, transparent);
+    }
+    @supports (color: color-mix(in lab, red, red)) {
+      .dark\:bg-orange-900\/20 {
+        background-color: color-mix(in oklab, var(--color-orange-900) 20%, transparent);
+      }
     }
   }
   @media (prefers-color-scheme: dark) {

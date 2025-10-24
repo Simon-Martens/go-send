@@ -374,6 +374,7 @@ settingsPasswordStatusErrorWrap = Impossible de rechiffrer les cl\xE9s de fichie
 settingsPasswordStatusErrorRequest = \xC9chec de la r\xE9initialisation du mot de passe.
 settingsPasswordStatusErrorGeneric = \xC9chec de la mise \xE0 jour du mot de passe.
 settingsPasswordStatusSuccess = Mot de passe mis \xE0 jour avec succ\xE8s.
+settingsAccountPasswordSecurityWarning = La modification de votre mot de passe entra\xEEnera la perte irr\xE9versible de l'acc\xE8s \xE0 vos fichiers t\xE9l\xE9charg\xE9s. Ne proc\xE9dez \xE0 cette modification que si votre mot de passe a \xE9t\xE9 compromis ou si vous \xEAtes certain de ne plus n\xE9cessiter l'acc\xE8s \xE0 vos fichiers.
 
 ## Login strings
 
@@ -408,4 +409,4 @@ footerUntrustedWarning = Cet ordinateur n'est pas s\xFBr ! Pensez \xE0 vous d\xE
 export {
   fr_default as default
 };
-//# sourceMappingURL=fr-3EBVXZ7Z.js.map
+//# sourceMappingURL=fr-MOZAQINZ.js.map

@@ -371,6 +371,7 @@ settingsPasswordStatusErrorWrap = Datei-Schlüssel konnten nicht erneut verschl�
 settingsPasswordStatusErrorRequest = Passwort konnte nicht zurückgesetzt werden.
 settingsPasswordStatusErrorGeneric = Passwort konnte nicht aktualisiert werden.
 settingsPasswordStatusSuccess = Passwort wurde erfolgreich aktualisiert.
+settingsAccountPasswordSecurityWarning = Durch die Änderung Ihres Passworts verlieren Sie unwiderruflich den Zugriff auf Ihre hochgeladenen Dateien. Führen Sie diese Änderung nur durch, wenn Ihr Passwort kompromittiert wurde oder Sie sicher sind, keinen weiteren Zugriff auf Ihre Dateien zu benötigen.
 
 ## Login strings
 

@@ -33,7 +33,7 @@ func createUpgrader(baseURL string) websocket.Upgrader {
 
 			// Allow same-origin requests (compare against request Host)
 			scheme := "http"
-			if r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https" {
+			if isSecureRequest(r) {
 				scheme = "https"
 			}
 			expectedOrigin := scheme + "://" + r.Host
@@ -471,7 +471,7 @@ func NewUploadHandler(app *core.App) http.HandlerFunc {
 		if baseURL == "" && app.Config.DetectBaseURL {
 			// Auto-detect from request
 			scheme := "http"
-			if r.TLS != nil {
+			if isSecureRequest(r) {
 				scheme = "https"
 			}
 			baseURL = scheme + "://" + r.Host

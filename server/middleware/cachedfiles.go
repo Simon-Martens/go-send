@@ -64,8 +64,8 @@ func ServeEmbeddedDistFile(w http.ResponseWriter, r *http.Request, distFS embed.
 }
 
 func setStaticCacheHeaders(w http.ResponseWriter) {
-	// Cache static assets for 1 year (immutable since they have content hashes in filenames)
-	w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+	// Cache static assets for 14 days
+	w.Header().Set("Cache-Control", "public, max-age=1209600, immutable")
 }
 
 func ServeUserStaticFile(w http.ResponseWriter, r *http.Request, baseDir, subdir string) bool {

@@ -220,7 +220,7 @@ func resolveBaseURL(app *core.App, r *http.Request) string {
 	base := app.Config.BaseURL
 	if base == "" && app.Config.DetectBaseURL {
 		scheme := "http"
-		if r.TLS != nil {
+		if isSecureRequest(r) {
 			scheme = "https"
 		}
 		base = scheme + "://" + r.Host

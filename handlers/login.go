@@ -253,7 +253,7 @@ func NewLoginHandler(app *core.App) http.HandlerFunc {
 			Value:    rawToken,
 			Path:     "/",
 			HttpOnly: true,
-			Secure:   r.TLS != nil,
+			Secure:   isSecureRequest(r),
 			SameSite: http.SameSiteLaxMode,
 		}
 
@@ -273,7 +273,7 @@ func NewLoginHandler(app *core.App) http.HandlerFunc {
 			Value:    "",
 			Path:     "/",
 			HttpOnly: false,
-			Secure:   r.TLS != nil,
+			Secure:   isSecureRequest(r),
 			SameSite: http.SameSiteLaxMode,
 			MaxAge:   -1,
 			Expires:  time.Unix(0, 0),
@@ -283,7 +283,7 @@ func NewLoginHandler(app *core.App) http.HandlerFunc {
 			Value:    "",
 			Path:     "/",
 			HttpOnly: false,
-			Secure:   r.TLS != nil,
+			Secure:   isSecureRequest(r),
 			SameSite: http.SameSiteLaxMode,
 			MaxAge:   -1,
 			Expires:  time.Unix(0, 0),

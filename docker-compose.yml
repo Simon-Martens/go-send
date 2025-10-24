@@ -10,7 +10,7 @@ services:
     environment:
       - PORT=8080
     volumes:
-      - gosenddata:/app/data
+      - gosenddatav2:/app/data
     restart: unless-stopped
     networks:
       - caddynet
@@ -20,5 +20,5 @@ networks:
     external: true
 
 volumes:
-  gosenddata:
+  gosenddatav2:
     external: true

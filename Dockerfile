@@ -1,12 +1,12 @@
 # Build stage for frontend
 FROM node:24-alpine AS frontend-builder
 
-WORKDIR /build/frontend
+WORKDIR /build/views
 
-COPY frontend/package*.json ./
+COPY views/package*.json ./
 RUN npm ci
 
-COPY frontend/ ./
+COPY views/ ./
 RUN npm run build
 
 # Build stage for Go backend
@@ -20,7 +20,7 @@ COPY go.mod go.sum ./
 RUN go mod tidy
 
 COPY . .
-COPY --from=frontend-builder /build/frontend/dist ./frontend/dist
+COPY --from=frontend-builder /build/views/dist ./views/dist
 
 RUN CGO_ENABLED=1 go build -o send-server .
 
@@ -32,7 +32,7 @@ RUN apk add --no-cache ca-certificates sqlite-libs
 WORKDIR /app
 
 COPY --from=backend-builder /build/send-server .
-COPY --from=frontend-builder /build/frontend/dist ./frontend/dist
+COPY --from=frontend-builder /build/views/dist ./views/dist
 
 RUN mkdir -p /app/data/uploads /app/userfrontend
 

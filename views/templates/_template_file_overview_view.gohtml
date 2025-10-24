@@ -1,6 +1,6 @@
 <!-- Download view: File overview before download -->
 <template id="file-overview-view">
-	<div class="flex flex-col bg-white dark:bg-grey-90 rounded-xs shadow-light px-8 py-8">
+	<div class="flex flex-col bg-white dark:bg-grey-90 px-8 py-8">
 		<h1 class="text-2xl font-bold mb-6 text-grey-90 dark:text-grey-10 text-center">
 			<span id="downloadTitle" data-type="lang">Download</span>
 		</h1>
@@ -28,5 +28,13 @@
 		>
 			<span id="downloadButtonLabel" data-type="lang">Download</span>
 		</button>
+
+		<!-- Security Notice -->
+		<div class="flex items-start gap-3 p-4 mt-8 bg-orange-50 dark:bg-orange-950 border border-orange-200 dark:border-orange-800 rounded-md">
+			<i class="ri-shield-line text-orange-600 text-xl flex-shrink-0 leading-6"></i>
+			<p class="text-sm text-orange-800 hyphens-auto dark:text-orange-200" data-type="lang" id="downloadSecurityNotice">
+				To improve the security of our systems, we log all downloads, associated user data and user interactions on this page.
+			</p>
+		</div>
 	</div>
 </template>

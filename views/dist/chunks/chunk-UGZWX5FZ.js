@@ -1,9 +1,25 @@
 // src/tooltip.mjs
 var currentOpenTooltip = null;
 var closeDelayTimeoutId = null;
+var visibleTooltips = /* @__PURE__ */ new Map();
+var globalListenersInitialized = false;
+function initGlobalListeners() {
+  if (globalListenersInitialized) return;
+  globalListenersInitialized = true;
+  const repositionAll = () => {
+    visibleTooltips.forEach(({ element, position }, tooltipEl) => {
+      if (element.isConnected && !tooltipEl.classList.contains("hidden")) {
+        positionTooltip(tooltipEl, element, position);
+      }
+    });
+  };
+  window.addEventListener("scroll", repositionAll, { passive: true });
+  window.addEventListener("resize", repositionAll, { passive: true });
+}
 function tooltip(element, text, options = {}) {
   const position = options.position || "top";
   const isDefaultOpen = options.default === "open";
+  initGlobalListeners();
   const template = document.getElementById("_template_tooltip");
   if (!template) {
     console.warn("Tooltip template #_template_tooltip not found");
@@ -73,40 +89,45 @@ function tooltip(element, text, options = {}) {
 function showTooltip(tooltipEl, element, position) {
   tooltipEl.style.position = "absolute";
   tooltipEl.classList.remove("hidden");
+  visibleTooltips.set(tooltipEl, { element, position });
   requestAnimationFrame(() => {
-    const rect = element.getBoundingClientRect();
-    const tooltipRect = tooltipEl.getBoundingClientRect();
-    const offset = 8;
-    const scrollTop = window.scrollY || document.documentElement.scrollTop;
-    const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
-    let top, left;
-    switch (position) {
-      case "bottom":
-        top = rect.bottom + offset + scrollTop;
-        left = rect.left + rect.width / 2 - tooltipRect.width / 2 + scrollLeft;
-        break;
-      case "left":
-        top = rect.top + rect.height / 2 - tooltipRect.height / 2 + scrollTop;
-        left = rect.left - tooltipRect.width - offset + scrollLeft;
-        break;
-      case "right":
-        top = rect.top + rect.height / 2 - tooltipRect.height / 2 + scrollTop;
-        left = rect.right + offset + scrollLeft;
-        break;
-      case "top":
-      default:
-        top = rect.top - tooltipRect.height - offset + scrollTop;
-        left = rect.left + rect.width / 2 - tooltipRect.width / 2 + scrollLeft;
-    }
-    tooltipEl.style.top = top + "px";
-    tooltipEl.style.left = left + "px";
+    positionTooltip(tooltipEl, element, position);
     tooltipEl.classList.remove("opacity-0");
     tooltipEl.classList.add("opacity-100");
   });
 }
+function positionTooltip(tooltipEl, element, position) {
+  const rect = element.getBoundingClientRect();
+  const tooltipRect = tooltipEl.getBoundingClientRect();
+  const offset = 8;
+  const scrollTop = window.scrollY || document.documentElement.scrollTop;
+  const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
+  let top, left;
+  switch (position) {
+    case "bottom":
+      top = rect.bottom + offset + scrollTop;
+      left = rect.left + rect.width / 2 - tooltipRect.width / 2 + scrollLeft;
+      break;
+    case "left":
+      top = rect.top + rect.height / 2 - tooltipRect.height / 2 + scrollTop;
+      left = rect.left - tooltipRect.width - offset + scrollLeft;
+      break;
+    case "right":
+      top = rect.top + rect.height / 2 - tooltipRect.height / 2 + scrollTop;
+      left = rect.right + offset + scrollLeft;
+      break;
+    case "top":
+    default:
+      top = rect.top - tooltipRect.height - offset + scrollTop;
+      left = rect.left + rect.width / 2 - tooltipRect.width / 2 + scrollLeft;
+  }
+  tooltipEl.style.top = top + "px";
+  tooltipEl.style.left = left + "px";
+}
 function hideTooltip(tooltipEl) {
   tooltipEl.classList.remove("visible", "opacity-100");
   tooltipEl.classList.add("hidden", "opacity-0");
+  visibleTooltips.delete(tooltipEl);
 }
 function getPositionClasses() {
   return "absolute px-2 py-1 text-xs rounded-lg shadow-lg z-[9999] transition-opacity duration-200 block max-w-sm";
@@ -129,4 +150,4 @@ function getPointerClasses(position) {
 export {
   tooltip
 };
-//# sourceMappingURL=chunk-NEFC7EAQ.js.map
+//# sourceMappingURL=chunk-UGZWX5FZ.js.map

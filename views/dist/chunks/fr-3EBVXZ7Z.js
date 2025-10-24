@@ -20,6 +20,9 @@ unlockInputPlaceholder = Mot de passe
 unlockButtonLabel = D\xE9verrouiller
 downloadButtonLabel = T\xE9l\xE9charger
 downloadFinish = T\xE9l\xE9chargement termin\xE9
+downloadSecurityNotice = Tous les t\xE9l\xE9chargements, les donn\xE9es utilisateur associ\xE9es et les interactions utilisateur sur cette page sont enregistr\xE9s. Les journaux sont r\xE9guli\xE8rement supprim\xE9s.
+downloadFinishSourceLink = Voir le code source
+downloadFinishHomeButton = Accueil
 fileSizeProgress = ({ $partialSize } sur { $totalSize })
 sendYourFilesLink = Essayer Send
 errorPageHeader = Une erreur s\u2019est produite.
@@ -405,4 +408,4 @@ footerUntrustedWarning = Cet ordinateur n'est pas s\xFBr ! Pensez \xE0 vous d\xE
 export {
   fr_default as default
 };
-//# sourceMappingURL=fr-BTBS67DW.js.map
+//# sourceMappingURL=fr-3EBVXZ7Z.js.map

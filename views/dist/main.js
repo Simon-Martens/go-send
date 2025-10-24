@@ -3,7 +3,7 @@ import {
 } from "./chunks/chunk-ATYDBTFA.js";
 import {
   tooltip
-} from "./chunks/chunk-NEFC7EAQ.js";
+} from "./chunks/chunk-UGZWX5FZ.js";
 import {
   APP_VERSION,
   Keychain,
@@ -1825,12 +1825,12 @@ var localeLoaders = {
   cs: () => import("./chunks/cs-4CHTXZSU.js"),
   cy: () => import("./chunks/cy-RP2L2OUK.js"),
   da: () => import("./chunks/da-DPZF5LGO.js"),
-  de: () => import("./chunks/de-SO2K4AV6.js"),
+  de: () => import("./chunks/de-FDYWRSJL.js"),
   dsb: () => import("./chunks/dsb-L7O73QFV.js"),
   el: () => import("./chunks/el-4RABOQBG.js"),
   "en-CA": () => import("./chunks/en-CA-DJ4OOLA4.js"),
   "en-GB": () => import("./chunks/en-GB-D7G7RTNJ.js"),
-  "en-US": () => import("./chunks/en-US-BCQCD2AV.js"),
+  "en-US": () => import("./chunks/en-US-3SSCNO2R.js"),
   "es-AR": () => import("./chunks/es-AR-6PZGYKH3.js"),
   "es-CL": () => import("./chunks/es-CL-HE4SPZ7U.js"),
   "es-ES": () => import("./chunks/es-ES-XGWIURD2.js"),
@@ -1839,7 +1839,7 @@ var localeLoaders = {
   eu: () => import("./chunks/eu-Q6CLLOH3.js"),
   fa: () => import("./chunks/fa-AEOEUDQ4.js"),
   fi: () => import("./chunks/fi-SI2D7DPR.js"),
-  fr: () => import("./chunks/fr-BTBS67DW.js"),
+  fr: () => import("./chunks/fr-3EBVXZ7Z.js"),
   "fy-NL": () => import("./chunks/fy-NL-C7AQWS3X.js"),
   gn: () => import("./chunks/gn-6SZWZLYL.js"),
   gor: () => import("./chunks/gor-4LJ2LDF3.js"),
@@ -1899,7 +1899,7 @@ var localeLoaders = {
 };
 async function getTranslator(locale2) {
   const bundles = [];
-  const { default: en } = await import("./chunks/en-US-BCQCD2AV.js");
+  const { default: en } = await import("./chunks/en-US-3SSCNO2R.js");
   if (locale2 !== "en-US" && localeLoaders[locale2]) {
     const { default: ftl } = await localeLoaders[locale2]();
     bundles.push(makeBundle(locale2, ftl));
@@ -3020,7 +3020,7 @@ async function initUploadRoute(app) {
   await Promise.all([
     import("./chunks/upload-layout-DFS3ROWS.js"),
     import("./chunks/upload-area-MOZOQFJO.js"),
-    import("./chunks/upload-right-Y6XS4QXB.js"),
+    import("./chunks/upload-right-YC5W4PB3.js"),
     app.controller.ready
   ]);
   app.showUploadLayout();

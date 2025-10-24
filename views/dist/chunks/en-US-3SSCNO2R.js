@@ -18,6 +18,9 @@ unlockInputPlaceholder = Password
 unlockButtonLabel = Unlock
 downloadButtonLabel = Download
 downloadFinish = Download complete
+downloadSecurityNotice = All downloads, associated user data and user interactions on this page are logged. Logs are regularly deleted.
+downloadFinishSourceLink = View source code
+downloadFinishHomeButton = Home
 fileSizeProgress = ({ $partialSize } of { $totalSize })
 sendYourFilesLink = Try Go Send
 errorPageHeader = Something went wrong!
@@ -415,4 +418,4 @@ settingsLogsNext = Next
 export {
   en_US_default as default
 };
-//# sourceMappingURL=en-US-BCQCD2AV.js.map
+//# sourceMappingURL=en-US-3SSCNO2R.js.map

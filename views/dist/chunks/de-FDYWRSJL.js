@@ -20,6 +20,9 @@ unlockInputPlaceholder = Passwort
 unlockButtonLabel = Entsperren
 downloadButtonLabel = Herunterladen
 downloadFinish = Download abgeschlossen
+downloadSecurityNotice = Alle Downloads, zugeh\xF6rige Benutzerdaten und Benutzerinteraktionen auf dieser Seite werden protokolliert. Die Logs werden regelm\xE4\xDFig gel\xF6scht.
+downloadFinishSourceLink = Quellcode ansehen
+downloadFinishHomeButton = Startseite
 fileSizeProgress = ({ $partialSize } von { $totalSize })
 sendYourFilesLink = Startseite
 errorPageHeader = Ein Fehler ist aufgetreten!
@@ -405,4 +408,4 @@ footerUntrustedWarning = Diesem Ger\xE4t wird nicht vertraut. Denken Sie daran, 
 export {
   de_default as default
 };
-//# sourceMappingURL=de-SO2K4AV6.js.map
+//# sourceMappingURL=de-FDYWRSJL.js.map

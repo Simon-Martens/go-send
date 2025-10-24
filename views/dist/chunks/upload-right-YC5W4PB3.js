@@ -1,6 +1,6 @@
 import {
   tooltip
-} from "./chunk-NEFC7EAQ.js";
+} from "./chunk-UGZWX5FZ.js";
 import {
   storage_default
 } from "./chunk-3WTCPM2E.js";
@@ -489,4 +489,4 @@ var UploadRightElement = class extends HTMLElement {
   }
 };
 customElements.define("upload-right", UploadRightElement);
-//# sourceMappingURL=upload-right-Y6XS4QXB.js.map
+//# sourceMappingURL=upload-right-YC5W4PB3.js.map

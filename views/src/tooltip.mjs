@@ -12,6 +12,27 @@
 let currentOpenTooltip = null;
 let closeDelayTimeoutId = null;
 
+// Track all visible tooltips with their elements and positions for repositioning
+const visibleTooltips = new Map(); // Map<tooltipEl, {element, position}>
+
+// Setup global scroll/resize listeners once
+let globalListenersInitialized = false;
+function initGlobalListeners() {
+  if (globalListenersInitialized) return;
+  globalListenersInitialized = true;
+
+  const repositionAll = () => {
+    visibleTooltips.forEach(({ element, position }, tooltipEl) => {
+      if (element.isConnected && !tooltipEl.classList.contains("hidden")) {
+        positionTooltip(tooltipEl, element, position);
+      }
+    });
+  };
+
+  window.addEventListener("scroll", repositionAll, { passive: true });
+  window.addEventListener("resize", repositionAll, { passive: true });
+}
+
 /**
  * Initialize a tooltip for an element
  * @param {HTMLElement} element - The element to attach the tooltip to
@@ -23,6 +44,9 @@ let closeDelayTimeoutId = null;
 export function tooltip(element, text, options = {}) {
   const position = options.position || "top";
   const isDefaultOpen = options.default === "open";
+
+  // Initialize global listeners on first tooltip
+  initGlobalListeners();
 
   // Get the tooltip template
   const template = document.getElementById("_template_tooltip");
@@ -125,39 +149,12 @@ function showTooltip(tooltipEl, element, position) {
   // Show first to get dimensions
   tooltipEl.classList.remove("hidden");
 
+  // Track this tooltip for repositioning
+  visibleTooltips.set(tooltipEl, { element, position });
+
   // Use requestAnimationFrame to ensure element is rendered before measuring
   requestAnimationFrame(() => {
-    const rect = element.getBoundingClientRect();
-    const tooltipRect = tooltipEl.getBoundingClientRect();
-    const offset = 8; // 8px gap from element
-
-    // Account for page scroll
-    const scrollTop = window.scrollY || document.documentElement.scrollTop;
-    const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
-
-    let top, left;
-
-    switch (position) {
-      case "bottom":
-        top = rect.bottom + offset + scrollTop;
-        left = rect.left + rect.width / 2 - tooltipRect.width / 2 + scrollLeft;
-        break;
-      case "left":
-        top = rect.top + rect.height / 2 - tooltipRect.height / 2 + scrollTop;
-        left = rect.left - tooltipRect.width - offset + scrollLeft;
-        break;
-      case "right":
-        top = rect.top + rect.height / 2 - tooltipRect.height / 2 + scrollTop;
-        left = rect.right + offset + scrollLeft;
-        break;
-      case "top":
-      default:
-        top = rect.top - tooltipRect.height - offset + scrollTop;
-        left = rect.left + rect.width / 2 - tooltipRect.width / 2 + scrollLeft;
-    }
-
-    tooltipEl.style.top = top + "px";
-    tooltipEl.style.left = left + "px";
+    positionTooltip(tooltipEl, element, position);
 
     // Apply fade-in after positioning
     tooltipEl.classList.remove("opacity-0");
@@ -166,11 +163,51 @@ function showTooltip(tooltipEl, element, position) {
 }
 
 /**
+ * Position (or reposition) a tooltip based on its element
+ */
+function positionTooltip(tooltipEl, element, position) {
+  const rect = element.getBoundingClientRect();
+  const tooltipRect = tooltipEl.getBoundingClientRect();
+  const offset = 8; // 8px gap from element
+
+  // Account for page scroll
+  const scrollTop = window.scrollY || document.documentElement.scrollTop;
+  const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
+
+  let top, left;
+
+  switch (position) {
+    case "bottom":
+      top = rect.bottom + offset + scrollTop;
+      left = rect.left + rect.width / 2 - tooltipRect.width / 2 + scrollLeft;
+      break;
+    case "left":
+      top = rect.top + rect.height / 2 - tooltipRect.height / 2 + scrollTop;
+      left = rect.left - tooltipRect.width - offset + scrollLeft;
+      break;
+    case "right":
+      top = rect.top + rect.height / 2 - tooltipRect.height / 2 + scrollTop;
+      left = rect.right + offset + scrollLeft;
+      break;
+    case "top":
+    default:
+      top = rect.top - tooltipRect.height - offset + scrollTop;
+      left = rect.left + rect.width / 2 - tooltipRect.width / 2 + scrollLeft;
+  }
+
+  tooltipEl.style.top = top + "px";
+  tooltipEl.style.left = left + "px";
+}
+
+/**
  * Hide a tooltip element with smooth fade-out
  */
 function hideTooltip(tooltipEl) {
   tooltipEl.classList.remove("visible", "opacity-100");
   tooltipEl.classList.add("hidden", "opacity-0");
+
+  // Stop tracking this tooltip
+  visibleTooltips.delete(tooltipEl);
 }
 
 /**

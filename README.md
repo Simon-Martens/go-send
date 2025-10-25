@@ -1,6 +1,6 @@
 # Go-Send
 
-A lightweight, self-hostable file sharing service with client-side encryption and enterprise-ready user management. All encryption and decryption happens in the browser with no secrets stored on the server.
+A lightweight, self-hostable file sharing service with client-side encryption and business-ready user management. All encryption and decryption happens in the browser with no secrets stored on the server. It can easily handle a hundred users or more.
 
 Originally a fork of [timvisee/send](https://gitlab.com/timvisee/send), which itself was a fork of Firefox Send.
 

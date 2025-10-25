@@ -30,15 +30,28 @@ func CheckRecipientAuthorization(app *core.App, r *http.Request, fileID string, 
 		return true, 0, nil
 	}
 
-	// File has recipients - check user authorization
+	// File has recipients - check authorization
 	session, err := app.GetAuthenticatedSession(r)
 	if err != nil {
 		return false, 0, err
 	}
 
-	// No session or no user ID - not authorized
-	if session == nil || session.UserID == nil {
+	// No session at all - not authorized
+	if session == nil {
 		return false, 0, nil
+	}
+
+	// Check guest session ownership (via AuthTokenID)
+	// If guest uploaded this file via upload ticket, they can download it
+	if session.AuthTokenID != nil && meta.OwnerAuthTokenID != nil {
+		if *session.AuthTokenID == *meta.OwnerAuthTokenID {
+			return true, 0, nil // Guest is owner
+		}
+	}
+
+	// Check user session authorization
+	if session.UserID == nil {
+		return false, 0, nil // Not a user session and not the guest owner
 	}
 
 	userID = *session.UserID

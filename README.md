@@ -18,8 +18,8 @@ Originally a fork of [timvisee/send](https://gitlab.com/timvisee/send), which it
 
 ### User Management
 - **Role-Based Access**: Admin and User roles with different permissions
+- **Guest Access** Adminstrators and Users can delegate access to guests for secure file excahange
 - **Session Management**: Secure, HttpOnly session cookies
-- **Password-Based Authentication**: PBKDF2 key derivation with server-side password hashing
 - **Public Key Cryptography**: Users can derive public keys from passwords for end-to-end encrypted file sharing
 - **Account Management**: Profile editing, session clearing, account deactivation
 
@@ -31,11 +31,11 @@ Originally a fork of [timvisee/send](https://gitlab.com/timvisee/send), which it
 - **Upload Limits**: Configurable file size, download counts, and expiry times
 
 ### File Management
-- **Password Protection**: Add password protection to individual files
-- **Download Limits**: Automatic deletion after N downloads
-- **Expiry Times**: Files auto-delete after specified duration
+- **Password Protection**: Add password protection to individual files yo further enhance security
+- **Download Limits**: Automatic deletion after N downloads or specified duration
 - **File Metadata**: Track owner, recipients, download counts, creation time
 - **Inbox/Outbox**: Users can view files they've sent and received
+- **Logging** Every file access is logged to spot and migitate data breaches
 
 ### Customization
 - **Custom Branding**: Configure colors, logos, wordmarks, favicons
@@ -51,24 +51,19 @@ Originally a fork of [timvisee/send](https://gitlab.com/timvisee/send), which it
 - **Activity Logs**: View file operations and user actions
 - **Initial Setup**: Automatic one-time admin token generation on first run
 
-### API Features
-- **RESTful API**: JSON-based API for all operations
-- **ffsend Compatibility**: Works with the `ffsend` CLI client (when `UPLOAD_GUARD=false`)
-- **Public API**: File info, existence checks, metadata retrieval
-- **Authenticated API**: User profiles, file lists, admin operations
-
 ## What Changed from Original Firefox Send?
 
 - ✅ **Express → Go std lib**: Native Go HTTP server (no Node.js runtime)
 - ✅ **Redis → SQLite**: Embedded database, no external dependencies
 - ✅ **Webpack → ESBuild**: Build in milliseconds instead of minutes
+- ✅ **Choo → Native Web Components**: No depenmdencies on any fronent library for easy maintanability
 - ✅ **Removed Firefox Accounts**: Replaced with password-based user system
 - ✅ **Removed Polyfills**: Target modern browsers (95%+ coverage)
 - ✅ **Added User Management**: Multi-user support with roles
 - ✅ **Added Upload Guard**: Protect against anonymous uploads
 - ✅ **Added Guest Tickets**: Allow controlled guest access
-- ✅ **Added Recipient Encryption**: End-to-end encrypted sharing between users
-
+- ✅ **Added Diffie-Hellman-based Encryption between users**: No exchange of secrets (via link etc. needed)
+  
 ## Quick Start
 
 ### Prerequisites
@@ -104,7 +99,7 @@ http://localhost:8080/auth/claim/abc123xyz...
 ═══════════════════════════════════════════════════════════════════════
 ```
 
-Visit the URL to create the first admin account.
+Visit the URL or the base URL to create the first admin account.
 
 ### Build Frontend (Optional)
 
@@ -432,7 +427,8 @@ sudo systemctl start go-send
 
 **Server Compromise**
 - Files are stored encrypted with keys never sent to the server
-- Download URLs contain the decryption key in the fragment (never sent to server)
+- Download URLs for guests contain the decryption key in the fragment (never sent to server)
+- User downloads are encrypted via Diffie-Hellmann handshake, so secrets are exchanged or stored
 - HMAC authentication prevents unauthorized downloads even with database access
 
 **Network Interception**
@@ -445,23 +441,6 @@ sudo systemctl start go-send
 - HttpOnly session cookies prevent JavaScript access
 - CSRF protection on state-changing operations
 - Subresource Integrity (SRI) for external resources
-
-### Authentication Flow
-
-1. Client derives auth key from file secret using HKDF-SHA256
-2. Server generates random nonce (16 bytes)
-3. Client computes HMAC-SHA256 of nonce with auth key
-4. Client sends signature in `Authorization: send-v1 <signature>` header
-5. Server verifies HMAC signature
-6. Server rotates nonce on each successful request (prevents replay attacks)
-
-### Encryption Details
-
-- **File Encryption**: AES-GCM with 256-bit keys
-- **Key Derivation**: HKDF-SHA256 from random secret
-- **Recipient Encryption**: ECDH (X25519) + AES-GCM
-- **Password Hashing**: Argon2id (server-side)
-- **Password Key Derivation**: PBKDF2-SHA256 (client-side)
 
 ## Development
 
@@ -509,7 +488,7 @@ air
 - **Backend** (`*.go`): [GNU General Public License v3.0](LICENSE.backend)
 - **Frontend** (`views/`): [Mozilla Public License Version 2.0](LICENSE)
 
-Original project by Mozilla, forked by timvisee.
+Original frontend by Mozilla, forked by timvisee.
 
 ## Acknowledgments
 
@@ -527,4 +506,3 @@ Original project by Mozilla, forked by timvisee.
 
 - **Browsers**: Chrome 89+, Firefox 102+, Safari 14.1+, Edge 89+ (95%+ user coverage)
 - **CLI**: Compatible with `ffsend` when `USE_UPLOAD_GUARD=false`
-- **API**: RESTful JSON API with HMAC authentication

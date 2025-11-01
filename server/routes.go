@@ -96,6 +96,11 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 	// Help page route (public, no auth required)
 	mux.HandleFunc("/help", handlers.HelpHandler(app))
 
+	// Request invitation page (only if feature is enabled)
+	if app.Config.IsInvitationRequestEnabled() {
+		mux.HandleFunc("/requestinvitation", indexHandler)
+	}
+
 	rootHandler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Try to serve static files first
 		if r.URL.Path != "/" && r.URL.Path != "/download/" && r.URL.Path != "/error" && r.URL.Path != "/settings" && r.URL.Path != "/help" {

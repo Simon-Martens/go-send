@@ -2,6 +2,7 @@ package email
 
 import (
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net"
@@ -10,6 +11,30 @@ import (
 
 	"github.com/Simon-Martens/go-send/config"
 )
+
+// loginAuth implements the LOGIN authentication mechanism (used by Office 365 and others)
+type loginAuth struct {
+	username string
+	password string
+}
+
+func (a *loginAuth) Start(server *smtp.ServerInfo) (string, []byte, error) {
+	return "LOGIN", []byte{}, nil
+}
+
+func (a *loginAuth) Next(fromServer []byte, more bool) ([]byte, error) {
+	if more {
+		switch string(fromServer) {
+		case "Username:", "User Name\x00":
+			return []byte(a.username), nil
+		case "Password:", "Password\x00":
+			return []byte(a.password), nil
+		default:
+			return nil, errors.New("unknown response from server")
+		}
+	}
+	return nil, nil
+}
 
 // SMTPMailer sends emails via SMTP with mandatory TLS
 type SMTPMailer struct {
@@ -82,7 +107,11 @@ func (m *SMTPMailer) Send(to, subject, body string) error {
 
 	// Authenticate if credentials are provided
 	if m.config.Username != "" {
-		auth := smtp.PlainAuth("", m.config.Username, m.config.Password, m.config.Host)
+		// Use custom auth that allows any hostname (needed for Office 365)
+		auth := &loginAuth{
+			username: m.config.Username,
+			password: m.config.Password,
+		}
 
 		if err = client.Auth(auth); err != nil {
 			m.logger.Error("Failed to authenticate with SMTP server", "error", err, "username", m.config.Username)

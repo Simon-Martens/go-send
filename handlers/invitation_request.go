@@ -53,20 +53,20 @@ func NewInvitationRequestHandler(app *core.App) http.HandlerFunc {
 		}
 
 		// Normalize email
-		email := strings.TrimSpace(strings.ToLower(req.Email))
+		userEmail := strings.TrimSpace(strings.ToLower(req.Email))
 
 		// Validate email format
-		if !emailRegex.MatchString(email) {
-			app.Logger.Debug("Invitation request: invalid email format", "email", email)
+		if !emailRegex.MatchString(userEmail) {
+			app.Logger.Debug("Invitation request: invalid email format", "email", userEmail)
 			// Still return success to avoid leaking information
 			sendSuccessResponse(w, app)
 			return
 		}
 
 		// Check if domain is allowed
-		if !app.Config.IsEmailDomainAllowed(email) {
+		if !app.Config.IsEmailDomainAllowed(userEmail) {
 			app.Logger.Info("Invitation request: domain not allowed",
-				"email", email,
+				"email", userEmail,
 				"ip", r.RemoteAddr,
 			)
 			// Return success to avoid leaking allowed domains
@@ -86,7 +86,7 @@ func NewInvitationRequestHandler(app *core.App) http.HandlerFunc {
 		if err != nil {
 			app.Logger.Error("Invitation request: failed to generate token",
 				"error", err,
-				"email", email,
+				"email", userEmail,
 			)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
@@ -97,22 +97,22 @@ func NewInvitationRequestHandler(app *core.App) http.HandlerFunc {
 		claimURL := fmt.Sprintf("%s/auth/claim/%s", baseURL, rawToken)
 
 		// Render email template
-		subject, body, err := email.RenderUserSignupInvitation(email, claimURL)
+		subject, body, err := email.RenderUserSignupInvitation(userEmail, claimURL)
 		if err != nil {
 			app.Logger.Error("Invitation request: failed to render email",
 				"error", err,
-				"email", email,
+				"email", userEmail,
 			)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
 
 		// Send email asynchronously
-		app.SendEmailAsync(email, subject, body)
+		app.SendEmailAsync(userEmail, subject, body)
 
 		// Log the successful invitation request
 		app.Logger.Info("Invitation request: token generated and email queued",
-			"email", email,
+			"email", userEmail,
 			"token_id", token.ID,
 			"expires_at", *token.ExpiresAt,
 			"ip", r.RemoteAddr,
@@ -121,7 +121,7 @@ func NewInvitationRequestHandler(app *core.App) http.HandlerFunc {
 		// Log to database
 		app.DBLogger.LogRequest(r, http.StatusOK, nil, "",
 			"action", "invitation_request",
-			"email", email,
+			"email", userEmail,
 			"token_id", token.ID,
 		)
 

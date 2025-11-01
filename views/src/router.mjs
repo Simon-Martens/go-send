@@ -80,6 +80,18 @@ export async function initHelpRoute(app) {
   console.log("[Route] Help page ready");
 }
 
+export async function initRequestInvitationRoute(app) {
+  console.log("[Route] Initializing request invitation page...");
+
+  await Promise.all([
+    import("./ui/request-invitation-layout.mjs"),
+    app.controller.ready,
+  ]);
+
+  app.showRequestInvitationLayout();
+  console.log("[Route] Request invitation page ready");
+}
+
 export async function bootstrapApplication() {
   const user = storage.user;
   if (user && user.version && user.version !== APP_VERSION) {

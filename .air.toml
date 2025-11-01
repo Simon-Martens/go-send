@@ -23,7 +23,7 @@ exclude_file = []
 exclude_regex = ["_test.go"]
 exclude_unchanged = false
 follow_symlink = false
-full_bin = ""
+full_bin = "bash -c 'source .env && ./tmp/main'"
 include_dir = []
 include_ext = [
 	"ftl",

@@ -67,6 +67,12 @@ async function navigate(path, app) {
     return;
   }
 
+  // Request invitation route is always public
+  if (path === "/requestinvitation" || path.startsWith("/requestinvitation")) {
+    await router.initRequestInvitationRoute(app);
+    return;
+  }
+
   // Login and register routes are always accessible
   if (path.startsWith("/login")) {
     await router.initLoginRoute(app);

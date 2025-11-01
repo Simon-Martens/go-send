@@ -1,0 +1,50 @@
+<!-- Request Invitation layout: <request-invitation-layout> handles invitation request flow -->
+<template id="request-invitation-layout">
+	<section class="h-full w-full flex items-center justify-center px-4 py-8">
+		<div class="flex flex-col bg-white dark:bg-grey-90 rounded-xs shadow-light px-8 py-10 w-full max-w-md">
+			<h1 class="text-3xl font-bold mb-4 text-grey-90 dark:text-grey-10 text-center">
+				<span id="requestInvitationTitle" data-type="lang">Request Invitation</span>
+			</h1>
+
+			<p class="text-sm text-grey-60 dark:text-grey-40 mb-6 text-center">
+				<span id="requestInvitationDescription" data-type="lang">Enter your email address to request access. If your email domain is authorized, you will receive an invitation link.</span>
+			</p>
+
+			<form data-role="request-form" class="flex flex-col w-full gap-4">
+				<div class="flex flex-col gap-1">
+					<label for="invitation-email" class="text-sm font-medium text-grey-80 dark:text-grey-20">
+						<span id="requestInvitationEmailLabel" data-type="lang">Email</span>
+					</label>
+					<input
+						id="invitation-email"
+						data-role="email-input"
+						type="email"
+						autocomplete="email"
+						required
+						placeholder="your@email.com"
+						class="w-full rounded-xs border border-grey-30 dark:border-grey-60 bg-white dark:bg-grey-80 px-3 py-2 text-sm"
+					/>
+				</div>
+
+				<p data-role="message" class="text-sm text-center hidden"></p>
+
+				<button
+					type="submit"
+					data-role="submit"
+					class="btn w-full mt-2"
+				>
+					<span id="requestInvitationSubmitButton" data-type="lang">Request Invitation</span>
+				</button>
+			</form>
+
+			<div class="mt-6 text-center">
+				<p class="text-sm text-grey-60 dark:text-grey-40">
+					<span id="requestInvitationAlreadyHaveAccount" data-type="lang">Already have an account?</span>
+					<a href="/login" class="text-primary-600 dark:text-primary-400 hover:underline ml-1">
+						<span id="requestInvitationSignIn" data-type="lang">Sign in</span>
+					</a>
+				</p>
+			</div>
+		</div>
+	</section>
+</template>

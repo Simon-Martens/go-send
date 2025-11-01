@@ -11,6 +11,12 @@ import (
 	"github.com/Simon-Martens/go-send/storage"
 )
 
+// Mailer defines the interface for sending emails
+// This is defined here to avoid circular imports
+type Mailer interface {
+	Send(to, subject, body string) error
+}
+
 // App holds all global application state and dependencies
 type App struct {
 	DB       *storage.DB
@@ -19,6 +25,7 @@ type App struct {
 	Manifest Manifest
 	Logger   *slog.Logger
 	DBLogger *DBLogger
+	Mailer   Mailer
 
 	// InitialAdminClaimURL is set when no users exist at startup
 	// Used to redirect to the initial admin registration page
@@ -30,7 +37,7 @@ type App struct {
 }
 
 // NewApp creates and initializes a new App instance
-func NewApp(db *storage.DB, cfg *config.Config, tmpl *template.Template, manifest Manifest, logger *slog.Logger, dbLogger *DBLogger) *App {
+func NewApp(db *storage.DB, cfg *config.Config, tmpl *template.Template, manifest Manifest, logger *slog.Logger, dbLogger *DBLogger, mailer Mailer) *App {
 	return &App{
 		DB:             db,
 		Config:         cfg,
@@ -38,6 +45,7 @@ func NewApp(db *storage.DB, cfg *config.Config, tmpl *template.Template, manifes
 		Manifest:       manifest,
 		Logger:         logger,
 		DBLogger:       dbLogger,
+		Mailer:         mailer,
 		activeCleanups: make(map[string]context.CancelFunc),
 	}
 }
@@ -125,6 +133,21 @@ func (a *App) StartCleanupScheduler() {
 		defer ticker.Stop()
 		for range ticker.C {
 			scheduleUpcomingCleanups()
+		}
+	}()
+}
+
+// SendEmailAsync sends an email asynchronously in a separate goroutine
+// This method returns immediately and does not block the caller
+// Any errors during sending are logged but do not propagate to the caller
+func (a *App) SendEmailAsync(to, subject, body string) {
+	go func() {
+		if err := a.Mailer.Send(to, subject, body); err != nil {
+			a.Logger.Error("Failed to send email",
+				"to", to,
+				"subject", subject,
+				"error", err,
+			)
 		}
 	}()
 }

@@ -47,8 +47,22 @@ type Config struct {
 
 	CustomLocale string
 
+	Mail MailConfig
+
+	AllowedUserDomains []string
+
 	// Cached client config (instantiated once)
 	clientConfig *ClientConfig
+}
+
+type MailConfig struct {
+	Driver   string
+	Host     string
+	Port     int
+	Username string
+	Password string
+	From     string
+	FromName string
 }
 
 // ClientConfig is the JSON-serializable config sent to the client
@@ -209,6 +223,20 @@ func Load() *Config {
 
 		// Localization
 		CustomLocale: getEnv("CUSTOM_LOCALE", DEFAULT_CUSTOM_LOCALE),
+
+		// Mail
+		Mail: MailConfig{
+			Driver:   getEnv("MAIL_DRIVER", DEFAULT_MAIL_DRIVER),
+			Host:     getEnv("MAIL_HOST", DEFAULT_MAIL_HOST),
+			Port:     getEnvInt("MAIL_PORT", DEFAULT_MAIL_PORT),
+			Username: getEnv("MAIL_USERNAME", DEFAULT_MAIL_USERNAME),
+			Password: getEnv("MAIL_PASSWORD", DEFAULT_MAIL_PASSWORD),
+			From:     getEnv("MAIL_FROM", DEFAULT_MAIL_FROM),
+			FromName: getEnv("MAIL_FROM_NAME", DEFAULT_MAIL_FROM_NAME),
+		},
+
+		// Allowed user domains for self-service invitation requests
+		AllowedUserDomains: parseAllowedDomains(getEnv("ALLOWED_USER_DOMAINS", DEFAULT_ALLOWED_USER_DOMAINS)),
 	}
 
 	if cfg.UploadGuard {
@@ -268,4 +296,48 @@ func getEnvIntArray(key string, defaultValue []int) []int {
 		}
 	}
 	return defaultValue
+}
+
+// parseAllowedDomains parses a comma-separated list of domains
+func parseAllowedDomains(value string) []string {
+	if value == "" {
+		return nil
+	}
+
+	parts := strings.Split(value, ",")
+	domains := make([]string, 0, len(parts))
+	for _, p := range parts {
+		domain := strings.TrimSpace(strings.ToLower(p))
+		if domain != "" {
+			domains = append(domains, domain)
+		}
+	}
+	return domains
+}
+
+// IsInvitationRequestEnabled returns true if self-service invitation requests are enabled
+func (c *Config) IsInvitationRequestEnabled() bool {
+	return len(c.AllowedUserDomains) > 0 && c.Mail.Driver != ""
+}
+
+// IsEmailDomainAllowed checks if an email address belongs to an allowed domain
+func (c *Config) IsEmailDomainAllowed(email string) bool {
+	if len(c.AllowedUserDomains) == 0 {
+		return false
+	}
+
+	email = strings.TrimSpace(strings.ToLower(email))
+	parts := strings.Split(email, "@")
+	if len(parts) != 2 {
+		return false
+	}
+
+	domain := parts[1]
+	for _, allowed := range c.AllowedUserDomains {
+		if domain == allowed {
+			return true
+		}
+	}
+
+	return false
 }

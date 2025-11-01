@@ -7,6 +7,7 @@ import (
 
 	"github.com/Simon-Martens/go-send/config"
 	"github.com/Simon-Martens/go-send/core"
+	"github.com/Simon-Martens/go-send/email"
 	"github.com/Simon-Martens/go-send/migrations"
 	"github.com/Simon-Martens/go-send/server"
 	"github.com/Simon-Martens/go-send/server/middleware"
@@ -47,6 +48,12 @@ func main() {
 		os.Exit(1)
 	}
 
+	mailer, err := email.NewMailer(cfg, logger)
+	if err != nil {
+		logger.Error("Failed to initialize mailer. Exiting", "error", err)
+		os.Exit(1)
+	}
+
 	tmpl, err := core.LoadTemplates(templatesFS, cfg.UserFrontendDir, logger)
 	if err != nil {
 		logger.Error("Failed to load templates. Exiting", "error", err)
@@ -55,7 +62,7 @@ func main() {
 
 	// INFO: the manifest is a file to connect request URLs to file names
 	manifest := core.LoadManifest(distFS, logger)
-	app := core.NewApp(db, cfg, tmpl, manifest, logger, dbLogger)
+	app := core.NewApp(db, cfg, tmpl, manifest, logger, dbLogger, mailer)
 	if err := migrations.RunPending(app); err != nil {
 		logger.Error("Failed to run migrations. Exiting", "error", err)
 		os.Exit(1)

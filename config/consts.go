@@ -92,3 +92,15 @@ const (
 	CLEANUP_CHECK_INTERVAL  = 1 * time.Hour
 	CLEANUP_TICKER_INTERVAL = 1 * time.Hour
 )
+
+const (
+	DEFAULT_MAIL_DRIVER    = "log"
+	DEFAULT_MAIL_HOST      = ""
+	DEFAULT_MAIL_PORT      = 587
+	DEFAULT_MAIL_USERNAME  = ""
+	DEFAULT_MAIL_PASSWORD  = ""
+	DEFAULT_MAIL_FROM      = "noreply@localhost"
+	DEFAULT_MAIL_FROM_NAME = "go-send"
+
+	DEFAULT_ALLOWED_USER_DOMAINS = ""
+)

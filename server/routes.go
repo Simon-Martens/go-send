@@ -86,6 +86,11 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 		// Registration page with token in URL - validate token before serving page
 		mux.HandleFunc("/register/admin/", handlers.NewRegisterPageHandler(app, indexHandler, storage.TokenTypeAdminSignup))
 		mux.HandleFunc("/register/user/", handlers.NewRegisterPageHandler(app, indexHandler, storage.TokenTypeUserSignup))
+
+		// Self-service invitation request endpoint (only enabled if ALLOWED_USER_DOMAINS is set)
+		if app.Config.IsInvitationRequestEnabled() {
+			mux.HandleFunc("/api/request-invitation", handlers.NewInvitationRequestHandler(app))
+		}
 	}
 
 	// Help page route (public, no auth required)

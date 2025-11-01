@@ -137,17 +137,56 @@ func (a *App) StartCleanupScheduler() {
 	}()
 }
 
-// SendEmailAsync sends an email asynchronously in a separate goroutine
+// SendEmailAsync sends an email asynchronously in a separate goroutine with retry logic
 // This method returns immediately and does not block the caller
+// Retries up to 3 times with intervals: 4s, 30s, 2min
 // Any errors during sending are logged but do not propagate to the caller
 func (a *App) SendEmailAsync(to, subject, body string) {
 	go func() {
-		if err := a.Mailer.Send(to, subject, body); err != nil {
-			a.Logger.Error("Failed to send email",
-				"to", to,
-				"subject", subject,
-				"error", err,
-			)
+		const maxRetries = 3
+		retryDelays := []time.Duration{
+			4 * time.Second,
+			30 * time.Second,
+			2 * time.Minute,
 		}
+		var lastErr error
+
+		for attempt := 1; attempt <= maxRetries; attempt++ {
+			err := a.Mailer.Send(to, subject, body)
+			if err == nil {
+				// Success
+				if attempt > 1 {
+					a.Logger.Info("Email sent successfully after retry",
+						"to", to,
+						"subject", subject,
+						"attempt", attempt,
+					)
+				}
+				return
+			}
+
+			lastErr = err
+
+			if attempt < maxRetries {
+				waitDuration := retryDelays[attempt-1]
+				a.Logger.Warn("Failed to send email, will retry",
+					"to", to,
+					"subject", subject,
+					"attempt", attempt,
+					"max_attempts", maxRetries,
+					"retry_in", waitDuration,
+					"error", err,
+				)
+				time.Sleep(waitDuration)
+			}
+		}
+
+		// All retries failed
+		a.Logger.Error("Failed to send email after all retries",
+			"to", to,
+			"subject", subject,
+			"attempts", maxRetries,
+			"error", lastErr,
+		)
 	}()
 }

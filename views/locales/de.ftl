@@ -386,6 +386,18 @@ loginSubmitting = Anmeldung läuft…
 loginErrorChallenge = Anmeldeanforderung konnte nicht gestartet werden. Bitte versuchen Sie es erneut.
 loginErrorGeneric = Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.
 
+## Request Invitation strings
+
+requestInvitationTitle = Einladung anfordern
+requestInvitationDescription = Geben Sie Ihre E-Mail-Adresse ein, um Zugang anzufordern. Wenn Ihre E-Mail-Domain autorisiert ist, erhalten Sie einen Einladungslink.
+requestInvitationEmailLabel = E-Mail
+requestInvitationSubmitButton = Einladung anfordern
+requestInvitationSubmitting = Anfrage wird gesendet…
+requestInvitationSuccess = Wenn Ihre E-Mail-Domain autorisiert ist, erhalten Sie in Kürze eine Einladung.
+requestInvitationError = Anfrage konnte nicht gesendet werden. Bitte versuchen Sie es später erneut.
+requestInvitationAlreadyHaveAccount = Haben Sie bereits ein Konto?
+requestInvitationSignIn = Anmelden
+
 ## File ownership labels
 
 fileTileFrom = VON

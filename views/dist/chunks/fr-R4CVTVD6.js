@@ -389,6 +389,18 @@ loginSubmitting = Connexion\u2026
 loginErrorChallenge = Impossible de d\xE9marrer le d\xE9fi de connexion. Veuillez r\xE9essayer.
 loginErrorGeneric = \xC9chec de la connexion. Veuillez r\xE9essayer.
 
+## Request Invitation strings
+
+requestInvitationTitle = Demander une invitation
+requestInvitationDescription = Saisissez votre adresse e-mail pour demander l'acc\xE8s. Si votre domaine e-mail est autoris\xE9, vous recevrez un lien d'invitation.
+requestInvitationEmailLabel = Adresse e-mail
+requestInvitationSubmitButton = Demander une invitation
+requestInvitationSubmitting = Envoi de la demande\u2026
+requestInvitationSuccess = Si votre domaine e-mail est autoris\xE9, vous recevrez une invitation sous peu.
+requestInvitationError = \xC9chec de l'envoi de la demande. Veuillez r\xE9essayer plus tard.
+requestInvitationAlreadyHaveAccount = Vous avez d\xE9j\xE0 un compte ?
+requestInvitationSignIn = Se connecter
+
 ## File ownership labels
 
 fileTileFrom = DE
@@ -409,4 +421,4 @@ footerUntrustedWarning = Cet ordinateur n'est pas s\xFBr ! Pensez \xE0 vous d\xE
 export {
   fr_default as default
 };
-//# sourceMappingURL=fr-MOZAQINZ.js.map
+//# sourceMappingURL=fr-R4CVTVD6.js.map

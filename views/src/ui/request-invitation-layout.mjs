@@ -1,4 +1,4 @@
-import { translateElement, translate } from "../utils.mjs";
+import { translateElement } from "../utils.mjs";
 
 class RequestInvitationLayoutElement extends HTMLElement {
   constructor() {
@@ -69,6 +69,7 @@ class RequestInvitationLayoutElement extends HTMLElement {
     const email = this.emailInput?.value.trim();
 
     if (!email || !this.isValidEmail(email)) {
+      const translate = window.translate || ((key) => key);
       this.showMessage(
         translate("authErrorInvalidEmail") || "Please enter a valid email address",
         true
@@ -81,45 +82,66 @@ class RequestInvitationLayoutElement extends HTMLElement {
       this.setSubmitLabel("requestInvitationSubmitting");
     }
 
-    try {
-      const response = await fetch("/api/request-invitation", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
+    // Try up to 3 times with exponential backoff
+    const maxRetries = 3;
+    let lastError = null;
 
-      if (!response.ok) {
-        throw new Error("Request failed");
-      }
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const response = await fetch("/api/request-invitation", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
+        });
 
-      const result = await response.json();
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${response.status}`);
+        }
 
-      // Always show success message (for security reasons)
-      this.showMessage(
-        result.message ||
+        const result = await response.json();
+
+        // Success! Hide the form fields and show only the success message
+        const translate = window.translate || ((key) => key);
+        this.showMessage(
           translate("requestInvitationSuccess") ||
-          "If your email domain is authorized, you will receive an invitation shortly.",
-        false
-      );
+            "If your email domain is authorized, you will receive an invitation shortly.",
+          false
+        );
 
-      // Clear the email input
-      if (this.emailInput) {
-        this.emailInput.value = "";
+        // Hide the email input and submit button, but keep the message visible
+        if (this.emailInput) {
+          this.emailInput.parentElement.style.display = "none"; // Hide the input div
+        }
+        if (this.submitButton) {
+          this.submitButton.style.display = "none"; // Hide the submit button
+        }
+
+        return; // Exit successfully
+      } catch (error) {
+        lastError = error;
+        console.error(`[RequestInvitationLayout] Attempt ${attempt}/${maxRetries} failed`, error);
+
+        // If not the last attempt, wait before retrying (exponential backoff)
+        if (attempt < maxRetries) {
+          const delayMs = Math.pow(2, attempt - 1) * 1000; // 1s, 2s
+          await new Promise(resolve => setTimeout(resolve, delayMs));
+        }
       }
-    } catch (error) {
-      console.error("[RequestInvitationLayout] Request failed", error);
-      this.showMessage(
-        translate("requestInvitationError") ||
-          "Failed to submit request. Please try again later.",
-        true
-      );
-    } finally {
-      if (this.submitButton) {
-        this.submitButton.disabled = false;
-        this.setSubmitLabel("requestInvitationSubmitButton");
-      }
+    }
+
+    // All retries failed, show error message
+    const translate = window.translate || ((key) => key);
+    this.showMessage(
+      translate("requestInvitationError") ||
+        "Failed to submit request. Please try again later.",
+      true
+    );
+
+    if (this.submitButton) {
+      this.submitButton.disabled = false;
+      this.setSubmitLabel("requestInvitationSubmitButton");
     }
   }
 
@@ -155,6 +177,7 @@ class RequestInvitationLayoutElement extends HTMLElement {
     if (!this.submitButton) {
       return;
     }
+    const translate = window.translate || ((key) => key);
     const label = this.submitButton.querySelector('[data-type="lang"]');
     const text = translate(key);
     if (label) {

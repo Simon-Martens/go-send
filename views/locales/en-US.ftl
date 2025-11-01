@@ -386,6 +386,18 @@ loginSubmitting = Signing in...
 loginErrorChallenge = Could not start login challenge. Please try again.
 loginErrorGeneric = Login failed. Please try again.
 
+## Request Invitation strings
+
+requestInvitationTitle = Request Invitation
+requestInvitationDescription = Enter your email address to request access. If your email domain is authorized, you will receive an invitation link.
+requestInvitationEmailLabel = Email
+requestInvitationSubmitButton = Request Invitation
+requestInvitationSubmitting = Submitting request...
+requestInvitationSuccess = If your email domain is authorized, you will receive an invitation shortly.
+requestInvitationError = Failed to submit request. Please try again later.
+requestInvitationAlreadyHaveAccount = Already have an account?
+requestInvitationSignIn = Sign in
+
 ## File ownership labels
 
 fileTileFrom = FROM

@@ -386,6 +386,18 @@ loginSubmitting = Connexion…
 loginErrorChallenge = Impossible de démarrer le défi de connexion. Veuillez réessayer.
 loginErrorGeneric = Échec de la connexion. Veuillez réessayer.
 
+## Request Invitation strings
+
+requestInvitationTitle = Demander une invitation
+requestInvitationDescription = Saisissez votre adresse e-mail pour demander l'accès. Si votre domaine e-mail est autorisé, vous recevrez un lien d'invitation.
+requestInvitationEmailLabel = Adresse e-mail
+requestInvitationSubmitButton = Demander une invitation
+requestInvitationSubmitting = Envoi de la demande…
+requestInvitationSuccess = Si votre domaine e-mail est autorisé, vous recevrez une invitation sous peu.
+requestInvitationError = Échec de l'envoi de la demande. Veuillez réessayer plus tard.
+requestInvitationAlreadyHaveAccount = Vous avez déjà un compte ?
+requestInvitationSignIn = Se connecter
+
 ## File ownership labels
 
 fileTileFrom = DE

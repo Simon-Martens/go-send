@@ -1,5 +1,4 @@
 import {
-  translate,
   translateElement
 } from "./chunk-TXB3JAVG.js";
 import "./chunk-IFG75HHC.js";
@@ -62,8 +61,9 @@ var RequestInvitationLayoutElement = class extends HTMLElement {
     this.hideMessage();
     const email = (_a = this.emailInput) == null ? void 0 : _a.value.trim();
     if (!email || !this.isValidEmail(email)) {
+      const translate2 = window.translate || ((key) => key);
       this.showMessage(
-        translate("authErrorInvalidEmail") || "Please enter a valid email address",
+        translate2("authErrorInvalidEmail") || "Please enter a valid email address",
         true
       );
       return;
@@ -72,36 +72,50 @@ var RequestInvitationLayoutElement = class extends HTMLElement {
       this.submitButton.disabled = true;
       this.setSubmitLabel("requestInvitationSubmitting");
     }
-    try {
-      const response = await fetch("/api/request-invitation", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ email })
-      });
-      if (!response.ok) {
-        throw new Error("Request failed");
+    const maxRetries = 3;
+    let lastError = null;
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const response = await fetch("/api/request-invitation", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ email })
+        });
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${response.status}`);
+        }
+        const result = await response.json();
+        const translate2 = window.translate || ((key) => key);
+        this.showMessage(
+          translate2("requestInvitationSuccess") || "If your email domain is authorized, you will receive an invitation shortly.",
+          false
+        );
+        if (this.emailInput) {
+          this.emailInput.parentElement.style.display = "none";
+        }
+        if (this.submitButton) {
+          this.submitButton.style.display = "none";
+        }
+        return;
+      } catch (error) {
+        lastError = error;
+        console.error(`[RequestInvitationLayout] Attempt ${attempt}/${maxRetries} failed`, error);
+        if (attempt < maxRetries) {
+          const delayMs = Math.pow(2, attempt - 1) * 1e3;
+          await new Promise((resolve) => setTimeout(resolve, delayMs));
+        }
       }
-      const result = await response.json();
-      this.showMessage(
-        result.message || translate("requestInvitationSuccess") || "If your email domain is authorized, you will receive an invitation shortly.",
-        false
-      );
-      if (this.emailInput) {
-        this.emailInput.value = "";
-      }
-    } catch (error) {
-      console.error("[RequestInvitationLayout] Request failed", error);
-      this.showMessage(
-        translate("requestInvitationError") || "Failed to submit request. Please try again later.",
-        true
-      );
-    } finally {
-      if (this.submitButton) {
-        this.submitButton.disabled = false;
-        this.setSubmitLabel("requestInvitationSubmitButton");
-      }
+    }
+    const translate = window.translate || ((key) => key);
+    this.showMessage(
+      translate("requestInvitationError") || "Failed to submit request. Please try again later.",
+      true
+    );
+    if (this.submitButton) {
+      this.submitButton.disabled = false;
+      this.setSubmitLabel("requestInvitationSubmitButton");
     }
   }
   showMessage(message, isError) {
@@ -133,6 +147,7 @@ var RequestInvitationLayoutElement = class extends HTMLElement {
     if (!this.submitButton) {
       return;
     }
+    const translate = window.translate || ((key2) => key2);
     const label = this.submitButton.querySelector('[data-type="lang"]');
     const text = translate(key);
     if (label) {
@@ -147,4 +162,4 @@ var RequestInvitationLayoutElement = class extends HTMLElement {
   }
 };
 customElements.define("request-invitation-layout", RequestInvitationLayoutElement);
-//# sourceMappingURL=request-invitation-layout-5BXTXCN4.js.map
+//# sourceMappingURL=request-invitation-layout-TPEDIED2.js.map

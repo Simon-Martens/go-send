@@ -389,6 +389,18 @@ loginSubmitting = Anmeldung l\xE4uft\u2026
 loginErrorChallenge = Anmeldeanforderung konnte nicht gestartet werden. Bitte versuchen Sie es erneut.
 loginErrorGeneric = Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.
 
+## Request Invitation strings
+
+requestInvitationTitle = Einladung anfordern
+requestInvitationDescription = Geben Sie Ihre E-Mail-Adresse ein, um Zugang anzufordern. Wenn Ihre E-Mail-Domain autorisiert ist, erhalten Sie einen Einladungslink.
+requestInvitationEmailLabel = E-Mail
+requestInvitationSubmitButton = Einladung anfordern
+requestInvitationSubmitting = Anfrage wird gesendet\u2026
+requestInvitationSuccess = Wenn Ihre E-Mail-Domain autorisiert ist, erhalten Sie in K\xFCrze eine Einladung.
+requestInvitationError = Anfrage konnte nicht gesendet werden. Bitte versuchen Sie es sp\xE4ter erneut.
+requestInvitationAlreadyHaveAccount = Haben Sie bereits ein Konto?
+requestInvitationSignIn = Anmelden
+
 ## File ownership labels
 
 fileTileFrom = VON
@@ -409,4 +421,4 @@ footerUntrustedWarning = Diesem Ger\xE4t wird nicht vertraut. Denken Sie daran, 
 export {
   de_default as default
 };
-//# sourceMappingURL=de-EMR4KXUJ.js.map
+//# sourceMappingURL=de-ERQSIKF2.js.map

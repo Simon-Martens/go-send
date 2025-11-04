@@ -94,13 +94,13 @@ func main() {
 
 		claimURL := "http://localhost:" + cfg.Port + "/auth/claim/" + rawToken
 		app.InitialAdminClaimURL = claimURL
-		logger.Warn("═══════════════════════════════════════════════════════════════════════")
-		logger.Warn("⚠️  NO USERS REGISTERED - INITIAL ADMIN SETUP REQUIRED")
-		logger.Warn("═══════════════════════════════════════════════════════════════════════")
-		logger.Warn("Create your first administrator account using this one-time link:")
-		logger.Warn("", "url", claimURL)
-		logger.Warn("", "token_id", tokenRecord.ID, "expires", "after first use")
-		logger.Warn("═══════════════════════════════════════════════════════════════════════")
+		logger.Warn("════════════════════════════════════════════-═════")
+		logger.Warn("NO USERS REGISTERED - INITIAL ADMIN SETUP REQUIRED")
+		logger.Warn("══════════════════════════════════════════════════")
+		logger.Warn("Create your first administrator account under:", "url", claimURL)
+		logger.Warn("══════════════════════════════════════════════════")
+		logger.Warn("or go the applications base URL")
+		logger.Warn("══════════════════════════════════════════════════")
 	}
 
 	if err := os.MkdirAll(cfg.FileDir, 0o755); err != nil {

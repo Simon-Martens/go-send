@@ -12,7 +12,7 @@ import (
 
 // LogEntry represents a single log entry in the frontend format
 type LogEntry struct {
-	Type                 string `json:"type"`                 // "upload" or "download"
+	Type                 string `json:"type"`                 // "upload", "download", or "deletion"
 	Timestamp            string `json:"timestamp"`            // ISO 8601 timestamp
 	Duration             int64  `json:"duration"`             // milliseconds
 	FileID               string `json:"fileId"`               // file ID
@@ -24,6 +24,7 @@ type LogEntry struct {
 	Origin               string `json:"origin"`               // origin header
 	SessionUser          string `json:"sessionUser"`          // who accessed (for downloads)
 	StatusCode           int    `json:"statusCode"`           // HTTP status code
+	DeletionType         string `json:"deletionType"`         // deletion type: "user_request", "time_limit", "download_count_exceeded", or empty
 }
 
 // LogsResponse represents the response structure for the logs endpoint
@@ -174,10 +175,14 @@ func NewLogsHandler(app *core.App) http.HandlerFunc {
 			}
 
 			// Use pre-stored owner name (resolved at log-time, no database lookups needed)
-			ownerName := log.Owner
+			// For deletion events, owner field is empty since file is already deleted
+			ownerName := ""
 			ownerType := "guest"
-			if ownerName != "" && ownerName != "Guest" {
-				ownerType = "owner"
+			if log.EventType != "deletion" {
+				ownerName = log.Owner
+				if ownerName != "" && ownerName != "Guest" {
+					ownerType = "owner"
+				}
 			}
 
 			// Check if file was uploaded via auth token
@@ -210,6 +215,19 @@ func NewLogsHandler(app *core.App) http.HandlerFunc {
 				statusCode = *log.StatusCode
 			}
 
+			// Parse deletion type from data blob (for deletion events)
+			deletionType := ""
+			if log.EventType == "deletion" && len(log.Data) > 0 {
+				var dataBlob map[string]interface{}
+				if err := json.Unmarshal(log.Data, &dataBlob); err == nil {
+					if dt, ok := dataBlob["deletion_type"]; ok {
+						if dtStr, ok := dt.(string); ok {
+							deletionType = dtStr
+						}
+					}
+				}
+			}
+
 			entry := LogEntry{
 				Type:              log.EventType,
 				Timestamp:         timestamp,
@@ -223,6 +241,7 @@ func NewLogsHandler(app *core.App) http.HandlerFunc {
 				Origin:            requestData.Origin,
 				SessionUser:       sessionUser,
 				StatusCode:        statusCode,
+				DeletionType:      deletionType,
 			}
 
 			logEntries = append(logEntries, entry)

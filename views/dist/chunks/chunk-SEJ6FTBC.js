@@ -233,6 +233,15 @@ var LogsTable = class extends HTMLElement {
       } else if (log.type === "download") {
         typeIcon.className = "ri-download-cloud-2-line text-lg leading-4";
         typeText.textContent = "Download";
+      } else if (log.type === "deletion") {
+        let iconClass = "ri-delete-bin-line text-lg leading-4 text-red-600 dark:text-red-400";
+        if (log.deletionType === "time_limit") {
+          iconClass = "ri-time-line text-lg leading-4 text-red-600 dark:text-red-400";
+        } else if (log.deletionType === "download_count_exceeded") {
+          iconClass = "ri-download-2-line text-lg leading-4 text-red-600 dark:text-red-400";
+        }
+        typeIcon.className = iconClass;
+        typeText.textContent = "Deleted";
       }
     }
     const timestampEl = row.querySelector('[data-role="log-timestamp"]');
@@ -376,4 +385,4 @@ customElements.define("logs-table", LogsTable);
 export {
   LogsTable
 };
-//# sourceMappingURL=chunk-KPQTW3X7.js.map
+//# sourceMappingURL=chunk-SEJ6FTBC.js.map

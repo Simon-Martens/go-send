@@ -77,6 +77,10 @@ func (a *App) ScheduleCleanup(fileID string, expiresAt int64) bool {
 		case <-time.After(duration):
 			// Delete file from disk and database
 			a.Logger.Info("Auto-deleting expired file", "file_id", id)
+
+			// Log the automatic deletion due to time limit
+			a.DBLogger.LogSystemFileOp(id, "deletion", 0, a.DB, "deletion_type", "time_limit")
+
 			storage.DeleteFile(a.Config.FileDir, id)
 			a.DB.DeleteFileRecord(id)
 		case <-ctx.Done():

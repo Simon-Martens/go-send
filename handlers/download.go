@@ -142,6 +142,10 @@ func NewDownloadHandler(app *core.App) http.HandlerFunc {
 		if err != nil {
 			app.Logger.Error("Error incrementing download count", "file_id", id, "error", err)
 		} else if shouldDelete {
+			// Log the automatic deletion BEFORE deleting (capture owner name before file is deleted)
+			// For system deletions, we don't have request context, so include owner in the log data
+			app.DBLogger.LogSystemFileOp(id, "deletion", 0, app.DB, "deletion_type", "download_count_exceeded")
+
 			// Cancel any scheduled cleanup goroutine
 			app.CancelCleanup(id)
 

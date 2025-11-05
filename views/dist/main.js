@@ -3079,7 +3079,7 @@ async function initUploadRoute(app) {
     import("./chunks/upload-layout-DFS3ROWS.js"),
     import("./chunks/upload-area-7FIUU7LE.js"),
     import("./chunks/upload-right-IJVSP3KQ.js"),
-    import("./chunks/logs-table-OFQ22LG3.js"),
+    import("./chunks/logs-table-OVE4WZXQ.js"),
     app.controller.ready
   ]);
   app.showUploadLayout();
@@ -3123,9 +3123,9 @@ async function initSettingsRoute(app) {
     import("./chunks/settings-layout-K3S6C76E.js"),
     import("./chunks/settings-account-panel-HZATUEGP.js"),
     import("./chunks/settings-upload-links-panel-IDTQR6SF.js"),
-    import("./chunks/settings-users-panel-2HG7MQKL.js"),
-    import("./chunks/settings-logs-panel-QZAENPVH.js"),
-    import("./chunks/logs-table-OFQ22LG3.js"),
+    import("./chunks/settings-users-panel-IIA7ZTWS.js"),
+    import("./chunks/settings-logs-panel-W5U52WEI.js"),
+    import("./chunks/logs-table-OVE4WZXQ.js"),
     app.controller.ready
   ]);
   app.showSettingsLayout();

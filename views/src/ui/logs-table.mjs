@@ -278,6 +278,20 @@ class LogsTable extends HTMLElement {
       } else if (log.type === "download") {
         typeIcon.className = "ri-download-cloud-2-line text-lg leading-4";
         typeText.textContent = "Download";
+      } else if (log.type === "deletion") {
+        // Handle deletion with red icons for all types
+        let iconClass = "ri-delete-bin-line text-lg leading-4 text-red-600 dark:text-red-400";
+
+        if (log.deletionType === "time_limit") {
+          // Time limit exceeded - use clock icon but still red
+          iconClass = "ri-time-line text-lg leading-4 text-red-600 dark:text-red-400";
+        } else if (log.deletionType === "download_count_exceeded") {
+          // Download count exceeded - use download icon but still red
+          iconClass = "ri-download-2-line text-lg leading-4 text-red-600 dark:text-red-400";
+        }
+
+        typeIcon.className = iconClass;
+        typeText.textContent = "Deleted";
       }
     }
 

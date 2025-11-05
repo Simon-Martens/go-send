@@ -140,6 +140,44 @@ func (d *DBLogger) LogFileOp(
 	}
 }
 
+// LogSystemFileOp logs a system-initiated file operation (e.g., automatic deletion)
+// This is used for operations that don't have an HTTP request context
+// durationMS should be 0 for background operations
+// eventType should be "deletion" for automatic deletes
+// keyValues should include "deletion_type" with value like "time_limit" or "download_count_exceeded"
+func (d *DBLogger) LogSystemFileOp(
+	fileID string,
+	eventType string,
+	durationMS int64,
+	db *storage.DB,
+	keyValues ...any,
+) {
+	// Create a synthetic file transfer log entry with no request
+	entry := &fileTransferLogEntry{
+		request:    nil, // No HTTP request for system operations
+		eventType:  eventType,
+		fileID:     fileID,
+		statusCode: http.StatusOK, // System operations don't have HTTP status, use 200 as default
+		errorMsg:   "",
+		keyValues:  keyValues,
+		durationMS: durationMS,
+		sessionID:  nil, // System operations have no session
+		userID:     nil, // System operations have no user
+		db:         db,
+	}
+
+	// Send to channel (non-blocking to prevent blocking)
+	select {
+	case d.transferLogChan <- entry:
+		// Successfully queued
+	default:
+		// Channel full - log dropped to prevent blocking
+		d.logger.Warn("Transfer log channel full, log dropped",
+			"event_type", eventType,
+			"file_id", fileID)
+	}
+}
+
 // LogAuthEvent records authentication-related events
 func (d *DBLogger) LogAuthEvent(
 	r *http.Request,
@@ -313,8 +351,20 @@ func (d *DBLogger) processRequestLog(entry *requestLogEntry) {
 
 // processFileTransferLog handles file transfer log entries
 func (d *DBLogger) processFileTransferLog(entry *fileTransferLogEntry) {
-	// Build RequestData JSON from http.Request
-	reqData := storage.NewRequestData(entry.request)
+	// Build RequestData JSON from http.Request (or empty if no request for system operations)
+	var reqData *storage.RequestData
+	if entry.request != nil {
+		reqData = storage.NewRequestData(entry.request)
+	} else {
+		// For system-initiated operations (no HTTP request)
+		reqData = &storage.RequestData{
+			Method:    "system",
+			Path:      "",
+			IP:        "",
+			UserAgent: "",
+			Headers:   map[string]string{},
+		}
+	}
 
 	// Build Error JSON from errorMsg and keyValues
 	errorData := make(map[string]any)

@@ -59,7 +59,7 @@ uploadGuestBannerMessageGuest = Bitte denken Sie an \xF6ffentlichen Ger\xE4ten d
 uploadGuestBannerMessageEphemeral = Dieses Ger\xE4t ist nicht vertrauensw\xFCrdig. Bitte denken Sie daran, sich abzumelden
 notifyUploadEncryptDone = Ihre Datei wurde verschl\xFCsselt
 # downloadCount is from the downloadCount string and timespan is a timespanMinutes string. ex. 'Expires after 2 downloads or 25 minutes'
-archiveExpiryInfo = L\xE4uft nach { $downloadCount } oder { $timespan } ab
+archiveExpiryInfo = L\xE4uft in { $downloadCount } oder { $timespan } ab
 timespanMinutes =
     { $num ->
         [one] einer Minute
@@ -408,6 +408,18 @@ settingsLogsNext = Weiter
 logsBack = Zur\xFCck
 logsForFile = Protokolle f\xFCr
 
+## File edit strings
+
+editFileHeader = Datei bearbeiten
+fileNameLabel = Dateiname
+saveChangesButton = \xC4nderungen speichern
+enterPasswordPlaceholder = Passwort eingeben
+uploadedLabel = Hochgeladen
+passwordAlreadySet = Passwort isr bereits gesetzt und kann nicht ge\xE4ndert werden.
+fileSaveError = \xC4nderungen konnten nicht gespeichert werden
+fileNameRequired = Dateiname ist erforderlich
+invalidFilename = Ung\xFCltiger Dateiname
+
 ## Request Invitation strings
 
 requestInvitationTitle = Einladung anfordern
@@ -440,4 +452,4 @@ footerUntrustedWarning = Diesem Ger\xE4t wird nicht vertraut. Denken Sie daran, 
 export {
   de_default as default
 };
-//# sourceMappingURL=de-KDVOLSIV.js.map
+//# sourceMappingURL=de-VXKPM4FU.js.map

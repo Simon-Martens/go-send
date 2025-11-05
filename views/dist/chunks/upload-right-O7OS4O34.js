@@ -3,8 +3,8 @@ import {
 } from "./chunk-UGZWX5FZ.js";
 import {
   storage_default
-} from "./chunk-AKVSF6J7.js";
-import "./chunk-OOESJOAH.js";
+} from "./chunk-XXMRHGTR.js";
+import "./chunk-2XG27J2F.js";
 import {
   bytes,
   copyToClipboard,
@@ -523,4 +523,4 @@ var UploadRightElement = class extends HTMLElement {
   }
 };
 customElements.define("upload-right", UploadRightElement);
-//# sourceMappingURL=upload-right-CYYDMXUT.js.map
+//# sourceMappingURL=upload-right-O7OS4O34.js.map

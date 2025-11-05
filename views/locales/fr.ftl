@@ -405,6 +405,18 @@ settingsLogsNext = Suivant
 logsBack = Retour
 logsForFile = Journaux pour
 
+## File edit strings
+
+editFileHeader = Modifier le fichier
+fileNameLabel = Nom du fichier
+saveChangesButton = Enregistrer les modifications
+enterPasswordPlaceholder = Saisir le mot de passe
+uploadedLabel = Téléversé
+passwordAlreadySet = Mot de passe déjà défini (ne peut pas être modifié ici)
+fileSaveError = Échec de l'enregistrement des modifications
+fileNameRequired = Le nom du fichier est requis
+invalidFilename = Nom de fichier invalide
+
 ## Request Invitation strings
 
 requestInvitationTitle = Demander une invitation

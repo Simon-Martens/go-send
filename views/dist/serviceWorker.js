@@ -695,6 +695,9 @@ async function updateFile(id, owner_token, keychain, updates) {
   if (updates.metadata !== void 0) {
     payload.metadata = updates.metadata;
   }
+  if (updates.resetDcount !== void 0) {
+    payload.resetDcount = updates.resetDcount;
+  }
   const result = await fetchWithAuthAndRetry(
     getApiUrl(`/api/params/${id}`),
     {

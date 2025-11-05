@@ -544,6 +544,9 @@ async function updateFile(id, owner_token, keychain, updates) {
   if (updates.metadata !== void 0) {
     payload.metadata = updates.metadata;
   }
+  if (updates.resetDcount !== void 0) {
+    payload.resetDcount = updates.resetDcount;
+  }
   const result = await fetchWithAuthAndRetry(
     getApiUrl(`/api/params/${id}`),
     {
@@ -910,4 +913,4 @@ export {
   uploadWs,
   downloadFile
 };
-//# sourceMappingURL=chunk-OOESJOAH.js.map
+//# sourceMappingURL=chunk-2XG27J2F.js.map

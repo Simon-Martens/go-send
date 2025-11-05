@@ -719,6 +719,12 @@ func (d *DB) UpdateDlimit(id string, dlimit int) error {
 	return err
 }
 
+func (d *DB) ResetDownloadCount(id string) error {
+	query := `UPDATE files SET dl_count = 0 WHERE id = ?`
+	_, err := d.db.Exec(query, id)
+	return err
+}
+
 func (d *DB) UpdateExpiresAt(id string, expiresAt int64) error {
 	query := `UPDATE files SET expires_at = ? WHERE id = ?`
 	_, err := d.db.Exec(query, expiresAt, id)

@@ -429,8 +429,20 @@ settingsLogsCount = Logs { $start } to { $end } of { $total }
 settingsLogsNext = Next
 logsBack = Back
 logsForFile = Logs for
+
+## File edit strings
+
+editFileHeader = Edit File
+fileNameLabel = File name
+saveChangesButton = Save Changes
+enterPasswordPlaceholder = Enter password
+uploadedLabel = Uploaded
+passwordAlreadySet = Password already set (cannot be changed here)
+fileSaveError = Failed to save changes
+fileNameRequired = File name is required
+invalidFilename = Invalid filename
 `;
 export {
   en_US_default as default
 };
-//# sourceMappingURL=en-US-RJDQ66UV.js.map
+//# sourceMappingURL=en-US-MXQ7RRYD.js.map

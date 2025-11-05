@@ -55,13 +55,15 @@
 			</div>
 
 			<!-- Expiry Controls -->
-			<div class="text-sm font-medium text-grey-80 dark:text-grey-30">
-				<div class="font-medium mb-1.5 px-2" id="expiresAfterLabel" data-type="lang">Expires after</div>
+			<div data-role="expiry-container" class="text-sm font-medium text-grey-80 dark:text-grey-30">
+				<div class="font-medium mb-1.5 px-2" data-role="expiry-label-top">Expires after</div>
 				<div class="flex items-center gap-3">
 					<select data-role="download-limit" class="w-full rounded-xs border border-grey-30 bg-white px-2 py-2 text-sm dark:bg-grey-80 dark:border-grey-60"></select>
-					<span class="text-sm tracking-wide text-grey-80 dark:text-grey-30 font-medium px-2" id="orLabel" data-type="lang">or</span>
+					<span class="text-sm tracking-wide text-grey-80 dark:text-grey-30 font-medium px-2" data-role="or-label">or</span>
 					<select data-role="time-limit" class="w-full rounded-xs border border-grey-30 bg-white px-2 py-2 text-sm dark:bg-grey-80 dark:border-grey-60"></select>
 				</div>
+			<!-- Some languages have a different wording for this sentence -->
+			<div class="font-medium mt-1.5 text-right px-2" data-role="expiry-label-bottom"></div>
 			</div>
 
 			<!-- Password Toggle -->
@@ -96,7 +98,7 @@
 			<div class="text-sm text-red-600 dark:text-red-400 hidden" data-role="error"></div>
 			<div class="flex gap-3">
 				<button type="button" class="btn-secondary flex-1 cursor-pointer" data-action="cancel">
-					<span id="cancelButton" data-type="lang">Cancel</span>
+					<span id="deletePopupCancel" data-type="lang">Cancel</span>
 				</button>
 				<button type="button" class="btn flex-1" data-action="save">
 					<span id="saveChangesButton" data-type="lang">Save Changes</span>

@@ -1,9 +1,9 @@
 import {
   storage_default
-} from "./chunk-AKVSF6J7.js";
+} from "./chunk-XXMRHGTR.js";
 import {
   fetchLogs
-} from "./chunk-OOESJOAH.js";
+} from "./chunk-2XG27J2F.js";
 import {
   translateElement
 } from "./chunk-TXB3JAVG.js";
@@ -385,4 +385,4 @@ customElements.define("logs-table", LogsTable);
 export {
   LogsTable
 };
-//# sourceMappingURL=chunk-CPUCIILR.js.map
+//# sourceMappingURL=chunk-DEXPGBUA.js.map

@@ -56,7 +56,7 @@ uploadGuestBannerMessageGuest = Bitte denken Sie an öffentlichen Geräten daran
 uploadGuestBannerMessageEphemeral = Dieses Gerät ist nicht vertrauenswürdig. Bitte denken Sie daran, sich abzumelden
 notifyUploadEncryptDone = Ihre Datei wurde verschlüsselt
 # downloadCount is from the downloadCount string and timespan is a timespanMinutes string. ex. 'Expires after 2 downloads or 25 minutes'
-archiveExpiryInfo = Läuft nach { $downloadCount } oder { $timespan } ab
+archiveExpiryInfo = Läuft in { $downloadCount } oder { $timespan } ab
 timespanMinutes =
     { $num ->
         [one] einer Minute
@@ -404,6 +404,18 @@ settingsLogsCount = Einträge { $start } bis { $end } von { $total }
 settingsLogsNext = Weiter
 logsBack = Zurück
 logsForFile = Protokolle für
+
+## File edit strings
+
+editFileHeader = Datei bearbeiten
+fileNameLabel = Dateiname
+saveChangesButton = Änderungen speichern
+enterPasswordPlaceholder = Passwort eingeben
+uploadedLabel = Hochgeladen
+passwordAlreadySet = Passwort isr bereits gesetzt und kann nicht geändert werden.
+fileSaveError = Änderungen konnten nicht gespeichert werden
+fileNameRequired = Dateiname ist erforderlich
+invalidFilename = Ungültiger Dateiname
 
 ## Request Invitation strings
 

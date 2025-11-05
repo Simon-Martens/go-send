@@ -1,8 +1,8 @@
 import {
   USER_ROLES,
   storage_default
-} from "./chunk-AKVSF6J7.js";
-import "./chunk-OOESJOAH.js";
+} from "./chunk-XXMRHGTR.js";
+import "./chunk-2XG27J2F.js";
 import {
   translateElement
 } from "./chunk-TXB3JAVG.js";
@@ -212,4 +212,4 @@ var SettingsLayout = class extends HTMLElement {
   }
 };
 customElements.define("settings-layout", SettingsLayout);
-//# sourceMappingURL=settings-layout-5MMKLHOD.js.map
+//# sourceMappingURL=settings-layout-IMD4QUIN.js.map

@@ -7,7 +7,7 @@ import {
   fileInfo,
   setPassword,
   updateFile
-} from "./chunk-OOESJOAH.js";
+} from "./chunk-2XG27J2F.js";
 import {
   arrayToB64,
   b64ToArray,
@@ -3481,10 +3481,11 @@ var OwnedFile = class {
         this.id,
         this.ownerToken,
         this.keychain,
-        { dlimit }
+        { dlimit, resetDcount: true }
       );
       if (result) {
         this.dlimit = dlimit;
+        this.dtotal = 0;
         return true;
       }
       return false;
@@ -3852,4 +3853,4 @@ export {
 @noble/curves/esm/ed25519.js:
   (*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
 */
-//# sourceMappingURL=chunk-AKVSF6J7.js.map
+//# sourceMappingURL=chunk-XXMRHGTR.js.map

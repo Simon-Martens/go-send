@@ -1,6 +1,6 @@
 import {
   syncOwnedFiles
-} from "./chunks/chunk-D5J7NUE7.js";
+} from "./chunks/chunk-DV3OA7P5.js";
 import {
   tooltip
 } from "./chunks/chunk-UGZWX5FZ.js";
@@ -12,7 +12,7 @@ import {
   USER_ROLES,
   UserSecrets,
   storage_default
-} from "./chunks/chunk-AKVSF6J7.js";
+} from "./chunks/chunk-XXMRHGTR.js";
 import {
   blobStream,
   concatStream,
@@ -20,7 +20,7 @@ import {
   getApiUrl,
   metadata,
   uploadWs
-} from "./chunks/chunk-OOESJOAH.js";
+} from "./chunks/chunk-2XG27J2F.js";
 import {
   arrayToB64,
   browserName,
@@ -1826,12 +1826,12 @@ var localeLoaders = {
   cs: () => import("./chunks/cs-4CHTXZSU.js"),
   cy: () => import("./chunks/cy-RP2L2OUK.js"),
   da: () => import("./chunks/da-DPZF5LGO.js"),
-  de: () => import("./chunks/de-KDVOLSIV.js"),
+  de: () => import("./chunks/de-VXKPM4FU.js"),
   dsb: () => import("./chunks/dsb-L7O73QFV.js"),
   el: () => import("./chunks/el-4RABOQBG.js"),
   "en-CA": () => import("./chunks/en-CA-DJ4OOLA4.js"),
   "en-GB": () => import("./chunks/en-GB-D7G7RTNJ.js"),
-  "en-US": () => import("./chunks/en-US-RJDQ66UV.js"),
+  "en-US": () => import("./chunks/en-US-MXQ7RRYD.js"),
   "es-AR": () => import("./chunks/es-AR-6PZGYKH3.js"),
   "es-CL": () => import("./chunks/es-CL-HE4SPZ7U.js"),
   "es-ES": () => import("./chunks/es-ES-XGWIURD2.js"),
@@ -1840,7 +1840,7 @@ var localeLoaders = {
   eu: () => import("./chunks/eu-Q6CLLOH3.js"),
   fa: () => import("./chunks/fa-AEOEUDQ4.js"),
   fi: () => import("./chunks/fi-SI2D7DPR.js"),
-  fr: () => import("./chunks/fr-JNAG3YUH.js"),
+  fr: () => import("./chunks/fr-TMSI5EHL.js"),
   "fy-NL": () => import("./chunks/fy-NL-C7AQWS3X.js"),
   gn: () => import("./chunks/gn-6SZWZLYL.js"),
   gor: () => import("./chunks/gor-4LJ2LDF3.js"),
@@ -1900,7 +1900,7 @@ var localeLoaders = {
 };
 async function getTranslator(locale2) {
   const bundles = [];
-  const { default: en } = await import("./chunks/en-US-RJDQ66UV.js");
+  const { default: en } = await import("./chunks/en-US-MXQ7RRYD.js");
   if (locale2 !== "en-US" && localeLoaders[locale2]) {
     const { default: ftl } = await localeLoaders[locale2]();
     bundles.push(makeBundle(locale2, ftl));
@@ -3102,6 +3102,9 @@ var FileEditView = class extends HTMLElement {
       archiveNameError: null,
       downloadLimit: null,
       timeLimit: null,
+      expiryLabelTop: null,
+      orLabel: null,
+      expiryLabelBottom: null,
       passwordToggle: null,
       passwordToggleIcon: null,
       passwordField: null,
@@ -3182,6 +3185,13 @@ var FileEditView = class extends HTMLElement {
       '[data-role="download-limit"]'
     );
     this.elements.timeLimit = this.querySelector('[data-role="time-limit"]');
+    this.elements.expiryLabelTop = this.querySelector(
+      '[data-role="expiry-label-top"]'
+    );
+    this.elements.orLabel = this.querySelector('[data-role="or-label"]');
+    this.elements.expiryLabelBottom = this.querySelector(
+      '[data-role="expiry-label-bottom"]'
+    );
     this.elements.passwordToggle = this.querySelector(
       '[data-role="password-toggle"]'
     );
@@ -3426,6 +3436,28 @@ var FileEditView = class extends HTMLElement {
     if (!window.LIMITS || !window.DEFAULTS) {
       console.warn("[FileEditView] Missing LIMITS or DEFAULTS configuration");
       return;
+    }
+    const downloadToken = "__DOWNLOAD__";
+    const timeToken = "__TIMESPAN__";
+    const fallback = `Expires after ${downloadToken} or ${timeToken}`;
+    const translated = this._translateText("archiveExpiryInfo", fallback, {
+      downloadCount: downloadToken,
+      timespan: timeToken
+    });
+    const downloadSplit = translated.split(downloadToken);
+    const beforeDownload = downloadSplit[0] || "";
+    const afterDownloadRaw = downloadSplit[1] || "";
+    const timeSplit = afterDownloadRaw.split(timeToken);
+    const between = timeSplit[0] || "";
+    const afterTime = timeSplit[1] || "";
+    if (this.elements.expiryLabelTop) {
+      this.elements.expiryLabelTop.textContent = beforeDownload.trim() || "Expires after";
+    }
+    if (this.elements.orLabel) {
+      this.elements.orLabel.textContent = between.trim() || "or";
+    }
+    if (this.elements.expiryLabelBottom) {
+      this.elements.expiryLabelBottom.textContent = afterTime.trim() || "";
     }
     if (this.elements.downloadLimit) {
       this.elements.downloadLimit.innerHTML = "";
@@ -3832,9 +3864,9 @@ async function initUploadRoute(app) {
   console.log("[Route] Initializing upload page...");
   await Promise.all([
     import("./chunks/upload-layout-AFJPCPZK.js"),
-    import("./chunks/upload-area-LSKM5NSC.js"),
-    import("./chunks/upload-right-CYYDMXUT.js"),
-    import("./chunks/logs-table-HQNEJ5TN.js"),
+    import("./chunks/upload-area-NPGAGIFA.js"),
+    import("./chunks/upload-right-O7OS4O34.js"),
+    import("./chunks/logs-table-FFN7TT7X.js"),
     app.controller.ready
   ]);
   app.showUploadLayout();
@@ -3857,7 +3889,7 @@ async function initDownloadRoute(app) {
 async function initRegisterRoute(app) {
   console.log("[Route] Initializing register page...");
   await Promise.all([
-    import("./chunks/register-layout-UL65PQT3.js"),
+    import("./chunks/register-layout-MMSE6BX6.js"),
     app.controller.ready
   ]);
   app.showRegisterLayout();
@@ -3866,7 +3898,7 @@ async function initRegisterRoute(app) {
 async function initLoginRoute(app) {
   console.log("[Route] Initializing login page...");
   await Promise.all([
-    import("./chunks/login-layout-XISYGVVP.js"),
+    import("./chunks/login-layout-EB2TNXUK.js"),
     app.controller.ready
   ]);
   app.showLoginLayout();
@@ -3875,12 +3907,12 @@ async function initLoginRoute(app) {
 async function initSettingsRoute(app) {
   console.log("[Route] Initializing settings page...");
   await Promise.all([
-    import("./chunks/settings-layout-5MMKLHOD.js"),
-    import("./chunks/settings-account-panel-IURL4F3N.js"),
-    import("./chunks/settings-upload-links-panel-MF4ILIZ2.js"),
-    import("./chunks/settings-users-panel-WZUV2IEB.js"),
-    import("./chunks/settings-logs-panel-3773N5HW.js"),
-    import("./chunks/logs-table-HQNEJ5TN.js"),
+    import("./chunks/settings-layout-IMD4QUIN.js"),
+    import("./chunks/settings-account-panel-R4MNGWQH.js"),
+    import("./chunks/settings-upload-links-panel-72Q6T4ZZ.js"),
+    import("./chunks/settings-users-panel-O3ECUDQB.js"),
+    import("./chunks/settings-logs-panel-ZTG6XVHJ.js"),
+    import("./chunks/logs-table-FFN7TT7X.js"),
     app.controller.ready
   ]);
   app.showSettingsLayout();

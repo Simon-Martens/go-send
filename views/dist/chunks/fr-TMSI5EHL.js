@@ -408,6 +408,18 @@ settingsLogsNext = Suivant
 logsBack = Retour
 logsForFile = Journaux pour
 
+## File edit strings
+
+editFileHeader = Modifier le fichier
+fileNameLabel = Nom du fichier
+saveChangesButton = Enregistrer les modifications
+enterPasswordPlaceholder = Saisir le mot de passe
+uploadedLabel = T\xE9l\xE9vers\xE9
+passwordAlreadySet = Mot de passe d\xE9j\xE0 d\xE9fini (ne peut pas \xEAtre modifi\xE9 ici)
+fileSaveError = \xC9chec de l'enregistrement des modifications
+fileNameRequired = Le nom du fichier est requis
+invalidFilename = Nom de fichier invalide
+
 ## Request Invitation strings
 
 requestInvitationTitle = Demander une invitation
@@ -440,4 +452,4 @@ footerUntrustedWarning = Cet ordinateur n'est pas s\xFBr ! Pensez \xE0 vous d\xE
 export {
   fr_default as default
 };
-//# sourceMappingURL=fr-JNAG3YUH.js.map
+//# sourceMappingURL=fr-TMSI5EHL.js.map

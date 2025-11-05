@@ -59,10 +59,11 @@ export default class OwnedFile {
         this.id,
         this.ownerToken,
         this.keychain,
-        { dlimit }
+        { dlimit, resetDcount: true }
       );
       if (result) {
         this.dlimit = dlimit;
+        this.dtotal = 0; // Reset download count locally
         return true;
       }
       return false;

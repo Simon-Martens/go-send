@@ -346,10 +346,11 @@ func NewUpdateFileHandler(app *core.App) http.HandlerFunc {
 
 		// Parse request body
 		var req struct {
-			OwnerToken string  `json:"owner_token"`
-			Dlimit     *int    `json:"dlimit"`
-			ExpiresAt  *int64  `json:"expiresAt"`
-			Metadata   *string `json:"metadata"`
+			OwnerToken  string  `json:"owner_token"`
+			Dlimit      *int    `json:"dlimit"`
+			ExpiresAt   *int64  `json:"expiresAt"`
+			Metadata    *string `json:"metadata"`
+			ResetDcount *bool   `json:"resetDcount"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			http.Error(w, "Invalid request", http.StatusBadRequest)
@@ -366,10 +367,20 @@ func NewUpdateFileHandler(app *core.App) http.HandlerFunc {
 			return
 		}
 
+		// Reset download count if requested
+		if req.ResetDcount != nil && *req.ResetDcount {
+			if err := app.DB.ResetDownloadCount(id); err != nil {
+				app.Logger.Error("Failed to reset download count", "error", err, "file_id", id)
+				http.Error(w, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+			meta.DlCount = 0
+		}
+
 		// Update dlimit if provided
 		if req.Dlimit != nil {
-			// Validate: new limit must be >= current download count
-			if *req.Dlimit < meta.DlCount {
+			// If not resetting count, validate: new limit must be >= current download count
+			if (req.ResetDcount == nil || !*req.ResetDcount) && *req.Dlimit < meta.DlCount {
 				http.Error(w, "New download limit must be greater than or equal to current download count", http.StatusBadRequest)
 				return
 			}

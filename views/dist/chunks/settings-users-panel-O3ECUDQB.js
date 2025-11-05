@@ -1,12 +1,12 @@
 import {
   qrcode_default
 } from "./chunk-U2YGIKKI.js";
-import "./chunk-CPUCIILR.js";
+import "./chunk-DEXPGBUA.js";
 import {
   USER_ROLES,
   storage_default
-} from "./chunk-AKVSF6J7.js";
-import "./chunk-OOESJOAH.js";
+} from "./chunk-XXMRHGTR.js";
+import "./chunk-2XG27J2F.js";
 import {
   copyToClipboard,
   translate,
@@ -1282,4 +1282,4 @@ var SettingsUsersPanel = class extends HTMLElement {
   }
 };
 customElements.define("settings-users-panel", SettingsUsersPanel);
-//# sourceMappingURL=settings-users-panel-WZUV2IEB.js.map
+//# sourceMappingURL=settings-users-panel-O3ECUDQB.js.map

@@ -44,6 +44,9 @@ class FileEditView extends HTMLElement {
       archiveNameError: null,
       downloadLimit: null,
       timeLimit: null,
+      expiryLabelTop: null,
+      orLabel: null,
+      expiryLabelBottom: null,
       passwordToggle: null,
       passwordToggleIcon: null,
       passwordField: null,
@@ -134,6 +137,13 @@ class FileEditView extends HTMLElement {
       '[data-role="download-limit"]',
     );
     this.elements.timeLimit = this.querySelector('[data-role="time-limit"]');
+    this.elements.expiryLabelTop = this.querySelector(
+      '[data-role="expiry-label-top"]',
+    );
+    this.elements.orLabel = this.querySelector('[data-role="or-label"]');
+    this.elements.expiryLabelBottom = this.querySelector(
+      '[data-role="expiry-label-bottom"]',
+    );
     this.elements.passwordToggle = this.querySelector(
       '[data-role="password-toggle"]',
     );
@@ -416,6 +426,33 @@ class FileEditView extends HTMLElement {
     if (!window.LIMITS || !window.DEFAULTS) {
       console.warn("[FileEditView] Missing LIMITS or DEFAULTS configuration");
       return;
+    }
+
+    // Split archiveExpiryInfo translation to populate labels
+    const downloadToken = "__DOWNLOAD__";
+    const timeToken = "__TIMESPAN__";
+    const fallback = `Expires after ${downloadToken} or ${timeToken}`;
+
+    const translated = this._translateText("archiveExpiryInfo", fallback, {
+      downloadCount: downloadToken,
+      timespan: timeToken,
+    });
+
+    const downloadSplit = translated.split(downloadToken);
+    const beforeDownload = downloadSplit[0] || "";
+    const afterDownloadRaw = downloadSplit[1] || "";
+    const timeSplit = afterDownloadRaw.split(timeToken);
+    const between = timeSplit[0] || "";
+    const afterTime = timeSplit[1] || "";
+
+    if (this.elements.expiryLabelTop) {
+      this.elements.expiryLabelTop.textContent = beforeDownload.trim() || "Expires after";
+    }
+    if (this.elements.orLabel) {
+      this.elements.orLabel.textContent = between.trim() || "or";
+    }
+    if (this.elements.expiryLabelBottom) {
+      this.elements.expiryLabelBottom.textContent = afterTime.trim() || "";
     }
 
     // Populate download limit select

@@ -684,6 +684,30 @@ async function del(id, owner_token) {
   );
   return response.ok;
 }
+async function updateFile(id, owner_token, keychain, updates) {
+  const payload = { owner_token };
+  if (updates.dlimit !== void 0) {
+    payload.dlimit = updates.dlimit;
+  }
+  if (updates.expiresAt !== void 0) {
+    payload.expiresAt = updates.expiresAt;
+  }
+  if (updates.metadata !== void 0) {
+    payload.metadata = updates.metadata;
+  }
+  const result = await fetchWithAuthAndRetry(
+    getApiUrl(`/api/params/${id}`),
+    {
+      method: "POST",
+      body: JSON.stringify(payload)
+    },
+    keychain
+  );
+  if (result.ok) {
+    return await result.response.json();
+  }
+  throw new Error(result.response.status);
+}
 async function setParams(id, owner_token, params) {
   const response = await fetch(
     getApiUrl(`/api/params/${id}`),

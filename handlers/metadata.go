@@ -295,3 +295,139 @@ func NewInfoHandler(app *core.App) http.HandlerFunc {
 		json.NewEncoder(w).Encode(response)
 	}
 }
+
+func NewUpdateFileHandler(app *core.App) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		id := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/api/params/"), "/")
+
+		if id == "" {
+			http.Error(w, "Missing file ID", http.StatusBadRequest)
+			return
+		}
+
+		// Get file metadata
+		meta, err := app.DB.GetFile(id)
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+
+		// TODO: Verify HMAC auth
+		// authHeader := r.Header.Get("Authorization")
+		// if !auth.VerifyHMAC(authHeader, meta.AuthKey, meta.Nonce, app.Logger) {
+		// 	// Generate new nonce for retry
+		// 	newNonce, err := auth.GenerateNonce()
+		// 	if err != nil {
+		// 		app.Logger.Error("Failed to generate nonce", "error", err)
+		// 		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		// 		return
+		// 	}
+		// 	app.DB.UpdateNonce(id, newNonce)
+		// 	w.Header().Set("WWW-Authenticate", "send-v1 "+newNonce)
+		// 	app.Logger.Warn("Update params auth failed", "file_id", id)
+		// 	http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		// 	return
+		// }
+
+		// Rotate nonce after successful auth
+		// newNonce, err := auth.GenerateNonce()
+		// if err != nil {
+		// 	app.Logger.Error("Failed to generate nonce", "error", err)
+		// 	http.Error(w, "Internal server error", http.StatusInternalServerError)
+		// 	return
+		// }
+		// app.DB.UpdateNonce(id, newNonce)
+		// w.Header().Set("WWW-Authenticate", "send-v1 "+newNonce)
+
+		// Parse request body
+		var req struct {
+			OwnerToken string  `json:"owner_token"`
+			Dlimit     *int    `json:"dlimit"`
+			ExpiresAt  *int64  `json:"expiresAt"`
+			Metadata   *string `json:"metadata"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			http.Error(w, "Invalid request", http.StatusBadRequest)
+			return
+		}
+
+		// Verify owner token using constant-time comparison
+		if len(meta.OwnerToken) == 0 || len(req.OwnerToken) == 0 {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+		if subtle.ConstantTimeCompare([]byte(meta.OwnerToken), []byte(req.OwnerToken)) != 1 {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		// Update dlimit if provided
+		if req.Dlimit != nil {
+			// Validate: new limit must be >= current download count
+			if *req.Dlimit < meta.DlCount {
+				http.Error(w, "New download limit must be greater than or equal to current download count", http.StatusBadRequest)
+				return
+			}
+			// Clamp to max allowed
+			if *req.Dlimit > app.Config.MaxDownloads {
+				*req.Dlimit = app.Config.MaxDownloads
+			}
+			if err := app.DB.UpdateDlimit(id, *req.Dlimit); err != nil {
+				app.Logger.Error("Failed to update dlimit", "error", err, "file_id", id)
+				http.Error(w, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+			meta.DlLimit = *req.Dlimit
+		}
+
+		// Update expiresAt if provided
+		if req.ExpiresAt != nil {
+			now := time.Now().Unix()
+			// Validate: must be in the future
+			if *req.ExpiresAt <= now {
+				http.Error(w, "Expiry time must be in the future", http.StatusBadRequest)
+				return
+			}
+			// Clamp to max allowed
+			maxExpiry := now + int64(app.Config.MaxExpireSeconds)
+			if *req.ExpiresAt > maxExpiry {
+				*req.ExpiresAt = maxExpiry
+			}
+			if err := app.DB.UpdateExpiresAt(id, *req.ExpiresAt); err != nil {
+				app.Logger.Error("Failed to update expires_at", "error", err, "file_id", id)
+				http.Error(w, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+			meta.ExpiresAt = *req.ExpiresAt
+		}
+
+		// Update metadata if provided
+		if req.Metadata != nil && *req.Metadata != "" {
+			if err := app.DB.UpdateMetadata(id, *req.Metadata); err != nil {
+				app.Logger.Error("Failed to update metadata", "error", err, "file_id", id)
+				http.Error(w, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+			meta.Metadata = *req.Metadata
+		}
+
+		// Return updated file info
+		now := time.Now().Unix()
+		ttl := (meta.ExpiresAt - now) * 1000 // Convert to milliseconds
+
+		response := map[string]interface{}{
+			"dtotal":    meta.DlCount,
+			"dlimit":    meta.DlLimit,
+			"ttl":       ttl,
+			"expiresAt": meta.ExpiresAt,
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(response)
+	}
+}

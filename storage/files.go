@@ -713,6 +713,24 @@ func (d *DB) SetPassword(id, authKey string) error {
 	return err
 }
 
+func (d *DB) UpdateDlimit(id string, dlimit int) error {
+	query := `UPDATE files SET dl_limit = ? WHERE id = ?`
+	_, err := d.db.Exec(query, dlimit, id)
+	return err
+}
+
+func (d *DB) UpdateExpiresAt(id string, expiresAt int64) error {
+	query := `UPDATE files SET expires_at = ? WHERE id = ?`
+	_, err := d.db.Exec(query, expiresAt, id)
+	return err
+}
+
+func (d *DB) UpdateMetadata(id string, metadata string) error {
+	query := `UPDATE files SET metadata = ? WHERE id = ?`
+	_, err := d.db.Exec(query, metadata, id)
+	return err
+}
+
 func (d *DB) Exists(id string) (bool, error) {
 	query := `SELECT COUNT(*) FROM files WHERE id = ?`
 	var count int

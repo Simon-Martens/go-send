@@ -1,0 +1,108 @@
+<!-- File edit view: edit metadata for uploaded files -->
+<template id="file-edit-view">
+	<div class="flex flex-col bg-white dark:bg-grey-90 border border-grey-30 dark:border-grey-70 rounded-xs shadow-light h-full w-full">
+
+		<!-- Header -->
+		<div class="border-b border-grey-30 dark:border-grey-70 px-4 py-3">
+			<h2 class="text-lg font-medium text-grey-90 dark:text-grey-10" id="editFileHeader" data-type="lang">Edit File</h2>
+		</div>
+
+		<!-- File Info (Read-only display) -->
+		<div class="border-b border-grey-30 dark:border-grey-70 px-4 py-4">
+			<div class="flex items-start">
+				<i class="ri-file-ai-line h-8 w-8 flex-shrink-0 text-primary mr-3 text-3xl leading-8" data-role="file-icon"></i>
+				<div class="flex-grow min-w-0">
+					<p class="text-sm font-medium text-grey-90 dark:text-grey-10 break-words" data-role="current-file-name"></p>
+					<p class="text-xs text-grey-70 dark:text-grey-40 mt-1" data-role="file-meta"></p>
+				</div>
+			</div>
+		</div>
+
+		<!-- Editable Options -->
+		<div class="flex-1 overflow-y-auto px-4 py-4 space-y-6">
+
+			<!-- File Name (for single files) -->
+			<div data-role="name-container">
+				<label for="edit-file-name" class="block text-sm font-medium text-grey-80 dark:text-grey-20 mb-1.5">
+					<span id="fileNameLabel" data-type="lang">File name</span>
+				</label>
+				<input
+					id="edit-file-name"
+					type="text"
+					data-role="file-name-input"
+					class="w-full rounded-xs border border-grey-30 bg-white px-2 py-2 text-sm dark:bg-grey-80 dark:border-grey-60"
+					maxlength="255"
+				/>
+				<div class="mt-1 text-xs text-red-600 dark:text-red-400 hidden" data-role="name-error"></div>
+			</div>
+
+			<!-- Archive Name (for multi-file archives) -->
+			<div data-role="archive-name-container" class="hidden">
+				<label for="edit-archive-name" class="block text-sm font-medium text-grey-80 dark:text-grey-20 mb-1.5">
+					<span id="archiveNameLabel" data-type="lang">Archive name</span>
+				</label>
+				<div class="relative">
+					<input
+						id="edit-archive-name"
+						type="text"
+						data-role="archive-name-input"
+						class="w-full rounded-xs border border-grey-30 bg-white px-2 py-2 text-sm dark:bg-grey-80 dark:border-grey-60"
+						maxlength="255"
+					/>
+					<span class="absolute inset-y-0 right-0 flex items-center pr-3 text-sm text-grey-60 dark:text-grey-40 pointer-events-none">.zip</span>
+				</div>
+				<div class="mt-1 text-xs text-red-600 dark:text-red-400 hidden" data-role="archive-name-error"></div>
+			</div>
+
+			<!-- Expiry Controls -->
+			<div class="text-sm font-medium text-grey-80 dark:text-grey-30">
+				<div class="font-medium mb-1.5 px-2" id="expiresAfterLabel" data-type="lang">Expires after</div>
+				<div class="flex items-center gap-3">
+					<select data-role="download-limit" class="w-full rounded-xs border border-grey-30 bg-white px-2 py-2 text-sm dark:bg-grey-80 dark:border-grey-60"></select>
+					<span class="text-sm tracking-wide text-grey-80 dark:text-grey-30 font-medium px-2" id="orLabel" data-type="lang">or</span>
+					<select data-role="time-limit" class="w-full rounded-xs border border-grey-30 bg-white px-2 py-2 text-sm dark:bg-grey-80 dark:border-grey-60"></select>
+				</div>
+			</div>
+
+			<!-- Password Toggle -->
+			<div>
+				<button type="button" class="flex items-center text-sm font-medium text-grey-80 dark:text-grey-20 cursor-pointer" data-role="password-toggle">
+					<span class="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-xs border border-grey-40 text-grey-70 dark:border-grey-60 dark:text-grey-30" data-role="password-toggle-icon">
+						<img src="/lock.svg" alt="" class="h-4 w-4" data-role="lock-icon" />
+					</span>
+					<span id="addPassword" data-type="lang">Add a password (optional)</span>
+				</button>
+				<div class="relative mt-2" data-role="password-field" hidden>
+					<input
+						id="edit-password-input"
+						type="password"
+						autocomplete="off"
+						class="w-full rounded-xs border border-grey-30 bg-white px-3 py-2 text-sm dark:bg-grey-80 dark:border-grey-60"
+						placeholder="Enter password"
+						data-role="password-input"
+						maxlength="4096"
+					/>
+					<button type="button" class="absolute inset-y-0 right-0 flex w-10 items-center justify-center" data-role="password-visibility">
+						<img src="/eye.svg" alt="" class="h-5 w-5" data-role="password-visibility-icon" />
+					</button>
+				</div>
+				<div class="mt-1 text-xs text-grey-60" data-role="password-hint"></div>
+			</div>
+
+		</div>
+
+		<!-- Action Buttons -->
+		<div class="border-t border-grey-30 dark:border-grey-70 px-4 py-4 space-y-3">
+			<div class="text-sm text-red-600 dark:text-red-400 hidden" data-role="error"></div>
+			<div class="flex gap-3">
+				<button type="button" class="btn-secondary flex-1 cursor-pointer" data-action="cancel">
+					<span id="cancelButton" data-type="lang">Cancel</span>
+				</button>
+				<button type="button" class="btn flex-1" data-action="save">
+					<span id="saveChangesButton" data-type="lang">Save Changes</span>
+				</button>
+			</div>
+		</div>
+
+	</div>
+</template>

@@ -1,6 +1,6 @@
-import "./chunk-SEJ6FTBC.js";
-import "./chunk-NDNL5OG4.js";
-import "./chunk-JZ372DUV.js";
+import "./chunk-CPUCIILR.js";
+import "./chunk-AKVSF6J7.js";
+import "./chunk-OOESJOAH.js";
 import {
   translateElement
 } from "./chunk-TXB3JAVG.js";
@@ -30,4 +30,4 @@ var SettingsLogsPanel = class extends HTMLElement {
   }
 };
 customElements.define("settings-logs-panel", SettingsLogsPanel);
-//# sourceMappingURL=settings-logs-panel-W5U52WEI.js.map
+//# sourceMappingURL=settings-logs-panel-3773N5HW.js.map

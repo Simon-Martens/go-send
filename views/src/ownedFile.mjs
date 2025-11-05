@@ -1,6 +1,6 @@
 import Keychain from "./keychain";
 import { arrayToB64 } from "./utils";
-import { del, fileInfo, setParams, setPassword } from "./api";
+import { del, fileInfo, setParams, setPassword, updateFile } from "./api";
 
 export default class OwnedFile {
   constructor(obj) {
@@ -53,12 +53,56 @@ export default class OwnedFile {
     return del(this.id, this.ownerToken);
   }
 
-  changeLimit(dlimit) {
+  async changeLimit(dlimit) {
     if (this.dlimit !== dlimit) {
-      this.dlimit = dlimit;
-      return setParams(this.id, this.ownerToken, { dlimit });
+      const result = await updateFile(
+        this.id,
+        this.ownerToken,
+        this.keychain,
+        { dlimit }
+      );
+      if (result) {
+        this.dlimit = dlimit;
+        return true;
+      }
+      return false;
     }
-    return Promise.resolve(true);
+    return true;
+  }
+
+  async updateName(newName) {
+    const newMetadata = {
+      name: newName,
+      size: this.size,
+      type: this.manifest.files?.[0]?.type || "application/octet-stream",
+      manifest: this.manifest,
+    };
+
+    const encryptedMetadata = await this.keychain.encryptMetadata(newMetadata);
+    const metadataB64 = arrayToB64(new Uint8Array(encryptedMetadata));
+
+    const result = await updateFile(this.id, this.ownerToken, this.keychain, {
+      metadata: metadataB64,
+    });
+
+    if (result) {
+      this.name = newName;
+      return true;
+    }
+    return false;
+  }
+
+  async updateExpiry(newExpiresAt) {
+    const expiresAtSeconds = Math.floor(newExpiresAt / 1000);
+    const result = await updateFile(this.id, this.ownerToken, this.keychain, {
+      expiresAt: expiresAtSeconds,
+    });
+
+    if (result) {
+      this.expiresAt = newExpiresAt;
+      return true;
+    }
+    return false;
   }
 
   async updateDownloadCount() {
@@ -89,6 +133,7 @@ export default class OwnedFile {
       createdAt: this.createdAt,
       expiresAt: this.expiresAt,
       secretKey: arrayToB64(this.keychain.rawSecret),
+      nonce: this.keychain.nonce,  // CRITICAL: Save nonce for HMAC auth
       ownerToken: this.ownerToken,
       dlimit: this.dlimit,
       dtotal: this.dtotal,

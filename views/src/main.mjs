@@ -1,6 +1,7 @@
 import "./styles.css";
 import "./ui/go-send.mjs";
 import "./ui/app-footer.mjs";
+import "./ui/file-edit.mjs";
 import * as router from "./router.mjs";
 import storage from "./storage.mjs";
 import { hasGuestToken } from "./utils.mjs";

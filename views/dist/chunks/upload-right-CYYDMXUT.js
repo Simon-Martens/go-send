@@ -3,8 +3,8 @@ import {
 } from "./chunk-UGZWX5FZ.js";
 import {
   storage_default
-} from "./chunk-NDNL5OG4.js";
-import "./chunk-JZ372DUV.js";
+} from "./chunk-AKVSF6J7.js";
+import "./chunk-OOESJOAH.js";
 import {
   bytes,
   copyToClipboard,
@@ -161,6 +161,13 @@ var UploadRightElement = class extends HTMLElement {
       logsBtn.addEventListener(
         "click",
         (e) => this._handleLogsClick(e, ownedFile)
+      );
+    }
+    const editBtn = item.querySelector('[data-action="edit"]');
+    if (editBtn) {
+      editBtn.addEventListener(
+        "click",
+        (e) => this._handleEditClick(e, ownedFile)
       );
     }
     const recipientNotice = item.querySelector('[data-role="recipient-notice"]');
@@ -504,6 +511,16 @@ var UploadRightElement = class extends HTMLElement {
       })
     );
   }
+  _handleEditClick(event, ownedFile) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.dispatchEvent(
+      new CustomEvent("edit-file", {
+        bubbles: true,
+        detail: { ownedFile }
+      })
+    );
+  }
 };
 customElements.define("upload-right", UploadRightElement);
-//# sourceMappingURL=upload-right-IJVSP3KQ.js.map
+//# sourceMappingURL=upload-right-CYYDMXUT.js.map

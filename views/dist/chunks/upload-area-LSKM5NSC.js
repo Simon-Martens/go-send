@@ -3,7 +3,7 @@ import {
 } from "./chunk-U2YGIKKI.js";
 import {
   fetchUsers
-} from "./chunk-JZ372DUV.js";
+} from "./chunk-OOESJOAH.js";
 import {
   bytes,
   copyToClipboard,
@@ -1938,4 +1938,4 @@ var UploadAreaElement = class extends HTMLElement {
   }
 };
 customElements.define("upload-area", UploadAreaElement);
-//# sourceMappingURL=upload-area-7FIUU7LE.js.map
+//# sourceMappingURL=upload-area-LSKM5NSC.js.map

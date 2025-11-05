@@ -218,6 +218,13 @@ class UploadRightElement extends HTMLElement {
       );
     }
 
+    const editBtn = item.querySelector('[data-action="edit"]');
+    if (editBtn) {
+      editBtn.addEventListener("click", (e) =>
+        this._handleEditClick(e, ownedFile),
+      );
+    }
+
     // Hide copy button for files with recipients and hide recipient notice (now a tooltip)
     const recipientNotice = item.querySelector('[data-role="recipient-notice"]');
     if (ownedFile.recipients && ownedFile.recipients.length > 0) {
@@ -664,6 +671,19 @@ class UploadRightElement extends HTMLElement {
       new CustomEvent("show-file-logs", {
         bubbles: true,
         detail: { fileName: ownedFile.name, fileId: ownedFile.id },
+      }),
+    );
+  }
+
+  _handleEditClick(event, ownedFile) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    // Dispatch event to parent layout to show edit view
+    this.dispatchEvent(
+      new CustomEvent("edit-file", {
+        bubbles: true,
+        detail: { ownedFile },
       }),
     );
   }

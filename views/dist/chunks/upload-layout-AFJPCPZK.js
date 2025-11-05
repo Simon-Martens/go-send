@@ -31,8 +31,12 @@ var UploadLayoutElement = class extends HTMLElement {
       cancel: this.handleCancel.bind(this),
       completeAcknowledged: this.handleCompleteAcknowledged.bind(this),
       retry: this.handleRetry.bind(this),
-      errorDismiss: this.handleErrorDismiss.bind(this)
+      errorDismiss: this.handleErrorDismiss.bind(this),
+      editFile: this.handleEditFile.bind(this),
+      saveEdit: this.handleSaveEdit.bind(this),
+      cancelEdit: this.handleCancelEdit.bind(this)
     };
+    this.editView = null;
   }
   connectedCallback() {
     if (!this._templateMounted) {
@@ -65,6 +69,9 @@ var UploadLayoutElement = class extends HTMLElement {
         this.addEventListener("complete-acknowledged", this._boundHandlers.completeAcknowledged);
         this.addEventListener("retry", this._boundHandlers.retry);
         this.addEventListener("error-dismiss", this._boundHandlers.errorDismiss);
+        this.addEventListener("edit-file", this._boundHandlers.editFile);
+        this.addEventListener("save", this._boundHandlers.saveEdit);
+        this.addEventListener("cancel", this._boundHandlers.cancelEdit);
         this._handlersBound = true;
       }
       this.refreshArchiveState();
@@ -84,6 +91,9 @@ var UploadLayoutElement = class extends HTMLElement {
       this.removeEventListener("complete-acknowledged", this._boundHandlers.completeAcknowledged);
       this.removeEventListener("retry", this._boundHandlers.retry);
       this.removeEventListener("error-dismiss", this._boundHandlers.errorDismiss);
+      this.removeEventListener("edit-file", this._boundHandlers.editFile);
+      this.removeEventListener("save", this._boundHandlers.saveEdit);
+      this.removeEventListener("cancel", this._boundHandlers.cancelEdit);
       this._handlersBound = false;
     }
   }
@@ -149,6 +159,21 @@ var UploadLayoutElement = class extends HTMLElement {
       this.uploadArea.clearComplete();
     }
     this.refreshUploadList();
+  }
+  handleEditFile(event) {
+    const { ownedFile } = event.detail;
+    console.log("upload-layout: edit file", ownedFile);
+    this.showFileEditView(ownedFile);
+  }
+  handleSaveEdit(event) {
+    const { ownedFile } = event.detail;
+    console.log("upload-layout: save edit", ownedFile);
+    this.hideFileEditView();
+    this.refreshUploadList();
+  }
+  handleCancelEdit(event) {
+    console.log("upload-layout: cancel edit");
+    this.hideFileEditView();
   }
   /**
    * Public Methods (called by parent <go-send> or controller)
@@ -256,6 +281,53 @@ var UploadLayoutElement = class extends HTMLElement {
       }
     }
   }
+  /**
+   * Show file edit view
+   */
+  showFileEditView(ownedFile) {
+    console.log("[UploadLayout] showFileEditView called with:", ownedFile);
+    if (this.uploadArea) {
+      this.uploadArea.style.display = "none";
+      console.log("[UploadLayout] upload-area hidden with inline style");
+    }
+    if (!this.editView) {
+      console.log("[UploadLayout] Creating new file-edit-view element");
+      this.editView = document.createElement("file-edit-view");
+      const leftColumn = this.querySelector("div:first-child");
+      console.log("[UploadLayout] Found left column:", leftColumn);
+      console.log("[UploadLayout] Left column classes:", leftColumn == null ? void 0 : leftColumn.className);
+      if (leftColumn) {
+        leftColumn.appendChild(this.editView);
+        console.log("[UploadLayout] file-edit-view appended to left column");
+      } else {
+        console.error("[UploadLayout] Could not find left column to mount edit view");
+        return;
+      }
+    }
+    this.editView.style.display = "block";
+    console.log("[UploadLayout] Calling setFile on edit view");
+    if (typeof this.editView.setFile === "function") {
+      this.editView.setFile(ownedFile);
+      console.log("[UploadLayout] setFile called successfully");
+    } else {
+      console.error("[UploadLayout] file-edit-view.setFile is not a function", this.editView);
+      customElements.whenDefined("file-edit-view").then(() => {
+        console.log("[UploadLayout] file-edit-view now defined, calling setFile");
+        this.editView.setFile(ownedFile);
+      });
+    }
+  }
+  /**
+   * Hide file edit view
+   */
+  hideFileEditView() {
+    if (this.editView) {
+      this.editView.style.display = "none";
+    }
+    if (this.uploadArea) {
+      this.uploadArea.style.display = "";
+    }
+  }
 };
 customElements.define("upload-layout", UploadLayoutElement);
-//# sourceMappingURL=upload-layout-DFS3ROWS.js.map
+//# sourceMappingURL=upload-layout-AFJPCPZK.js.map

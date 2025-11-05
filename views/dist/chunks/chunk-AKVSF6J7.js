@@ -5,9 +5,9 @@ import {
   del,
   encryptStream,
   fileInfo,
-  setParams,
-  setPassword
-} from "./chunk-JZ372DUV.js";
+  setPassword,
+  updateFile
+} from "./chunk-OOESJOAH.js";
 import {
   arrayToB64,
   b64ToArray,
@@ -3475,12 +3475,51 @@ var OwnedFile = class {
   del() {
     return del(this.id, this.ownerToken);
   }
-  changeLimit(dlimit) {
+  async changeLimit(dlimit) {
     if (this.dlimit !== dlimit) {
-      this.dlimit = dlimit;
-      return setParams(this.id, this.ownerToken, { dlimit });
+      const result = await updateFile(
+        this.id,
+        this.ownerToken,
+        this.keychain,
+        { dlimit }
+      );
+      if (result) {
+        this.dlimit = dlimit;
+        return true;
+      }
+      return false;
     }
-    return Promise.resolve(true);
+    return true;
+  }
+  async updateName(newName) {
+    var _a, _b;
+    const newMetadata = {
+      name: newName,
+      size: this.size,
+      type: ((_b = (_a = this.manifest.files) == null ? void 0 : _a[0]) == null ? void 0 : _b.type) || "application/octet-stream",
+      manifest: this.manifest
+    };
+    const encryptedMetadata = await this.keychain.encryptMetadata(newMetadata);
+    const metadataB64 = arrayToB64(new Uint8Array(encryptedMetadata));
+    const result = await updateFile(this.id, this.ownerToken, this.keychain, {
+      metadata: metadataB64
+    });
+    if (result) {
+      this.name = newName;
+      return true;
+    }
+    return false;
+  }
+  async updateExpiry(newExpiresAt) {
+    const expiresAtSeconds = Math.floor(newExpiresAt / 1e3);
+    const result = await updateFile(this.id, this.ownerToken, this.keychain, {
+      expiresAt: expiresAtSeconds
+    });
+    if (result) {
+      this.expiresAt = newExpiresAt;
+      return true;
+    }
+    return false;
   }
   async updateDownloadCount() {
     const oldTotal = this.dtotal;
@@ -3508,6 +3547,8 @@ var OwnedFile = class {
       createdAt: this.createdAt,
       expiresAt: this.expiresAt,
       secretKey: arrayToB64(this.keychain.rawSecret),
+      nonce: this.keychain.nonce,
+      // CRITICAL: Save nonce for HMAC auth
       ownerToken: this.ownerToken,
       dlimit: this.dlimit,
       dtotal: this.dtotal,
@@ -3811,4 +3852,4 @@ export {
 @noble/curves/esm/ed25519.js:
   (*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
 */
-//# sourceMappingURL=chunk-NDNL5OG4.js.map
+//# sourceMappingURL=chunk-AKVSF6J7.js.map

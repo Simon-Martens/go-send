@@ -35,6 +35,7 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 	mux.HandleFunc("/api/exists/", handlers.NewExistsHandler(app))
 	mux.HandleFunc("/api/delete/", handlers.NewDeleteHandler(app))
 	mux.HandleFunc("/api/password/", handlers.NewPasswordHandler(app))
+	mux.HandleFunc("/api/params/", handlers.NewUpdateFileHandler(app))
 	mux.HandleFunc("/api/info/", handlers.NewInfoHandler(app))
 
 	// User management endpoints

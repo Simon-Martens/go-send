@@ -98,7 +98,7 @@ func SetupRoutes(app *core.App, distFS embed.FS) http.Handler {
 
 	// Request invitation page (only if feature is enabled)
 	if app.Config.IsInvitationRequestEnabled() {
-		mux.HandleFunc("/requestinvitation", indexHandler)
+		mux.HandleFunc("/signup", indexHandler)
 	}
 
 	rootHandler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

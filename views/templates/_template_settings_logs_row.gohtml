@@ -5,8 +5,8 @@
 		<td class="px-4 py-4">
 			<div class="space-y-1">
 				<div class="flex items-center gap-2">
-					<i data-role="log-type-icon" class="text-lg leading-4"></i>
-					<span class="font-medium text-grey-90 dark:text-grey-10" data-role="log-type">—</span>
+					<i data-role="log-type-icon" class="text-sm leading-4"></i>
+					<span class="font-medium text-grey-90 dark:text-grey-10 text-sm" data-role="log-type">—</span>
 				</div>
 				<div class="text-xs text-grey-60 dark:text-grey-40" data-role="log-timestamp">—</div>
 				<div class="text-xs text-grey-60 dark:text-grey-40" data-role="log-duration">—</div>
@@ -16,7 +16,7 @@
 		<!-- Column 2: File ID, Owner -->
 		<td class="px-4 py-4">
 			<div class="space-y-1">
-				<div class="font-mono text-sm font-semibold text-primary" data-role="log-file-id">abc1…</div>
+				<div class="font-mono text-xs font-semibold text-primary" data-role="log-file-id">abc1…</div>
 				<div class="text-xs text-grey-60 dark:text-grey-40" data-role="log-owner">—</div>
 			</div>
 		</td>
@@ -24,7 +24,7 @@
 		<!-- Column 3: IP, Request Data (width-clamped) -->
 		<td class="px-4 py-4 max-w-xs">
 			<div class="space-y-1">
-				<div class="font-mono text-xs text-grey-80 dark:text-grey-20" data-role="log-ip">—</div>
+				<div class="font-mono text-xs text-grey-90 font-bold dark:text-grey-20" data-role="log-ip">—</div>
 				<div class="text-xs text-grey-60 dark:text-grey-40 truncate" title="" data-role="log-request-data">—</div>
 			</div>
 		</td>
@@ -32,8 +32,10 @@
 		<!-- Column 4: Status, Accessed By -->
 		<td class="px-4 py-4">
 			<div class="space-y-1">
-				<div class="text-xs font-mono" data-role="log-status">—</div>
-				<div class="text-sm text-grey-80 dark:text-grey-20" data-role="log-accessed-by">—</div>
+			<div class="flex flex-row items-center">
+				<div class="text-xs bg-grey-10 dark:bg-grey-80 rounded-xs items-center px-2 w-fit" data-role="log-status">—</div> 
+				</div>
+				<div class="text-xs text-grey-60 dark:text-grey-40" data-role="log-accessed-by">—</div>
 			</div>
 		</td>
 	</tr>

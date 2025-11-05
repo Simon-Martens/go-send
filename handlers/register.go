@@ -144,6 +144,13 @@ func registerHandler(app *core.App, expectedTokenType storage.AuthTokenType, use
 			return
 		}
 
+		// Check if email domain is allowed (if restrictions are configured)
+		if len(app.Config.AllowedUserDomains) > 0 && !app.Config.IsEmailDomainAllowed(req.Email) {
+			app.DBLogger.LogRequest(r, http.StatusBadRequest, nil, "email domain not allowed", "email", req.Email)
+			http.Error(w, "Email domain is not allowed", http.StatusBadRequest)
+			return
+		}
+
 		user := &storage.User{
 			Name:                req.Name,
 			Email:               req.Email,

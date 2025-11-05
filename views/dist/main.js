@@ -3077,7 +3077,7 @@ async function initSettingsRoute(app) {
     import("./chunks/settings-account-panel-ATOTIBNS.js"),
     import("./chunks/settings-upload-links-panel-PRYP6D32.js"),
     import("./chunks/settings-users-panel-2KJ62NYL.js"),
-    import("./chunks/settings-logs-panel-4VZQXJ65.js"),
+    import("./chunks/settings-logs-panel-XWLRKBKU.js"),
     app.controller.ready
   ]);
   app.showSettingsLayout();
@@ -3156,7 +3156,7 @@ async function navigate(path, app) {
     await initHelpRoute(app);
     return;
   }
-  if (path === "/requestinvitation" || path.startsWith("/requestinvitation")) {
+  if (path === "/signup" || path.startsWith("/signup")) {
     await initRequestInvitationRoute(app);
     return;
   }

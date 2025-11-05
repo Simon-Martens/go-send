@@ -641,6 +641,9 @@
   .w-56 {
     width: calc(var(--spacing) * 56);
   }
+  .w-fit {
+    width: fit-content;
+  }
   .w-full {
     width: 100%;
   }
@@ -2437,10 +2440,6 @@ progress::-moz-progress-bar {
   to {
     background-position: 21px 0;
   }
-}
-:not(input) {
-  -webkit-user-select: none;
-  user-select: none;
 }
 :root {
   --violet-gradient:

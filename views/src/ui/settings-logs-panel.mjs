@@ -66,8 +66,12 @@ class SettingsLogsPanel extends HTMLElement {
   _cacheElements() {
     this._refreshButton = this.querySelector('[data-role="logs-refresh"]');
     this._statusContainer = this.querySelector('[data-role="logs-status"]');
-    this._statusIcon = this._statusContainer?.querySelector('[data-role="logs-status-icon"]');
-    this._statusText = this._statusContainer?.querySelector('[data-role="logs-status-text"]');
+    this._statusIcon = this._statusContainer?.querySelector(
+      '[data-role="logs-status-icon"]',
+    );
+    this._statusText = this._statusContainer?.querySelector(
+      '[data-role="logs-status-text"]',
+    );
     this._tableBody = this.querySelector('[data-role="logs-body"]');
     this._emptyState = this.querySelector('[data-role="logs-empty"]');
     this._countText = this.querySelector('[data-role="logs-count"]');
@@ -142,7 +146,11 @@ class SettingsLogsPanel extends HTMLElement {
 
     // Clear previous icon classes
     if (this._statusIcon) {
-      this._statusIcon.classList.remove("ri-loader-4-line", "ri-error-warning-line", "ri-inbox-line");
+      this._statusIcon.classList.remove(
+        "ri-loader-4-line",
+        "ri-error-warning-line",
+        "ri-inbox-line",
+      );
       this._statusIcon.classList.add("hidden");
     }
 
@@ -156,13 +164,21 @@ class SettingsLogsPanel extends HTMLElement {
       case "error":
         if (this._statusIcon) {
           this._statusIcon.classList.remove("hidden");
-          this._statusIcon.classList.add("ri-error-warning-line", "text-red-600", "dark:text-red-400");
+          this._statusIcon.classList.add(
+            "ri-error-warning-line",
+            "text-red-600",
+            "dark:text-red-400",
+          );
         }
         break;
       case "empty":
         if (this._statusIcon) {
           this._statusIcon.classList.remove("hidden");
-          this._statusIcon.classList.add("ri-inbox-line", "text-grey-60", "dark:text-grey-50");
+          this._statusIcon.classList.add(
+            "ri-inbox-line",
+            "text-grey-60",
+            "dark:text-grey-50",
+          );
         }
         break;
     }
@@ -258,16 +274,20 @@ class SettingsLogsPanel extends HTMLElement {
       // Color code based on status range
       if (code >= 200 && code < 300) {
         // 2xx: Success - green
-        statusEl.className = "text-xs font-mono font-semibold text-green-600 dark:text-green-400";
+        statusEl.className =
+          "text-xs font-mono font-semibold text-green-600 dark:text-green-400";
       } else if (code >= 300 && code < 400) {
         // 3xx: Redirect - blue
-        statusEl.className = "text-xs font-mono font-semibold text-blue-600 dark:text-blue-400";
+        statusEl.className =
+          "text-xs font-mono font-semibold text-blue-600 dark:text-blue-400";
       } else if (code >= 400 && code < 500) {
         // 4xx: Client error - orange
-        statusEl.className = "text-xs font-mono font-semibold text-orange-600 dark:text-orange-400";
+        statusEl.className =
+          "text-xs font-mono font-semibold text-orange-600 dark:text-orange-400";
       } else if (code >= 500) {
         // 5xx: Server error - red
-        statusEl.className = "text-xs font-mono font-semibold text-red-600 dark:text-red-400";
+        statusEl.className =
+          "text-xs font-mono font-semibold text-red-600 dark:text-red-400";
       } else {
         // Unknown range - grey
         statusEl.className = "text-xs font-mono text-grey-60 dark:text-grey-40";
@@ -317,14 +337,14 @@ class SettingsLogsPanel extends HTMLElement {
       requestDataEl.title = combined;
     }
 
-    // Accessed By (session owner, show [Guest] pill for anonymous)
+    // Accessed By (session owner, show N/A pill for anonymous)
     const accessedByEl = row.querySelector('[data-role="log-accessed-by"]');
     if (accessedByEl) {
       if (log.sessionUser && log.sessionUser !== "Anonymous") {
         accessedByEl.textContent = log.sessionUser;
       } else {
-        // Show [Guest] in a pill
-        accessedByEl.innerHTML = '<span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-grey-20 dark:bg-grey-80 text-grey-70 dark:text-grey-40">[Guest]</span>';
+        accessedByEl.innerHTML =
+          '<span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-grey-20 dark:bg-grey-80 text-grey-70 dark:text-grey-40">N/A</span>';
       }
     }
 
@@ -347,7 +367,8 @@ class SettingsLogsPanel extends HTMLElement {
 
     // Show next button only if there are more logs available
     if (this._nextButton) {
-      const hasMoreLogs = this._totalCount > (this._currentPage - 1) * 50 + this._currentLogCount;
+      const hasMoreLogs =
+        this._totalCount > (this._currentPage - 1) * 50 + this._currentLogCount;
       this._nextButton.disabled = !hasMoreLogs;
     }
   }

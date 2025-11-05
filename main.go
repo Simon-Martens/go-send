@@ -86,7 +86,7 @@ func main() {
 			logger.Info("Cleaned up old admin signup tokens", "count", deleted)
 		}
 
-		rawToken, tokenRecord, err := db.GenerateInitialAdminToken(0) // creator_id=0 for system
+		rawToken, _, err := db.GenerateInitialAdminToken(0) // creator_id=0 for system
 		if err != nil {
 			logger.Error("Failed to generate initial admin token. Exiting", "error", err)
 			os.Exit(1)

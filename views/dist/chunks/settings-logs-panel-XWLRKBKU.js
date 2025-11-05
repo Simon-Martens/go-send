@@ -62,8 +62,12 @@ var SettingsLogsPanel = class extends HTMLElement {
     var _a, _b;
     this._refreshButton = this.querySelector('[data-role="logs-refresh"]');
     this._statusContainer = this.querySelector('[data-role="logs-status"]');
-    this._statusIcon = (_a = this._statusContainer) == null ? void 0 : _a.querySelector('[data-role="logs-status-icon"]');
-    this._statusText = (_b = this._statusContainer) == null ? void 0 : _b.querySelector('[data-role="logs-status-text"]');
+    this._statusIcon = (_a = this._statusContainer) == null ? void 0 : _a.querySelector(
+      '[data-role="logs-status-icon"]'
+    );
+    this._statusText = (_b = this._statusContainer) == null ? void 0 : _b.querySelector(
+      '[data-role="logs-status-text"]'
+    );
     this._tableBody = this.querySelector('[data-role="logs-body"]');
     this._emptyState = this.querySelector('[data-role="logs-empty"]');
     this._countText = this.querySelector('[data-role="logs-count"]');
@@ -123,7 +127,11 @@ var SettingsLogsPanel = class extends HTMLElement {
     }
     this._statusContainer.classList.remove("hidden");
     if (this._statusIcon) {
-      this._statusIcon.classList.remove("ri-loader-4-line", "ri-error-warning-line", "ri-inbox-line");
+      this._statusIcon.classList.remove(
+        "ri-loader-4-line",
+        "ri-error-warning-line",
+        "ri-inbox-line"
+      );
       this._statusIcon.classList.add("hidden");
     }
     switch (type) {
@@ -136,13 +144,21 @@ var SettingsLogsPanel = class extends HTMLElement {
       case "error":
         if (this._statusIcon) {
           this._statusIcon.classList.remove("hidden");
-          this._statusIcon.classList.add("ri-error-warning-line", "text-red-600", "dark:text-red-400");
+          this._statusIcon.classList.add(
+            "ri-error-warning-line",
+            "text-red-600",
+            "dark:text-red-400"
+          );
         }
         break;
       case "empty":
         if (this._statusIcon) {
           this._statusIcon.classList.remove("hidden");
-          this._statusIcon.classList.add("ri-inbox-line", "text-grey-60", "dark:text-grey-50");
+          this._statusIcon.classList.add(
+            "ri-inbox-line",
+            "text-grey-60",
+            "dark:text-grey-50"
+          );
         }
         break;
     }
@@ -260,7 +276,7 @@ var SettingsLogsPanel = class extends HTMLElement {
       if (log.sessionUser && log.sessionUser !== "Anonymous") {
         accessedByEl.textContent = log.sessionUser;
       } else {
-        accessedByEl.innerHTML = '<span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-grey-20 dark:bg-grey-80 text-grey-70 dark:text-grey-40">[Guest]</span>';
+        accessedByEl.innerHTML = '<span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-grey-20 dark:bg-grey-80 text-grey-70 dark:text-grey-40">N/A</span>';
       }
     }
     return row;
@@ -283,4 +299,4 @@ var SettingsLogsPanel = class extends HTMLElement {
   }
 };
 customElements.define("settings-logs-panel", SettingsLogsPanel);
-//# sourceMappingURL=settings-logs-panel-4VZQXJ65.js.map
+//# sourceMappingURL=settings-logs-panel-XWLRKBKU.js.map

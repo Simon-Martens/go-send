@@ -58,6 +58,12 @@ func NewAccountProfileHandler(app *core.App) http.HandlerFunc {
 			return
 		}
 
+		// Check if email domain is allowed (if restrictions are configured)
+		if len(app.Config.AllowedUserDomains) > 0 && !app.Config.IsEmailDomainAllowed(email) {
+			writeAccountError(w, http.StatusBadRequest, "invalid_email")
+			return
+		}
+
 		if err := app.DB.UpdateUserProfile(user.ID, name, email); err != nil {
 			if sqliteErr, ok := err.(sqlite3.Error); ok && sqliteErr.Code == sqlite3.ErrConstraint {
 				writeAccountError(w, http.StatusConflict, "email_in_use")

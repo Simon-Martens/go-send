@@ -2,6 +2,8 @@ import storage from "../storage.mjs";
 import { USER_ROLES } from "../userSecrets.mjs";
 import { translate, translateElement, copyToClipboard } from "../utils.mjs";
 import qrcode from "../qrcode.mjs";
+import { FileLogsView } from "./file-logs-view.mjs";
+import { LogsTable } from "./logs-table.mjs";
 
 /**
  * Settings Users Panel
@@ -39,6 +41,10 @@ class SettingsUsersPanel extends HTMLElement {
     this._usersStatusIcon = null;
     this._usersStatusText = null;
 
+    // Element refs - file logs view
+    this._fileLogsViewContainer = null;
+    this._currentFileLogsView = null;
+
     // State
     this._usersData = [];
     this._usersLoading = false;
@@ -50,6 +56,7 @@ class SettingsUsersPanel extends HTMLElement {
     this._boundDetailCopy = this._handleDetailCopy.bind(this);
     this._boundDetailLinkFocus = this._handleDetailLinkFocus.bind(this);
     this._boundUserAction = this._handleUserAction.bind(this);
+    this._boundFileLogsClose = this._handleFileLogsClose.bind(this);
   }
 
   connectedCallback() {
@@ -1154,6 +1161,12 @@ class SettingsUsersPanel extends HTMLElement {
       return;
     }
 
+    if (action === "logs") {
+      // Show logs for this user
+      this._showUserLogsView(user, displayName);
+      return;
+    }
+
     if (action === "delete") {
       if (user.is_current_user) {
         this._setUsersStatus(
@@ -1253,6 +1266,84 @@ class SettingsUsersPanel extends HTMLElement {
     button.disabled = false;
     button.classList.remove("opacity-60");
     delete button.dataset.originalContent;
+  }
+
+  /**
+   * Show logs view for a specific user
+   * Creates and displays a LogsTable component with appropriate styling
+   */
+  _showUserLogsView(user, displayName) {
+    // Create a container for the logs view if it doesn't exist
+    if (!this._fileLogsViewContainer) {
+      this._fileLogsViewContainer = document.createElement("div");
+      this._fileLogsViewContainer.className = "flex flex-col h-full gap-4";
+      this.appendChild(this._fileLogsViewContainer);
+    }
+
+    // Clear existing content
+    this._fileLogsViewContainer.innerHTML = "";
+
+    // Create header with back button
+    const header = document.createElement("div");
+    header.className =
+      "flex items-center justify-between border-b border-grey-20 dark:border-grey-80 pb-4";
+
+    const backButton = document.createElement("button");
+    backButton.type = "button";
+    backButton.className =
+      "inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded border border-grey-20 dark:border-grey-80 hover:border-grey-40 dark:hover:border-grey-60 transition";
+    backButton.innerHTML =
+      '<i class="ri-arrow-left-line text-base leading-4"></i><span>Back</span>';
+    backButton.addEventListener("click", this._boundFileLogsClose);
+
+    const title = document.createElement("h2");
+    title.className =
+      "text-lg font-semibold text-grey-90 dark:text-grey-10 flex items-center gap-2";
+    title.innerHTML = `<i class="ri-file-list-line text-lg leading-4"></i><span>Logs for ${displayName}</span>`;
+
+    header.appendChild(backButton);
+    header.appendChild(title);
+
+    // Create LogsTable component (without fileId to show all user's logs)
+    const logsTable = document.createElement("logs-table");
+
+    // Append to container
+    this._fileLogsViewContainer.appendChild(header);
+    this._fileLogsViewContainer.appendChild(logsTable);
+
+    // Hide users list
+    if (this._usersListSection) {
+      this._usersListSection.classList.add("hidden");
+    }
+    if (this._usersHeader) {
+      this._usersHeader.classList.add("hidden");
+    }
+
+    // Show the container
+    this._fileLogsViewContainer.classList.remove("hidden");
+    this._currentFileLogsView = logsTable;
+  }
+
+  /**
+   * Handle close event from file logs view
+   * Returns to the users list view
+   */
+  _handleFileLogsClose() {
+    // Show users list
+    if (this._usersListSection) {
+      this._usersListSection.classList.remove("hidden");
+    }
+    if (this._usersHeader) {
+      this._usersHeader.classList.remove("hidden");
+    }
+
+    // Hide logs view container
+    if (this._fileLogsViewContainer) {
+      this._fileLogsViewContainer.classList.add("hidden");
+    }
+
+    this._currentFileLogsView = null;
+    this._setUsersStatus("", "");
   }
 }
 

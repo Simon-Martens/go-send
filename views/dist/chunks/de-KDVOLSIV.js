@@ -389,6 +389,25 @@ loginSubmitting = Anmeldung l\xE4uft\u2026
 loginErrorChallenge = Anmeldeanforderung konnte nicht gestartet werden. Bitte versuchen Sie es erneut.
 loginErrorGeneric = Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.
 
+## Logs settings strings
+
+settingsLogsHeading = Protokolle
+settingsLogsSubheading = Zeigt die Upload- und Download-Aktivit\xE4t Ihrer Dateien an.
+settingsLogsRefresh = Aktualisieren
+settingsLogsColumnType = Typ
+settingsLogsColumnDate = Datum
+settingsLogsColumnStatus = Status
+settingsLogsColumnFileID = Datei-ID oder Name
+settingsLogsColumnOwner = Besitzer
+settingsLogsColumnIP = IP
+settingsLogsColumnRequestData = Anfragedaten
+settingsLogsColumnAccessedBy = Zugegriffen von
+settingsLogsEmpty = Keine Protokolle verf\xFCgbar.
+settingsLogsCount = Eintr\xE4ge { $start } bis { $end } von { $total }
+settingsLogsNext = Weiter
+logsBack = Zur\xFCck
+logsForFile = Protokolle f\xFCr
+
 ## Request Invitation strings
 
 requestInvitationTitle = Einladung anfordern
@@ -421,4 +440,4 @@ footerUntrustedWarning = Diesem Ger\xE4t wird nicht vertraut. Denken Sie daran, 
 export {
   de_default as default
 };
-//# sourceMappingURL=de-ERQSIKF2.js.map
+//# sourceMappingURL=de-KDVOLSIV.js.map

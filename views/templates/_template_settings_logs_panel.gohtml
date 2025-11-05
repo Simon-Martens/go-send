@@ -1,7 +1,7 @@
 <!-- Settings Logs Panel -->
 <template id="settings-logs-panel">
 	<div data-panel="logs" class="space-y-8">
-		<header class="flex items-start justify-between gap-4">
+		<header class="flex items-start justify-between gap-4" data-role="logs-header">
 			<div>
 				<h2 class="text-xl font-semibold text-grey-90 dark:text-grey-10 flex items-center gap-2">
 					<i class="ri-file-list-3-line text-xl"></i>
@@ -9,10 +9,6 @@
 				</h2>
 				<p class="text-sm text-grey-70 dark:text-grey-40 mt-1"><span id="settingsLogsSubheading" data-type="lang">View upload and download activity for your files.</span></p>
 			</div>
-			<button type="button" class="inline-flex items-center justify-center gap-2 rounded border border-grey-40 dark:border-grey-70 bg-white dark:bg-grey-90 px-4 py-2 text-sm font-medium text-grey-90 dark:text-grey-10 hover:bg-grey-10 dark:hover:bg-grey-80 transition cursor-pointer" data-role="logs-refresh" title="Refresh logs">
-				<i class="ri-refresh-line text-base leading-4"></i>
-				<span id="settingsLogsRefresh" data-type="lang">Refresh</span>
-			</button>
 		</header>
 
 		<!-- Status message area -->
@@ -66,6 +62,10 @@
 
 		<!-- Pagination controls -->
 		<div class="flex items-center justify-between pt-4 border-t border-grey-30 dark:border-grey-70">
+			<button type="button" class="inline-flex items-center justify-center gap-2 rounded border border-grey-40 dark:border-grey-70 bg-white dark:bg-grey-90 px-4 py-2 text-sm font-medium text-grey-90 dark:text-grey-10 hover:bg-grey-10 dark:hover:bg-grey-80 transition cursor-pointer" data-role="logs-refresh" title="Refresh logs">
+				<i class="ri-refresh-line text-base leading-4"></i>
+				<span id="settingsLogsRefresh" data-type="lang">Refresh</span>
+			</button>
 			<div class="text-sm text-grey-70 dark:text-grey-40">
 				<span id="settingsLogsCount" data-type="lang" data-role="logs-count">—</span>
 			</div>

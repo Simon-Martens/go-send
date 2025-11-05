@@ -1,16 +1,15 @@
 import {
   storage_default
-} from "./chunk-3WTCPM2E.js";
+} from "./chunk-NDNL5OG4.js";
 import {
   fetchLogs
-} from "./chunk-WXWAAH3Q.js";
+} from "./chunk-JZ372DUV.js";
 import {
   translateElement
 } from "./chunk-TXB3JAVG.js";
-import "./chunk-IFG75HHC.js";
 
-// src/ui/settings-logs-panel.mjs
-var SettingsLogsPanel = class extends HTMLElement {
+// src/ui/logs-table.mjs
+var LogsTable = class extends HTMLElement {
   constructor() {
     super();
     this._templateMounted = false;
@@ -22,6 +21,7 @@ var SettingsLogsPanel = class extends HTMLElement {
     this._emptyState = null;
     this._countText = null;
     this._nextButton = null;
+    this._fileId = null;
     this._currentPage = 1;
     this._totalCount = 0;
     this._currentLogCount = 0;
@@ -29,7 +29,33 @@ var SettingsLogsPanel = class extends HTMLElement {
     this._boundRefresh = this._handleRefresh.bind(this);
     this._boundNext = this._handleNext.bind(this);
   }
+  // Observed attributes for setting fileId and hideHeader
+  static get observedAttributes() {
+    return ["fileId", "hideHeader"];
+  }
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (name === "fileId" && oldValue !== newValue) {
+      this._fileId = newValue || null;
+      this._currentPage = 1;
+      if (this._tableBody) {
+        this._fetchLogs(1);
+      }
+    }
+    if (name === "hideHeader" && oldValue !== newValue) {
+      const header = this.querySelector('[data-role="logs-header"]');
+      if (header) {
+        if (newValue !== null) {
+          header.classList.add("hidden");
+        } else {
+          header.classList.remove("hidden");
+        }
+      }
+    }
+  }
   connectedCallback() {
+    if (this.hasAttribute("fileId")) {
+      this._fileId = this.getAttribute("fileId");
+    }
     if (!this._templateMounted) {
       const template = document.getElementById("settings-logs-panel");
       if (!template) {
@@ -43,6 +69,12 @@ var SettingsLogsPanel = class extends HTMLElement {
     this._cacheElements();
     translateElement(this);
     this._attachListeners();
+    if (this.hasAttribute("hideHeader")) {
+      const header = this.querySelector('[data-role="logs-header"]');
+      if (header) {
+        header.classList.add("hidden");
+      }
+    }
     requestAnimationFrame(() => {
       this._fetchLogs(1);
     });
@@ -100,7 +132,7 @@ var SettingsLogsPanel = class extends HTMLElement {
     this._isLoading = true;
     this._setStatus("Loading logs...", "loading");
     try {
-      const data = await fetchLogs(page);
+      const data = await fetchLogs(page, this._fileId);
       this._currentPage = data.currentPage;
       this._totalCount = data.totalCount;
       this._currentLogCount = data.logs.length;
@@ -113,7 +145,7 @@ var SettingsLogsPanel = class extends HTMLElement {
       }
       this._updatePaginationUI();
     } catch (error) {
-      console.error("[SettingsLogsPanel] Error fetching logs:", error);
+      console.error("[LogsTable] Error fetching logs:", error);
       this._setStatus("Failed to load logs.", "error");
     } finally {
       this._isLoading = false;
@@ -258,6 +290,15 @@ var SettingsLogsPanel = class extends HTMLElement {
       ownerEl.textContent = log.ownerName;
       ownerEl.title = `${log.ownerType === "owner" ? "Owner" : "Guest"}: ${log.ownerName}`;
     }
+    const authTokenIcon = row.querySelector('[data-role="log-auth-token-icon"]');
+    if (authTokenIcon) {
+      if (log.isAuthTokenUpload) {
+        authTokenIcon.classList.remove("hidden");
+        authTokenIcon.title = "Uploaded via auth token";
+      } else {
+        authTokenIcon.classList.add("hidden");
+      }
+    }
     const ipEl = row.querySelector('[data-role="log-ip"]');
     if (ipEl && log.ip) {
       ipEl.textContent = log.ip;
@@ -285,11 +326,22 @@ var SettingsLogsPanel = class extends HTMLElement {
     if (this._countText) {
       const startNum = (this._currentPage - 1) * 50 + 1;
       const endNum = startNum + this._currentLogCount - 1;
-      const formatted = this._totalCount.toLocaleString();
       if (this._currentLogCount > 0) {
-        this._countText.textContent = `${startNum}-${endNum} of ${formatted}`;
+        const translate = window.translate || ((key) => key);
+        const text = translate("settingsLogsCount", {
+          start: startNum,
+          end: endNum,
+          total: this._totalCount
+        });
+        this._countText.textContent = text;
       } else {
-        this._countText.textContent = `0 of ${formatted}`;
+        const translate = window.translate || ((key) => key);
+        const text = translate("settingsLogsCount", {
+          start: 0,
+          end: 0,
+          total: this._totalCount
+        });
+        this._countText.textContent = text;
       }
     }
     if (this._nextButton) {
@@ -297,6 +349,31 @@ var SettingsLogsPanel = class extends HTMLElement {
       this._nextButton.disabled = !hasMoreLogs;
     }
   }
+  /**
+   * Public API: Set the file ID filter
+   * @param {string|null} fileId - The file ID to filter by, or null to remove filter
+   */
+  setFileId(fileId) {
+    this._fileId = fileId || null;
+    this._currentPage = 1;
+    this._fetchLogs(1);
+  }
+  /**
+   * Public API: Refresh logs
+   */
+  refresh() {
+    this._fetchLogs(1);
+  }
+  /**
+   * Public API: Get current file ID
+   */
+  getFileId() {
+    return this._fileId;
+  }
 };
-customElements.define("settings-logs-panel", SettingsLogsPanel);
-//# sourceMappingURL=settings-logs-panel-XWLRKBKU.js.map
+customElements.define("logs-table", LogsTable);
+
+export {
+  LogsTable
+};
+//# sourceMappingURL=chunk-KPQTW3X7.js.map

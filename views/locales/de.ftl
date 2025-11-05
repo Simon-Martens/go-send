@@ -386,6 +386,25 @@ loginSubmitting = Anmeldung läuft…
 loginErrorChallenge = Anmeldeanforderung konnte nicht gestartet werden. Bitte versuchen Sie es erneut.
 loginErrorGeneric = Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.
 
+## Logs settings strings
+
+settingsLogsHeading = Protokolle
+settingsLogsSubheading = Zeigt die Upload- und Download-Aktivität Ihrer Dateien an.
+settingsLogsRefresh = Aktualisieren
+settingsLogsColumnType = Typ
+settingsLogsColumnDate = Datum
+settingsLogsColumnStatus = Status
+settingsLogsColumnFileID = Datei-ID oder Name
+settingsLogsColumnOwner = Besitzer
+settingsLogsColumnIP = IP
+settingsLogsColumnRequestData = Anfragedaten
+settingsLogsColumnAccessedBy = Zugegriffen von
+settingsLogsEmpty = Keine Protokolle verfügbar.
+settingsLogsCount = Einträge { $start } bis { $end } von { $total }
+settingsLogsNext = Weiter
+logsBack = Zurück
+logsForFile = Protokolle für
+
 ## Request Invitation strings
 
 requestInvitationTitle = Einladung anfordern

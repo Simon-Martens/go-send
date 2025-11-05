@@ -804,6 +804,39 @@ func nullIfEmpty(s string) interface{} {
 	return s
 }
 
+// GetAccessibleFileIDsForUser returns all file IDs that a user can view logs for
+// This includes:
+//   - Files they own directly (user_id column)
+//   - Files uploaded via auth tokens they created
+func (d *DB) GetAccessibleFileIDsForUser(userID int64) ([]string, error) {
+	query := `
+		SELECT DISTINCT id FROM files
+		WHERE user_id = ?
+		UNION
+		SELECT DISTINCT id FROM files
+		WHERE auth_token_id IN (
+			SELECT id FROM authtokens WHERE created_by = ?
+		)
+	`
+
+	rows, err := d.db.Query(query, userID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var fileIDs []string
+	for rows.Next() {
+		var fileID string
+		if err := rows.Scan(&fileID); err != nil {
+			return nil, err
+		}
+		fileIDs = append(fileIDs, fileID)
+	}
+
+	return fileIDs, rows.Err()
+}
+
 // Filesystem operations for files
 
 // SaveFile saves uploaded data to disk

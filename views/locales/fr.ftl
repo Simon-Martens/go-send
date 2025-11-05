@@ -386,6 +386,25 @@ loginSubmitting = Connexion…
 loginErrorChallenge = Impossible de démarrer le défi de connexion. Veuillez réessayer.
 loginErrorGeneric = Échec de la connexion. Veuillez réessayer.
 
+## Logs settings strings
+
+settingsLogsHeading = Journaux
+settingsLogsSubheading = Afficher l'activité de téléchargement et d'envoi de vos fichiers.
+settingsLogsRefresh = Actualiser
+settingsLogsColumnType = Type
+settingsLogsColumnDate = Date
+settingsLogsColumnStatus = Statut
+settingsLogsColumnFileID = ID ou nom du fichier
+settingsLogsColumnOwner = Propriétaire
+settingsLogsColumnIP = IP
+settingsLogsColumnRequestData = Données de la requête
+settingsLogsColumnAccessedBy = Accédé par
+settingsLogsEmpty = Aucun journal disponible.
+settingsLogsCount = Journaux { $start } à { $end } de { $total }
+settingsLogsNext = Suivant
+logsBack = Retour
+logsForFile = Journaux pour
+
 ## Request Invitation strings
 
 requestInvitationTitle = Demander une invitation

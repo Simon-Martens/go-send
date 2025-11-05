@@ -49,6 +49,12 @@ class GoSendElement extends HTMLElement {
       cancelAnimationFrame(this._initFrame);
     }
 
+    // Add event listener for file logs view
+    this.addEventListener("show-file-logs", (event) => {
+      const { fileName, fileId } = event.detail;
+      this.showFileLogsView(fileName, fileId);
+    });
+
     // Schedule async initialization
     this._initFrame = requestAnimationFrame(async () => {
       this._initFrame = null;
@@ -178,6 +184,69 @@ class GoSendElement extends HTMLElement {
 
     this.currentLayout = settingsLayout;
     this.currentView = "settings";
+  }
+
+  showFileLogsView(fileName, fileId) {
+    const slot = this.querySelector("#app-content");
+    if (!slot) {
+      console.error("Slot #app-content not found in go-send template");
+      return;
+    }
+
+    slot.innerHTML = "";
+
+    // Create wrapper container for logs view
+    const container = document.createElement("div");
+    container.className = "h-full w-full flex flex-col";
+
+    // Create header with back button
+    const header = document.createElement("div");
+    header.className =
+      "flex items-center justify-between border-b border-grey-20 dark:border-grey-80 pb-4 mb-4 px-4 pt-4";
+
+    const backButton = document.createElement("button");
+    backButton.type = "button";
+    backButton.className =
+      "inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded border border-grey-20 dark:border-grey-80 hover:border-grey-40 dark:hover:border-grey-60 transition cursor-pointer";
+    backButton.innerHTML =
+      '<i class="ri-arrow-left-line text-base leading-4"></i><span data-type="lang" id="logsBack">Back</span>';
+    backButton.addEventListener("click", () => {
+      this.showUploadLayout();
+    });
+
+    const title = document.createElement("h2");
+    title.className =
+      "text-lg font-semibold text-grey-90 dark:text-grey-10 flex items-center gap-2";
+    title.innerHTML = `<i class="ri-file-list-line text-lg leading-4"></i><span data-type="lang" id="logsForFile">Logs for </span><span>${fileName}</span>`;
+
+    header.appendChild(backButton);
+    header.appendChild(title);
+
+    // Create LogsTable component
+    const LogsTable = customElements.get("logs-table");
+    if (!LogsTable) {
+      console.error("logs-table component not registered");
+      this.showUploadLayout();
+      return;
+    }
+
+    const logsTable = document.createElement("logs-table");
+    logsTable.setAttribute("fileId", fileId);
+    logsTable.setAttribute("hideHeader", "");
+    logsTable.style.padding = "0 1rem";
+    logsTable.style.flex = "1";
+    logsTable.style.overflowY = "auto";
+
+    // Build the layout
+    container.appendChild(header);
+    container.appendChild(logsTable);
+    slot.appendChild(container);
+
+    // Translate the dynamically created elements
+    translateElement(container);
+
+    this.currentLayout = null;
+    this.currentView = "file-logs";
   }
 
   showHelpLayout() {

@@ -431,6 +431,16 @@ func (d *DBLogger) CountFileTransferLogsForUser(userID int64, isAdmin bool) (int
 	return d.logDB.CountFileTransferLogsForUser(userID, isAdmin)
 }
 
+// ListFileTransferLogsByFileIDs is a wrapper for LogDB.ListFileTransferLogsByFileIDs
+func (d *DBLogger) ListFileTransferLogsByFileIDs(fileIDs []string, limit int, offset int) ([]*storage.FileTransferLog, error) {
+	return d.logDB.ListFileTransferLogsByFileIDs(fileIDs, limit, offset)
+}
+
+// CountFileTransferLogsByFileIDs is a wrapper for LogDB.CountFileTransferLogsByFileIDs
+func (d *DBLogger) CountFileTransferLogsByFileIDs(fileIDs []string) (int, error) {
+	return d.logDB.CountFileTransferLogsByFileIDs(fileIDs)
+}
+
 // statusCodeToLogLevel maps HTTP status codes to slog levels
 // 2XX -> DEBUG, 3XX -> INFO, 4XX -> WARN, 5XX -> ERROR
 func statusCodeToLogLevel(statusCode int) slog.Level {

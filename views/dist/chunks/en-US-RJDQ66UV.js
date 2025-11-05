@@ -425,10 +425,12 @@ settingsLogsColumnIP = IP
 settingsLogsColumnRequestData = Request Data
 settingsLogsColumnAccessedBy = Access By
 settingsLogsEmpty = No logs available.
-settingsLogsCount = Showing logs
+settingsLogsCount = Logs { $start } to { $end } of { $total }
 settingsLogsNext = Next
+logsBack = Back
+logsForFile = Logs for
 `;
 export {
   en_US_default as default
 };
-//# sourceMappingURL=en-US-BC3PTGOL.js.map
+//# sourceMappingURL=en-US-RJDQ66UV.js.map

@@ -12,17 +12,18 @@ import (
 
 // LogEntry represents a single log entry in the frontend format
 type LogEntry struct {
-	Type          string `json:"type"`           // "upload" or "download"
-	Timestamp     string `json:"timestamp"`      // ISO 8601 timestamp
-	Duration      int64  `json:"duration"`       // milliseconds
-	FileID        string `json:"fileId"`         // file ID
-	OwnerName     string `json:"ownerName"`      // owner name or "Guest"
-	OwnerType     string `json:"ownerType"`      // "owner" or "guest"
-	IP            string `json:"ip"`             // IP address
-	UserAgent     string `json:"userAgent"`      // user agent
-	Origin        string `json:"origin"`         // origin header
-	SessionUser   string `json:"sessionUser"`    // who accessed (for downloads)
-	StatusCode    int    `json:"statusCode"`     // HTTP status code
+	Type                 string `json:"type"`                 // "upload" or "download"
+	Timestamp            string `json:"timestamp"`            // ISO 8601 timestamp
+	Duration             int64  `json:"duration"`             // milliseconds
+	FileID               string `json:"fileId"`               // file ID
+	OwnerName            string `json:"ownerName"`            // owner name or "Guest"
+	OwnerType            string `json:"ownerType"`            // "owner" or "guest"
+	IsAuthTokenUpload    bool   `json:"isAuthTokenUpload"`    // whether uploaded via auth token
+	IP                   string `json:"ip"`                   // IP address
+	UserAgent            string `json:"userAgent"`            // user agent
+	Origin               string `json:"origin"`               // origin header
+	SessionUser          string `json:"sessionUser"`          // who accessed (for downloads)
+	StatusCode           int    `json:"statusCode"`           // HTTP status code
 }
 
 // LogsResponse represents the response structure for the logs endpoint
@@ -40,8 +41,9 @@ type RequestDataBlob struct {
 }
 
 // NewLogsHandler creates a handler for fetching transfer logs
-// GET /api/logs?page=1
-// Admins see all logs, regular users see logs for files they own or are recipients of
+// GET /api/logs?page=1&fileId=abc123
+// Admins see all logs, regular users see logs for files they own or uploaded via auth tokens
+// Optional fileId parameter filters logs to a specific file (admin can see any, users only their own)
 func NewLogsHandler(app *core.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
@@ -63,6 +65,9 @@ func NewLogsHandler(app *core.App) http.HandlerFunc {
 			}
 		}
 
+		// Parse optional fileId parameter
+		fileID := r.URL.Query().Get("fileId")
+
 		// Calculate pagination
 		const logsPerPage = 50
 		offset := (page - 1) * logsPerPage
@@ -70,20 +75,86 @@ func NewLogsHandler(app *core.App) http.HandlerFunc {
 		// Determine if user is admin
 		isAdmin := user.Role == storage.RoleAdmin
 
-		// Fetch logs
-		logs, err := app.DBLogger.ListFileTransferLogsForUser(*session.UserID, isAdmin, logsPerPage, offset)
-		if err != nil {
-			app.Logger.Error("Logs: failed to list logs", "error", err, "user_id", *session.UserID)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			return
-		}
+		var logs []*storage.FileTransferLog
+		var totalCount int
+		var err error
 
-		// Get total count
-		totalCount, err := app.DBLogger.CountFileTransferLogsForUser(*session.UserID, isAdmin)
-		if err != nil {
-			app.Logger.Error("Logs: failed to count logs", "error", err, "user_id", *session.UserID)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			return
+		if fileID != "" {
+			// User requested logs for a specific file - validate authorization
+			if !isAdmin {
+				// Regular user must have access to this file
+				accessibleIDs, err := app.DB.GetAccessibleFileIDsForUser(*session.UserID)
+				if err != nil {
+					app.Logger.Error("Logs: failed to get accessible file IDs", "error", err, "user_id", *session.UserID)
+					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+					return
+				}
+
+				// Check if fileID is in the accessible list
+				found := false
+				for _, id := range accessibleIDs {
+					if id == fileID {
+						found = true
+						break
+					}
+				}
+				if !found {
+					http.Error(w, "Forbidden", http.StatusForbidden)
+					return
+				}
+			}
+
+			// Query logs for the specific file
+			logs, err = app.DBLogger.ListFileTransferLogsByFileIDs([]string{fileID}, logsPerPage, offset)
+			if err != nil {
+				app.Logger.Error("Logs: failed to list logs for file", "error", err, "user_id", *session.UserID, "file_id", fileID)
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
+
+			totalCount, err = app.DBLogger.CountFileTransferLogsByFileIDs([]string{fileID})
+			if err != nil {
+				app.Logger.Error("Logs: failed to count logs for file", "error", err, "user_id", *session.UserID, "file_id", fileID)
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
+		} else if isAdmin {
+			// Admins see all logs
+			logs, err = app.DBLogger.ListFileTransferLogsForUser(*session.UserID, isAdmin, logsPerPage, offset)
+			if err != nil {
+				app.Logger.Error("Logs: failed to list logs", "error", err, "user_id", *session.UserID)
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
+
+			totalCount, err = app.DBLogger.CountFileTransferLogsForUser(*session.UserID, isAdmin)
+			if err != nil {
+				app.Logger.Error("Logs: failed to count logs", "error", err, "user_id", *session.UserID)
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
+		} else {
+			// Regular users see logs for files they own or uploaded via their auth tokens
+			fileIDs, err := app.DB.GetAccessibleFileIDsForUser(*session.UserID)
+			if err != nil {
+				app.Logger.Error("Logs: failed to get accessible file IDs", "error", err, "user_id", *session.UserID)
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
+
+			logs, err = app.DBLogger.ListFileTransferLogsByFileIDs(fileIDs, logsPerPage, offset)
+			if err != nil {
+				app.Logger.Error("Logs: failed to list logs", "error", err, "user_id", *session.UserID)
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
+
+			totalCount, err = app.DBLogger.CountFileTransferLogsByFileIDs(fileIDs)
+			if err != nil {
+				app.Logger.Error("Logs: failed to count logs", "error", err, "user_id", *session.UserID)
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
 		}
 
 		// Transform logs to frontend format
@@ -109,6 +180,15 @@ func NewLogsHandler(app *core.App) http.HandlerFunc {
 				ownerType = "owner"
 			}
 
+			// Check if file was uploaded via auth token
+			isAuthTokenUpload := false
+			if fileID != "" {
+				file, err := app.DB.GetFile(fileID)
+				if err == nil && file != nil && file.OwnerAuthTokenID != nil {
+					isAuthTokenUpload = true
+				}
+			}
+
 			// Format timestamp to ISO 8601
 			timestamp := time.Unix(log.Timestamp, 0).Format(time.RFC3339)
 
@@ -131,17 +211,18 @@ func NewLogsHandler(app *core.App) http.HandlerFunc {
 			}
 
 			entry := LogEntry{
-				Type:        log.EventType,
-				Timestamp:   timestamp,
-				Duration:    duration,
-				FileID:      fileID,
-				OwnerName:   ownerName,
-				OwnerType:   ownerType,
-				IP:          requestData.IP,
-				UserAgent:   requestData.UserAgent,
-				Origin:      requestData.Origin,
-				SessionUser: sessionUser,
-				StatusCode:  statusCode,
+				Type:              log.EventType,
+				Timestamp:         timestamp,
+				Duration:          duration,
+				FileID:            fileID,
+				OwnerName:         ownerName,
+				OwnerType:         ownerType,
+				IsAuthTokenUpload: isAuthTokenUpload,
+				IP:                requestData.IP,
+				UserAgent:         requestData.UserAgent,
+				Origin:            requestData.Origin,
+				SessionUser:       sessionUser,
+				StatusCode:        statusCode,
 			}
 
 			logEntries = append(logEntries, entry)

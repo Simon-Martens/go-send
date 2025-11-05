@@ -1,29 +1,25 @@
-import { translateElement } from "../utils.mjs";
-import { LogsTable } from "./logs-table.mjs";
+import "./chunk-KPQTW3X7.js";
+import "./chunk-NDNL5OG4.js";
+import "./chunk-JZ372DUV.js";
+import {
+  translateElement
+} from "./chunk-TXB3JAVG.js";
+import "./chunk-IFG75HHC.js";
 
-/**
- * SettingsLogsPanel wraps LogsTable for use in the settings interface
- * This is a lightweight wrapper that delegates all log display to LogsTable
- */
-class SettingsLogsPanel extends HTMLElement {
+// src/ui/settings-logs-panel.mjs
+var SettingsLogsPanel = class extends HTMLElement {
   constructor() {
     super();
     this._logsTable = null;
   }
-
   connectedCallback() {
-    // Create and mount LogsTable component
     this._logsTable = document.createElement("logs-table");
     this.appendChild(this._logsTable);
-
-    // Apply translations
     translateElement(this);
   }
-
   disconnectedCallback() {
     this._logsTable = null;
   }
-
   /**
    * Public API: Refresh logs
    */
@@ -32,6 +28,6 @@ class SettingsLogsPanel extends HTMLElement {
       this._logsTable.refresh();
     }
   }
-}
-
+};
 customElements.define("settings-logs-panel", SettingsLogsPanel);
+//# sourceMappingURL=settings-logs-panel-QZAENPVH.js.map

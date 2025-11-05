@@ -3,8 +3,8 @@ import {
 } from "./chunk-UGZWX5FZ.js";
 import {
   storage_default
-} from "./chunk-3WTCPM2E.js";
-import "./chunk-WXWAAH3Q.js";
+} from "./chunk-NDNL5OG4.js";
+import "./chunk-JZ372DUV.js";
 import {
   bytes,
   copyToClipboard,
@@ -154,6 +154,13 @@ var UploadRightElement = class extends HTMLElement {
       copyBtn.addEventListener(
         "click",
         (e) => this._handleCopyClick(e, ownedFile.url)
+      );
+    }
+    const logsBtn = item.querySelector('[data-action="logs"]');
+    if (logsBtn) {
+      logsBtn.addEventListener(
+        "click",
+        (e) => this._handleLogsClick(e, ownedFile)
       );
     }
     const recipientNotice = item.querySelector('[data-role="recipient-notice"]');
@@ -487,6 +494,16 @@ var UploadRightElement = class extends HTMLElement {
       })
     );
   }
+  _handleLogsClick(event, ownedFile) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.dispatchEvent(
+      new CustomEvent("show-file-logs", {
+        bubbles: true,
+        detail: { fileName: ownedFile.name, fileId: ownedFile.id }
+      })
+    );
+  }
 };
 customElements.define("upload-right", UploadRightElement);
-//# sourceMappingURL=upload-right-YC5W4PB3.js.map
+//# sourceMappingURL=upload-right-IJVSP3KQ.js.map

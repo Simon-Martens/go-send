@@ -211,6 +211,13 @@ class UploadRightElement extends HTMLElement {
       );
     }
 
+    const logsBtn = item.querySelector('[data-action="logs"]');
+    if (logsBtn) {
+      logsBtn.addEventListener("click", (e) =>
+        this._handleLogsClick(e, ownedFile),
+      );
+    }
+
     // Hide copy button for files with recipients and hide recipient notice (now a tooltip)
     const recipientNotice = item.querySelector('[data-role="recipient-notice"]');
     if (ownedFile.recipients && ownedFile.recipients.length > 0) {
@@ -644,6 +651,19 @@ class UploadRightElement extends HTMLElement {
       new CustomEvent("delete", {
         bubbles: true,
         detail: { ownedFile },
+      }),
+    );
+  }
+
+  _handleLogsClick(event, ownedFile) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    // Dispatch event to parent layout to show full-width logs view
+    this.dispatchEvent(
+      new CustomEvent("show-file-logs", {
+        bubbles: true,
+        detail: { fileName: ownedFile.name, fileId: ownedFile.id },
       }),
     );
   }

@@ -483,8 +483,12 @@ async function fetchUsers() {
   }
   throw new Error(response.status);
 }
-async function fetchLogs(page = 1) {
-  const response = await fetch(getApiUrl(`/api/logs?page=${page}`));
+async function fetchLogs(page = 1, fileId = null) {
+  let url = `/api/logs?page=${page}`;
+  if (fileId) {
+    url += `&fileId=${encodeURIComponent(fileId)}`;
+  }
+  const response = await fetch(getApiUrl(url));
   if (response.ok) {
     const data = await response.json();
     return {
@@ -882,4 +886,4 @@ export {
   uploadWs,
   downloadFile
 };
-//# sourceMappingURL=chunk-WXWAAH3Q.js.map
+//# sourceMappingURL=chunk-JZ372DUV.js.map

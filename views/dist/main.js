@@ -1,6 +1,6 @@
 import {
   syncOwnedFiles
-} from "./chunks/chunk-ATYDBTFA.js";
+} from "./chunks/chunk-FKVYTVKU.js";
 import {
   tooltip
 } from "./chunks/chunk-UGZWX5FZ.js";
@@ -12,7 +12,7 @@ import {
   USER_ROLES,
   UserSecrets,
   storage_default
-} from "./chunks/chunk-3WTCPM2E.js";
+} from "./chunks/chunk-NDNL5OG4.js";
 import {
   blobStream,
   concatStream,
@@ -20,7 +20,7 @@ import {
   getApiUrl,
   metadata,
   uploadWs
-} from "./chunks/chunk-WXWAAH3Q.js";
+} from "./chunks/chunk-JZ372DUV.js";
 import {
   arrayToB64,
   browserName,
@@ -1825,12 +1825,12 @@ var localeLoaders = {
   cs: () => import("./chunks/cs-4CHTXZSU.js"),
   cy: () => import("./chunks/cy-RP2L2OUK.js"),
   da: () => import("./chunks/da-DPZF5LGO.js"),
-  de: () => import("./chunks/de-ERQSIKF2.js"),
+  de: () => import("./chunks/de-KDVOLSIV.js"),
   dsb: () => import("./chunks/dsb-L7O73QFV.js"),
   el: () => import("./chunks/el-4RABOQBG.js"),
   "en-CA": () => import("./chunks/en-CA-DJ4OOLA4.js"),
   "en-GB": () => import("./chunks/en-GB-D7G7RTNJ.js"),
-  "en-US": () => import("./chunks/en-US-BC3PTGOL.js"),
+  "en-US": () => import("./chunks/en-US-RJDQ66UV.js"),
   "es-AR": () => import("./chunks/es-AR-6PZGYKH3.js"),
   "es-CL": () => import("./chunks/es-CL-HE4SPZ7U.js"),
   "es-ES": () => import("./chunks/es-ES-XGWIURD2.js"),
@@ -1839,7 +1839,7 @@ var localeLoaders = {
   eu: () => import("./chunks/eu-Q6CLLOH3.js"),
   fa: () => import("./chunks/fa-AEOEUDQ4.js"),
   fi: () => import("./chunks/fi-SI2D7DPR.js"),
-  fr: () => import("./chunks/fr-R4CVTVD6.js"),
+  fr: () => import("./chunks/fr-JNAG3YUH.js"),
   "fy-NL": () => import("./chunks/fy-NL-C7AQWS3X.js"),
   gn: () => import("./chunks/gn-6SZWZLYL.js"),
   gor: () => import("./chunks/gor-4LJ2LDF3.js"),
@@ -1899,7 +1899,7 @@ var localeLoaders = {
 };
 async function getTranslator(locale2) {
   const bundles = [];
-  const { default: en } = await import("./chunks/en-US-BC3PTGOL.js");
+  const { default: en } = await import("./chunks/en-US-RJDQ66UV.js");
   if (locale2 !== "en-US" && localeLoaders[locale2]) {
     const { default: ftl } = await localeLoaders[locale2]();
     bundles.push(makeBundle(locale2, ftl));
@@ -2679,6 +2679,10 @@ var GoSendElement = class extends HTMLElement {
     if (this._initFrame !== null) {
       cancelAnimationFrame(this._initFrame);
     }
+    this.addEventListener("show-file-logs", (event) => {
+      const { fileName, fileId } = event.detail;
+      this.showFileLogsView(fileName, fileId);
+    });
     this._initFrame = requestAnimationFrame(async () => {
       this._initFrame = null;
       if (!this.isConnected) {
@@ -2776,6 +2780,48 @@ var GoSendElement = class extends HTMLElement {
     slot.appendChild(settingsLayout);
     this.currentLayout = settingsLayout;
     this.currentView = "settings";
+  }
+  showFileLogsView(fileName, fileId) {
+    const slot = this.querySelector("#app-content");
+    if (!slot) {
+      console.error("Slot #app-content not found in go-send template");
+      return;
+    }
+    slot.innerHTML = "";
+    const container = document.createElement("div");
+    container.className = "h-full w-full flex flex-col";
+    const header = document.createElement("div");
+    header.className = "flex items-center justify-between border-b border-grey-20 dark:border-grey-80 pb-4 mb-4 px-4 pt-4";
+    const backButton = document.createElement("button");
+    backButton.type = "button";
+    backButton.className = "inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded border border-grey-20 dark:border-grey-80 hover:border-grey-40 dark:hover:border-grey-60 transition cursor-pointer";
+    backButton.innerHTML = '<i class="ri-arrow-left-line text-base leading-4"></i><span data-type="lang" id="logsBack">Back</span>';
+    backButton.addEventListener("click", () => {
+      this.showUploadLayout();
+    });
+    const title = document.createElement("h2");
+    title.className = "text-lg font-semibold text-grey-90 dark:text-grey-10 flex items-center gap-2";
+    title.innerHTML = `<i class="ri-file-list-line text-lg leading-4"></i><span data-type="lang" id="logsForFile">Logs for </span><span>${fileName}</span>`;
+    header.appendChild(backButton);
+    header.appendChild(title);
+    const LogsTable = customElements.get("logs-table");
+    if (!LogsTable) {
+      console.error("logs-table component not registered");
+      this.showUploadLayout();
+      return;
+    }
+    const logsTable = document.createElement("logs-table");
+    logsTable.setAttribute("fileId", fileId);
+    logsTable.setAttribute("hideHeader", "");
+    logsTable.style.padding = "0 1rem";
+    logsTable.style.flex = "1";
+    logsTable.style.overflowY = "auto";
+    container.appendChild(header);
+    container.appendChild(logsTable);
+    slot.appendChild(container);
+    translateElement(container);
+    this.currentLayout = null;
+    this.currentView = "file-logs";
   }
   showHelpLayout() {
     const slot = this.querySelector("#app-content");
@@ -3031,8 +3077,9 @@ async function initUploadRoute(app) {
   console.log("[Route] Initializing upload page...");
   await Promise.all([
     import("./chunks/upload-layout-DFS3ROWS.js"),
-    import("./chunks/upload-area-MOZOQFJO.js"),
-    import("./chunks/upload-right-YC5W4PB3.js"),
+    import("./chunks/upload-area-7FIUU7LE.js"),
+    import("./chunks/upload-right-IJVSP3KQ.js"),
+    import("./chunks/logs-table-OFQ22LG3.js"),
     app.controller.ready
   ]);
   app.showUploadLayout();
@@ -3055,7 +3102,7 @@ async function initDownloadRoute(app) {
 async function initRegisterRoute(app) {
   console.log("[Route] Initializing register page...");
   await Promise.all([
-    import("./chunks/register-layout-KINE7CQ2.js"),
+    import("./chunks/register-layout-HD6NCG2J.js"),
     app.controller.ready
   ]);
   app.showRegisterLayout();
@@ -3064,7 +3111,7 @@ async function initRegisterRoute(app) {
 async function initLoginRoute(app) {
   console.log("[Route] Initializing login page...");
   await Promise.all([
-    import("./chunks/login-layout-WDPFC3YZ.js"),
+    import("./chunks/login-layout-AXGYNOEX.js"),
     app.controller.ready
   ]);
   app.showLoginLayout();
@@ -3073,11 +3120,12 @@ async function initLoginRoute(app) {
 async function initSettingsRoute(app) {
   console.log("[Route] Initializing settings page...");
   await Promise.all([
-    import("./chunks/settings-layout-QDV3METK.js"),
-    import("./chunks/settings-account-panel-ATOTIBNS.js"),
-    import("./chunks/settings-upload-links-panel-PRYP6D32.js"),
-    import("./chunks/settings-users-panel-2KJ62NYL.js"),
-    import("./chunks/settings-logs-panel-XWLRKBKU.js"),
+    import("./chunks/settings-layout-K3S6C76E.js"),
+    import("./chunks/settings-account-panel-HZATUEGP.js"),
+    import("./chunks/settings-upload-links-panel-IDTQR6SF.js"),
+    import("./chunks/settings-users-panel-2HG7MQKL.js"),
+    import("./chunks/settings-logs-panel-QZAENPVH.js"),
+    import("./chunks/logs-table-OFQ22LG3.js"),
     app.controller.ready
   ]);
   app.showSettingsLayout();

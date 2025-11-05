@@ -1,17 +1,159 @@
 import {
   qrcode_default
 } from "./chunk-U2YGIKKI.js";
+import "./chunk-KPQTW3X7.js";
 import {
   USER_ROLES,
   storage_default
-} from "./chunk-3WTCPM2E.js";
-import "./chunk-WXWAAH3Q.js";
+} from "./chunk-NDNL5OG4.js";
+import "./chunk-JZ372DUV.js";
 import {
   copyToClipboard,
   translate,
   translateElement
 } from "./chunk-TXB3JAVG.js";
 import "./chunk-IFG75HHC.js";
+
+// src/ui/file-logs-view.mjs
+var FileLogsView = class extends HTMLElement {
+  constructor() {
+    super();
+    this._templateMounted = false;
+    this._fileId = null;
+    this._fileName = null;
+    this._logsTable = null;
+    this._closeButton = null;
+    this._boundClose = this._handleClose.bind(this);
+  }
+  static get observedAttributes() {
+    return ["fileId", "fileName"];
+  }
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (name === "fileId") {
+      this._fileId = newValue || null;
+    } else if (name === "fileName") {
+      this._fileName = newValue || null;
+    }
+    if (this._templateMounted) {
+      this._updateHeader();
+    }
+  }
+  connectedCallback() {
+    if (this.hasAttribute("fileId")) {
+      this._fileId = this.getAttribute("fileId");
+    }
+    if (this.hasAttribute("fileName")) {
+      this._fileName = this.getAttribute("fileName");
+    }
+    if (!this._templateMounted) {
+      this._mountTemplate();
+      this._templateMounted = true;
+    }
+    this._cacheElements();
+    this._attachListeners();
+  }
+  disconnectedCallback() {
+    this._detachListeners();
+    this._logsTable = null;
+    this._closeButton = null;
+  }
+  _mountTemplate() {
+    const container = document.createElement("div");
+    container.className = "flex flex-col h-full gap-4";
+    const header = document.createElement("div");
+    header.className = "flex items-center justify-between border-b border-grey-20 dark:border-grey-80 pb-4";
+    const backButton = document.createElement("button");
+    backButton.type = "button";
+    backButton.className = "inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded border border-grey-20 dark:border-grey-80 hover:border-grey-40 dark:hover:border-grey-60 transition";
+    backButton.innerHTML = '<i class="ri-arrow-left-line text-base leading-4"></i><span>Back</span>';
+    backButton.setAttribute("data-role", "close-button");
+    const title = document.createElement("h2");
+    title.className = "text-lg font-semibold text-grey-90 dark:text-grey-10 flex items-center gap-2";
+    title.setAttribute("data-role", "file-logs-title");
+    header.appendChild(backButton);
+    header.appendChild(title);
+    const logsTable = document.createElement("logs-table");
+    if (this._fileId) {
+      logsTable.setAttribute("fileId", this._fileId);
+    }
+    container.appendChild(header);
+    container.appendChild(logsTable);
+    this.appendChild(container);
+    this._logsTable = logsTable;
+    this._closeButton = backButton;
+    this._updateHeader();
+  }
+  _cacheElements() {
+    if (!this._logsTable) {
+      this._logsTable = this.querySelector("logs-table");
+    }
+    if (!this._closeButton) {
+      this._closeButton = this.querySelector('[data-role="close-button"]');
+    }
+  }
+  _attachListeners() {
+    if (this._closeButton) {
+      this._closeButton.addEventListener("click", this._boundClose);
+    }
+  }
+  _detachListeners() {
+    if (this._closeButton) {
+      this._closeButton.removeEventListener("click", this._boundClose);
+    }
+  }
+  _updateHeader() {
+    const titleEl = this.querySelector('[data-role="file-logs-title"]');
+    if (!titleEl) return;
+    while (titleEl.firstChild) {
+      titleEl.removeChild(titleEl.firstChild);
+    }
+    const icon = document.createElement("i");
+    icon.className = "ri-file-list-line text-lg leading-4";
+    titleEl.appendChild(icon);
+    if (this._fileName || this._fileId) {
+      const fileName = this._fileName || this._fileId.substring(0, 8) + "\u2026";
+      const text = document.createTextNode(
+        `Logs for ${fileName}`
+      );
+      titleEl.appendChild(text);
+    } else {
+      const text = document.createTextNode("File Logs");
+      titleEl.appendChild(text);
+    }
+  }
+  _handleClose() {
+    this.dispatchEvent(
+      new CustomEvent("close", {
+        bubbles: true,
+        composed: true,
+        detail: { fileId: this._fileId }
+      })
+    );
+  }
+  /**
+   * Public API: Set file ID (updates logs filter)
+   */
+  setFileId(fileId) {
+    this._fileId = fileId;
+    if (this._logsTable) {
+      this._logsTable.setFileId(fileId);
+    }
+    this._updateHeader();
+  }
+  /**
+   * Public API: Get file ID
+   */
+  getFileId() {
+    return this._fileId;
+  }
+  /**
+   * Public API: Get the logs table element for direct control
+   */
+  getLogsTable() {
+    return this._logsTable;
+  }
+};
+customElements.define("file-logs-view", FileLogsView);
 
 // src/ui/settings-users-panel.mjs
 var SettingsUsersPanel = class extends HTMLElement {
@@ -41,6 +183,8 @@ var SettingsUsersPanel = class extends HTMLElement {
     this._usersTableBody = null;
     this._usersStatusIcon = null;
     this._usersStatusText = null;
+    this._fileLogsViewContainer = null;
+    this._currentFileLogsView = null;
     this._usersData = [];
     this._usersLoading = false;
     this._boundGenerateClick = this._handleGenerateClick.bind(this);
@@ -49,6 +193,7 @@ var SettingsUsersPanel = class extends HTMLElement {
     this._boundDetailCopy = this._handleDetailCopy.bind(this);
     this._boundDetailLinkFocus = this._handleDetailLinkFocus.bind(this);
     this._boundUserAction = this._handleUserAction.bind(this);
+    this._boundFileLogsClose = this._handleFileLogsClose.bind(this);
   }
   connectedCallback() {
     if (!this._templateMounted) {
@@ -989,6 +1134,10 @@ var SettingsUsersPanel = class extends HTMLElement {
       }
       return;
     }
+    if (action === "logs") {
+      this._showUserLogsView(user, displayName);
+      return;
+    }
     if (action === "delete") {
       if (user.is_current_user) {
         this._setUsersStatus(
@@ -1079,6 +1228,58 @@ var SettingsUsersPanel = class extends HTMLElement {
     button.classList.remove("opacity-60");
     delete button.dataset.originalContent;
   }
+  /**
+   * Show logs view for a specific user
+   * Creates and displays a LogsTable component with appropriate styling
+   */
+  _showUserLogsView(user, displayName) {
+    if (!this._fileLogsViewContainer) {
+      this._fileLogsViewContainer = document.createElement("div");
+      this._fileLogsViewContainer.className = "flex flex-col h-full gap-4";
+      this.appendChild(this._fileLogsViewContainer);
+    }
+    this._fileLogsViewContainer.innerHTML = "";
+    const header = document.createElement("div");
+    header.className = "flex items-center justify-between border-b border-grey-20 dark:border-grey-80 pb-4";
+    const backButton = document.createElement("button");
+    backButton.type = "button";
+    backButton.className = "inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded border border-grey-20 dark:border-grey-80 hover:border-grey-40 dark:hover:border-grey-60 transition";
+    backButton.innerHTML = '<i class="ri-arrow-left-line text-base leading-4"></i><span>Back</span>';
+    backButton.addEventListener("click", this._boundFileLogsClose);
+    const title = document.createElement("h2");
+    title.className = "text-lg font-semibold text-grey-90 dark:text-grey-10 flex items-center gap-2";
+    title.innerHTML = `<i class="ri-file-list-line text-lg leading-4"></i><span>Logs for ${displayName}</span>`;
+    header.appendChild(backButton);
+    header.appendChild(title);
+    const logsTable = document.createElement("logs-table");
+    this._fileLogsViewContainer.appendChild(header);
+    this._fileLogsViewContainer.appendChild(logsTable);
+    if (this._usersListSection) {
+      this._usersListSection.classList.add("hidden");
+    }
+    if (this._usersHeader) {
+      this._usersHeader.classList.add("hidden");
+    }
+    this._fileLogsViewContainer.classList.remove("hidden");
+    this._currentFileLogsView = logsTable;
+  }
+  /**
+   * Handle close event from file logs view
+   * Returns to the users list view
+   */
+  _handleFileLogsClose() {
+    if (this._usersListSection) {
+      this._usersListSection.classList.remove("hidden");
+    }
+    if (this._usersHeader) {
+      this._usersHeader.classList.remove("hidden");
+    }
+    if (this._fileLogsViewContainer) {
+      this._fileLogsViewContainer.classList.add("hidden");
+    }
+    this._currentFileLogsView = null;
+    this._setUsersStatus("", "");
+  }
 };
 customElements.define("settings-users-panel", SettingsUsersPanel);
-//# sourceMappingURL=settings-users-panel-2KJ62NYL.js.map
+//# sourceMappingURL=settings-users-panel-2HG7MQKL.js.map

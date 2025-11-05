@@ -1,7 +1,7 @@
 <!-- Upload view: list item -->
 <template id="upload-tile-item">
 	<li class="rounded-xs shadow-light bg-white p-4 dark:bg-grey-90 dark:border dark:border-grey-70" data-upload-id="">
-		<!-- Header: Icon, Name, Size, Delete -->
+		<!-- Header: Icon, Name, Size, Actions -->
 		<div class="flex items-start w-full mb-2">
 			<i class="ri-file-line h-8 w-8 flex-shrink-0 text-primary text-3xl leading-8" data-role="file-icon"></i>
 			<div class="ml-4 flex-grow min-w-0">
@@ -10,15 +10,27 @@
 				<!-- Owner/Recipient information -->
 				<div class="text-xs uppercase font-semibold tracking-wide mt-2 flex flex-wrap gap-2" data-role="file-ownership"></div>
 			</div>
-			<button
-				type="button"
-				class="flex-shrink-0 ml-6 hover:text-red-500 focus:outline cursor-pointer"
-				data-action="delete"
-				data-type="lang"
-				title="Delete"
-			>
-				<i class="ri-delete-bin-line text-lg leading-4"></i>
-			</button>
+			<div class="flex-shrink-0 ml-6 flex items-center gap-2">
+				<!-- Logs Button -->
+				<button
+					type="button"
+					class="hover:text-blue-500 focus:outline cursor-pointer"
+					data-action="logs"
+					title="View logs"
+				>
+					<i class="ri-file-list-line text-lg leading-4"></i>
+				</button>
+				<!-- Delete Button -->
+				<button
+					type="button"
+					class="hover:text-red-500 focus:outline cursor-pointer"
+					data-action="delete"
+					data-type="lang"
+					title="Delete"
+				>
+					<i class="ri-delete-bin-line text-lg leading-4"></i>
+				</button>
+			</div>
 		</div>
 
 		<!-- Date and Expiry Info -->

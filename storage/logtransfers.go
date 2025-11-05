@@ -256,6 +256,124 @@ func (l *LogDB) CountFileTransferLogs(eventType *string, userID *int64, fileID *
 	return count, err
 }
 
+// ListFileTransferLogsByFileIDs retrieves file transfer logs for specific files
+// This is useful when file IDs have been pre-filtered based on user permissions
+func (l *LogDB) ListFileTransferLogsByFileIDs(fileIDs []string, limit int, offset int) ([]*FileTransferLog, error) {
+	if len(fileIDs) == 0 {
+		return []*FileTransferLog{}, nil
+	}
+
+	query := `
+		SELECT id, event_type, file_id, timestamp, request_data, status_code,
+		       data, user_id, session_id, owner, session_owner, duration_ms
+		FROM file_transfer_logs
+		WHERE file_id IN (` + placeholders(len(fileIDs)) + `)
+		ORDER BY timestamp DESC
+	`
+
+	var args []interface{}
+	for _, fid := range fileIDs {
+		args = append(args, fid)
+	}
+
+	if limit > 0 {
+		query += " LIMIT ?"
+		args = append(args, limit)
+	}
+
+	if offset > 0 {
+		query += " OFFSET ?"
+		args = append(args, offset)
+	}
+
+	rows, err := l.db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var logs []*FileTransferLog
+	for rows.Next() {
+		log := &FileTransferLog{}
+		var fileID sql.NullString
+		var requestData, data string
+		var statusCode sql.NullInt64
+		var userID, sessionID, durationMS sql.NullInt64
+
+		err := rows.Scan(
+			&log.ID,
+			&log.EventType,
+			&fileID,
+			&log.Timestamp,
+			&requestData,
+			&statusCode,
+			&data,
+			&userID,
+			&sessionID,
+			&log.Owner,
+			&log.SessionOwner,
+			&durationMS,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		log.RequestData = json.RawMessage(requestData)
+		log.Data = json.RawMessage(data)
+
+		if fileID.Valid {
+			log.FileID = &fileID.String
+		}
+		if statusCode.Valid {
+			sc := int(statusCode.Int64)
+			log.StatusCode = &sc
+		}
+		if userID.Valid {
+			log.UserID = &userID.Int64
+		}
+		if sessionID.Valid {
+			log.SessionID = &sessionID.Int64
+		}
+		if durationMS.Valid {
+			log.DurationMS = &durationMS.Int64
+		}
+
+		logs = append(logs, log)
+	}
+
+	return logs, rows.Err()
+}
+
+// CountFileTransferLogsByFileIDs returns the count of file transfer logs for specific files
+func (l *LogDB) CountFileTransferLogsByFileIDs(fileIDs []string) (int, error) {
+	if len(fileIDs) == 0 {
+		return 0, nil
+	}
+
+	query := `SELECT COUNT(*) FROM file_transfer_logs WHERE file_id IN (` + placeholders(len(fileIDs)) + `)`
+
+	var args []interface{}
+	for _, fid := range fileIDs {
+		args = append(args, fid)
+	}
+
+	var count int
+	err := l.db.QueryRow(query, args...).Scan(&count)
+	return count, err
+}
+
+// placeholders generates SQL placeholders like "?, ?, ?"
+func placeholders(count int) string {
+	if count == 0 {
+		return ""
+	}
+	result := "?"
+	for i := 1; i < count; i++ {
+		result += ", ?"
+	}
+	return result
+}
+
 // ListFileTransferLogsForUser retrieves file transfer logs accessible to a specific user
 // For admins (isAdmin=true), returns all logs
 // For regular users, returns logs where the log's user_id matches

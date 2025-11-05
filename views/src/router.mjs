@@ -8,6 +8,7 @@ export async function initUploadRoute(app) {
     import("./ui/upload-layout.mjs"),
     import("./ui/upload-area.mjs"),
     import("./ui/upload-right.mjs"),
+    import("./ui/logs-table.mjs"),
     app.controller.ready,
   ]);
 
@@ -65,6 +66,7 @@ export async function initSettingsRoute(app) {
     import("./ui/settings-upload-links-panel.mjs"),
     import("./ui/settings-users-panel.mjs"),
     import("./ui/settings-logs-panel.mjs"),
+    import("./ui/logs-table.mjs"),
     app.controller.ready,
   ]);
 

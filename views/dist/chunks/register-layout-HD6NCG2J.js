@@ -5,11 +5,11 @@ import {
   encodeSalt,
   generateSalt,
   serializeKDFSettings
-} from "./chunk-KAHELHZS.js";
+} from "./chunk-DBUNMYZL.js";
 import {
   storage_default
-} from "./chunk-3WTCPM2E.js";
-import "./chunk-WXWAAH3Q.js";
+} from "./chunk-NDNL5OG4.js";
+import "./chunk-JZ372DUV.js";
 import {
   translate,
   translateElement
@@ -381,4 +381,4 @@ var RegisterLayoutElement = class extends HTMLElement {
   }
 };
 customElements.define("register-layout", RegisterLayoutElement);
-//# sourceMappingURL=register-layout-KINE7CQ2.js.map
+//# sourceMappingURL=register-layout-HD6NCG2J.js.map

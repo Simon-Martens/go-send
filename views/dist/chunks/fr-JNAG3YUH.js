@@ -389,6 +389,25 @@ loginSubmitting = Connexion\u2026
 loginErrorChallenge = Impossible de d\xE9marrer le d\xE9fi de connexion. Veuillez r\xE9essayer.
 loginErrorGeneric = \xC9chec de la connexion. Veuillez r\xE9essayer.
 
+## Logs settings strings
+
+settingsLogsHeading = Journaux
+settingsLogsSubheading = Afficher l'activit\xE9 de t\xE9l\xE9chargement et d'envoi de vos fichiers.
+settingsLogsRefresh = Actualiser
+settingsLogsColumnType = Type
+settingsLogsColumnDate = Date
+settingsLogsColumnStatus = Statut
+settingsLogsColumnFileID = ID ou nom du fichier
+settingsLogsColumnOwner = Propri\xE9taire
+settingsLogsColumnIP = IP
+settingsLogsColumnRequestData = Donn\xE9es de la requ\xEAte
+settingsLogsColumnAccessedBy = Acc\xE9d\xE9 par
+settingsLogsEmpty = Aucun journal disponible.
+settingsLogsCount = Journaux { $start } \xE0 { $end } de { $total }
+settingsLogsNext = Suivant
+logsBack = Retour
+logsForFile = Journaux pour
+
 ## Request Invitation strings
 
 requestInvitationTitle = Demander une invitation
@@ -421,4 +440,4 @@ footerUntrustedWarning = Cet ordinateur n'est pas s\xFBr ! Pensez \xE0 vous d\xE
 export {
   fr_default as default
 };
-//# sourceMappingURL=fr-R4CVTVD6.js.map
+//# sourceMappingURL=fr-JNAG3YUH.js.map

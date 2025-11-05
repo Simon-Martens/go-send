@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/ui/settings-logs-panel.mjs"],
+  "sourcesContent": ["import { translateElement } from \"../utils.mjs\";\nimport { LogsTable } from \"./logs-table.mjs\";\n\n/**\n * SettingsLogsPanel wraps LogsTable for use in the settings interface\n * This is a lightweight wrapper that delegates all log display to LogsTable\n */\nclass SettingsLogsPanel extends HTMLElement {\n  constructor() {\n    super();\n    this._logsTable = null;\n  }\n\n  connectedCallback() {\n    // Create and mount LogsTable component\n    this._logsTable = document.createElement(\"logs-table\");\n    this.appendChild(this._logsTable);\n\n    // Apply translations\n    translateElement(this);\n  }\n\n  disconnectedCallback() {\n    this._logsTable = null;\n  }\n\n  /**\n   * Public API: Refresh logs\n   */\n  refresh() {\n    if (this._logsTable) {\n      this._logsTable.refresh();\n    }\n  }\n}\n\ncustomElements.define(\"settings-logs-panel\", SettingsLogsPanel);\n"],
+  "mappings": ";;;;;;;;;AAOA,IAAM,oBAAN,cAAgC,YAAY;AAAA,EAC1C,cAAc;AACZ,UAAM;AACN,SAAK,aAAa;AAAA,EACpB;AAAA,EAEA,oBAAoB;AAElB,SAAK,aAAa,SAAS,cAAc,YAAY;AACrD,SAAK,YAAY,KAAK,UAAU;AAGhC,qBAAiB,IAAI;AAAA,EACvB;AAAA,EAEA,uBAAuB;AACrB,SAAK,aAAa;AAAA,EACpB;AAAA;AAAA;AAAA;AAAA,EAKA,UAAU;AACR,QAAI,KAAK,YAAY;AACnB,WAAK,WAAW,QAAQ;AAAA,IAC1B;AAAA,EACF;AACF;AAEA,eAAe,OAAO,uBAAuB,iBAAiB;",
+  "names": []
+}

@@ -78,11 +78,21 @@ func (a *App) ScheduleCleanup(fileID string, expiresAt int64) bool {
 			// Delete file from disk and database
 			a.Logger.Info("Auto-deleting expired file", "file_id", id)
 
-			// Log the automatic deletion due to time limit
-			a.DBLogger.LogSystemFileOp(id, "deletion", 0, a.DB, "deletion_type", "time_limit")
+			// Resolve owner name BEFORE deleting (to avoid race condition in logging)
+			// Fetch file metadata to resolve owner
+			var ownerName string
+			file, err := a.DB.GetFile(id)
+			if err == nil && file != nil {
+				ownerName = a.DB.ResolveFileOwnerName(file)
+			} else {
+				ownerName = "Guest" // fallback if file not found
+			}
 
 			storage.DeleteFile(a.Config.FileDir, id)
 			a.DB.DeleteFileRecord(id)
+
+			// Log the automatic deletion AFTER deleting (with pre-resolved owner name)
+			a.DBLogger.LogSystemFileOp(id, "deletion", 0, a.DB, &ownerName, "deletion_type", "time_limit")
 		case <-ctx.Done():
 			a.Logger.Debug("Cleanup cancelled for file", "file_id", id)
 		}

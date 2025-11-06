@@ -904,3 +904,30 @@ func FileExists(fileDir, id string) bool {
 	_, err := os.Stat(filePath)
 	return err == nil
 }
+
+// ResolveFileOwnerName resolves the owner name from a FileMetadata
+// Returns the user name, auth token name, or "Guest" if no owner is found
+// This should be called BEFORE deleting the file to avoid race conditions in logging
+func (d *DB) ResolveFileOwnerName(file *FileMetadata) string {
+	if file == nil {
+		return "Guest"
+	}
+
+	// Try user owner first
+	if file.OwnerUserID != nil {
+		user, err := d.GetUser(*file.OwnerUserID)
+		if err == nil && user != nil {
+			return user.Name
+		}
+	}
+
+	// Try auth token owner
+	if file.OwnerAuthTokenID != nil {
+		token, err := d.GetAuthTokenByID(*file.OwnerAuthTokenID)
+		if err == nil && token != nil {
+			return token.Name
+		}
+	}
+
+	return "Guest"
+}

@@ -31,7 +31,7 @@ func NewDownloadHandler(app *core.App) http.HandlerFunc {
 
 		if id == "" {
 			app.DBLogger.LogFileOp(r, "download", "", http.StatusBadRequest,
-				time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, "Missing file ID")
+				time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, "Missing file ID", nil)
 			http.Error(w, "Missing file ID", http.StatusBadRequest)
 			return
 		}
@@ -41,7 +41,7 @@ func NewDownloadHandler(app *core.App) http.HandlerFunc {
 		if err != nil {
 			app.Logger.Debug("File not found for download", "file_id", id)
 			app.DBLogger.LogFileOp(r, "download", id, http.StatusNotFound,
-				time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, err.Error())
+				time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, err.Error(), nil)
 			http.NotFound(w, r)
 			return
 		}
@@ -54,7 +54,7 @@ func NewDownloadHandler(app *core.App) http.HandlerFunc {
 			if err != nil {
 				app.Logger.Error("Failed to generate nonce", "error", err)
 				app.DBLogger.LogFileOp(r, "download", id, http.StatusInternalServerError,
-					time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, err.Error())
+					time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, err.Error(), nil)
 				http.Error(w, "Internal server error", http.StatusInternalServerError)
 				return
 			}
@@ -62,7 +62,7 @@ func NewDownloadHandler(app *core.App) http.HandlerFunc {
 			w.Header().Set("WWW-Authenticate", "send-v1 "+newNonce)
 			app.Logger.Warn("Download auth failed", "file_id", id)
 			app.DBLogger.LogFileOp(r, "download", id, http.StatusUnauthorized,
-				time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, "HMAC auth failed")
+				time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, "HMAC auth failed", nil)
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
@@ -72,7 +72,7 @@ func NewDownloadHandler(app *core.App) http.HandlerFunc {
 		if err != nil {
 			app.Logger.Error("Failed to generate nonce", "error", err)
 			app.DBLogger.LogFileOp(r, "download", id, http.StatusInternalServerError,
-				time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, err.Error())
+				time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, err.Error(), nil)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
@@ -84,7 +84,7 @@ func NewDownloadHandler(app *core.App) http.HandlerFunc {
 		if err != nil {
 			app.Logger.Error("Error checking authorization", "file_id", id, "error", err)
 			app.DBLogger.LogFileOp(r, "download", id, http.StatusInternalServerError,
-				time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, err.Error(), "operation", "check_authorization")
+				time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, err.Error(), nil, "operation", "check_authorization")
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
@@ -93,7 +93,7 @@ func NewDownloadHandler(app *core.App) http.HandlerFunc {
 			app.Logger.Warn("Unauthorized download attempt", "file_id", id, "user_id", authUserID)
 			app.DBLogger.LogFileOp(r, "download", id, http.StatusForbidden,
 				time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, "not authorized - file has specific recipients",
-				"user_id", authUserID)
+				nil, "user_id", authUserID)
 			Render403Page(app, w, r, "/download/"+id)
 			return
 		}
@@ -103,7 +103,7 @@ func NewDownloadHandler(app *core.App) http.HandlerFunc {
 		if err != nil {
 			app.Logger.Error("Error opening file for download", "file_id", id, "error", err)
 			app.DBLogger.LogFileOp(r, "download", id, http.StatusNotFound,
-				time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, err.Error(), "operation", "open_file")
+				time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, err.Error(), nil, "operation", "open_file")
 			http.NotFound(w, r)
 			return
 		}
@@ -114,7 +114,7 @@ func NewDownloadHandler(app *core.App) http.HandlerFunc {
 		if err != nil {
 			app.Logger.Error("Error getting file size", "file_id", id, "error", err)
 			app.DBLogger.LogFileOp(r, "download", id, http.StatusInternalServerError,
-				time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, err.Error(), "operation", "get_file_size")
+				time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, err.Error(), nil, "operation", "get_file_size")
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
@@ -127,7 +127,7 @@ func NewDownloadHandler(app *core.App) http.HandlerFunc {
 		if _, err := io.Copy(w, file); err != nil {
 			app.Logger.Error("Error streaming file", "file_id", id, "error", err)
 			app.DBLogger.LogFileOp(r, "download", id, http.StatusInternalServerError,
-				time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, err.Error(), "operation", "stream_file", "size_bytes", size)
+				time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, err.Error(), nil, "operation", "stream_file", "size_bytes", size)
 			return
 		}
 
@@ -135,16 +135,16 @@ func NewDownloadHandler(app *core.App) http.HandlerFunc {
 
 		// Log successful download
 		app.DBLogger.LogFileOp(r, "download", id, http.StatusOK,
-			time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, "", "size_bytes", size)
+			time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, "", nil, "size_bytes", size)
 
 		// Atomically increment download count and check if limit reached
 		shouldDelete, err := app.DB.IncrementDownloadAndCheck(id)
 		if err != nil {
 			app.Logger.Error("Error incrementing download count", "file_id", id, "error", err)
 		} else if shouldDelete {
-			// Log the automatic deletion BEFORE deleting (capture owner name before file is deleted)
-			// For system deletions, we don't have request context, so include owner in the log data
-			app.DBLogger.LogSystemFileOp(id, "deletion", 0, app.DB, "deletion_type", "download_count_exceeded")
+			// Resolve owner name BEFORE deleting (to avoid race condition in logging)
+			// meta is already available from earlier in the handler
+			ownerName := app.DB.ResolveFileOwnerName(meta)
 
 			// Cancel any scheduled cleanup goroutine
 			app.CancelCleanup(id)
@@ -152,6 +152,10 @@ func NewDownloadHandler(app *core.App) http.HandlerFunc {
 			// Delete file and metadata
 			app.DB.DeleteFileRecord(id)
 			storage.DeleteFile(app.DB.FileDir(), id)
+
+			// Log the automatic deletion AFTER deleting (with pre-resolved owner name)
+			app.DBLogger.LogSystemFileOp(id, "deletion", 0, app.DB, &ownerName, "deletion_type", "download_count_exceeded")
+
 			app.Logger.Info("File deleted after reaching download limit", "file_id", id)
 		}
 	}

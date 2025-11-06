@@ -175,14 +175,11 @@ func NewLogsHandler(app *core.App) http.HandlerFunc {
 			}
 
 			// Use pre-stored owner name (resolved at log-time, no database lookups needed)
-			// For deletion events, owner field is empty since file is already deleted
-			ownerName := ""
+			// Owner is now captured before deletion, so it's available for all event types
+			ownerName := log.Owner
 			ownerType := "guest"
-			if log.EventType != "deletion" {
-				ownerName = log.Owner
-				if ownerName != "" && ownerName != "Guest" {
-					ownerType = "owner"
-				}
+			if ownerName != "" && ownerName != "Guest" {
+				ownerType = "owner"
 			}
 
 			// Check if file was uploaded via auth token

@@ -21,16 +21,17 @@ type requestLogEntry struct {
 // fileTransferLogEntry is an intermediate struct for file transfer logs
 // It holds raw input data before JSON construction
 type fileTransferLogEntry struct {
-	request    *http.Request
-	eventType  string // "upload" or "download"
-	fileID     string
-	statusCode int
-	errorMsg   string
-	keyValues  []any
-	durationMS int64
-	sessionID  *int64
-	userID     *int64
-	db         *storage.DB // Database reference for resolving owner names
+	request          *http.Request
+	eventType        string  // "upload" or "download"
+	fileID           string
+	statusCode       int
+	errorMsg         string
+	keyValues        []any
+	durationMS       int64
+	sessionID        *int64
+	userID           *int64
+	db               *storage.DB // Database reference for resolving owner names
+	preResolvedOwner *string     // Pre-resolved owner name (avoids DB query race condition)
 }
 
 // DBLogger handles asynchronous logging to both database and stdout
@@ -99,6 +100,7 @@ func (d *DBLogger) LogRequest(
 // LogFileOp logs a file transfer operation (upload/download) to both database and stdout
 // sessionID and userID are optional - pass nil if not available
 // db is required for resolving owner names at log-time
+// preResolvedOwner is optional - if provided, it will be used instead of querying the DB
 // errorMsg is automatically keyed as "error" in the Error JSON
 // keyValues are additional key-value pairs added to the Error JSON
 func (d *DBLogger) LogFileOp(
@@ -111,20 +113,22 @@ func (d *DBLogger) LogFileOp(
 	userID *int64,
 	db *storage.DB,
 	errorMsg string,
+	preResolvedOwner *string,
 	keyValues ...any,
 ) {
 	// Create intermediate entry with raw data
 	entry := &fileTransferLogEntry{
-		request:    r,
-		eventType:  eventType,
-		fileID:     fileID,
-		statusCode: statusCode,
-		errorMsg:   errorMsg,
-		keyValues:  keyValues,
-		durationMS: durationMS,
-		sessionID:  sessionID,
-		userID:     userID,
-		db:         db,
+		request:          r,
+		eventType:        eventType,
+		fileID:           fileID,
+		statusCode:       statusCode,
+		errorMsg:         errorMsg,
+		keyValues:        keyValues,
+		durationMS:       durationMS,
+		sessionID:        sessionID,
+		userID:           userID,
+		db:               db,
+		preResolvedOwner: preResolvedOwner,
 	}
 
 	// Send to channel (non-blocking to prevent request blocking)
@@ -144,26 +148,29 @@ func (d *DBLogger) LogFileOp(
 // This is used for operations that don't have an HTTP request context
 // durationMS should be 0 for background operations
 // eventType should be "deletion" for automatic deletes
+// preResolvedOwner is optional - if provided, it will be used instead of querying the DB
 // keyValues should include "deletion_type" with value like "time_limit" or "download_count_exceeded"
 func (d *DBLogger) LogSystemFileOp(
 	fileID string,
 	eventType string,
 	durationMS int64,
 	db *storage.DB,
+	preResolvedOwner *string,
 	keyValues ...any,
 ) {
 	// Create a synthetic file transfer log entry with no request
 	entry := &fileTransferLogEntry{
-		request:    nil, // No HTTP request for system operations
-		eventType:  eventType,
-		fileID:     fileID,
-		statusCode: http.StatusOK, // System operations don't have HTTP status, use 200 as default
-		errorMsg:   "",
-		keyValues:  keyValues,
-		durationMS: durationMS,
-		sessionID:  nil, // System operations have no session
-		userID:     nil, // System operations have no user
-		db:         db,
+		request:          nil, // No HTTP request for system operations
+		eventType:        eventType,
+		fileID:           fileID,
+		statusCode:       http.StatusOK, // System operations don't have HTTP status, use 200 as default
+		errorMsg:         "",
+		keyValues:        keyValues,
+		durationMS:       durationMS,
+		sessionID:        nil, // System operations have no session
+		userID:           nil, // System operations have no user
+		db:               db,
+		preResolvedOwner: preResolvedOwner,
 	}
 
 	// Send to channel (non-blocking to prevent blocking)
@@ -388,7 +395,13 @@ func (d *DBLogger) processFileTransferLog(entry *fileTransferLogEntry) {
 	}
 
 	// Resolve owner names at log-time
-	owner := d.resolveFileOwnerName(entry.fileID, entry.db)
+	// Use pre-resolved owner if provided (avoids DB query race condition for deletions)
+	var owner string
+	if entry.preResolvedOwner != nil {
+		owner = *entry.preResolvedOwner
+	} else {
+		owner = d.resolveFileOwnerName(entry.fileID, entry.db)
+	}
 	sessionOwner := d.resolveSessionOwnerName(entry.sessionID, entry.db)
 
 	// Create file transfer log entry for database

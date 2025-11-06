@@ -127,7 +127,7 @@ func NewDeleteHandler(app *core.App) http.HandlerFunc {
 
 		if r.Method != http.MethodPost {
 			app.DBLogger.LogFileOp(r, "deletion", "", http.StatusMethodNotAllowed,
-				time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, "Method not allowed")
+				time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, "Method not allowed", nil)
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 			return
 		}
@@ -136,7 +136,7 @@ func NewDeleteHandler(app *core.App) http.HandlerFunc {
 
 		if id == "" {
 			app.DBLogger.LogFileOp(r, "deletion", "", http.StatusBadRequest,
-				time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, "Missing file ID")
+				time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, "Missing file ID", nil)
 			http.Error(w, "Missing file ID", http.StatusBadRequest)
 			return
 		}
@@ -147,7 +147,7 @@ func NewDeleteHandler(app *core.App) http.HandlerFunc {
 		}
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			app.DBLogger.LogFileOp(r, "deletion", id, http.StatusBadRequest,
-				time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, "Invalid request body")
+				time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, "Invalid request body", nil)
 			http.Error(w, "Invalid request", http.StatusBadRequest)
 			return
 		}
@@ -156,7 +156,7 @@ func NewDeleteHandler(app *core.App) http.HandlerFunc {
 		meta, err := app.DB.GetFile(id)
 		if err != nil {
 			app.DBLogger.LogFileOp(r, "deletion", id, http.StatusNotFound,
-				time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, "File not found")
+				time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, "File not found", nil)
 			http.NotFound(w, r)
 			return
 		}
@@ -164,20 +164,19 @@ func NewDeleteHandler(app *core.App) http.HandlerFunc {
 		// Verify owner token using constant-time comparison
 		if len(meta.OwnerToken) == 0 || len(req.OwnerToken) == 0 {
 			app.DBLogger.LogFileOp(r, "deletion", id, http.StatusUnauthorized,
-				time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, "Missing owner token")
+				time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, "Missing owner token", nil)
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
 		if subtle.ConstantTimeCompare([]byte(meta.OwnerToken), []byte(req.OwnerToken)) != 1 {
 			app.DBLogger.LogFileOp(r, "deletion", id, http.StatusUnauthorized,
-				time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, "Invalid owner token")
+				time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, "Invalid owner token", nil)
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
 
-		// Log successful deletion BEFORE deleting (so owner info can be resolved)
-		app.DBLogger.LogFileOp(r, "deletion", id, http.StatusOK,
-			time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, "", "deletion_type", "user_request")
+		// Resolve owner name BEFORE deleting (to avoid race condition in logging)
+		ownerName := app.DB.ResolveFileOwnerName(meta)
 
 		// Cancel any scheduled cleanup goroutine
 		app.CancelCleanup(id)
@@ -185,6 +184,10 @@ func NewDeleteHandler(app *core.App) http.HandlerFunc {
 		// Delete file and metadata
 		app.DB.DeleteFileRecord(id)
 		storage.DeleteFile(app.DB.FileDir(), id)
+
+		// Log successful deletion AFTER deleting (with pre-resolved owner name)
+		app.DBLogger.LogFileOp(r, "deletion", id, http.StatusOK,
+			time.Since(startTime).Milliseconds(), sessionID, userID, app.DB, "", &ownerName, "deletion_type", "user_request")
 
 		w.WriteHeader(http.StatusOK)
 	}
